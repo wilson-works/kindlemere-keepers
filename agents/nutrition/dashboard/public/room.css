@@ -1,0 +1,81 @@
+/* Avo's room in the Orchard. The frame, colours and parts come from /kit/design/tokens.css and /kit/kit.css. */
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.quiet { color: var(--km-ink-soft); }
+.small { font-size: var(--km-text-sm); margin: var(--km-space-3) 0 0; }
+.sub { display: flex; flex-wrap: wrap; align-items: center; gap: var(--km-space-2); color: var(--km-ink-soft); font-size: var(--km-text-sm); }
+code { font-family: ui-monospace, Consolas, monospace; font-size: 0.92em; background: var(--km-paper); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; }
+
+.who { display: flex; flex-direction: column; }
+
+.hello .greeting { font-family: var(--km-font-head); font-size: var(--km-text-lg); font-weight: 700; margin-bottom: var(--km-space-2); }
+.hello .line { margin-bottom: var(--km-space-2); }
+.hello .how { margin: 0; font-size: var(--km-text-sm); color: var(--km-ink-soft); }
+
+.ask { display: flex; gap: var(--km-space-3); flex-wrap: wrap; }
+.ask .km-field { flex: 1 1 220px; }
+.found:not(:empty) { margin-top: var(--km-space-4); }
+
+.stack { display: flex; flex-direction: column; }
+
+/* Cards on the larder wall: a pill head that opens to the facts, each with its source. */
+.cards, .counts, .tools, .lanterns, .ticks, .weave, .facts { list-style: none; margin: 0; padding: 0; }
+.cards > li + li { margin-top: var(--km-space-2); }
+.card-head {
+  display: flex; width: 100%; align-items: center; justify-content: space-between; gap: var(--km-space-3);
+  min-height: 44px; padding: var(--km-space-2) var(--km-space-4);
+  border: 0; border-radius: var(--km-radius-sm); background: var(--a-sky); color: var(--km-ink);
+  box-shadow: var(--km-layer); font: 600 var(--km-text-sm)/1.3 var(--km-font-body); text-align: left; cursor: pointer;
+}
+.card-head[aria-expanded="true"] { background: var(--a-land); color: #FFFFFF; }
+.card-title { min-width: 0; }
+.card-meta { flex: none; font-weight: 400; font-size: var(--km-text-xs); opacity: 0.85; }
+.facts { padding: var(--km-space-3) var(--km-space-2) var(--km-space-1); }
+.facts > li { padding: var(--km-space-2) 0; font-size: var(--km-text-sm); }
+.facts > li + li { border-top: 1px solid rgba(26, 36, 51, 0.1); }
+.facts .km-source { display: block; margin-top: 2px; }
+
+.counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--km-space-3); }
+.counts > li { display: flex; flex-direction: column; align-items: flex-start; background: var(--a-sky); border-radius: var(--km-radius-sm); padding: var(--km-space-3); box-shadow: var(--km-layer); }
+.counts strong { font-family: var(--km-font-head); font-size: var(--km-text-xl); line-height: 1; color: var(--a-land); }
+.counts span { font-size: var(--km-text-xs); margin-top: var(--km-space-1); }
+.counts > li.quiet { grid-column: 1 / -1; background: none; box-shadow: none; padding: 0; }
+
+.tools > li { display: flex; flex-direction: column; padding: var(--km-space-3) 0; }
+.tools > li + li { border-top: 1px solid rgba(26, 36, 51, 0.1); }
+.tool-name { font-weight: 700; font-family: ui-monospace, Consolas, monospace; font-size: var(--km-text-sm); color: var(--a-land); }
+.tool-purpose { font-size: var(--km-text-sm); }
+.tool-off { font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+
+.lanterns > li + li { margin-top: var(--km-space-3); }
+.lanterns .km-lantern { flex-direction: row; }
+.ask-body { display: flex; flex-direction: column; min-width: 0; }
+.ask-topic { font-size: var(--km-text-sm); font-weight: 600; }
+.ask-state { font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+.later { display: flex; flex-direction: column; padding: var(--km-space-2) 0; }
+.later + .later { border-top: 1px solid rgba(26, 36, 51, 0.1); }
+
+.ticks > li { position: relative; padding: var(--km-space-1) 0 var(--km-space-1) 22px; font-size: var(--km-text-sm); }
+.ticks > li::before { content: ""; position: absolute; left: 2px; top: 0.75em; width: 10px; height: 10px; border-radius: 50%; background: var(--a-land); }
+.ticks.not > li::before { background: transparent; box-shadow: inset 0 0 0 2px var(--km-ink-soft); }
+
+.weave { display: flex; flex-wrap: wrap; gap: var(--km-space-3); }
+.weave > li { flex: 1 1 220px; background: var(--km-paper); border-radius: var(--km-radius-sm); box-shadow: var(--km-layer); padding: var(--km-space-3) var(--km-space-4); font-size: var(--km-text-sm); }
+.weave strong { display: block; font-family: var(--km-font-head); }
+
+@media (max-width: 420px) {
+  .counts { grid-template-columns: 1fr; }
+  .km-card { padding: var(--km-space-4); }
+}
+
+/* The room's paper: her figure in the sky card, and a small cut-paper object beside each section. */
+.hello { display: grid; grid-template-columns: minmax(140px, 260px) 1fr; gap: var(--km-space-5); align-items: center; }
+.hello .figure { width: 100%; height: auto; display: block; }
+.hello-text { min-width: 0; }
+.with-obj { display: flex; align-items: center; gap: var(--km-space-2); }
+.with-obj .obj { width: 36px; height: 36px; flex: none; }
+
+@media (max-width: 520px) {
+  .hello { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .hello .figure { max-width: 200px; }
+}
