@@ -21,7 +21,15 @@
 
 <main class="km-page">
   <section class="tm-hero" aria-labelledby="greeting">
-    <img class="tm-figure" src="/art.svg" alt="Tumble, a large russet herding ball with a handle and a smiling face, waving, with a white and ginger dog in a green bandana sitting beside them.">
+    <div class="tm-stage">
+      <div class="tm-figure-box" id="figure-box">
+        <img class="tm-figure" src="/art.svg" alt="Tumble, a large russet herding ball with a handle and a smiling face, waving, with a white and ginger dog in a green bandana sitting beside them.">
+      </div>
+      <div class="tm-play">
+        <p class="tm-play-hint" id="play-status" role="status" aria-live="polite">Tap the dog to play fetch.</p>
+        <button class="km-btn-quiet tm-pause" id="pause" type="button" aria-pressed="false" hidden>Pause the meadow</button>
+      </div>
+    </div>
     <div class="tm-hello">
       <p class="tm-greeting" id="greeting">Come in. Mind the hoops.</p>
       <p class="tm-line" id="line">Coaches you and your dog with rewards, and says plainly when it's a job for a vet.</p>
@@ -92,6 +100,7 @@
 
 <footer class="km-foot"><p>Whistle Meadow, on the mere of Kindlemere. A dog that ate something poisonous, can't breathe or collapsed: call your vet or an emergency vet now.</p></footer>
 <script src="/kit/kit.js"></script>
+<script src="/fetch.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

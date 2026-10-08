@@ -95,5 +95,34 @@
     for (const g of notAsked) gl.appendChild(el('li', 'gap', g.topic));
   }
 
+  // Tumble and the dog, inlined so the dog can play fetch (fetch.js). If that fails, the picture stays as it is.
+  async function stage() {
+    const box = $('figure-box');
+    const img = box && box.querySelector('img');
+    if (!img || !window.tmFetch || !window.DOMParser) return;
+    const res = await fetch('/art.svg', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const doc = new DOMParser().parseFromString(await res.text(), 'image/svg+xml');
+    if (doc.querySelector('parsererror') || !doc.documentElement || doc.documentElement.nodeName !== 'svg') return;
+    const svg = document.importNode(doc.documentElement, true);
+    svg.setAttribute('class', 'tm-figure');
+    svg.setAttribute('role', 'group');
+    svg.setAttribute('aria-label', img.getAttribute('alt'));
+    svg.removeAttribute('aria-labelledby');
+    img.replaceWith(svg);
+    const game = window.tmFetch.init(svg, $('play-status'));
+    const pause = $('pause');
+    if (!game || !pause) return;
+    pause.hidden = false;
+    pause.addEventListener('click', () => {
+      const on = pause.getAttribute('aria-pressed') !== 'true';
+      pause.setAttribute('aria-pressed', String(on));
+      pause.textContent = on ? 'Play the meadow' : 'Pause the meadow';
+      svg.classList.toggle('is-paused', on);
+      game.setPaused(on);
+    });
+  }
+
+  stage().catch(() => { /* the plain picture stays */ });
   main().catch((e) => say('greeting', `Something went wrong drawing this page: ${e.message}`));
 }());
