@@ -285,74 +285,728 @@ function roundTree(x, base, s, cols) {
   return o;
 }
 
-function boulder(x, y, w, h) {
-  return `<ellipse cx="${x}" cy="${y}" rx="${w / 2}" ry="${h / 2}" fill="${C.fLand}"/>` +
-    `<path d="M${f(x - w * 0.42)} ${f(y - h * 0.08)} C${f(x - w * 0.3)} ${f(y - h * 0.5)} ${f(x + w * 0.2)} ${f(y - h * 0.55)} ${f(x + w * 0.38)} ${f(y - h * 0.22)}" stroke="${C.fLight}" stroke-width="${f(h * 0.22)}" stroke-linecap="round" fill="none"/>` +
-    `<path d="M${f(x - w * 0.2)} ${f(y - h * 0.36)} q${f(w * 0.12)} ${f(-h * 0.12)} ${f(w * 0.24)} ${f(-h * 0.04)}" stroke="${C.fPale}" stroke-width="${f(h * 0.1)}" stroke-linecap="round" fill="none"/>` +
-    `<path d="M${f(x - w * 0.3)} ${f(y - h * 0.3)} C${f(x - w * 0.1)} ${f(y - h * 0.62)} ${f(x + w * 0.16)} ${f(y - h * 0.6)} ${f(x + w * 0.26)} ${f(y - h * 0.4)} C${f(x + w * 0.1)} ${f(y - h * 0.46)} ${f(x - w * 0.1)} ${f(y - h * 0.44)} ${f(x - w * 0.3)} ${f(y - h * 0.3)} Z" fill="${C.moss}"/>` +
-    `<path d="M${f(x + w * 0.05)} ${f(y + h * 0.05)} l${f(w * 0.08)} ${f(h * 0.2)}" stroke="${C.fDeeper}" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>`;
+/*
+ * Stepping Hill is drawn in hill units: scale 2.6 in the world, world = (1630 + (x - 815) * 2.6, 1112 + (y - 556) * 2.6).
+ * Owner, 2026-10-08: "the hill needs more detail (nothing is living up to the orchards standards still ... run some
+ * polish passes on them, upgrade the animations and movement". So the hill is built the way the Orchard is: meadow
+ * patches in several greens wrapped round the slope, drifts of wildflowers, granite outcrops in layers with moss and
+ * lichen, pines, birches and shrubs, the stone steps on their worn trail with a rope rail and a board at their foot,
+ * the switchback with timber steps, a rail, stacked stones, flags and turn markers, a bench, a stretching bar and a
+ * balance log, a dry-stone wall and a trough for the sheep and their lambs, rabbits and birds, the lookout with real
+ * railings, and the pool set into the shoulder, its stream falling over granite ledges, behind the dog house and down
+ * to the lake.
+ * What moves on the hill (flags, grazing sheep, butterflies, swaying grass, the running water) is drawn in the life
+ * layer, so the hill layer holds still like the land (1412e6e). The hill takes its random detail from its own seed and
+ * then moves the park's seed on by the HILL_DRAWS draws the old hill took, so every blade outside the hill stays put.
+ */
+const HILL_DRAWS = 2782;
+const HILL_SEED = 20261008;
+const HILL_SIL = 'M520 556 C590 470 690 300 820 278 C950 300 1050 470 1110 556 Z';
+const HILL_TO_LAND = 'translate(815 556) scale(1.3) translate(-815 -556)'; // hill units inside the land's units
+let HILL_LIFE = '';
+const hillLive = (s) => { HILL_LIFE += s; return ''; };
+
+/** Draw with a seed of its own, leaving the park's random sequence where it was. */
+function ownSeed(s, draw) { const keep = seed; seed = s; const out = draw(); seed = keep; return out; }
+
+const bez = (a, b, c, d, t) => { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; };
+const HILL_EDGE = (() => {
+  const L = []; const R = [];
+  for (let i = 0; i <= 240; i += 1) { const t = i / 240; L.push([bez(556, 470, 300, 278, t), bez(520, 590, 690, 820, t)]); R.push([bez(278, 300, 470, 556, t), bez(820, 950, 1050, 1110, t)]); }
+  return { L, R };
+})();
+/** The hill's left and right edges at height y. */
+function hillEdge(y) {
+  const at = (pts) => { for (let i = 1; i < pts.length; i += 1) { const [y0, x0] = pts[i - 1]; const [y1, x1] = pts[i]; if ((y - y0) * (y - y1) <= 0 && y0 !== y1) return x0 + ((x1 - x0) * (y - y0)) / (y1 - y0); } return 820; };
+  return [at(HILL_EDGE.L), at(HILL_EDGE.R)];
+}
+const onHill = (x, y, m) => { if (y >= 556 || y <= 280) return false; const [l, rr] = hillEdge(y); return x > l + m && x < rr - m; };
+
+/** Points along a smooth line through `pts` (each [x, y, ...more]), every `step` units; extra values ride along. */
+function sample(pts, step) {
+  const cr = (a, b, c, d, t) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
+  const out = [];
+  for (let i = 0; i < pts.length - 1; i += 1) {
+    const p0 = pts[Math.max(0, i - 1)]; const p1 = pts[i]; const p2 = pts[i + 1]; const p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const n = Math.max(1, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / step));
+    for (let j = 0; j < n; j += 1) out.push(p1.map((_, k) => cr(p0[k], p1[k], p2[k], p3[k], j / n)));
+  }
+  out.push(pts[pts.length - 1].slice());
+  return out;
+}
+const poly = (pts) => 'M' + pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L') + 'Z';
+const line = (pts) => 'M' + pts.map(([x, y]) => `${f(x)} ${f(y)}`).join('L');
+/** Offset a sampled line sideways by `k` of its half width (third value) plus `e`. */
+function offset(pts, k, e) {
+  return pts.map((p, i) => {
+    const q = pts[Math.max(0, i - 1)]; const s = pts[Math.min(pts.length - 1, i + 1)];
+    const dx = s[0] - q[0]; const dy = s[1] - q[1]; const len = Math.hypot(dx, dy) || 1;
+    const d = (p[2] || 0) * k + (typeof e === 'function' ? e(i) : e || 0);
+    return [p[0] - (dy / len) * d, p[1] + (dx / len) * d];
+  });
+}
+/** A band along a sampled line between offsets a and b (in half widths), its edges wavering by `wob`. */
+function strip(pts, a, b, wob) {
+  const ph = [r(0, 6), r(0, 6), r(0, 6), r(0, 6)];
+  const wav = (s) => (i) => (wob ? wob * Math.sin(i * 0.45 + ph[s]) * Math.sin(i * 0.17 + ph[s + 2]) : 0);
+  return poly(offset(pts, a, wav(0)).concat(offset(pts, b, wav(1)).reverse()));
+}
+const near = (pts, x, y, d) => pts.some((p) => Math.abs(p[0] - x) < d + (p[2] || 0) && Math.abs(p[1] - y) < d + (p[2] || 0) && Math.hypot(p[0] - x, p[1] - y) < d + (p[2] || 0));
+
+/* The stream: out of the pool's lip, over two granite ledges, behind the dog house (hill units, [x, y, half width]). */
+const STREAM_HILL = [[956, 440, 2.4], [966, 443.5, 2.6], [975, 447, 2.8], [983, 450, 2.8], [985.5, 456, 2.4], [987.5, 463, 2.6], [991, 467, 4.2], [999, 470.5, 3], [1009, 474.5, 3], [1019, 478.5, 3.1], [1027, 482, 3.1], [1029.5, 488, 2.7], [1031.5, 495, 2.9], [1035, 499, 4.6], [1042, 503, 3.3], [1048, 509, 3.4], [1053, 518, 3.5], [1058, 528, 3.5], [1063, 541, 3.6]];
+/* ... and from behind the dog house's right wall, past its bowl, under the bridge and through the bank (land units). */
+const STREAM_LAND = [[1112, 506, 4.2], [1124, 518, 4.4], [1133, 532, 4.6], [1137, 546, 4.7], [1137.5, 559, 4.8], [1135.5, 572, 5.2], [1132.5, 584, 5.6], [1130.5, 596, 5.8], [1128.5, 610, 6], [1131, 626, 6.2], [1133, 644, 6.3], [1130, 662, 6.4], [1131, 676, 6], [1132, 692, 5.6], [1133, 708, 6], [1134, 724, 7.4]];
+const WATER = { bed: '#55702A', wet: '#3D4A2C', body: C.mere, shine: C.mereShine, deep: C.mereDeep, line: C.mereLight, foam: '#F4FAFB' };
+
+/* Lanes of light on the water: across-stream place, dashes (each set sums to 30, the km-flow loop), seconds, width, opacity. */
+const FLOW_LANES = [[-0.4, '3.5 26.5', 3.3, 0.55, 0.75], [0.05, '5 25', 2.7, 0.6, 0.8], [0.45, '1.5 28.5', 3.9, 0.5, 0.7]];
+
+/** Lighter flow lines that slide downstream (life layer): `pts` sampled, lanes across the stream, times and widths scaled. */
+function flowLines(pts, lanes, time, width) {
+  let o = '';
+  lanes.forEach(([k, dash, dur, w, op], i) => {
+    o += `<path d="${line(offset(pts, k, 0))}" stroke="${WATER.line}" stroke-width="${f(w * (width || 1))}" stroke-linecap="round" stroke-dasharray="${dash}" fill="none" opacity="${op}" class="km-flow" style="animation-duration:${f(dur * (time || 1))}s;animation-delay:-${f(i * 0.9)}s"/>`;
+  });
+  return o;
+}
+
+/** A granite ledge the stream falls over: the wet dark face behind the water, a lip stone, a block either side. */
+function ledge(x, y, w, h) {
+  let o = contact(x + 1, y + h + 1.4, w * 0.6, 2.2, 0.2);
+  o += `<path d="${poly([[x - w * 0.26, y - 0.4], [x - w * 0.08, y - 1.2], [x + w * 0.14, y - 0.8], [x + w * 0.27, y + 0.2], [x + w * 0.3, y + h * 0.6], [x + w * 0.24, y + h + 0.6], [x - w * 0.02, y + h + 1.2], [x - w * 0.27, y + h + 0.4], [x - w * 0.3, y + h * 0.5]])}" fill="${C.fLightShade}"/>`;
+  o += `<path d="${poly([[x - w * 0.24, y + 1], [x - w * 0.1, y + h * 0.3], [x - w * 0.16, y + h * 0.75], [x - w * 0.26, y + h * 0.6]])}" fill="${C.fDeep}" opacity="0.5"/>`;
+  o += granite(x - w * 0.36, y + h + 0.6, w * 0.5, h + 1.4, true) + granite(x + w * 0.37, y + h, w * 0.44, h + 0.4, false);
+  o += `<path d="${poly([[x - w * 0.3, y + 0.6], [x - w * 0.24, y - 1.6], [x + w * 0.05, y - 2], [x + w * 0.28, y - 1.2], [x + w * 0.32, y + 0.8], [x + w * 0.04, y + 1.4]])}" fill="${C.fGlow}"/>`;
+  o += `<path d="${poly([[x - w * 0.25, y - 1.2], [x + w * 0.05, y - 1.9], [x + w * 0.26, y - 1], [x + w * 0.04, y - 0.4]])}" fill="${C.fPale}"/>`;
+  return o;
+}
+
+/** The stream down the hill's face, in the hill layer (static), and its moving water in the life layer. */
+function streamHill() {
+  const pts = sample(STREAM_HILL, 2);
+  let o = '';
+  // The lush bed it has cut through the meadow, the wet dark edge, then the ledges it falls over.
+  o += `<path d="${strip(sample(STREAM_HILL.map(([x, y, w]) => [x, y, w + 3.4]), 2), -1, 1, 1.4)}" fill="${WATER.bed}"/>`;
+  o += `<path d="${strip(sample(STREAM_HILL.map(([x, y, w]) => [x, y, w + 1.5]), 2), -1, 1, 0.5)}" fill="${WATER.wet}"/>`;
+  o += ledge(985, 450.6, 30, 14) + ledge(1029, 482.6, 30, 13.6);
+  // The water: teal, a lighter run along its sunny edge, flow lines, a darker shade under the far bank.
+  o += `<path d="${strip(pts, -1, 1, 0.25)}" fill="${WATER.body}"/>`;
+  o += `<path d="${strip(pts, -1, -0.35, 0.2)}" fill="${WATER.shine}"/>`;
+  o += `<path d="${strip(pts, 0.55, 1, 0.15)}" fill="${WATER.deep}" opacity="0.55"/>`;
+  // The falls: the water sheet goes white as it pours over each ledge, and settles in foam at the foot.
+  [[3, 6], [10, 13]].forEach(([a, b]) => {
+    const fall = sample(STREAM_HILL.slice(a, b + 1), 1.2);
+    o += `<path d="${strip(fall, -0.75, 0.75, 0)}" fill="${WATER.line}" opacity="0.6"/>`;
+    [-0.35, 0.3].forEach((k) => { o += `<path d="${line(offset(fall.slice(1, -2), k, 0))}" stroke="${WATER.foam}" stroke-width="0.5" stroke-linecap="round" fill="none" opacity="0.75"/>`; });
+  });
+  [[991, 467, 4.2], [1035, 499, 4.6]].forEach(([x, y, w]) => {
+    const foam = [];
+    for (let i = 0; i < 8; i += 1) foam.push([x + r(-w * 0.85, w * 0.85), y + r(-1.6, 1.2), r(0.5, 1.2)]);
+    o += blobs(WATER.foam, foam, 'opacity="0.9"');
+  });
+  // Stones in the water and on its banks, wet dark below, lit above.
+  [[970, 446.2, 1.4], [997, 472.4, 1.2], [1012, 473.6, 1], [1020, 481, 1.3], [1040, 504.5, 1.1], [1005, 470.4, 0.9], [988, 470.6, 1.6], [1033, 502.4, 1.5]].forEach(([x, y, s]) => {
+    o += `<ellipse cx="${f(x)}" cy="${f(y + 0.5 * s)}" rx="${f(1.9 * s)}" ry="${f(1.1 * s)}" fill="${WATER.deep}"/><ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(1.7 * s)}" ry="${f(1 * s)}" fill="${C.fLight}"/><ellipse cx="${f(x - 0.4 * s)}" cy="${f(y - 0.35 * s)}" rx="${f(1 * s)}" ry="${f(0.5 * s)}" fill="${C.fPale}"/><path d="M${f(x - 2.2 * s)} ${f(y - 0.2)} q-1.2 -0.4 -2 0" stroke="${WATER.foam}" stroke-width="0.4" stroke-linecap="round" fill="none" opacity="0.8"/>`;
+  });
+  // The moving water, in the life layer: flow lines on the runs, the falls pouring, foam breathing at their feet.
+  let life = '';
+  [[1, 3], [6, 10], [13, 15]].forEach(([a, b]) => { life += flowLines(sample(STREAM_HILL.slice(a, b + 1), 1.5).filter(([x, y]) => y < 507), FLOW_LANES, 1); });
+  [[3, 6], [10, 13]].forEach(([a, b]) => {
+    const fall = sample(STREAM_HILL.slice(a, b + 1), 1.2).slice(1, -1);
+    [[-0.4, '2.2 3.8'], [0.05, '3 3'], [0.45, '1.6 4.4']].forEach(([k, dash], i) => { life += `<path d="${line(offset(fall, k, 0))}" stroke="${WATER.foam}" stroke-width="0.6" stroke-linecap="round" stroke-dasharray="${dash}" fill="none" class="km-cascade" style="animation-delay:-${f(i * 0.23)}s"/>`; });
+  });
+  [[991, 467.4, 4.2], [1035, 499.4, 4.6]].forEach(([x, y, w], j) => {
+    for (let i = 0; i < 4; i += 1) life += `<ellipse cx="${f(x + (i - 1.5) * w * 0.45)}" cy="${f(y + r(-0.6, 0.8))}" rx="${f(r(1, 1.5))}" ry="${f(r(0.7, 1))}" fill="${WATER.foam}" class="km-foam" style="animation-delay:-${f(i * 0.4 + j * 0.3)}s"/>`;
+  });
+  hillLive(`<g>${life}</g>`);
+  return o;
+}
+
+/** Circles of one colour in one path (one node instead of many). */
+const blobs = (fill, list, extra) => `<path fill="${fill}" d="${list.map(([cx, cy, rr]) => `M${f(cx - rr)} ${f(cy)}a${f(rr)} ${f(rr)} 0 1 0 ${f(2 * rr)} 0a${f(rr)} ${f(rr)} 0 1 0 ${f(-2 * rr)} 0`).join('')}"${extra ? ` ${extra}` : ''}/>`;
+const contact = (x, y, rx, ry, op) => `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}" fill="${C.ink}" opacity="${op || 0.18}"/>`;
+
+/** The quiet pool set into the hill's shoulder: the bank cut behind it, the water, lilies, and a lip of stones. */
+function poolBack() {
+  let o = '';
+  o += `<path d="M883 439 C886 430 905 424.4 930 424 C955 424.4 974 430 977 439 Z" fill="#86A044"/>`;
+  o += `<path d="M886.6 439 C890 432.4 908 427.4 930 427 C952 427.4 970 432.4 973.4 439 Z" fill="#4E5E2A"/>`;
+  o += `<path d="M890.6 439 C895 434.6 910 431 930 430.8 C950 431 965 434.6 969.4 439 Z" fill="#3D4A2C"/>`;
+  [[901, 431.4, 1.3], [915.6, 428.2, 1], [946.6, 428.2, 1.2], [961, 431.2, 1], [931, 427.4, 0.8]].forEach(([x, y, s]) => {
+    o += `<ellipse cx="${x}" cy="${f(y + 0.4)}" rx="${f(2 * s)}" ry="${f(1.1 * s)}" fill="${C.fLightShade}"/><ellipse cx="${f(x - 0.3)}" cy="${y}" rx="${f(1.7 * s)}" ry="${f(0.8 * s)}" fill="${C.fGlow}"/>`;
+  });
+  o += `<path d="M905 426.8 q3 -1.6 6 -0.4 q-3 0.4 -6 0.4 Z M938 426 q4 -1.8 8 -0.2 q-4 0.4 -8 0.2 Z" fill="${C.moss}"/>`;
+  return o;
+}
+
+function poolFront() {
+  let o = '';
+  // The water: teal in its scoop, darker under the bank it reflects, a lighter sheen, lily pads and a water lily.
+  o += `<ellipse cx="930" cy="436.8" rx="38.4" ry="7.6" fill="${C.mere}"/>`;
+  o += `<path d="M892.6 435.6 C900 430 915 428.2 930 428 C945 428.2 960 430 967.4 435.6 C958 433 944 432 930 432 C916 432 902 433 892.6 435.6 Z" fill="${C.mereDeep}" opacity="0.85"/>`;
+  o += `<path d="M902 439.6 C914 437.6 944 437.6 960 439.8 C944 439.2 914 439.2 902 439.6 Z" fill="${C.mereShine}"/><path d="M908 442 h12 M926 441.6 h9 M940 442.4 h7" stroke="${C.mereLight}" stroke-width="0.5" stroke-linecap="round" opacity="0.6"/>`;
+  [[911, 437.4, 1.3], [922, 440.6, 1], [946, 438.2, 1.1], [903, 440.4, 0.8]].forEach(([x, y, s]) => {
+    o += `<path d="M${x} ${y} m${f(-2.6 * s)} 0 a${f(2.6 * s)} ${f(1.2 * s)} 0 1 0 ${f(5.2 * s)} 0 a${f(2.6 * s)} ${f(1.2 * s)} 0 0 0 ${f(-2.2 * s)} ${f(-1.1 * s)} l${f(-0.4 * s)} ${f(1.1 * s)} Z" fill="#4E7F3A"/><path d="M${f(x - 1.6 * s)} ${f(y + 0.3 * s)} a${f(1.7 * s)} ${f(0.6 * s)} 0 0 0 ${f(3.2 * s)} 0" stroke="#6E9A4E" stroke-width="0.35" fill="none"/>`;
+  });
+  o += `<g transform="translate(911 436.4)">${[-70, -35, 0, 35, 70, 180].map((a) => `<ellipse cx="0" cy="-1.1" rx="0.55" ry="1.3" fill="${a === 180 ? '#E9E4D4' : C.paper}" transform="rotate(${a})"/>`).join('')}<circle r="0.6" fill="#E9C24A"/></g>`;
+  // The lip: rounded granite stones along the front edge, wet dark where they meet the water, a gap at the outlet.
+  const lipY = (x) => 436.8 + 7.6 * Math.sqrt(Math.max(0, 1 - ((x - 930) / 38.4) ** 2));
+  let shade = ''; let body = ''; let lit = ''; let wet = '';
+  for (let x = 895; x < 953; x += r(5.2, 7)) {
+    const s = r(0.85, 1.2); const y = lipY(x) + 0.9;
+    wet += `M${f(x - 2.8 * s)} ${f(y - 0.6)}h${f(5.6 * s)}`;
+    shade += `M${f(x - 3 * s)} ${f(y + 0.4)}a${f(3 * s)} ${f(1.8 * s)} 0 1 0 ${f(6 * s)} 0a${f(3 * s)} ${f(1.8 * s)} 0 1 0 ${f(-6 * s)} 0`;
+    body += `M${f(x - 2.7 * s)} ${f(y)}a${f(2.7 * s)} ${f(1.5 * s)} 0 1 0 ${f(5.4 * s)} 0a${f(2.7 * s)} ${f(1.5 * s)} 0 1 0 ${f(-5.4 * s)} 0`;
+    lit += `M${f(x - 1.9 * s)} ${f(y - 0.5)}a${f(1.6 * s)} ${f(0.7 * s)} 0 1 0 ${f(3.2 * s)} 0a${f(1.6 * s)} ${f(0.7 * s)} 0 1 0 ${f(-3.2 * s)} 0`;
+  }
+  [[966.5, 438.4, 1.3], [970.6, 441.8, 0.9]].forEach(([x, y, s]) => {
+    shade += `M${f(x - 3 * s)} ${f(y + 0.4)}a${f(3 * s)} ${f(1.8 * s)} 0 1 0 ${f(6 * s)} 0a${f(3 * s)} ${f(1.8 * s)} 0 1 0 ${f(-6 * s)} 0`;
+    body += `M${f(x - 2.7 * s)} ${f(y)}a${f(2.7 * s)} ${f(1.5 * s)} 0 1 0 ${f(5.4 * s)} 0a${f(2.7 * s)} ${f(1.5 * s)} 0 1 0 ${f(-5.4 * s)} 0`;
+    lit += `M${f(x - 1.9 * s)} ${f(y - 0.5)}a${f(1.6 * s)} ${f(0.7 * s)} 0 1 0 ${f(3.2 * s)} 0a${f(1.6 * s)} ${f(0.7 * s)} 0 1 0 ${f(-3.2 * s)} 0`;
+  });
+  o += `<path d="M893 445.4 C910 450 948 450 960 446.6 C948 452.6 910 452.6 893 445.4 Z" fill="${C.ink}" opacity="0.16"/>`;
+  o += `<path d="${wet}" stroke="${C.mereDeep}" stroke-width="1" stroke-linecap="round"/><path d="${shade}" fill="${C.fLightShade}"/><path d="${body}" fill="${C.fGlow}"/><path d="${lit}" fill="${C.fPale}"/>`;
+  o += `<path d="M897 442.6 q2 -1.4 4 -0.2 q-2 0.2 -4 0.2 Z M937 445.4 q2.4 -1.6 4.6 -0.2 q-2.2 0.3 -4.6 0.2 Z M963.6 437 q2.4 -1.6 4.8 -0.4 q-2.4 0.4 -4.8 0.4 Z" fill="${C.moss}"/>`;
+  // Cattails and rushes at its back corner, a fern over the bank, and the bell on its post by the trail.
+  for (let i = 0; i < 7; i += 1) {
+    const x = 966 + i * 1.3 + r(-0.4, 0.4); const h = r(9, 15);
+    o += `<path d="M${f(x)} 434 q${f(r(-1, 1))} ${f(-h / 2)} ${f(r(-1.6, 1.6))} ${f(-h)}" stroke="${pick(['#5E7A2A', '#6E8A42', '#4F6E3A'])}" stroke-width="0.55" stroke-linecap="round" fill="none"/>`;
+    if (i % 2) o += `<rect x="${f(x - 0.55)}" y="${f(434 - h * 0.86)}" width="1.1" height="3.4" rx="0.55" fill="${C.clay4}"/>`;
+  }
+  o += `<g transform="translate(888.6 434)">${[-3, -2, -1, 0, 1, 2].map((j) => `<path d="M0 0 q${j * 1.2} -3.2 ${j * 2.6} ${f(-5 + Math.abs(j) * 0.7)}" stroke="${j < 0 ? '#6E8A42' : '#5E7A2A'}" stroke-width="0.6" stroke-linecap="round" fill="none"/>`).join('')}</g>`;
+  o += `<g transform="translate(878 432)">${contact(1.2, 0.3, 3.2, 0.7)}<rect x="-0.6" y="-14" width="1.4" height="14" rx="0.6" fill="${C.bark}"/><path d="M0.1 -13.4 h5.6" stroke="${C.bark}" stroke-width="1" stroke-linecap="round"/><path d="M5.2 -13 v1" stroke="${C.ink}" stroke-width="0.35"/><path d="M3.4 -9.4 a1.9 2.4 0 0 1 3.8 0 l0.4 0.8 h-4.6 Z" fill="${C.dGlow}"/><path d="M5.3 -11.8 a1.9 2.4 0 0 1 1.9 2.4 l0.4 0.8 h-1.6 Z" fill="${C.nGlowDeep}" opacity="0.6"/><circle cx="5.3" cy="-8.3" r="0.45" fill="${C.clay4}"/></g>`;
+  return o;
+}
+
+/** A granite outcrop: a dark foot, a body with a lit face and a shaded flank, a pale top, cracks, moss and lichen. */
+function granite(x, y, w, h, moss) {
+  const l = x - w / 2; const rr = x + w / 2; const t = y - h;
+  const j = () => r(-0.5, 0.5);
+  let o = contact(x + w * 0.06, y + 0.5, w * 0.56, Math.max(1.3, h * 0.14), 0.2);
+  o += `<path d="${poly([[l, y], [l + w * 0.03 + j(), y - h * 0.48], [l + w * 0.16 + j(), t + h * 0.1], [x - w * 0.1 + j(), t + j()], [x + w * 0.2 + j(), t + h * 0.08], [rr - w * 0.08 + j(), y - h * 0.52], [rr, y]])}" fill="${C.fLight}"/>`;
+  o += `<path d="${poly([[l + 0.7, y - 0.3], [l + w * 0.06, y - h * 0.47], [l + w * 0.18, t + h * 0.16], [x - w * 0.08, t + h * 0.08], [x + w * 0.06, y - h * 0.34], [x - w * 0.02, y - 0.3]])}" fill="${C.fGlow}"/>`;
+  o += `<path d="${poly([[l + w * 0.17, t + h * 0.14], [x - w * 0.1, t + 0.5], [x + w * 0.19, t + h * 0.1], [x + w * 0.06, t + h * 0.3], [l + w * 0.24, t + h * 0.3]])}" fill="${C.fPale}"/>`;
+  o += `<path d="M${f(l)} ${f(y)} Q${f(x)} ${f(y + 1.3)} ${f(rr)} ${f(y)} Q${f(x)} ${f(y - 1.5)} ${f(l)} ${f(y)} Z" fill="${C.fLightShade}"/>`;
+  o += `<path d="M${f(x + w * 0.08)} ${f(t + h * 0.28)} l${f(w * 0.04)} ${f(h * 0.26)} l${f(-w * 0.03)} ${f(h * 0.22)} M${f(l + w * 0.3)} ${f(y - h * 0.3)} l${f(w * 0.06)} ${f(h * 0.12)}" stroke="${C.fDeep}" stroke-width="${f(Math.max(0.4, w * 0.012))}" stroke-linecap="round" fill="none" opacity="0.65"/>`;
+  if (moss) o += `<path d="M${f(l + w * 0.12)} ${f(t + h * 0.2)} q${f(w * 0.12)} ${f(-h * 0.24)} ${f(w * 0.3)} ${f(-h * 0.1)} q${f(-w * 0.1)} ${f(h * 0.12)} ${f(-w * 0.3)} ${f(h * 0.1)} Z M${f(rr - w * 0.2)} ${f(y - h * 0.48)} q${f(w * 0.08)} ${f(-h * 0.14)} ${f(w * 0.16)} ${f(0)} q${f(-w * 0.08)} ${f(h * 0.04)} ${f(-w * 0.16)} 0 Z" fill="${C.moss}"/>`;
+  const lich = [];
+  for (let i = 0; i < Math.max(2, Math.round(w / 6)); i += 1) lich.push([l + w * r(0.15, 0.85), y - h * r(0.15, 0.75), r(0.3, Math.min(0.9, w * 0.025))]);
+  o += blobs('#D9D3A8', lich.slice(0, Math.ceil(lich.length / 2))) + blobs(C.creamDeep, lich.slice(Math.ceil(lich.length / 2)));
+  return o;
+}
+
+/** A pine: a trunk and four tiers of boughs, lit on the left and shaded on the right. */
+function pine(x, base, h) {
+  const w = h * 0.4;
+  let o = contact(x + 1, base + 0.3, w * 0.62, h * 0.04, 0.2);
+  o += `<path d="M${f(x - h * 0.035)} ${base} L${f(x - h * 0.016)} ${f(base - h * 0.55)} H${f(x + h * 0.016)} L${f(x + h * 0.035)} ${base} Z" fill="${C.bark}"/>`;
+  let dark = ''; let mid = ''; let lit = '';
+  for (let i = 0; i < 4; i += 1) {
+    const t = i / 4;
+    const by = base - h * 0.14 - h * 0.66 * t; const tw = w * (1 - t * 0.66); const th = h * 0.36 * (1 - t * 0.25);
+    const top = by - th;
+    dark += `M${f(x)} ${f(top)}L${f(x - tw)} ${f(by)}Q${f(x - tw * 0.5)} ${f(by + th * 0.1)} ${f(x)} ${f(by - th * 0.06)}Q${f(x + tw * 0.5)} ${f(by + th * 0.1)} ${f(x + tw)} ${f(by)}Z`;
+    mid += `M${f(x)} ${f(top)}L${f(x - tw)} ${f(by)}Q${f(x - tw * 0.5)} ${f(by + th * 0.1)} ${f(x + tw * 0.06)} ${f(by - th * 0.06)}Z`;
+    lit += `M${f(x - tw * 0.1)} ${f(top + th * 0.22)}L${f(x - tw * 0.82)} ${f(by - th * 0.04)}Q${f(x - tw * 0.6)} ${f(by - th * 0.02)} ${f(x - tw * 0.44)} ${f(by - th * 0.12)}Z`;
+  }
+  return o + `<path d="${dark}" fill="${C.pine}"/><path d="${mid}" fill="${C.pineMid}"/><path d="${lit}" fill="${C.pineLight}"/>`;
+}
+
+/** A silver birch: a white trunk with dark marks, thin branches and an airy crown of small leaf clusters. */
+function birch(x, base, h, lean) {
+  const tx = x + lean;
+  let o = contact(x + 1, base + 0.3, h * 0.16, h * 0.035, 0.18);
+  o += `<path d="M${f(tx - h * 0.04)} ${f(base - h * 0.45)} q${f(-h * 0.08)} ${f(-h * 0.1)} ${f(-h * 0.16)} ${f(-h * 0.14)} M${f(tx + h * 0.02)} ${f(base - h * 0.58)} q${f(h * 0.08)} ${f(-h * 0.08)} ${f(h * 0.15)} ${f(-h * 0.1)} M${f(tx)} ${f(base - h * 0.72)} q${f(-h * 0.05)} ${f(-h * 0.08)} ${f(-h * 0.1)} ${f(-h * 0.12)}" stroke="#8A7F70" stroke-width="${f(h * 0.012)}" stroke-linecap="round" fill="none"/>`;
+  o += `<path d="M${f(x - h * 0.032)} ${base} L${f(tx - h * 0.012)} ${f(base - h * 0.86)} H${f(tx + h * 0.012)} L${f(x + h * 0.034)} ${base} Z" fill="#F4F1E8"/>`;
+  o += `<path d="M${f(x + h * 0.008)} ${base} L${f(tx + h * 0.002)} ${f(base - h * 0.86)} H${f(tx + h * 0.012)} L${f(x + h * 0.034)} ${base} Z" fill="#D8D1BC"/>`;
+  let marks = '';
+  for (let i = 0; i < 7; i += 1) { const k = r(0.05, 0.8); const mx = x + (tx - x) * k; const half = h * 0.032 * (1 - k * 0.6); marks += `M${f(mx - half * r(0.1, 1))} ${f(base - h * k)}h${f(half * r(0.6, 1.4))}`; }
+  o += `<path d="${marks}" stroke="#3A3A3A" stroke-width="${f(h * 0.012)}" stroke-linecap="round" opacity="0.8"/>`;
+  const leaves = [['#8CA040', []], ['#A3B852', []], ['#BFCC6E', []]];
+  for (let i = 0; i < 22; i += 1) {
+    const a = r(-Math.PI, 0.25); const d = r(0.15, 1);
+    const cx = tx + Math.cos(a) * h * 0.27 * d + r(-1, 1); const cy = base - h * 0.72 + Math.sin(a) * h * 0.24 * d + r(0, h * 0.1);
+    const rr = h * r(0.06, 0.095);
+    leaves[0][1].push([cx + rr * 0.15, cy + rr * 0.2, rr]);
+    leaves[1][1].push([cx, cy, rr * 0.8]);
+    if (i % 2 === 0) leaves[2][1].push([cx - rr * 0.3, cy - rr * 0.3, rr * 0.38]);
+  }
+  return o + leaves.map(([c, l]) => blobs(c, l)).join('');
+}
+
+/** A shrub on the hill: gorse with yellow flowers, a juniper, or a plain bush with berries. */
+function shrub(x, y, s, kind) {
+  const cols = { gorse: ['#4F6A2E', '#62803A', '#7A9844'], juniper: ['#3F5E4C', '#4E705A', '#6A8A70'], bush: ['#55732F', '#6B8A3A', '#86A246'] }[kind];
+  let o = contact(x + 0.6 * s, y + 0.3, 7.5 * s, 1.3 * s, 0.18);
+  o += blobs(cols[0], [[x - 3.6 * s, y - 2.4 * s, 3.2 * s], [x + 3.2 * s, y - 2.2 * s, 3.4 * s], [x, y - 4 * s, 4 * s]]);
+  o += blobs(cols[1], [[x - 3.4 * s, y - 3 * s, 2.5 * s], [x + 0.2 * s, y - 4.8 * s, 3.1 * s], [x + 3 * s, y - 3.1 * s, 2.5 * s]]);
+  o += blobs(cols[2], [[x - 1.6 * s, y - 6 * s, 1.5 * s], [x - 4.2 * s, y - 4 * s, 1 * s]]);
+  const spots = [];
+  for (let i = 0; i < 7; i += 1) spots.push([x + r(-5, 5) * s, y - r(1.6, 7) * s, 0.45 * s]);
+  if (kind === 'gorse') o += blobs('#F2D27A', spots);
+  if (kind === 'bush') o += blobs('#C8433A', spots.slice(0, 3));
+  return o;
+}
+
+/** A sheep: wool in three papers, dark legs and face; `pose` graze (head down), look (head up) or lie. */
+function sheep(x, y, s, flip, pose, lamb) {
+  const k = lamb ? 1.25 : 1; // a lamb's head is big for its body
+  let o = contact(0.4, 0.3, 8, 1.3, 0.2);
+  if (pose !== 'lie') o += `<path d="M-4.6 -3.6 v3.4 M3.8 -3.6 v3.4" stroke="#4A433C" stroke-width="1.2" stroke-linecap="round"/><path d="M-3 -3.4 v3.6 M5.4 -3.4 v3.6" stroke="#2F2A26" stroke-width="1.2" stroke-linecap="round"/>`;
+  const dy = pose === 'lie' ? 3 : 0;
+  const wool = [[-4.4, -6 + dy, 3.2], [-1, -7.4 + dy, 3.6], [2.8, -6.8 + dy, 3.4], [5, -5.2 + dy, 2.8], [-2, -4.4 + dy, 3.2], [2.4, -4.2 + dy, 3.2], [-6.2, -4.6 + dy, 1.8]];
+  o += blobs('#D9D2C0', wool.map(([a, b, c]) => [a + 0.4, b + 0.6, c]));
+  o += blobs('#F4F1E8', wool.map(([a, b, c]) => [a, b, c * 0.9]));
+  o += blobs(C.paper, [[-2.4, -9 + dy, 1.4], [0.8, -9.6 + dy, 1.2], [-5, -7.4 + dy, 0.9]]);
+  const head = pose === 'graze'
+    ? `<g class="km-graze"><ellipse cx="8" cy="-3.6" rx="${f(1.8 * k)}" ry="${f(2.6 * k)}" fill="#2F2A26" transform="rotate(-28 8 -3.6)"/><ellipse cx="6.6" cy="-5.6" rx="1.6" ry="0.7" fill="#2F2A26" transform="rotate(-40 6.6 -5.6)"/><circle cx="8.3" cy="-4.4" r="0.35" fill="${C.paper}"/></g>`
+    : `<ellipse cx="7.8" cy="${f(-8.6 + dy)}" rx="${f(1.9 * k)}" ry="${f(2.5 * k)}" fill="#2F2A26" transform="rotate(18 7.8 ${f(-8.6 + dy)})"/><ellipse cx="6" cy="${f(-9.8 + dy)}" rx="1.6" ry="0.7" fill="#2F2A26" transform="rotate(-20 6 ${f(-9.8 + dy)})"/><circle cx="8.4" cy="${f(-9.2 + dy)}" r="0.38" fill="${C.paper}"/>`;
+  return `<g transform="translate(${f(x)} ${f(y)}) scale(${f(flip ? -s : s)} ${f(s)})">${o}${head}</g>`;
+}
+
+/** A rabbit sitting up in the grass, ears high. */
+function rabbit(x, y, s, flip) {
+  return `<g transform="translate(${f(x)} ${f(y)}) scale(${f(flip ? -s : s)} ${f(s)})">${contact(0, 0.2, 4, 0.8, 0.18)}` +
+    `<ellipse cx="0" cy="-2.6" rx="3.2" ry="2.6" fill="#A8957A"/><ellipse cx="-1.2" cy="-1.8" rx="2.2" ry="1.9" fill="#97846A"/><ellipse cx="1" cy="-1.6" rx="1.6" ry="1.2" fill="#E9E4D4"/>` +
+    `<ellipse cx="2.2" cy="-8.6" rx="0.65" ry="2.3" fill="#A8957A" transform="rotate(-10 2.2 -8.6)"/><ellipse cx="3.3" cy="-8.4" rx="0.65" ry="2.3" fill="#97846A" transform="rotate(14 3.3 -8.4)"/><ellipse cx="2.25" cy="-8.4" rx="0.25" ry="1.5" fill="${C.dGlow}" transform="rotate(-10 2.2 -8.6)"/>` +
+    `<circle cx="2.6" cy="-5.4" r="1.9" fill="#A8957A"/><circle cx="3.2" cy="-5.8" r="0.4" fill="${C.ink}"/><circle cx="4.4" cy="-5" r="0.3" fill="#C98A5A"/><circle cx="-3.3" cy="-2.4" r="0.95" fill="${C.paper}"/></g>`;
+}
+
+/** A small brown bird perched, its breast warm tan. */
+function bird(x, y, s, flip) {
+  return `<g transform="translate(${f(x)} ${f(y)}) scale(${f(flip ? -s : s)} ${f(s)})"><path d="M-1.6 -1.4 l-1.8 0.8 l1.6 0.4 Z" fill="#5A4A3C"/><ellipse cx="0" cy="-1.6" rx="1.7" ry="1.2" fill="#6B5A4A"/><path d="M0.2 -1.2 a1.4 1 0 0 0 1.4 -0.6 a1.4 1.4 0 0 1 -1.4 1.6 Z" fill="${C.dGlow}"/><circle cx="1.2" cy="-2.8" r="0.9" fill="#6B5A4A"/><path d="M2 -2.9 l0.8 0.2 l-0.8 0.3 Z" fill="${C.clay3}"/><circle cx="1.4" cy="-3" r="0.22" fill="${C.ink}"/><path d="M-0.3 -0.5 v0.6 M0.5 -0.5 v0.6" stroke="#4A3A2A" stroke-width="0.25"/></g>`;
+}
+
+/** A fern on the stream bank, and (with `reeds`) a few rushes with brown heads behind it. */
+function fern(x, y, s, reeds) {
+  let o = '';
+  if (reeds) for (let i = 0; i < 4; i += 1) { const rx = x + (i - 1.5) * 1.1 * s; const h = r(8, 11) * s; o += `<path d="M${f(rx)} ${f(y)} q${f(r(-0.6, 0.6))} ${f(-h / 2)} ${f(r(-1, 1))} ${f(-h)}" stroke="${pick(['#5E7A2A', '#4F6E3A'])}" stroke-width="${f(0.5 * s)}" stroke-linecap="round" fill="none"/>${i % 2 ? `<rect x="${f(rx - 0.45 * s)}" y="${f(y - h * 0.86)}" width="${f(0.9 * s)}" height="${f(2.6 * s)}" rx="${f(0.45 * s)}" fill="${C.clay4}"/>` : ''}`; }
+  for (let j = -2; j <= 2; j += 1) o += `<path d="M${f(x)} ${f(y)} q${f(j * 1.2 * s)} ${f(-3 * s)} ${f(j * 2.6 * s)} ${f((-5.4 + Math.abs(j) * 1.2) * s)}" stroke="${pick(['#4F6E3A', '#5E7A2A', '#6E8A42'])}" stroke-width="${f(0.7 * s)}" stroke-linecap="round" fill="none"/>`;
+  return o;
+}
+
+/** Little stacked stones by the trail. */
+function stack(x, y, s) {
+  let o = contact(x + 0.4, y + 0.3, 4.2 * s, 0.9 * s, 0.2);
+  [[0, 0, 3.8, 1.5, C.fLight, C.fGlow], [0.2, -2.4, 3, 1.25, C.fGlow, C.fPale], [-0.2, -4.4, 2.2, 1, C.fLight, C.fGlow], [0.1, -6, 1.4, 0.8, C.fGlow, C.fStone]].forEach(([dx, dy, rx, ry, a, b]) => {
+    o += `<ellipse cx="${f(x + dx * s)}" cy="${f(y + dy * s)}" rx="${f(rx * s)}" ry="${f(ry * s)}" fill="${a}"/><ellipse cx="${f(x + (dx - 0.3) * s)}" cy="${f(y + (dy - 0.35) * s)}" rx="${f(rx * 0.7 * s)}" ry="${f(ry * 0.55 * s)}" fill="${b}"/>`;
+  });
+  return o;
+}
+
+/** A turn marker: a short post with a slate plate and its number. */
+function marker(x, y, n, s) {
+  return `<g transform="translate(${f(x)} ${f(y)}) scale(${s || 1})">${contact(0.5, 0.3, 2.4, 0.6)}<rect x="-0.9" y="-9" width="1.9" height="9" rx="0.5" fill="${C.clay3}"/><rect x="-0.9" y="-9" width="0.7" height="9" fill="${C.clay2}"/>` +
+    `<rect x="-2.8" y="-11.6" width="5.6" height="4.4" rx="1" fill="${C.fDeep}" transform="translate(0.4 0.5)"/><rect x="-2.8" y="-11.6" width="5.6" height="4.4" rx="1" fill="${C.fLand}"/>` +
+    `<text x="0" y="-8.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="3.6" font-weight="700" fill="${C.paper}">${n}</text></g>`;
+}
+
+/** A flag on a pole that flaps (life layer). */
+function flag(x, y, h, col, delay, s) {
+  const k = s || 1;
+  return `<g transform="translate(${f(x)} ${f(y)})">${contact(0.4, 0.2, 1.8 * k, 0.5 * k, 0.16)}<path d="M0 0 V${-h}" stroke="${C.bark}" stroke-width="${f(0.9 * k)}" stroke-linecap="round"/><circle cx="0" cy="${f(-h - 0.4 * k)}" r="${f(0.7 * k)}" fill="${C.fGlow}"/>` +
+    `<path d="M${f(0.3 * k)} ${f(-h + 0.2 * k)} h${f(6.6 * k)} l${f(-1.6 * k)} ${f(2.3 * k)} l${f(1.6 * k)} ${f(2.3 * k)} h${f(-6.6 * k)} Z" fill="${col}" class="km-flag" style="animation-delay:-${delay}s"/></g>`;
+}
+
+/** The bench part way up the steps. */
+function bench(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(0.6, 0.4, 14, 1.4)}<rect x="-11" y="-7" width="2.2" height="7" rx="0.6" fill="${C.clay4}"/><rect x="9" y="-7" width="2.2" height="7" rx="0.6" fill="${C.clay4}"/>` +
+    `<rect x="-10" y="-15" width="1.8" height="8" fill="${C.clay4}"/><rect x="8.4" y="-15" width="1.8" height="8" fill="${C.clay4}"/>` +
+    `<rect x="-12.5" y="-15.6" width="25" height="2.6" rx="1.2" fill="${C.clay3}"/><rect x="-12.5" y="-15.6" width="25" height="1" rx="0.5" fill="${C.clay2}"/><rect x="-12.5" y="-11.8" width="25" height="2.2" rx="1" fill="${C.clay3}"/>` +
+    `<rect x="-13" y="-8.2" width="26" height="2.2" rx="1" fill="${C.clay2}"/><rect x="-13" y="-6.4" width="26" height="1.4" rx="0.6" fill="${C.clay3}"/><path d="M-6 -7.2 h4 M3 -7.4 h5" stroke="${C.clay1}" stroke-width="0.4" stroke-linecap="round"/>` +
+    `<rect x="4" y="-10.6" width="3" height="2.4" rx="0.8" fill="${C.paper}"/><rect x="4" y="-9.8" width="3" height="0.6" fill="${C.fGlow}"/></g>`;
+}
+
+/** The stretching bar: two posts and a bar, with a mat in the grass before it. */
+function stretchBar(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(13, 0.6, 18, 1.6)}<path d="M2 1.6 L26 1.6 L29 4.6 L-1 4.6 Z" fill="${C.sand}"/><path d="M2.8 2.8 H26.6" stroke="${C.fGlow}" stroke-width="0.6"/>` +
+    `<rect x="0" y="-20" width="2.4" height="21" rx="0.8" fill="${C.clay4}"/><rect x="24" y="-20" width="2.4" height="21" rx="0.8" fill="${C.clay4}"/><rect x="0" y="-20" width="0.9" height="21" fill="${C.clay3}"/><rect x="24" y="-20" width="0.9" height="21" fill="${C.clay3}"/>` +
+    `<rect x="-0.6" y="-17.4" width="27.6" height="1.6" rx="0.8" fill="${C.fLand}"/><rect x="-0.6" y="-17.4" width="27.6" height="0.6" rx="0.3" fill="${C.fLight}"/>` +
+    `<path d="M6 -16 v5 l1.4 1.2 l1.4 -1.2 v-5 Z" fill="${C.paper}"/><path d="M6 -14 h2.8" stroke="${C.fGlow}" stroke-width="0.5"/></g>`;
+}
+
+/** The lookout on the top: a railed platform on posts and braces with a ladder, and the spyglass at the horizon. */
+function lookout() {
+  let o = `<g transform="translate(820 252)" filter="url(#layer-sm)">`;
+  o += `<rect x="-16" y="4" width="3" height="28" fill="${C.clay3}"/><rect x="13" y="4" width="3" height="28" fill="${C.clay3}"/><path d="M-14 12 H14" stroke="${C.clay3}" stroke-width="1.6"/>`;
+  o += `<path d="M-19 9 L19 30 M19 9 L-19 30" stroke="${C.clay4}" stroke-width="2.2" stroke-linecap="round"/>`;
+  o += `<rect x="-23" y="3" width="4" height="33" rx="1" fill="${C.clay4}"/><rect x="19" y="3" width="4" height="33" rx="1" fill="${C.clay4}"/><rect x="-23" y="3" width="1.4" height="33" fill="${C.clay3}"/><rect x="19" y="3" width="1.4" height="33" fill="${C.clay3}"/>`;
+  o += `<path d="M-13 4 L-12 37 M-7 4 L-6 37" stroke="${C.clay2}" stroke-width="1.3" stroke-linecap="round"/><path d="${[9, 15, 21, 27, 33].map((y) => `M-12.6 ${y} H-6.6`).join(' ')}" stroke="${C.clay3}" stroke-width="1.1" stroke-linecap="round"/>`;
+  o += `<rect x="-30" y="-1.4" width="60" height="3.4" rx="1.2" fill="${C.clay2}"/><rect x="-30" y="1.8" width="60" height="3.6" fill="${C.clay3}"/><path d="M-24 3.6 h7 M-10 3.6 h8 M6 3.6 h7 M18 3.6 h6" stroke="${C.clay4}" stroke-width="0.5"/><rect x="-28" y="5.2" width="56" height="1.4" fill="${C.clay4}" opacity="0.7"/>`;
+  let bal = '';
+  for (let x = -25; x <= 25; x += 3.5) if (Math.abs(x + 10) > 1.6 && Math.abs(x - 10) > 1.6) bal += `M${f(x)} -17.6 V-1.4 `;
+  o += `<path d="${bal}" stroke="${C.clay4}" stroke-width="0.7" opacity="0.85"/>`;
+  [-28.6, -10.8, 9.2, 26.4].forEach((x) => { o += `<rect x="${x}" y="-19" width="2.4" height="18" rx="0.6" fill="${C.clay3}"/><rect x="${x}" y="-19" width="0.9" height="18" fill="${C.clay2}"/>`; });
+  o += `<rect x="-30" y="-20.6" width="60" height="2.6" rx="1.2" fill="${C.clay3}"/><rect x="-30" y="-20.6" width="60" height="0.9" rx="0.45" fill="${C.clay1}"/><rect x="-29" y="-10.6" width="58" height="1.4" rx="0.6" fill="${C.clay3}"/>`;
+  o += bird(18, -20.4, 1.1, true);
+  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)" data-km-part="telescope" pointer-events="visiblePainted"><rect x="-4" y="-34" width="52" height="34" fill="transparent"/><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
+  return o + `</g>`;
+}
+
+/* The stone steps: sixteen slabs up the hill's face, narrowing as they climb (the course is fixed). */
+const STEP_AT = (i) => { const k = i / 15; return [652 + 140 * k - 18 * Math.sin(k * Math.PI), 546 - 250 * k + 20 * Math.sin(k * Math.PI), 32 - i]; };
+/* The switchback: from the hill's foot past the pool to the lookout, in four turns. */
+const SWITCHBACK = [[900, 552], [918, 541], [944, 526], [966, 511], [981, 501], [985, 495], [978, 489.5], [958, 484], [925, 474.5], [893, 465], [872, 458], [864, 452], [865, 444], [870, 434], [876, 423], [886, 412], [904, 404], [930, 398], [955, 393], [967, 389], [969, 383], [960, 378], [935, 368], [905, 356], [878, 345], [863, 337], [859, 330], [863, 322], [860, 312], [852, 303], [843, 295]];
+
+/** The worn trail the steps are set in, and the steps on it. */
+function stepsTrail() {
+  const pts = [];
+  for (let i = 0; i <= 44; i += 1) { const t = i / 44; pts.push([bez(668, 700, 740, 800, t), bez(552, 470, 380, 290, t), 15.6 - 6.4 * t]); }
+  let o = `<path d="${strip(pts.map(([x, y, w]) => [x + 1.2, y + 1.6, w + 0.6]), -1, 1, 0.9)}" fill="#A8865A"/>`;
+  o += `<path d="${strip(pts, -1, 1, 1)}" fill="#C9A77A"/>`;
+  o += `<path d="${strip(pts, -0.6, 0.45, 0.7)}" fill="#D6BC90"/>`;
+  // Pebbles kicked to its edges, and grass growing in over them.
+  const peb = [];
+  let tufts = '';
+  [-1.05, 1.05].forEach((k) => {
+    offset(pts, k, 0).forEach(([x, y], i) => {
+      if (i % 2 === 0 && rnd() < 0.7) peb.push([x + r(-0.8, 0.8), y + r(-0.6, 0.6), r(0.5, 1.1)]);
+      if (i % 2 === 1) tufts += `<use href="#kmt-${pick(['a', 'b', 'c'])}" x="${f(x + k * r(0.5, 2))}" y="${f(y + r(0, 1.5))}"/>`;
+    });
+  });
+  o += blobs(C.fLight, peb.filter((_, i) => i % 3 === 0)) + blobs(C.fGlow, peb.filter((_, i) => i % 3 === 1)) + blobs('#B8A27C', peb.filter((_, i) => i % 3 === 2));
+  return o + tufts;
+}
+
+function steps() {
+  let riser = ''; let foot = ''; let tread = ''; let lip = ''; let moss = '';
+  for (let i = 15; i >= 0; i -= 1) {
+    const [x, y, w] = STEP_AT(i);
+    riser += `M${f(x)} ${f(y + 1.4)}H${f(x + w)}L${f(x + w - 0.5)} ${f(y + 6.4)}Q${f(x + w / 2)} ${f(y + 7.4)} ${f(x + 0.5)} ${f(y + 6.4)}Z`;
+    foot += `M${f(x + 0.4)} ${f(y + 5)}Q${f(x + w / 2)} ${f(y + 6)} ${f(x + w - 0.4)} ${f(y + 5)}L${f(x + w - 0.5)} ${f(y + 6.4)}Q${f(x + w / 2)} ${f(y + 7.4)} ${f(x + 0.5)} ${f(y + 6.4)}Z`;
+    tread += `M${f(x - 0.8)} ${f(y + 0.6)}L${f(x + 0.2)} ${f(y - 1.4)}H${f(x + w - 0.2)}L${f(x + w + 0.8)} ${f(y + 0.6)}L${f(x + w + 0.2)} ${f(y + 2)}H${f(x - 0.2)}Z`;
+    lip += `M${f(x + 0.4)} ${f(y + 1.6)}h${f(w - 0.8)}`;
+    moss += `M${f(x - 1.2)} ${f(y + 1.4)}q${f(1.4)} -2.6 ${f(3.4)} -1.2q-1.6 0.6 -3.4 1.2Z`;
+    if (i % 3 === 1) moss += `M${f(x + w + 1)} ${f(y + 1.8)}q-1.2 -2 -3 -1q1.4 0.4 3 1Z`;
+  }
+  return `<g filter="url(#layer-sm)"><path d="${riser}" fill="${C.fGlow}"/><path d="${foot}" fill="${C.fLight}"/><path d="${tread}" fill="${C.fPale}"/><path d="${lip}" stroke="${C.fStone}" stroke-width="0.7" stroke-linecap="round"/><path d="${moss}" fill="${C.moss}"/></g>`;
+}
+
+/** The switchback worn into the turf: a shaded edge, the earth, a lighter worn middle, timber steps where it is steep. */
+function switchback() {
+  const d = line(sample(SWITCHBACK, 2));
+  const parts = [[0, 11, 5.6], [10, 20, 4.8], [19, 31, 4]];
+  let o = '';
+  parts.forEach(([a, b, w]) => { o += `<path d="${line(sample(SWITCHBACK.slice(a, b), 2))}" stroke="#A8865A" stroke-width="${w + 0.6}" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(0.5 0.9)"/>`; });
+  parts.forEach(([a, b, w]) => { o += `<path d="${line(sample(SWITCHBACK.slice(a, b), 2))}" stroke="#C9A77A" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`; });
+  o += `<path d="${d}" stroke="#D2B88C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="22 5 13 9" fill="none" opacity="0.9"/>`;
+  // Timber steps and a rail on the steep climb past the pool.
+  const steep = sample(SWITCHBACK.slice(11, 16), 1);
+  let rungs = ''; let posts = '';
+  for (let i = 2; i < steep.length - 2; i += 4) {
+    const [p, q] = [steep[i - 1], steep[i + 1]];
+    const dx = q[0] - p[0]; const dy = q[1] - p[1]; const len = Math.hypot(dx, dy) || 1; const nx = -dy / len; const ny = dx / len;
+    rungs += `M${f(steep[i][0] - nx * 2.6)} ${f(steep[i][1] - ny * 2.6)}L${f(steep[i][0] + nx * 2.6)} ${f(steep[i][1] + ny * 2.6)}`;
+  }
+  o += `<path d="${rungs}" stroke="${C.clay4}" stroke-width="1.2" stroke-linecap="round" transform="translate(0 0.6)"/><path d="${rungs}" stroke="${C.clay2}" stroke-width="0.8" stroke-linecap="round"/>`;
+  const railPts = offset(steep, 0, -4.4).filter((_, i) => i % 6 === 0);
+  railPts.forEach(([x, y]) => { posts += `M${f(x)} ${f(y)}v-5.4`; });
+  o += `<path d="${posts}" stroke="${C.clay4}" stroke-width="1.1" stroke-linecap="round"/><path d="${line(railPts.map(([x, y]) => [x, y - 5]))}" stroke="${C.clay3}" stroke-width="0.9" stroke-linecap="round" fill="none"/>`;
+  return o;
+}
+
+/** A meadow patch wrapped round the hill: between the contour at y0 and the one `th` below it, across angles a0..a1. */
+function patch(y0, th, a0, a1, fill) {
+  const top = []; const bot = [];
+  const [l0, r0] = hillEdge(y0); const [l1, r1] = hillEdge(y0 + th);
+  for (let i = 0; i <= 14; i += 1) {
+    const a = a0 + ((a1 - a0) * i) / 14;
+    top.push([(l0 + r0) / 2 - ((r0 - l0) / 2) * Math.cos(a), y0 + 0.07 * ((r0 - l0) / 2) * Math.sin(a) + r(-1, 1)]);
+    bot.push([(l1 + r1) / 2 - ((r1 - l1) / 2) * Math.cos(a), y0 + th + 0.07 * ((r1 - l1) / 2) * Math.sin(a) + r(-1, 1)]);
+  }
+  const pts = top.concat(bot.reverse());
+  let dd = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+  for (let i = 1; i <= pts.length; i += 1) { const p = pts[i % pts.length]; const q = pts[i - 1]; dd += `Q${f(q[0])} ${f(q[1])} ${f((q[0] + p[0]) / 2)} ${f((q[1] + p[1]) / 2)}`; }
+  return `<path d="${dd}Z" fill="${fill}"/>`;
+}
+
+/** Grass on the hill: tufts (shared pieces) and single blades, the lit side lighter. */
+function hillGrass(avoid) {
+  let uses = '';
+  const blades = { '#5E7A2A': [], '#6F8A34': [], '#7E9A3A': [], '#8BA348': [], '#9DB458': [] };
+  for (let i = 0; i < N(150); i += 1) {
+    const y = r(290, 554); const [l, rr] = hillEdge(y); const x = r(l + 3, rr - 3);
+    if (!onHill(x, y, 3) || avoid(x, y)) continue;
+    const lit = x + r(-50, 50) < 790 + (y - 300) * 0.05;
+    uses +=`<use href="#kmt-${lit ? pick(['a', 'b', 'c']) : pick(['d', 'e', 'a'])}" x="${f(x)}" y="${f(y)}"/>`;
+  }
+  for (let i = 0; i < N(150); i += 1) {
+    const y = r(300, 554); const [l, rr] = hillEdge(y); const x = r(l + 2, rr - 2);
+    if (avoid(x, y)) continue;
+    const h = r(2.2, 4.6) * (0.75 + (y - 300) / 520); const lean = r(-1.6, 1.6);
+    const lit = x + r(-50, 50) < 790 + (y - 300) * 0.05;
+    blades[lit ? pick(['#7E9A3A', '#8BA348', '#9DB458']) : pick(['#5E7A2A', '#6F8A34', '#7E9A3A'])].push(`M${f(x - 0.7)} ${f(y)}q${f(lean * 0.4 + 0.7)} ${f(-h * 0.6)} ${f(lean + 0.7)} ${f(-h)}q${f(-lean * 0.5 + 0.3)} ${f(h * 0.5)} ${f(0.7)} ${f(h)}Z`);
+  }
+  return uses + Object.entries(blades).map(([c, ds]) => (ds.length ? `<path d="${ds.join('')}" fill="${c}"/>` : '')).join('');
+}
+
+/** Drifts of wildflowers along the slope: daisies, buttercups, clover, harebells. */
+function hillFlowers(avoid) {
+  const drifts = [[700, 420, 30, 7, 'wwy'], [640, 486, 24, 6, 'yyw'], [760, 352, 22, 5, 'wcw'], [866, 486, 34, 6, 'ycw'], [952, 412, 18, 4, 'bwb'], [820, 392, 20, 5, 'wwt'], [740, 512, 22, 5, 'ywc'], [905, 525, 26, 5, 'wyb'], [790, 312, 18, 4, 'cwy'], [882, 370, 20, 4, 'wtw'], [1010, 446, 14, 4, 'ybw'], [626, 452, 14, 4, 'wcy'], [960, 500, 16, 4, 'yww'], [812, 498, 18, 4, 'twb'],
+    [772, 474, 16, 4, 'wyw'], [834, 432, 20, 5, 'ycw'], [884, 404, 14, 4, 'wtw'], [802, 378, 18, 4, 'wcy'], [856, 516, 16, 4, 'ywb'], [722, 398, 12, 3, 'yyw'], [612, 470, 10, 4, 'wwc'], [780, 420, 12, 3, 'bwy']];
+  let o = '';
+  drifts.forEach(([cx, cy, rx, ry, mix]) => {
+    for (let i = 0; i < N(11); i += 1) {
+      const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd());
+      const x = cx + Math.cos(a) * rx * d; const y = cy + Math.sin(a) * ry * d;
+      if (!onHill(x, y, 3) || avoid(x, y)) continue;
+      o += `<use href="#kmf-${pick(mix.split(''))}" x="${f(x)}" y="${f(y)}"/>`;
+    }
+  });
+  for (let i = 0; i < N(40); i += 1) {
+    const y = r(300, 550); const [l, rr] = hillEdge(y); const x = r(l + 4, rr - 4);
+    if (avoid(x, y)) continue;
+    o += `<use href="#kmf-${pick(['w', 'w', 'y', 'c', 't', 'b'])}" x="${f(x)}" y="${f(y)}"/>`;
+  }
+  return o;
+}
+
+/** The pieces the hill repeats (hill units): wildflowers on short stems and tufts of grass. Scene files only. */
+function hillDefs() {
+  const flower = (id, petal, centre, n, rr, pr, cr) => {
+    let s = '';
+    for (let i = 0; i < n; i += 1) { const a = (i / n) * Math.PI * 2 - Math.PI / 2; s += `<circle cx="${f(Math.cos(a) * rr)}" cy="${f(Math.sin(a) * rr - 2.4)}" r="${pr}"/>`; }
+    return `<g id="kmf-${id}"><path d="M0 0 q0.3 -1.2 0 -2.4" stroke="#5E7A2A" stroke-width="0.35" fill="none"/><g fill="${petal}">${s}</g><circle cy="-2.4" r="${cr}" fill="${centre}"/></g>`;
+  };
+  const tuft = (id, back, front, tall) => `<g id="kmt-${id}"><path d="M-1.8 0q-0.6 ${f(-1.8 * tall)} -1.9 ${f(-3.2 * tall)}q1.1 ${f(1.2 * tall)} 2.6 ${f(3.2 * tall)}ZM1 0q0.8 ${f(-2 * tall)} 2.2 ${f(-3 * tall)}q-0.9 ${f(1.3 * tall)} -1.4 ${f(3 * tall)}Z" fill="${back}"/>` +
+    `<path d="M-0.9 0q-0.3 ${f(-2.4 * tall)} -0.7 ${f(-4.4 * tall)}q1.1 ${f(1.9 * tall)} 1.6 ${f(4.4 * tall)}ZM0.3 0q0.5 ${f(-2.6 * tall)} 1.3 ${f(-4 * tall)}q-0.3 ${f(1.9 * tall)} -0.1 ${f(4 * tall)}ZM-0.3 0q0 ${f(-1.6 * tall)} -0.3 ${f(-2.8 * tall)}q0.7 ${f(1.1 * tall)} 0.9 ${f(2.8 * tall)}Z" fill="${front}"/></g>`;
+  return flower('w', C.paper, '#E9C24A', 5, 0.75, 0.55, 0.42) + flower('y', '#F2D27A', '#C9A43A', 5, 0.68, 0.52, 0.36) + flower('c', C.cream, C.creamDeep, 3, 0.5, 0.6, 0.45) +
+    flower('t', C.dGlow, C.clay2, 4, 0.66, 0.5, 0.35) + flower('b', '#C4DCE2', '#8FB8C2', 5, 0.62, 0.48, 0.3) +
+    tuft('a', '#6F8A34', '#8BA348', 1) + tuft('b', '#7E9A3A', '#9DB458', 0.9) + tuft('c', '#6F8A34', '#97AE52', 1.15) + tuft('d', '#55702A', '#6F8A34', 1) + tuft('e', '#5E7A2A', '#7E9A3A', 0.85);
+}
+
+/** A butterfly that flits about (life layer, by day). */
+function butterfly(x, y, col, delay) {
+  return `<g transform="translate(${x} ${y}) scale(1.5)" class="km-day-only"><g class="km-flit" style="animation-delay:-${delay}s"><g class="km-wing" style="animation-delay:-${f(delay / 7)}s">` +
+    `<path d="M0 -0.3 C-1 -2.8 -3.8 -3.4 -3.6 -1.2 C-3.4 -0.2 -1.4 0 0 -0.3 Z M0 -0.3 C1 -2.8 3.8 -3.4 3.6 -1.2 C3.4 -0.2 1.4 0 0 -0.3 Z" fill="${col}"/>` +
+    `<path d="M0 0.1 C-1.6 0.3 -2.8 1.1 -2.2 2.3 C-1.4 2.7 -0.4 1.5 0 0.1 Z M0 0.1 C1.6 0.3 2.8 1.1 2.2 2.3 C1.4 2.7 0.4 1.5 0 0.1 Z" fill="${col}" opacity="0.8"/></g><ellipse rx="0.32" ry="1.3" fill="${C.inkSoft}"/></g></g>`;
+}
+
+/** Ovals of one colour in one path. */
+const ovals = (fill, list) => `<path fill="${fill}" d="${list.map(([cx, cy, rx, ry]) => `M${f(cx - rx)} ${f(cy)}a${f(rx)} ${f(ry)} 0 1 0 ${f(2 * rx)} 0a${f(rx)} ${f(ry)} 0 1 0 ${f(-2 * rx)} 0`).join('')}"/>`;
+
+/** A dry-stone wall for the sheep along the slope, two courses and a row of upright capstones, open where the trail passes. */
+function stoneWall(pts, gap) {
+  const line0 = sample(pts.map(([x, y]) => [x, y, 0]), 1);
+  const dark = []; const mid = []; const lite = []; const caps = []; let base = '';
+  let next = 0;
+  line0.forEach(([x, y], i) => {
+    if (x > gap[0] && x < gap[1] || i < next) return;
+    next = i + Math.round(r(3, 5));
+    const w = r(1.7, 2.6);
+    (rnd() < 0.5 ? dark : mid).push([x, y - 1.2, w, r(1.1, 1.5)]);
+    (rnd() < 0.6 ? mid : dark).push([x + w * 0.9, y - 3.6, r(1.6, 2.3), r(1, 1.3)]);
+    if (rnd() < 0.5) lite.push([x - w * 0.3, y - 1.9, w * 0.5, 0.45]);
+    caps.push([x + r(-0.6, 0.6), y - 5.6 - r(0, 0.6), r(1.1, 1.7), r(0.9, 1.3)]);
+    if (rnd() < 0.6) lite.push([x - 0.3, y - 6.3, 0.8, 0.35]);
+  });
+  line0.forEach(([x, y], i) => { if (i && !(x > gap[0] && x < gap[1]) && !(line0[i - 1][0] > gap[0] && line0[i - 1][0] < gap[1])) base += `M${f(line0[i - 1][0])} ${f(line0[i - 1][1] + 0.4)}L${f(x)} ${f(y + 0.4)}`; });
+  let o = `<path d="${base}" stroke="${C.ink}" stroke-width="2.2" opacity="0.16" stroke-linecap="round"/>`;
+  o += ovals(C.fLightShade, dark) + ovals(C.fLight, mid) + ovals(C.fGlow, caps) + ovals(C.fPale, lite);
+  // Upright gateposts either side of the gap.
+  [gap[0], gap[1]].forEach((gx) => { const p = line0.reduce((a, b) => (Math.abs(b[0] - gx) < Math.abs(a[0] - gx) ? b : a)); o += `<path d="${poly([[p[0] - 1.6, p[1]], [p[0] - 1.4, p[1] - 8.6], [p[0] + 0.2, p[1] - 9.4], [p[0] + 1.6, p[1] - 8.4], [p[0] + 1.7, p[1]]])}" fill="${C.fLight}"/><path d="${poly([[p[0] - 1.4, p[1] - 8.6], [p[0] + 0.2, p[1] - 9.4], [p[0] + 1.5, p[1] - 8.4], [p[0] + 0.1, p[1] - 7.6]])}" fill="${C.fPale}"/>`; });
+  return o;
+}
+
+/** A stone water trough for the sheep. */
+function trough(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(0.5, 0.4, 9.6, 1.3)}<path d="M-8.4 0 L-9 -5 H9 L8.4 0 Z" fill="${C.fLight}"/><path d="M-8.4 0 L-9 -5 H-3 L-3.4 0 Z" fill="${C.fGlow}"/><path d="M-9.4 -5.6 H9.4 L9 -4.2 H-9 Z" fill="${C.fPale}"/>` +
+    `<path d="M-8 -5 H8 L7.6 -4.2 H-7.6 Z" fill="${C.mere}"/><path d="M-6 -4.6 h5" stroke="${C.mereLight}" stroke-width="0.35" stroke-linecap="round"/><path d="M5 -1.6 q1 -2 2.6 -1.6" stroke="${C.moss}" stroke-width="0.8" stroke-linecap="round" fill="none"/></g>`;
+}
+
+/** The board at the foot of the steps: the hill carved on it, its trail dotted up to a flag on the top. */
+function trailBoard(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(0, 0.4, 13, 1.2)}<rect x="-10" y="-13" width="1.8" height="13" fill="${C.clay4}"/><rect x="8.2" y="-13" width="1.8" height="13" fill="${C.clay4}"/><rect x="-10" y="-13" width="0.7" height="13" fill="${C.clay3}"/>` +
+    `<rect x="-12" y="-25" width="24" height="13.4" rx="1.4" fill="${C.clay3}"/><rect x="-11" y="-24" width="22" height="11.4" rx="1" fill="${C.clay2}"/>` +
+    `<path d="M-9 -13.6 C-6 -16 -3 -21 -0.6 -21.4 C2 -21 5 -16 8 -13.6 Z" fill="#8BA348"/><path d="M-0.6 -21.4 C2 -21 5 -16 8 -13.6 H2.4 C1.6 -17 0.6 -20 -0.6 -21.4 Z" fill="#6F8A34"/>` +
+    `<path d="M-6.4 -14 L-3 -15.6 L0.4 -15 L-2.4 -17.4 L-0.6 -20.2" stroke="${C.paper}" stroke-width="0.55" stroke-dasharray="0.7 0.8" fill="none"/><path d="M-0.6 -21.4 v-2 h1.8 l-0.5 0.5 l0.5 0.5 h-1.8" fill="${C.fGlow}"/><circle cx="3.4" cy="-16.4" r="0.8" fill="${C.mere}"/>` +
+    `<rect x="-13" y="-26.4" width="26" height="2" rx="1" fill="${C.clay4}"/></g>`;
+}
+
+/** A log laid on two stumps to balance along, its bark ridged and one end showing its rings. */
+function balanceLog(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(18, 0.6, 21, 1.6)}<rect x="3" y="-4" width="4" height="4.4" rx="0.8" fill="${C.bark}"/><rect x="29" y="-4" width="4" height="4.4" rx="0.8" fill="${C.bark}"/>` +
+    `<rect x="0" y="-8.4" width="36" height="5" rx="2.5" fill="${C.clay3}"/><rect x="0" y="-8.4" width="36" height="1.6" rx="0.8" fill="${C.clay2}"/><path d="M5 -6 h7 M15 -5.2 h9 M27 -6.2 h6" stroke="${C.clay4}" stroke-width="0.5" stroke-linecap="round"/>` +
+    `<ellipse cx="35.6" cy="-5.9" rx="1.7" ry="2.5" fill="${C.clay1}"/><ellipse cx="35.6" cy="-5.9" rx="0.9" ry="1.4" fill="none" stroke="${C.clay2}" stroke-width="0.35"/></g>`;
+}
+
+/** A rope handrail on short posts up the right side of the steep top steps. */
+function ropeRail() {
+  const posts = [7, 9, 11, 13, 14].map((i) => { const [x, y, w] = STEP_AT(i); return [x + w + 3, y + 3]; });
+  let o = ''; let rope = '';
+  posts.forEach(([x, y], i) => {
+    o += contact(x + 0.3, y + 0.2, 1.4, 0.4, 0.18) + `<rect x="${f(x - 0.6)}" y="${f(y - 7)}" width="1.3" height="7" rx="0.4" fill="${C.clay4}"/><rect x="${f(x - 0.6)}" y="${f(y - 7)}" width="0.5" height="7" fill="${C.clay3}"/>`;
+    if (i) { const [px, py] = posts[i - 1]; rope += `M${f(px)} ${f(py - 6.2)}Q${f((px + x) / 2)} ${f((py + y) / 2 - 3.4)} ${f(x)} ${f(y - 6.2)}`; }
+  });
+  return o + `<path d="${rope}" stroke="${C.sand}" stroke-width="0.7" fill="none" stroke-linecap="round"/><path d="${rope}" stroke="${C.clay1}" stroke-width="0.7" stroke-dasharray="0.8 1.2" fill="none"/>`;
+}
+
+/** Tall grass with seed heads that sways in the wind (life layer). */
+function swayGrass(x, y, delay) {
+  let o = '';
+  for (let i = 0; i < 4; i += 1) { const lean = (i - 1.5) * 1.1; const h = 7 + r(0, 3); o += `<path d="M${f(x + i * 0.6 - 0.9)} ${y} q${f(lean * 0.4)} ${f(-h * 0.6)} ${f(lean)} ${f(-h)}" stroke="${pick(['#7E9A3A', '#97AE52', '#6F8A34'])}" stroke-width="0.5" stroke-linecap="round" fill="none"/>`; if (i % 2 === 0) o += `<ellipse cx="${f(x + i * 0.6 - 0.9 + lean)}" cy="${f(y - h - 0.8)}" rx="0.45" ry="1.3" fill="${C.sand}" transform="rotate(${f(lean * 8)} ${f(x + i * 0.6 - 0.9 + lean)} ${f(y - h - 0.8)})"/>`; }
+  return `<g class="km-sway" style="animation-delay:-${delay}s">${o}</g>`;
 }
 
 function hillBody() {
   // Stepping Hill: one big grassy hill (owner, 2026-10-07: "the stones can still be like a large hill, but proportions
-  // matter"), granite outcrops, stone steps up its face, a switchback trail, a quiet pool on its shoulder with a spring
-  // running down to the lake, and a lookout on the top with a spyglass pointed at the horizon. Hill units, scale 2.6.
-  const base = 556;
-  let o = '';
-  o += `<g filter="url(#layer)"><path d="M520 ${base} C590 470 690 300 820 278 C950 300 1050 470 1110 ${base} Z" fill="#6F8A34"/>`;
-  o += `<path d="M520 ${base} C590 470 690 300 820 278 C836 380 800 480 772 ${base} Z" fill="#8BA348"/></g>`;
-  // Bands of meadow across its face, then grass and flowers.
-  o += `<path d="M560 500 C640 470 720 468 800 476 C880 484 980 470 1080 500" stroke="#7E9A3A" stroke-width="10" fill="none" opacity="0.55"/>`;
-  o += `<path d="M620 420 C690 392 760 392 830 400 C900 408 960 400 1030 420" stroke="#97AE52" stroke-width="8" fill="none" opacity="0.5"/>`;
-  o += grassBlades(560, 1080, 430, 552, 90, ['#6F8A34', '#5E7A2A', '#7E9A3A'], 5, 10);
-  o += grassBlades(660, 980, 320, 430, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 4, 8);
-  o += flowers(26, 600, 1040, 420, 548, [C.paper, C.sand, C.dGlow], C.fLand, 0.6);
-  o += flowers(34, 620, 1060, 330, 548, [C.paper, C.sand, C.dGlow, '#F2D27A'], C.fLand, 0.55);
-  o += grassBlades(700, 960, 300, 420, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 3, 7);
-  for (let i = 0; i < N(26); i += 1) { const x = r(600, 1060); const y = r(360, 548); o += `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(r(2, 4))}" ry="${f(r(1.2, 2.4))}" fill="${pick([C.fStone, C.fGlow, C.fLight])}"/>`; }
-  // A bench part way up the steps, and a trail marker at their foot.
-  o += `<g filter="url(#layer-sm)"><rect x="652" y="446" width="24" height="4" rx="2" fill="${C.clay2}"/><rect x="654" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="671" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="652" y="440" width="24" height="3" rx="1.5" fill="${C.clay3}"/></g>`;
-  o += `<g filter="url(#layer-sm)"><rect x="636" y="522" width="3" height="22" rx="1.5" fill="${C.bark}"/><path d="M639 524 h14 l3 3 l-3 3 h-14 Z" fill="${C.fLand}"/><path d="M641 527 h9" stroke="${C.paper}" stroke-width="1"/></g>`;
-  // A few sheep grazing.
-  [[606, 528, 1], [628, 518, 0.9], [940, 520, 1], [1044, 512, 0.85]].forEach(([x, y, s]) => {
-    o += `<g transform="translate(${x} ${y}) scale(${s})">${shadow(0, 6, 8, 1.6)}<path d="M-5 4 v4 M3 4 v4" stroke="${C.ink}" stroke-width="1.6" stroke-linecap="round"/><circle cx="-5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="-2" r="4.6" fill="#F4F1E8"/><circle cx="5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="2" r="4" fill="#F4F1E8"/><ellipse cx="9" cy="-1" rx="2.6" ry="3.2" fill="#3A3A3A"/><circle cx="10" cy="-1.6" r="0.6" fill="${C.paper}"/></g>`;
+  // matter"), the biggest thing in the park, built to the Orchard's level of detail. Hill units, scale 2.6.
+  HILL_LIFE = '';
+  const out = ownSeed(HILL_SEED, () => {
+    const streamPts = sample(STREAM_HILL, 2);
+    const swPts = sample(SWITCHBACK, 2);
+    const stepPts = []; for (let i = 0; i <= 15; i += 1) { const [x, y, w] = STEP_AT(i); stepPts.push([x + w / 2, y + 2, w / 2 + 1]); }
+    const avoid = (x, y) => near(streamPts, x, y, 3.2) || near(stepPts, x, y, 1.5) || near(swPts, x, y, 3.6) || ((x - 930) / 44) ** 2 + ((y - 432) / 16) ** 2 < 1 || (x > 788 && x < 852 && y < 302);
+    let o = `<clipPath id="km-hill-clip"><path d="${HILL_SIL}"/></clipPath>`;
+    // The hill in four papers, lightest on the side the morning sun is on, meeting at the top.
+    const tone = (p1, p2, p3, amp, ph, fill) => {
+      const pts = [];
+      for (let i = 1; i <= 48; i += 1) { const t = i / 48; pts.push([bez(820, p1[0], p2[0], p3[0], t) + amp * Math.sin(t * 11 + ph) * Math.sin(t * Math.PI), bez(278, p1[1], p2[1], p3[1], t)]); }
+      return `<path d="M520 556 C590 470 690 300 820 278 L${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join(' ')} Z" fill="${fill}"/>`;
+    };
+    o += `<g filter="url(#layer)"><path d="${HILL_SIL}" fill="#6F8A34"/>${tone([856, 380], [834, 480], [824, 556], 5, 1, '#7A9538')}`;
+    o += `${tone([836, 380], [800, 480], [772, 556], 6, 2.6, '#859E44')}${tone([780, 330], [712, 436], [680, 556], 5, 4, '#8FA74B')}</g>`;
+    o += `<g clip-path="url(#km-hill-clip)">`;
+    // Meadow patches in several greens wrapped round the slope, each a paper on a short shadow.
+    let mead = '';
+    [[296, 12, 0.3, 1.25, '#9DB55A'], [318, 12, 1.75, 2.6, '#6A8532'], [340, 15, 0.12, 0.95, '#A5BC62'], [350, 10, 1.05, 1.5, '#86A044'], [370, 13, 2, 2.95, '#62802E'],
+      [394, 16, 0.06, 0.7, '#9DB55A'], [404, 12, 0.85, 1.42, '#93AC4E'], [418, 14, 1.85, 2.55, '#6D8834'], [444, 15, 0.2, 0.95, '#A0B85D'], [452, 12, 1.2, 1.62, '#7C9840'],
+      [466, 14, 2.35, 3.05, '#5F7A2C'], [486, 17, 0.05, 0.58, '#96AF52'], [492, 13, 0.7, 1.28, '#9AB257'], [506, 15, 1.9, 2.55, '#678231'], [522, 13, 0.32, 1.08, '#A5BC62'], [530, 13, 1.38, 2.2, '#72903A']].forEach(([y0, th, a0, a1, c]) => { mead += patch(y0, th, a0, a1, c); });
+    o += `<g filter="url(#km-layer-xs)">${mead}</g>`;
+    // The foot of the sunny side in two darker papers, stepping down toward the Orchard's olive ground in front of it.
+    o += `<path d="M520 556 C548 524 590 512 640 514 C688 516 730 526 790 530 C810 532 822 540 826 556 Z" fill="#7F9B3F"/><path d="M520 556 C556 534 600 526 650 530 C700 534 740 538 790 542 C806 544 814 550 816 556 Z" fill="#738E37"/>`;
+    // A darker skirt where the hill meets the meadow at its foot, so the grass runs on without a seam.
+    o += `<path d="M520 556 C600 538 700 528 820 530 C940 528 1040 538 1110 556 Z" fill="#6E8A33" opacity="0.55"/>`;
+    o += stepsTrail() + switchback();
+    o += hillGrass(avoid) + hillFlowers(avoid);
+    const peb = [[], [], []];
+    for (let i = 0; i < N(30); i += 1) { const y = r(300, 550); const [l, rr] = hillEdge(y); const x = r(l + 3, rr - 3); if (!avoid(x, y)) peb[i % 3].push([x, y, r(0.6, 1.5)]); }
+    o += blobs(C.fGlow, peb[0]) + blobs(C.fLight, peb[1]) + blobs(C.fStone, peb[2]);
+    o += `</g>`;
+    // The pool in its scoop on the shoulder, and the stream out of it, over two ledges and down behind the dog house.
+    o += poolBack() + streamHill() + poolFront();
+    o += steps();
+    // Everything that stands on the hill, the far things first.
+    const things = [
+      [300, granite(820, 300, 104, 22, true) + granite(776, 302, 26, 9, true) + granite(864, 301, 22, 8, false)],
+      [302, shrub(760, 302, 0.6, 'gorse')], [300, shrub(880, 301, 0.55, 'juniper')],
+      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85, false, 'lie')],
+      [346, pine(735, 346, 22)], [352, pine(748, 352, 18)], [354, granite(836, 354, 28, 12, false)],
+      [362, sheep(708, 362, 0.8, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
+      [392, granite(700, 392, 30, 13, true)], [394, shrub(856, 394, 0.7, 'bush')], [404, shrub(690, 404, 0.7, 'gorse')],
+      [412, birch(676, 412, 44, -2)], [420, shrub(802, 420, 0.8, 'gorse')], [434, pine(818, 434, 30)],
+      [437, birch(988, 437, 50, 2)], [444, birch(1001, 444, 38, -1.5)], [452, granite(796, 452, 34, 15, true)],
+      [455, bench(664, 455) + bird(668, 439.6, 1, false)], [455.5, rabbit(686, 455, 0.9, false)], [454, rabbit(903, 454, 0.85, true)],
+      [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85, true, 'lie')], [462, sheep(951, 463, 0.55, true, 'lie', true)],
+      [466, pine(1042, 466, 36)], [472, shrub(816, 474, 0.9, 'juniper')], [474, stoneWall([[826, 467], [862, 470.6], [900, 473], [940, 474.2], [972, 474]], [904, 919]) + bird(868, 463.4, 1, true)], [486, trough(884, 487)],
+      [480, pine(630, 480, 46)], [502, shrub(918, 502, 0.8, 'gorse')], [504, pine(612, 504, 34)], [512, sheep(920, 512, 0.55, false, 'look', true)],
+      [514, shrub(606, 514, 0.9, 'juniper')], [524, granite(598, 530, 22, 9, true)], [527, trailBoard(620, 528)], [528, stretchBar(770, 528)], [529, balanceLog(806, 530)], [453, ropeRail()],
+      [466, fern(1004, 466, 1, true)], [476, fern(999, 477, 0.9)], [471, fern(1021, 471.5, 0.8)], [483, fern(1013, 484, 0.85, true)], [500, fern(1047, 499.5, 0.8, true)], [508, fern(1035, 508.5, 0.9)], [445, fern(975, 445.4, 0.7)],
+      [389, stack(977, 389, 1) + marker(972, 398, 3)], [452.5, stack(855, 452, 1) + marker(857, 463, 2)], [498, stack(994, 498, 1.1) + marker(987, 508, 1)], [331, stack(850, 331, 0.9) + marker(853, 341, 4, 0.9)],
+    ];
+    things.sort((a, b) => a[0] - b[0]);
+    o += `<g filter="url(#layer-sm)">${things.map((t) => t[1]).join('')}</g>`;
+    o += lookout();
+    // What moves on the hill, drawn in the life layer: flags at the turns and on the top, grazing sheep, butterflies,
+    // grass in the wind and a dragonfly over the pool.
+    let life = flag(786, 288, 66, C.fGlow, 0, 2) + flag(982, 392, 15, C.paper, 0.8) + flag(850, 452, 15, C.sand, 1.6) + flag(1000, 500, 16, C.paper, 0.4) + flag(845, 333, 14, C.sand, 1.2);
+    life += sheep(850, 497, 0.9, true, 'graze') + sheep(906, 507, 0.85, false, 'graze') + sheep(764, 404, 0.8, true, 'graze');
+    life += swayGrass(862, 520, 0) + swayGrass(792, 476, 1.4) + swayGrass(1002, 461, 2.2) + swayGrass(706, 432, 3) + swayGrass(948, 486, 0.7) + swayGrass(732, 380, 2.6);
+    life += butterfly(742, 428, C.paper, 0) + butterfly(872, 532, '#F2D27A', 3) + butterfly(690, 384, C.cream, 6);
+    life += `<g transform="translate(916 424) scale(1.3)" class="km-day-only"><g class="km-flit" style="animation-duration:6s;animation-delay:-2s"><g class="km-wing"><path d="M-1.6 -0.4 q-1 -3 0.4 -3.2 q0.6 1.6 -0.4 3.2 Z M0.4 -0.4 q0.4 -3.2 1.8 -3 q-0.4 1.8 -1.8 3 Z" fill="${C.paper}" opacity="0.85"/></g><path d="M-3 0 H5" stroke="${C.mereShine}" stroke-width="0.7" stroke-linecap="round"/><circle cx="-3.4" cy="-0.1" r="0.75" fill="${C.mere}"/></g></g>`;
+    hillLive(life);
+    return o;
   });
-  // Granite outcrops.
-  o += `<g filter="url(#layer-sm)">${boulder(764, 474, 60, 32)}${boulder(812, 506, 36, 20)}${boulder(876, 340, 46, 26)}${boulder(990, 506, 54, 28)}${boulder(640, 518, 42, 22)}</g>`;
-  // Pines on its sides.
-  o += `<g filter="url(#layer-sm)">${roundTree(600, 548, 1.2, [C.pine, C.pineMid, C.pineLight])}${roundTree(628, 552, 0.85, [C.pineMid, C.pine, C.pineLight])}${roundTree(1048, 548, 1.1, [C.pine, C.pineMid, C.pineLight])}${roundTree(1076, 554, 0.8, [C.pineMid, C.pineLight])}${roundTree(812, 436, 0.6, [C.pine, C.pineMid])}${roundTree(898, 470, 0.65, [C.pine, C.pineLight])}${roundTree(1010, 440, 0.5, [C.pine, C.pineMid])}</g>`;
-  // Stone steps up the hill's face on a worn dirt trail, each a granite slab on its riser, with pebbles beside.
-  o += `<path d="M668 552 C700 470 740 380 800 290" stroke="#C9A77A" stroke-width="30" stroke-linecap="round" fill="none" opacity="0.85"/><path d="M668 552 C700 470 740 380 800 290" stroke="#B8925F" stroke-width="30" stroke-dasharray="2 18" fill="none" opacity="0.5"/>`;
-  for (let i = 0; i < 16; i += 1) {
-    const k = i / 15;
-    const x = 652 + 140 * k - 18 * Math.sin(k * Math.PI);
-    const y = 546 - 250 * k + 20 * Math.sin(k * Math.PI);
-    const w = 32 - i * 1.0;
-    o += `<rect x="${f(x)}" y="${f(y + 3)}" width="${f(w)}" height="5" rx="2" fill="${C.fLand}"/><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="5" rx="2.5" fill="${C.fStone}"/><circle cx="${f(x - 3)}" cy="${f(y + 5)}" r="1.6" fill="${C.fGlow}"/><circle cx="${f(x + w + 3)}" cy="${f(y + 6)}" r="1.4" fill="${C.fLight}"/>`;
-  }
-  // The switchback trail with its little stacked stones and flags.
-  o += `<path d="M900 552 C960 530 1000 506 960 486 C920 468 860 470 872 440 C884 410 950 400 940 372 C930 346 870 344 856 316 C848 300 836 290 826 284" fill="none" stroke="${C.paper}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 9"/>`;
-  [[960, 482], [872, 436], [938, 368]].forEach(([x, y]) => { o += `<ellipse cx="${x}" cy="${y}" rx="6" ry="3.4" fill="${C.fStone}"/><ellipse cx="${x}" cy="${y - 4}" rx="4.4" ry="2.6" fill="${C.fGlow}"/><ellipse cx="${x}" cy="${y - 7.4}" rx="2.8" ry="2" fill="${C.fStone}"/>`; });
-  [[970, 470], [862, 424], [946, 356]].forEach(([x, y], i) => { o += `<path d="M${x} ${y} v-16" stroke="${C.bark}" stroke-width="2"/><path d="M${x} ${y - 16} h11 a4 4 0 0 1 0 8 h-11 Z" fill="${i % 2 ? C.paper : C.sand}" class="km-flag"/>`; });
-  // The quiet pool on the shoulder, set into the slope inside the hill's edge: a lotus, a mat, a bell on a curved
-  // post; the spring runs from it down the hill's face.
-  o += `<g transform="translate(-70 30)">`;
-  o += `<path d="M956 404 C962 396 1040 396 1046 404 L1042 410 C1020 416 980 416 960 410 Z" fill="#5E7A2A"/>`;
-  o += `<g filter="url(#layer-sm)"><ellipse cx="1000" cy="402" rx="42" ry="9" fill="${C.fLand}"/><ellipse cx="998" cy="398" rx="36" ry="7" fill="${C.mere}"/><ellipse cx="992" cy="397" rx="20" ry="2.6" fill="${C.mereShine}"/></g><path d="M980 398 h18 M1004 400 h10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round"/>`;
-  o += `<path d="M990 396 c-3 -6 0 -9 3 -10 c3 1 6 4 3 10 Z M984 397 c-5 -3 -6 -7 -4 -9 c4 0 6 3 6 8 Z M1002 397 c5 -3 6 -7 4 -9 c-4 0 -6 3 -6 8 Z" fill="${C.paper}"/>`;
-  o += `<rect x="950" y="398" width="22" height="6" rx="3" fill="${C.sand}"/>`;
-  o += `<path d="M1034 402 V376 q0 -9 9 -9 h7" stroke="${C.bark}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1044 378 a5.5 6 0 0 1 11 0 Z" fill="${C.dGlow}"/>`;
-  o += `</g>`;
-  o += `<path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.mere}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 14" fill="none" class="km-fall"/>`;
-  // The lookout on the top: a railed platform on a granite ledge, a flag, and a spyglass at the horizon.
-  o += `<g filter="url(#layer-sm)">${boulder(820, 288, 92, 24)}</g>`;
-  o += `<g transform="translate(820 252)" filter="url(#layer-sm)">`;
-  o += `<rect x="-26" y="0" width="52" height="7" rx="3.5" fill="${C.clay3}"/><rect x="-22" y="7" width="5" height="22" fill="${C.clay4}"/><rect x="17" y="7" width="5" height="22" fill="${C.clay4}"/><path d="M-22 20 L22 10" stroke="${C.clay4}" stroke-width="3"/>`;
-  o += `<path d="M-24 0 V-16 H24 V0" stroke="${C.clay3}" stroke-width="3" fill="none"/><path d="M-12 -16 V0 M0 -16 V0 M12 -16 V0" stroke="${C.clay3}" stroke-width="2"/>`;
-  o += `<path d="M-24 -16 V-56" stroke="${C.ink}" stroke-width="2.5" stroke-linecap="round"/><path d="M-24 -56 h22 l-6 7 l6 7 h-22 Z" fill="${C.fGlow}" class="km-flag"/>`;
-  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)" data-km-part="telescope" pointer-events="visiblePainted"><rect x="-4" y="-34" width="52" height="34" fill="transparent"/><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
-  o += `</g>`;
-  return g('id="km-hill"', o);
+  for (let i = 0; i < HILL_DRAWS; i += 1) rnd(); // the park's random sequence moves on as it did when the hill drew from it
+  LIFE += `<g transform="${HILL_TO_LAND}">${HILL_LIFE}</g>`;
+  return g('id="km-hill"', out);
+}
+
+/**
+ * The stream on the land (land units): it comes out from behind the dog house's right wall (the house hides where
+ * it leaves the hill, so the two halves never show a seam), slips past the dog's bowl, runs under the bridge on the
+ * Field path and cuts a little gully through the bank into the lake.
+ */
+function streamLand() {
+  return ownSeed(HILL_SEED + 1, () => {
+    const pts = sample(STREAM_LAND, 2);
+    const wide = (k) => sample(STREAM_LAND.map(([x, y, w]) => [x, y, w + k]), 2);
+    let o = `<clipPath id="km-behind-house"><path d="M1000 470 H1260 V760 H1000 Z M1076 557 V527 H1068 L1065.4 523 L1067 518 L1103 491.6 L1106 490.6 L1109 491.6 L1145 518 L1146.6 523 L1144 527 H1136.2 V557 Z" clip-rule="evenodd"/></clipPath>`;
+    o += `<g clip-path="url(#km-behind-house)">`;
+    o += `<path d="${strip(wide(3), -1, 1, 1.6)}" fill="${WATER.bed}"/>`;
+    // The cut it has worn down the face of the bank: wet earth either side of the water, darker in the shade.
+    o += `<path d="M1115.6 671.4 C1119.6 684 1119 700 1116.6 721.4 H1152 C1149 700 1146.4 684 1148.4 671.4 C1140 668.4 1124 668.4 1115.6 671.4 Z" fill="#4A3A24"/>`;
+    o += `<path d="M1117.8 672.6 C1121 685 1120.8 701 1119 721.4 H1124.4 C1124.4 701 1124.6 686 1123.8 672.6 Z" fill="${C.clay3}"/><path d="M1119.6 683 h3.4 M1119.4 697 h3.8 M1118.8 711 h4.6" stroke="${C.clay2}" stroke-width="0.9" stroke-linecap="round"/>`;
+    o += `<path d="M1146.6 683 c1.6 3 0.4 6 2 9 M1145.6 700 c1.2 2.4 0.2 5 1.6 7.4" stroke="${C.dDark}" stroke-width="0.8" stroke-linecap="round" fill="none"/>`;
+    o += `<path d="M1112 673.6 C1116 670 1120 670 1123 674.4 C1121 679 1118.6 680.6 1116.6 683 C1116.4 678.6 1115 676 1112 673.6 Z M1152 673.6 C1148 670 1144 670 1141.4 674.4 C1143.4 679 1145.8 680.6 1147.8 683 C1148 678.6 1149.2 676 1152 673.6 Z" fill="#5E7A2A"/>`;
+    o += `<path d="${strip(wide(1.4), -1, 1, 0.6)}" fill="${WATER.wet}"/>`;
+    o += `<path d="${strip(pts, -1, 1, 0.35)}" fill="${WATER.body}"/>`;
+    o += `<path d="${strip(pts, -1, -0.35, 0.25)}" fill="${WATER.shine}"/>`;
+    o += `<path d="${strip(pts, 0.55, 1, 0.2)}" fill="${WATER.deep}" opacity="0.55"/>`;
+    [[1139.6, 566, 1.5], [1131, 578, 1.2], [1127, 616, 1.4], [1134.6, 634, 1.1], [1126.6, 652, 1.3], [1135.4, 668, 1.2], [1129, 690, 1.6], [1137.6, 704, 1.4], [1127.4, 712, 1.2]].forEach(([x, y, s]) => {
+      o += `<ellipse cx="${x}" cy="${f(y + 0.6 * s)}" rx="${f(2.2 * s)}" ry="${f(1.3 * s)}" fill="${WATER.deep}"/><ellipse cx="${x}" cy="${y}" rx="${f(2 * s)}" ry="${f(1.2 * s)}" fill="${C.fLight}"/><ellipse cx="${f(x - 0.5 * s)}" cy="${f(y - 0.4 * s)}" rx="${f(1.2 * s)}" ry="${f(0.6 * s)}" fill="${C.fPale}"/><path d="M${f(x - 1.6 * s)} ${f(y - 2 * s)} q1.6 -1 3.2 0" stroke="${WATER.foam}" stroke-width="0.5" stroke-linecap="round" fill="none" opacity="0.85"/>`;
+    });
+    // Grass leaning in over both banks, down to where the bank drops to the lake.
+    let fringe = '';
+    [-1, 1].forEach((k) => {
+      offset(sample(STREAM_LAND.slice(3, 13), 2), k, (i) => k * (1.6 + Math.sin(i * 0.7) * 0.8)).forEach(([x, y], i) => {
+        if (i % 2 === 0 && y > 548 && y < 672) fringe += `<use href="#kmt-${pick(['a', 'd', 'e', 'b'])}" x="${f(x)}" y="${f(y + r(0, 1.2))}"/>`;
+      });
+    });
+    o += fringe + `</g>`;
+    // The house's shadow carries on across the water beside it.
+    o += `<ellipse cx="1137.4" cy="558" rx="6.4" ry="2.6" fill="${C.ink}" opacity="0.16"/>`;
+    // Ferns, rushes and kingcups along its banks.
+    let plants = '';
+    [[1124.6, 566, 1], [1144.4, 579, -1], [1121.6, 606, 1], [1140.4, 620, -1], [1121.4, 640, 1], [1141, 656, -1], [1122.6, 664, 1]].forEach(([x, y, side]) => {
+      for (let j = -2; j <= 2; j += 1) plants += `<path d="M${x} ${y} q${f(j * 1.4 - side)} ${f(-3.4)} ${f(j * 2.6 - side * 1.6)} ${f(-5.6 + Math.abs(j) * 0.9)}" stroke="${pick(['#4F6E3A', '#5E7A2A', '#6E8A42'])}" stroke-width="0.9" stroke-linecap="round" fill="none"/>`;
+      if (rnd() > 0.4) plants += `<circle cx="${f(x + side * 2.4)}" cy="${f(y - 1.4)}" r="1.1" fill="#F2D27A"/><circle cx="${f(x + side * 2.4)}" cy="${f(y - 1.4)}" r="0.45" fill="#C9A43A"/>`;
+    });
+    for (let i = 0; i < 6; i += 1) { const x = 1143 + i * 1.4; const h = r(10, 16); plants += `<path d="M${f(x)} 642 q${f(r(-1, 1))} ${f(-h / 2)} ${f(r(-2, 2))} ${f(-h)}" stroke="${pick(['#5E7A2A', '#4F6E3A'])}" stroke-width="0.8" stroke-linecap="round" fill="none"/>`; if (i % 2) plants += `<rect x="${f(x - 0.7)}" y="${f(642 - h * 0.88)}" width="1.4" height="4" rx="0.7" fill="${C.clay4}"/>`; }
+    o += plants;
+    // The bridge on the Field path, in its old place: granite footings, a planked arch, posts and a rail.
+    o += `<g transform="translate(1130 594) scale(0.8)" filter="url(#layer-sm)">` +
+      `<path d="M-31 10 L-29 0 L-18 -1.4 L-16 10 Z" fill="${C.fLight}"/><path d="M-29.4 1.2 L-18.6 0 L-18.2 3.4 L-29 4.6 Z" fill="${C.fGlow}"/><path d="M16 10 L18 -1.4 L29 0 L31 10 Z" fill="${C.fLight}"/><path d="M18.6 0 L29.4 1.2 L29 4.6 L18.2 3.4 Z" fill="${C.fGlow}"/>` +
+      `<path d="M-16 9 C-8 5 8 5 16 9 C8 11.4 -8 11.4 -16 9 Z" fill="${C.mereDeep}" opacity="0.7"/>` +
+      `<path d="M-27 4 C-15 -9.4 15 -9.4 27 4 L27 8.6 C15 -3.4 -15 -3.4 -27 8.6 Z" fill="${C.clay3}"/><path d="M-27 4 C-15 -9.4 15 -9.4 27 4 L25.6 1.6 C14 -10.8 -14 -10.8 -25.6 1.6 Z" fill="${C.clay2}"/>` +
+      `<path d="M-20 -0.6 l0.6 3.4 M-12 -4.4 l0.4 3.4 M-4 -6 v3.4 M4 -6 v3.4 M12 -4.4 l-0.4 3.4 M20 -0.6 l-0.6 3.4" stroke="${C.clay4}" stroke-width="0.8" stroke-linecap="round"/>` +
+      `<path d="M-22 2 V-9.4 M-8 -5.4 V-16 M8 -5.4 V-16 M22 2 V-9.4" stroke="${C.clay4}" stroke-width="2.6" stroke-linecap="round"/>` +
+      `<path d="M-23 -9.4 C-11 -19.4 11 -19.4 23 -9.4" stroke="${C.clay3}" stroke-width="2.8" stroke-linecap="round" fill="none"/><path d="M-23 -10.2 C-11 -20.2 11 -20.2 23 -10.2" stroke="${C.clay1}" stroke-width="0.8" stroke-linecap="round" fill="none"/></g>`;
+    // The moving water, in the life layer: flow lines above the bridge, below it, and quicker down the gully.
+    // (A land unit is 2 in the world and a hill unit 2.6, so 0.77 of the time keeps the water at one speed.)
+    let life = flowLines(sample(STREAM_LAND.slice(4, 7), 1.5).slice(1), FLOW_LANES, 0.77, 1.3);
+    life += flowLines(sample(STREAM_LAND.slice(8, 13), 1.5).slice(1), FLOW_LANES, 0.77, 1.3);
+    life += flowLines(sample(STREAM_LAND.slice(12, 16), 1.5).slice(1, -2), FLOW_LANES, 0.46, 1.3);
+    live(`<g class="km-stream-life">${life}</g>`);
+    return o;
+  });
+}
+
+/** The worn trail from the foot of the stone steps to the start of the path to the signpost (land units). */
+function stepsFoot() {
+  // The trail wears through the grassy lip where the hill meets the meadow, then narrows to the path's end.
+  const d = 'M603 532.6 Q628 533 657 540.2 C661 552 677 564 701 571 L692 579 C656 576 612 562 603 532.6 Z';
+  return `<g class="km-steps-trail"><path d="${d}" fill="#A8865A" transform="translate(1 1.4)"/><path d="${d}" fill="#C9A77A"/>` +
+    `<path d="M614 534.6 Q631 535 646 539.4 C652 551 670 563 694 573.4 C664 570 626 558 614 534.6 Z" fill="#D6BC90"/>` +
+    `<path d="M609 538 h3 M650 543 h2.6 M624 549 h2 M660 561 h2.4 M676 569 h2" stroke="${C.fLight}" stroke-width="1.4" stroke-linecap="round"/>` +
+    [[604, 538, 'a'], [608, 549, 'd'], [619, 558, 'b'], [636, 566, 'e'], [655, 572, 'a'], [673, 577, 'd'], [659, 546, 'b'], [664, 554, 'e'], [676, 561, 'a'], [688, 566, 'b']].map(([x, y, k]) => `<use href="#kmt-${k}" x="${x}" y="${y}"/>`).join('') + `</g>`;
+}
+
+/** Where the stream meets the lake: its lighter water fanning out, a bar of sand either side, rings spreading. */
+function streamMouth() {
+  return ownSeed(HILL_SEED + 2, () => {
+    let o = `<path d="M1124 719 C1121 728 1108 739 1094 745 C1116 750 1152 750 1172 744 C1158 738 1146 728 1143 719 Z" fill="${C.mereShine}" opacity="0.7"/>`;
+    o += `<path d="M1127 719 C1126 726 1121 733 1114 738 C1128 741.6 1143 741.6 1155 737 C1148 732 1143 726 1141 719 Z" fill="#3E8090" opacity="0.55"/>`;
+    o += `<path d="M1106 719.4 C1110 717.6 1120 717.4 1125 719 C1122 722.6 1112 724.4 1104 722.6 Z" fill="${C.sand}"/><path d="M1104 722.6 C1112 724.4 1122 722.6 1125 719 L1124.6 721 C1121 724.4 1112 726 1105 724 Z" fill="#C2AF8A"/>`;
+    o += `<path d="M1143 719 C1148 717.4 1158 717.6 1164 719.6 C1158 722.8 1148 723.4 1142.4 721.6 Z" fill="${C.sand}"/><path d="M1142.4 721.6 C1148 723.4 1158 722.8 1164 719.6 L1163.2 721.6 C1158 724.6 1148 725 1142.6 723.4 Z" fill="#C2AF8A"/>`;
+    o += blobs(C.fGlow, [[1110, 720.6, 1], [1117, 721.6, 0.8], [1150, 720.6, 0.9], [1157, 720.4, 1.1]]) + blobs(C.fLight, [[1113.6, 721.2, 0.7], [1153.6, 721.4, 0.7]]);
+    o += `<path d="M1118 732 q16 4 32 0 M1110 740 q24 5 48 0" stroke="${C.mereLight}" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.45"/>`;
+    let life = '';
+    for (let i = 0; i < 3; i += 1) life += `<ellipse cx="1134" cy="731" rx="${18 + i * 4}" ry="${f(4.2 + i)}" fill="none" stroke="${C.mereLight}" stroke-width="1.2" opacity="0.5" class="km-ripple" style="animation-delay:-${f(i * 1.4)}s"/>`;
+    live(`<g class="km-mouth-life">${life}</g>`);
+    return o;
+  });
 }
 
 function hillFoot() {
@@ -563,16 +1217,13 @@ function paths() {
   const stitch = (d, delay) => `<path d="${d}" stroke="#E8D7B4" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.9"/>` +
     `<path d="${d}" stroke="${C.paper}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 10" fill="none"/>` + live(
     `<path d="${d}" stroke="#FFF7D6" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 140" fill="none" class="km-light" style="animation-delay:-${delay}s"/>`);
-  let o = '';
+  let o = stepsFoot();
   o += stitch('M500 582 C600 590 700 600 782 608', 0);
   o += stitch('M690 572 C720 588 760 600 790 606', 1.5);
   o += stitch('M1180 590 C1060 598 920 604 818 608', 3);
   o += stitch('M800 612 C800 640 798 668 796 696', 4.5);
-  // The spring from the hill's pool runs down to the lake, under a little bridge on the Field path.
-  const spring = 'M1131 551 C1134 571 1126 588 1130 604 C1134 628 1128 664 1134 718';
-  o += `<path d="${spring}" stroke="${C.mere}" stroke-width="10" stroke-linecap="round" fill="none"/>`;
-  o += `<path d="${spring}" stroke="${C.mereLight}" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10" fill="none"/>`;
-  o += `<g transform="translate(1130 594) scale(0.8)" filter="url(#layer-sm)"><path d="M-26 6 C-14 -8 14 -8 26 6" stroke="${C.clay3}" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M-22 4 V-8 M-8 -2 V-14 M8 -2 V-14 M22 4 V-8" stroke="${C.clay4}" stroke-width="3" stroke-linecap="round"/><path d="M-22 -8 C-10 -18 10 -18 22 -8" stroke="${C.clay4}" stroke-width="3" fill="none"/></g>`;
+  // The stream from the hill's pool runs down to the lake, under a little bridge on the Field path.
+  o += streamLand();
   return g('id="km-paths"', o);
 }
 
@@ -619,6 +1270,7 @@ function lake() {
   LIFE += `<g transform="translate(1504 716) scale(0.7)" class="km-bob" style="animation-delay:-2s"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="${C.paper}"/><circle cx="-1" cy="-4" r="5" fill="${C.paper}"/><path d="M-6 -4 l-5 1 l5 2 Z" fill="${C.dGlow}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/><path d="M-10 12 a14 3 0 0 0 26 0" stroke="${C.mereLight}" stroke-width="2" fill="none" opacity="0.7"/></g>`;
   LIFE += `<g class="km-fish"><path d="M1180 836 c6 -6 16 -6 21 0 c-5 6 -15 6 -21 0 Z M1201 836 l6 -5 v10 Z" fill="${C.nGlow}"/><circle cx="1186" cy="835" r="1.2" fill="${C.ink}"/></g>`;
   o += `<path d="M1176 854 a14 3.5 0 0 0 28 0" stroke="${C.mereLight}" stroke-width="1.5" fill="none" opacity="0.6"/>`;
+  o += streamMouth();
   return g('id="km-lake"', o);
 }
 
@@ -1105,6 +1757,24 @@ const STYLE = `
   @keyframes km-lift { from { transform: translateY(0); } to { transform: translateY(-3px); } }
   @media (prefers-reduced-motion: reduce) { svg * { animation: none !important; } }`;
 
+/* The running water and the hill's life (scene files only); STYLE's reduced-motion rule stops it too. */
+const HILL_STYLE = `
+  .km-flow { animation: km-flow 3s linear infinite; }
+  .km-cascade { animation: km-cascade 0.8s linear infinite; }
+  .km-foam { animation: km-foam 1.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  .km-ripple { animation: km-ripple 4.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  .km-graze { animation: km-graze 5.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 15% 10%; }
+  .km-flit { animation: km-flit 9s ease-in-out infinite; }
+  .km-wing { animation: km-wing 0.3s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  svg[data-km-night="1"] :is(.km-graze, .km-flit, .km-wing) { animation: none; }
+  @keyframes km-flow { to { stroke-dashoffset: -30; } }
+  @keyframes km-cascade { to { stroke-dashoffset: -12; } }
+  @keyframes km-foam { from { transform: scale(0.8); opacity: 0.7; } to { transform: scale(1.15); opacity: 1; } }
+  @keyframes km-ripple { 0% { transform: scale(0.3); opacity: 0; } 20% { opacity: 0.7; } 100% { transform: scale(1.35); opacity: 0; } }
+  @keyframes km-graze { 0%, 46%, 100% { transform: rotate(0deg); } 54%, 70% { transform: rotate(-24deg); } 78% { transform: rotate(-3deg); } 86% { transform: rotate(-8deg); } }
+  @keyframes km-flit { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(6px, -5px); } 40% { transform: translate(13px, -1px); } 60% { transform: translate(8px, 5px); } 80% { transform: translate(-3px, -3px); } }
+  @keyframes km-wing { from { transform: scaleX(1); } to { transform: scaleX(0.25); } }`;
+
 function defs(view, ripples) {
   const [top, horizon] = view ? view.sky : [0, 900];
   return `<defs>
@@ -1122,7 +1792,8 @@ function defs(view, ripples) {
     <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#9CB54A"/><stop offset="1" stop-color="#9CB54A"/></linearGradient>
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
     <pattern id="km-gingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FFE1C2"/><rect width="8" height="4" fill="#FFB36B" opacity="0.4"/></pattern>
-    <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
+    <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>${view ? `
+    <filter id="km-layer-xs" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="1.2" stdDeviation="0" flood-color="${C.ink}" flood-opacity="0.12"/></filter>${hillDefs()}` : ''}
     ${ripples ? `<mask id="km-ripples"><rect y="724" width="1600" height="176" fill="#fff"/>${Array.from({ length: 16 }, (_, i) => `<rect y="${736 + i * 9}" width="1600" height="${3 + (i % 3)}" fill="#000"/>`).join('')}</mask>` : ''}
     <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>
   </defs>`;
@@ -1133,7 +1804,7 @@ const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale,
   'On the left, the Orchard: a foresty picnic meadow on terraced ground, with a deep wood of round trees, poplars and pines behind it, stone walls, two avocado trees heavy with avocados, a straw beehive, ' +
   'a larder door dug into the hill with a lamp and jars, a ladder and a basket of avocados, a vegetable patch with a rabbit, a herb spiral, a watering can, a picnic blanket with a basket, and a long table with a gingham cloth, avocado toast, avocado halves, blueberries, honey and an apricot kettle under a string of paper lights. ' +
   'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card, with Summer, a little peach holding a berry tart, beside her; in the evenings Spud, a potato in an apron, brings a pot of dinner to the table. ' +
-  'In the middle rises Stepping Hill, a big grassy hill with granite outcrops and pines, stone steps up its face, a switchback trail with stacked stones and flags, a quiet pool on its shoulder with a spring running down to the lake, and a lookout on the top with a spyglass. ' +
+  'In the middle rises Stepping Hill, a big grassy hill of meadow patches and wildflowers with granite outcrops, pines, birches and gorse, stone steps up its face on a worn trail with a rope rail, a switchback trail with timber steps, turn markers, stacked stones and flags, a dry-stone wall and a trough where sheep and lambs graze, rabbits, a stretching bar and a balance log, a quiet pool set into its shoulder whose stream falls over two granite ledges, runs behind the dog house and under a little bridge into the lake, and a railed lookout on the top with a spyglass. ' +
   'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust, a little way up the hill, where a bench waits part way up the steps and a few sheep graze. ' +
   'On the right, Lakeside Field: open grass running down to a bay of the lake, a split-rail fence, a row of trees, the dog house, weave poles, a willow hoop, flags with paw prints and toys. ' +
   'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
@@ -1144,9 +1815,9 @@ function build(view) {
   DETAIL = 0.5; DENS = 2.2;
   const land1 = far() + forest();
   DETAIL = 1 / 2.6; DENS = 2.4;
-  const hillPart = hillBody().replace(/ class="km-(flag|fall)"/g, '');
-  DETAIL = 0.5; DENS = 2.2;
   LIFE = '';
+  const hillPart = hillBody();
+  DETAIL = 0.5; DENS = 2.2;
   const land2 = hillFoot() + orchard() + field() + bank() + paths() + signpost() + lake() + shore() + lanterns();
   DETAIL = 1; DENS = 1;
   const actor = (key, x, y, inner, name) => `<g data-km-actor="${key}" data-km-name="${name}" data-km-home="${x} ${y}" pointer-events="visiblePainted"><g filter="url(#km-light)">${inner}</g></g>`;
@@ -1166,7 +1837,7 @@ function build(view) {
 <title id="km-title">${view.title}</title>
 <desc id="km-desc">${DESC}</desc>
 <!-- Drawn by kit/art/make-kindlemere.js. Edit that file, not this one. Lit and timed by /kit/kindlemere.js. -->
-<style>${STYLE}${FIELD_DOG.style}
+<style>${STYLE}${HILL_STYLE}${FIELD_DOG.style}
 </style>
 ${defs(view, true).replace('</defs>', `${FIELD_DOG.defs}</defs>`)}
 ${body}
