@@ -13,18 +13,27 @@
   };
   const plain = (t) => String(t || '').replace(/\s*@\S+/g, '').replace(/\s*\[\^\d+\]/g, '').trim();
   const say = (id, n, one, many) => { $(id).textContent = n === 1 ? one : many; };
-  // Who is speaking: Steady, or one of her clouds. Puff and Huff have no figure until the kit draws them.
-  const speak = (text, who = 'Steady') => {
+  // Who is speaking, with their face in the bubble from the kit's figures (kit/art/keepers/<figure>-<mood>.svg):
+  // Steady in her mood, or one of her clouds. The tail points at whoever is talking: the kit puts Puff on her left
+  // and Huff on her right in the hill view.
+  const FIGURES = { Steady: 'fitness', Puff: 'fitness-puff', Huff: 'fitness-huff' };
+  const MOODS = ['happy', 'thinking', 'oh', 'worried', 'sleepy'];
+  let feeling = 'happy';
+  const speak = (text, who = 'Steady', how = 'happy') => {
+    const steady = who === 'Steady';
     $('who').textContent = who;
     $('say').textContent = text;
-    $('face').hidden = who !== 'Steady';
-    $('bubble').classList.toggle('cloud', who !== 'Steady'); // no figure to point at until the kit draws the clouds
+    $('face').classList.toggle('cloud', !steady);
+    $('bubble').classList.toggle('puff', who === 'Puff');
+    $('bubble').classList.toggle('huff', who === 'Huff');
+    $('face-img').src = `/kit/art/keepers/${FIGURES[who]}-${steady ? feeling : how}.svg`;
   };
   const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  // Steady's face in her bubble shows her mood, from the kit's keeper figures (kit/art/keepers/fitness-<mood>.svg).
-  const MOODS = ['happy', 'thinking', 'oh', 'worried', 'sleepy'];
+  // Steady's mood shows in her face whenever she is the one speaking.
   function mood(name) {
-    if (MOODS.includes(name)) $('face-img').src = `/kit/art/keepers/fitness-${name}.svg`;
+    if (!MOODS.includes(name)) return;
+    feeling = name;
+    if ($('who').textContent === 'Steady') $('face-img').src = `/kit/art/keepers/fitness-${name}.svg`;
   }
   const day = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-CA'); };
 
@@ -213,6 +222,13 @@
   }
 
   const timers = {};
+  // While a clock runs (a warm-up, a workout, a run), Steady stays home: the kit's mingling waits
+  // (window.kindlemere.hold, kit/kindlemere.js).
+  let running = false;
+  function busy() {
+    const on = running || Object.values(timers).some(Boolean);
+    if (window.kindlemere && typeof window.kindlemere.hold === 'function') window.kindlemere.hold(on);
+  }
   function render(prefix, s) {
     $(`${prefix}-head`).textContent = s.head;
     const ol = $(`${prefix}-phases`);
@@ -254,10 +270,12 @@
       $(`${prefix}-time`).textContent = clock(Math.max(left, 0));
       if (left <= 0) next();
     }, 1000);
+    busy();
   }
   function stop(prefix) {
     clearInterval(timers[prefix]);
     timers[prefix] = null;
+    busy();
     const skip = $(`${prefix}-skip`);
     if (skip) skip.hidden = true;
   }
@@ -292,8 +310,8 @@
     const { gaps } = await kit.api('/api/louise').catch(() => ({ gaps: [] }));
     const gap = gaps.find((g) => /heat|cold|wind/i.test(g.topic));
     $('sky-note').textContent = gap ? `On Steady's list for Louise: ${gap.topic}.` : '';
-    if (hot) speak("Heat's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Huff');
-    else speak("Weather's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Puff');
+    if (hot) speak("Heat's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Huff', 'thinking');
+    else speak("Weather's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Puff', 'thinking');
   });
 
   /* The run clock counts up. Steady logs the whole minutes with her progress-log tool. */
@@ -309,6 +327,8 @@
     $('run-back').hidden = false;
     speak("Off you go. You can talk but not sing: that's the pace. I've got the time.");
     runTimer = setInterval(tick, 1000);
+    running = true;
+    busy();
   });
   $('run-pause').addEventListener('click', () => {
     if (runTimer) { clearInterval(runTimer); runTimer = null; $('run-pause').textContent = 'Keep going'; speak("Paused. Catch your breath. I'll wait."); }
@@ -317,6 +337,8 @@
   async function logRun(minutes) {
     clearInterval(runTimer);
     runTimer = null;
+    running = false;
+    busy();
     const r = await kit.api('/api/log-run', { method: 'POST', body: { minutes } });
     if (!r.ok) { speak(r.text); return; }
     const s = parse(r.text);
@@ -450,6 +472,8 @@
       if (b.dataset.next === 'arrive') {
         clearInterval(runTimer);
         runTimer = null;
+        running = false;
+        busy();
         for (const id of ['run-start', 'warm-start']) $(id).hidden = false;
         for (const id of ['run-pause', 'run-back', 'run-clock', 'warm-clock', 'cool-clock', 'cool-rests-box', 'log-rests-box',
           'workout-clock', 'workout-go', 'workout-rests-box', 'plan-rests-box']) $(id).hidden = true;
