@@ -91,6 +91,29 @@ body { background: var(--a-sky); }
 .rests { margin: var(--km-space-4) 0 0; font-size: var(--km-text-sm); }
 .rests summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--a-land); font-weight: 600; }
 
+/* What are we doing today: four ways up the hill. */
+.paths { display: grid; grid-template-columns: 1fr 1fr; gap: var(--km-space-3); margin: var(--km-space-4) 0 0; }
+.paths .km-btn { min-height: 56px; padding: var(--km-space-2) var(--km-space-3); line-height: 1.25; text-align: center; }
+.start-over { margin-top: var(--km-space-5); min-height: 44px; }
+
+.phases li.move label { display: flex; gap: var(--km-space-3); align-items: flex-start; cursor: pointer; }
+.phases li.move input { width: 22px; height: 22px; margin-top: 2px; flex: none; accent-color: var(--a-land); }
+.phases li.move:has(input:checked) { opacity: 0.6; }
+#gear [aria-pressed="true"] { background: var(--a-land); color: #FFFFFF; }
+
+.plan-form { display: grid; grid-template-columns: 1fr 1fr; gap: var(--km-space-3); align-items: end; }
+.plan-form label { display: flex; flex-direction: column; gap: var(--km-space-1); font-size: var(--km-text-sm); font-weight: 600; }
+.plan-form .km-field { width: 100%; }
+.plan-form .km-btn { grid-column: 1 / -1; justify-self: start; min-height: 44px; }
+.plan-out { margin-top: var(--km-space-4); }
+.plan-out:empty { display: none; }
+.plan-head { font-weight: 600; }
+.plan-note { color: var(--km-ink-soft); font-size: var(--km-text-sm); }
+.days { list-style: none; margin: 0 0 var(--km-space-3); padding: 0; display: grid; gap: var(--km-space-3); }
+.days > li { background: var(--a-sky); border-radius: var(--km-radius-sm); padding: var(--km-space-3) var(--km-space-4); }
+.days .day { display: block; font-family: var(--km-font-head); color: var(--a-land); margin-bottom: var(--km-space-1); }
+.days ul { margin: 0; padding: 0 0 0 var(--km-space-4); font-size: var(--km-text-sm); }
+
 /* Her pack: the library, opened when you want it. */
 .pack {
   width: min(960px, calc(100% - 2 * var(--km-gutter))); max-height: calc(100svh - 2 * var(--km-gutter));
@@ -149,6 +172,7 @@ body { background: var(--a-sky); }
 }
 @media (max-width: 520px) {
   .trail { padding: var(--km-space-4); }
+  .plan-form { grid-template-columns: 1fr; }
   .stones li { font-size: 0.75rem; white-space: nowrap; }
   .stones li::before { content: none; }
   .pack-open { padding-inline: var(--km-space-4); }

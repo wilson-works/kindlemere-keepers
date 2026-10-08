@@ -157,6 +157,7 @@ cards and memory, prints the cards it rests on, and keeps its own files under `s
 | `week-plan` | One week of training from what the person told Steady, after the screening checks. Withholds the plan on a red flag. | `node tools/week-plan.js` (or `--days 3 --goal "first 5k" --level beginner --age 41`) |
 | `progress-log` | Logs a lift or a run, and says the next step: the 2 to 10% load rule, the 110% single-run line. | `node tools/progress-log.js --kind lift --exercise squat --load 40 --reps 10 --target 8`, `--kind run --minutes 25`, `--show` |
 | `calm-session` | A warm-up, a stretching session, or slow breathing with its safety lines. | `node tools/calm-session.js --kind breathe --minutes 5` (or `--kind warmup`, `--kind stretch`) |
+| `quick-workout` | A whole-body strength workout for right now: warm-up, the six patterns, cool-down, any equipment. | `node tools/quick-workout.js --equipment bands` (or `bodyweight`, `dumbbells`, `machines`) |
 
 Remember what a person tells Steady first (section 5): the tools read it from memory.
 
