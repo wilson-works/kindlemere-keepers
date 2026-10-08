@@ -66,7 +66,7 @@ Run every command from this folder (`agents/dog-training/`). The kit is two fold
 | Questions it has sent Louise | `knowledge/GAPS.md`, and `node ../../kit/engine/louise.js pending dog-training` |
 | Its memory (this computer only) | `memory/memory.jsonl`, through `node ../../kit/engine/memory.js` |
 | Its tools | `tools/registry.json`, and `node ../../kit/engine/toolsmith.js list dog-training` |
-| Its dashboard | `node dashboard/server.js`, then http://127.0.0.1:7573/ |
+| Its dashboard | `node dashboard/server.js`, then http://127.0.0.1:7573/: Lakeside Field, with the person's dogs in it, and Train, Show me, Play, Treats, Health and safety and My dog under it (`dashboard/routes.js`) |
 
 ## Every session
 
@@ -109,6 +109,12 @@ node ../../kit/engine/memory.js remember dog-training fact "<level, e.g. working
 - A rule it learned for itself: `remember dog-training lesson "<the rule>"`.
 - The person asks it to forget something: `node ../../kit/engine/memory.js forget dog-training <id>`, and it says so.
 - Memory stays on this computer. It never copies a person's or a dog's details anywhere else.
+- How the person trains, kept the same way (the dashboard writes these too, so a chat sees what the page was told):
+  the person's word for an action `--about "dog:<Name>:cue:<action>"` (sit, down, stay, come, heel, wait, leave it,
+  drop it, place, paw, spin, off); trouble spots `--about "dog:<Name>:trouble"`; opportunities
+  `--about "dog:<Name>:opportunity"`. When it shows or coaches a cue, it uses the person's word.
+- The dashboard also keeps what the dog looks like (`dog:<Name>:look`, the colours and ears the dog wears in Lakeside
+  Field) and its play list (`dog:<Name>:playlist`). It leaves those to the page.
 
 ## Who it hands to
 

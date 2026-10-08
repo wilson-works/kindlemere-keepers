@@ -6,10 +6,12 @@
   Its own frame: facing right, paws on y = 64. In the field view it stands at translate(1346 590) (data-home).
 
   Named parts, for anything that moves it:
-    #dt-dog      the whole dog            .dt-look   the head, turned about the neck (100 6): data-pivot
+    .dt-dog      the whole dog            .dt-look   the head, turned about the neck (100 6): data-pivot
     .dt-held     the ball in its mouth    .dt-pupil  each pupil and its catchlight
     .dt-splash   the water at its paws    .dt-body   the body, for a lean, a sit or a jump (not the water)
-    classes on #dt-dog: dt-empty (the ball is out of its mouth: an open pant), dt-sit (it sits and waits)
+    classes on .dt-dog: dt-empty (the ball is out of its mouth: an open pant), dt-sit (it sits), dt-down (it lies down),
+    dt-paw (from a sit, a paw up); a person's own dog: dt-ears-up, dt-ears-down, dt-mark-hip, dt-mark-plain, dt-no-band,
+    and data-p on every shape a coat colour paints (coat, head, face, ear, band and their shades)
 
   Motion contract: CSS only, transform and opacity only. One stride is 0.5 s: the legs reach out together (the flying
   moment) and gather under together, each leg bending at its joint; the body rides up and down, the head stays level,
@@ -20,19 +22,19 @@
 <clipPath id="dt-body-clip"><path d="M86 5 C72 1 46 3 32 6 C20 8 14 15 15 25 C16 32 24 35 34 34 C46 33 56 29 66 32 C76 35 84 41 92 40 C100 39 104 31 103 21 C102 13 96 7 86 5 Z"/></clipPath>
 <clipPath id="dt-thigh-clip"><path d="M18 13 C10 25 18 39 32 39 C40 39 44 31 42 21 C40 11 26 7 18 13 Z"/></clipPath>
 <style>
-#dt-dog .dt-r { animation: dt-rock 0.5s ease-in-out infinite; }
-#dt-dog .dt-fu { animation: dt-fu 0.5s ease-in-out infinite; }
-#dt-dog .dt-fl { animation: dt-fl 0.5s linear infinite; }
-#dt-dog .dt-hu { animation: dt-hu 0.5s ease-in-out infinite; }
-#dt-dog .dt-hl { animation: dt-hl 0.5s linear infinite; }
-#dt-dog .dt-far { animation-delay: -0.09s; }
-#dt-dog .dt-steady { animation: dt-steady 0.5s ease-in-out infinite; }
-#dt-dog .dt-flop { animation: dt-flop 0.5s ease-in-out infinite; animation-delay: -0.12s; }
-#dt-dog .dt-tail { animation: dt-tail 0.5s ease-in-out infinite; animation-delay: -0.08s; }
-#dt-dog .dt-drop { animation: dt-drop 0.5s ease-out infinite; }
-#dt-dog .dt-drop.dt-d2 { animation-delay: -0.17s; }
-#dt-dog .dt-drop.dt-d3 { animation-delay: -0.33s; }
-#dt-dog .dt-ripple { animation: dt-ripple 1s ease-in-out infinite alternate; }
+.dt-dog .dt-r { animation: dt-rock 0.5s ease-in-out infinite; }
+.dt-dog .dt-fu { animation: dt-fu 0.5s ease-in-out infinite; }
+.dt-dog .dt-fl { animation: dt-fl 0.5s linear infinite; }
+.dt-dog .dt-hu { animation: dt-hu 0.5s ease-in-out infinite; }
+.dt-dog .dt-hl { animation: dt-hl 0.5s linear infinite; }
+.dt-dog .dt-far { animation-delay: -0.09s; }
+.dt-dog .dt-steady { animation: dt-steady 0.5s ease-in-out infinite; }
+.dt-dog .dt-flop { animation: dt-flop 0.5s ease-in-out infinite; animation-delay: -0.12s; }
+.dt-dog .dt-tail { animation: dt-tail 0.5s ease-in-out infinite; animation-delay: -0.08s; }
+.dt-dog .dt-drop { animation: dt-drop 0.5s ease-out infinite; }
+.dt-dog .dt-drop.dt-d2 { animation-delay: -0.17s; }
+.dt-dog .dt-drop.dt-d3 { animation-delay: -0.33s; }
+.dt-dog .dt-ripple { animation: dt-ripple 1s ease-in-out infinite alternate; }
 @keyframes dt-rock { 0%, 100% { transform: translateY(-3px) rotate(0deg); } 50% { transform: translateY(1.5px) rotate(-2deg); } }
 @keyframes dt-steady { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(2deg); } }
 @keyframes dt-fu { 0%, 100% { transform: rotate(-48deg); } 50% { transform: rotate(26deg); } }
@@ -44,21 +46,39 @@
 @keyframes dt-drop { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.95; } 100% { transform: translate(-10px, -14px); opacity: 0; } }
 @keyframes dt-ripple { from { transform: scale(0.96, 1); } to { transform: scale(1.04, 1); } }
 /* Sitting (the class dt-sit): legs still and folded, the body tipped back onto its haunches by whatever moves .dt-body. */
-#dt-dog .dt-fu, #dt-dog .dt-fl, #dt-dog .dt-hu, #dt-dog .dt-hl { transition: transform 0.25s ease-out; }
-#dt-dog.dt-sit .dt-r, #dt-dog.dt-sit .dt-steady, #dt-dog.dt-sit .dt-ripple { animation: none; }
-#dt-dog.dt-sit .dt-fu { animation: none; transform: rotate(32deg); }
-#dt-dog.dt-sit .dt-fl { animation: none; transform: rotate(0deg); }
-#dt-dog.dt-sit .dt-hu { animation: none; transform: rotate(-6deg); }
-#dt-dog.dt-sit .dt-hl { animation: none; transform: rotate(-70deg); }
-#dt-dog.dt-sit .dt-tail { animation-duration: 0.3s; }
-#dt-dog.dt-sit .dt-speed, #dt-dog.dt-sit .dt-drop { display: none; }
-#dt-dog.dt-empty .dt-if-held { display: none; }
-#dt-dog.dt-empty .dt-if-empty { display: inline; }
-@media (prefers-reduced-motion: reduce) { #dt-dog * { animation: none !important; } }
+.dt-dog .dt-fu, .dt-dog .dt-fl, .dt-dog .dt-hu, .dt-dog .dt-hl { transition: transform 0.25s ease-out; }
+.dt-dog.dt-sit .dt-r, .dt-dog.dt-sit .dt-steady, .dt-dog.dt-sit .dt-ripple { animation: none; }
+.dt-dog.dt-sit .dt-fu { animation: none; transform: rotate(32deg); }
+.dt-dog.dt-sit .dt-fl { animation: none; transform: rotate(0deg); }
+.dt-dog.dt-sit .dt-hu { animation: none; transform: rotate(-6deg); }
+.dt-dog.dt-sit .dt-hl { animation: none; transform: rotate(-70deg); }
+.dt-dog.dt-sit .dt-tail { animation-duration: 0.3s; }
+.dt-dog.dt-sit .dt-speed, .dt-dog.dt-sit .dt-drop { display: none; }
+/* Lying down (dt-down): front legs forward along the ground, hind legs folded under, the body low. */
+.dt-dog.dt-down .dt-r, .dt-dog.dt-down .dt-steady, .dt-dog.dt-down .dt-ripple { animation: none; }
+.dt-dog.dt-down .dt-fu { animation: none; transform: rotate(-84deg); }
+.dt-dog.dt-down .dt-fl { animation: none; transform: rotate(4deg); }
+.dt-dog.dt-down .dt-hu { animation: none; transform: rotate(-62deg); }
+.dt-dog.dt-down .dt-hl { animation: none; transform: rotate(-96deg); }
+.dt-dog.dt-down .dt-tail { animation-duration: 1.2s; }
+.dt-dog.dt-down .dt-speed, .dt-dog.dt-down .dt-drop { display: none; }
+/* Paw (dt-paw, from a sit): the near front paw lifted to shake. */
+.dt-dog.dt-sit.dt-paw .dt-fu:not(.dt-far) { transform: rotate(-36deg); }
+.dt-dog.dt-sit.dt-paw .dt-fl:not(.dt-far) { transform: rotate(64deg); }
+/* A person's own dog: ears, markings and bandana (the colours come from the page, on data-p shapes). */
+.dt-dog.dt-ears-up .dt-near-flop { display: none; }
+.dt-dog.dt-ears-up .dt-near-up { display: inline; }
+.dt-dog.dt-ears-down .dt-far-up { display: none; }
+.dt-dog.dt-ears-down .dt-far-flop { display: inline; }
+.dt-dog.dt-mark-hip .dt-heart, .dt-dog.dt-mark-plain .dt-heart, .dt-dog.dt-mark-plain .dt-hip { display: none; }
+.dt-dog.dt-no-band .dt-band { display: none; }
+.dt-dog.dt-empty .dt-if-held { display: none; }
+.dt-dog.dt-empty .dt-if-empty { display: inline; }
+@media (prefers-reduced-motion: reduce) { .dt-dog * { animation: none !important; } }
 </style>
 </defs>
 
-<g id="dt-dog" data-home="1346 590">
+<g id="dt-dog" class="dt-dog" data-home="1346 590">
   <!-- the shallows at its paws -->
   <g class="dt-splash">
     <g transform="translate(60 64)"><g class="dt-ripple"><ellipse cx="0" cy="0" rx="66" ry="5.5" fill="none" stroke="#CFE6EA" stroke-width="2.5" opacity="0.8"/><ellipse cx="4" cy="0.5" rx="40" ry="3" fill="#FFFFFF" opacity="0.3"/></g></g>
@@ -159,7 +179,7 @@
         <!-- the white blaze, from the forehead down between the eyes into the muzzle -->
         <path data-p="face" d="M116 -28 C119 -28.5 122 -26 122 -22 C122 -17 124 -12 128 -9 L113 -6 C115 -11 115 -16 114 -21 C113.5 -25 114 -27.6 116 -28 Z" fill="#FFFFFF"/>
         <!-- the mouth, two ways: gripping the ball (.dt-if-held), or open and panting with the tongue out when the ball is
-             out of it (.dt-if-empty, shown when #dt-dog has the class dt-empty) -->
+             out of it (.dt-if-empty, shown when .dt-dog has the class dt-empty) -->
         <!-- holding: the lower jaw under the ball, the dark of the mouth behind it, the ball, then the muzzle over its top -->
         <g class="dt-if-held">
           <path data-p="face" d="M115 1 C116 9 121 15.5 129 18.8 C133.5 20.6 139 21 142 19.4 C144.6 18 144.8 15 143 13 L131 9 Z" fill="#FFFFFF"/>
