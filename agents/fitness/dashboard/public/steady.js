@@ -1,6 +1,6 @@
 'use strict';
 
-/* Cairn's page. Reads the kit API only (kit/CONTRACT.md, section 10). Memory is shown as counts, never contents. */
+/* Steady's page. Reads the kit API only (kit/CONTRACT.md, section 10). Memory is shown as counts, never contents. */
 (function () {
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => {
