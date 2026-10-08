@@ -12,7 +12,8 @@ tags: [dogs, obedience ladder]
 - Most published progressions are trainer convention. The AKC Canine Good Citizen family is the main publicly specified, testable standard, so it is the skeleton and the rest is craft. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:11
 - CGC has 10 items, all required, all on leash. No minimum age, but the dog needs the training and maturity to do all ten reliably. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:15
 - Any dog may take it, purebred or mixed. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:18
-- CGCA needs the CGC on record; CGCU is 10 items, all required, no age limit. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:21
+- AKC Community Canine (CGCA) needs the CGC already on record. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:21
+- AKC Urban CGC (CGCU) is 10 items, all required, with no age limit. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:23
 
 ## Tier 0: foundations (any age, start now)
 - Build a reinforcer hierarchy first: the plan depends on what this dog will work for. @2026-10-07-dog-training-coach-agent/05-obedience-and-skills-progression.md:31

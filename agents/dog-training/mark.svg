@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tumble's mark">
+  <defs>
+    <circle id="disc" cx="32" cy="31" r="29"/>
+    <path id="ear-l" d="M29 30 C24 23 18 13 20 6 C25 10 31 20 32 29 Z"/>
+    <path id="ear-r" d="M35 30 C40 23 46 13 44 6 C39 10 33 20 32 29 Z"/>
+    <path id="body" d="M14 52 C14 38 21 27 32 25 C43 27 50 38 50 52 Q50 56 46 56 L18 56 Q14 56 14 52 Z"/>
+  </defs>
+  <use href="#disc" fill="rgba(26,36,51,0.14)" transform="translate(0 2)"/>
+  <use href="#disc" fill="#F1E9A6"/>
+  <g fill="rgba(26,36,51,0.14)" transform="translate(0 2)">
+    <use href="#ear-l"/><use href="#ear-r"/><use href="#body"/>
+  </g>
+  <use href="#ear-l" fill="#C9D86A"/>
+  <use href="#ear-r" fill="#C9D86A"/>
+  <use href="#body" fill="#8A4116"/>
+  <circle cx="27" cy="38" r="2.4" fill="#1A2433"/>
+  <circle cx="37" cy="38" r="2.4" fill="#1A2433"/>
+  <rect x="27.5" y="45" width="9" height="5" rx="2.5" fill="#FFFFFF"/>
+  <rect x="31" y="45" width="2" height="5" fill="#1F5C6E"/>
+</svg>

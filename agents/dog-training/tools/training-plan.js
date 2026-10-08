@@ -111,13 +111,16 @@ run(__filename, (ctx) => {
   // Level: the next rung of the ladder.
   // A level names the test the dog has passed (has, passed) or is working on (toward, working, learning).
   const l = String(dog.level || '').toLowerCase();
-  const passed = (test) => new RegExp(`(has|passed|holds|got)( the| its)? ${test}\\b`).test(l);
+  // Each test by its short and long name. The urban test's long name holds "canine good citizen", so it is read first.
+  const TESTS = { cgcu: 'cgcu|urban canine good citizen|urban cgc', cgca: 'cgca|community canine', cgc: 'cgc|canine good citizen' };
+  // "Passed X": the words between may not say the dog is still working toward something.
+  const passed = (test) => new RegExp(`\\b(has|passed|holds|got|earned)\\b(?:(?!toward|working|learning|next)[^.;,])*?\\b(${TESTS[test]})\\b`).test(l);
   if (passed('cgcu') || /off.?leash/.test(l)) {
     add('next_rung', from('off-leash-and-recall.md', 'Recall on a 20-foot line'));
     add('next_rung', from('off-leash-and-recall.md', 'Chase interruption'));
-  } else if (passed('cgca') || /cgcu|urban/.test(l)) {
+  } else if (passed('cgca') || new RegExp(TESTS.cgcu).test(l)) {
     for (const w of ['Doorways without pulling', 'Waiting at a corner', 'A 3-minute down-stay']) add('next_rung', from('obedience-ladder.md', w));
-  } else if (passed('cgc') || /cgca|community/.test(l)) {
+  } else if (passed('cgc') || new RegExp(TESTS.cgca).test(l)) {
     for (const w of ['controlled wait', 'group sit-stay', '20-foot line while', 'generalisation ladder']) add('next_rung', from('obedience-ladder.md', w));
   } else if (/cgc|good citizen|basic|obedience/.test(l)) {
     for (const f of (cardCache['obedience-ladder.md'] || (cardCache['obedience-ladder.md'] = ctx.card('obedience-ladder.md'))).facts) {
