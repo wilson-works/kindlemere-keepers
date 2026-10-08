@@ -31,7 +31,7 @@
     "ink": "#1A2433",
     "accent": "#B0205C",
     "accent2": "#FF7A45",
-    "font": "Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
+    "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
     "mark": "mark.svg"
   },
   "art": "art.svg",

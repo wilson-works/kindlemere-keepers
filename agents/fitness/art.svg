@@ -25,19 +25,22 @@
     <path d="M287 240 L312 248 L287 258 Z" fill="rgba(26,36,51,0.16)" transform="translate(0 3)"/>
     <path d="M287 240 L312 248 L287 258 Z" fill="#8FA2FF"/>
     <circle cx="295" cy="249" r="2.4" fill="#FFFFFF"/>
-    <ellipse cx="48" cy="312" rx="9" ry="5.5" fill="#B9C2E8"/><ellipse cx="46" cy="310" rx="3" ry="1.4" fill="#FFFFFF" opacity="0.8"/>
-    <ellipse cx="66" cy="316" rx="6" ry="4" fill="#E58AB0"/>
+    <!-- the edge of the summit pool -->
+    <path d="M26 300 Q26 286 52 284 L96 284 Q112 286 110 298 Q104 312 70 312 Q30 312 26 300 Z" fill="#A9B4E2"/>
+    <path d="M32 298 Q34 290 54 289 L94 289 Q104 291 102 298 Q96 306 70 306 Q38 306 32 298 Z" fill="#3E8094"/>
+    <path d="M44 296 q8 -3 16 0 M70 299 q8 -3 16 0" stroke="#CFE6EA" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="88" cy="294" rx="5" ry="2" fill="#CFE6EA" opacity="0.8"/>
+    <ellipse cx="112" cy="318" rx="6" ry="4" fill="#E58AB0"/>
   </g>
 
   <!-- Shadow under Cairn -->
   <ellipse cx="160" cy="318" rx="92" ry="12" fill="rgba(26,36,51,0.16)"/>
 
-  <!-- Feet -->
+  <!-- Feet: one planted, one lifted. Cairn is practising balance at the pool. -->
   <g>
-    <ellipse cx="124" cy="312" rx="24" ry="11" fill="#1A2433"/>
-    <ellipse cx="196" cy="312" rx="24" ry="11" fill="#1A2433"/>
-    <path d="M112 316 v-5 M122 318 v-6 M132 317 v-5 M186 317 v-5 M196 318 v-6 M206 316 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
-    <ellipse cx="118" cy="307" rx="8" ry="3" fill="#4A5568"/><ellipse cx="190" cy="307" rx="8" ry="3" fill="#4A5568"/>
+    <ellipse cx="126" cy="312" rx="24" ry="11" fill="#1A2433"/>
+    <path d="M114 316 v-5 M124 318 v-6 M134 317 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="120" cy="307" rx="8" ry="3" fill="#4A5568"/>
   </g>
 
   <!-- Base stone -->
@@ -59,6 +62,20 @@
     <!-- lichen at the foot -->
     <path d="M86 284 q6 -6 12 -2 q6 -6 12 0 q-2 8 -12 8 q-10 2 -12 -6 z" fill="#6FAF78"/>
     <circle cx="94" cy="282" r="1.6" fill="#A7D3A0"/><circle cx="104" cy="280" r="1.4" fill="#A7D3A0"/>
+  </g>
+
+    <!-- the lifted foot, stretched out to balance -->
+  <g transform="rotate(-22 252 286)">
+    <ellipse cx="252" cy="286" rx="22" ry="10" fill="#1A2433"/>
+    <path d="M264 290 v-5 M254 292 v-6 M244 291 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="258" cy="281" rx="7" ry="2.6" fill="#4A5568"/>
+  </g>
+  <ellipse cx="246" cy="318" rx="12" ry="3.5" fill="rgba(26,36,51,0.12)"/>
+
+  <!-- balance marks -->
+  <g stroke="#8FA2FF" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M266 232 q10 10 0 22"/><path d="M276 226 q14 16 0 34"/>
+    <path d="M54 232 q-10 10 0 22"/>
   </g>
 
   <!-- Middle stone -->

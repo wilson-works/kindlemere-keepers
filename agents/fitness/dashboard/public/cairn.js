@@ -10,6 +10,7 @@
     return n;
   };
   const plain = (t) => String(t || '').replace(/\s*@\S+/g, '').replace(/\s*\[\^\d+\]/g, '').trim();
+  const say = (id, n, one, many) => { $(id).textContent = n === 1 ? one : many; };
   const day = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-CA'); };
 
   function renderCards(cards, emptyText) {
@@ -37,6 +38,7 @@
   async function loadShelf() {
     const { cards } = await kit.api('/api/shelf');
     $('n-cards').textContent = cards.length;
+    say('l-cards', cards.length, 'card on my shelf', 'cards on my shelf');
     $('n-facts').textContent = cards.reduce((n, c) => n + c.facts.length, 0);
     renderCards(cards, 'My shelf is empty.');
   }
@@ -52,6 +54,11 @@
     $('m-facts').textContent = m.facts.length;
     $('m-worked').textContent = m.worked.length;
     $('m-lessons').textContent = m.lessons.length;
+    say('lm-facts', m.facts.length, 'thing you told me', 'things you told me');
+    say('lm-worked', m.worked.length, 'note on what worked', 'notes on what worked');
+    say('lm-lessons', m.lessons.length, 'lesson I learned', 'lessons I learned');
+    const all = m.facts.length + m.worked.length + m.lessons.length;
+    say('l-remember', all, 'thing I remember about you', 'things I remember about you');
     $('n-remember').textContent = m.facts.length + m.worked.length + m.lessons.length;
   }
 
@@ -74,6 +81,7 @@
     const waiting = requests.filter((r) => r.status === 'pending');
     const notAsked = gaps.filter((g) => !g.asked);
     $('n-louise').textContent = waiting.length + notAsked.length;
+    say('l-louise', waiting.length + notAsked.length, 'question for Louise', 'questions for Louise');
     const list = (id, items, empty, when) => {
       const ul = $(id);
       ul.textContent = '';
