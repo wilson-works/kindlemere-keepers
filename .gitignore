@@ -1,0 +1,13 @@
+# What an agent learns about a person stays on this computer.
+agents/*/memory/
+agents/*/state/
+
+# Machine-local settings.
+**/*.config.json
+
+# Drill agents are never committed.
+agents/_*/
+
+node_modules/
+dashboard/.pid
+**/dashboard/.pid
