@@ -23,12 +23,12 @@
     "whistle meadow"
   ],
   "brand": {
-    "bg": "#FBF8E1",
-    "panel": "#F1E9A6",
+    "bg": "#F3F8DF",
+    "panel": "#DDEBA6",
     "ink": "#1A2433",
-    "accent": "#8A4116",
+    "accent": "#6E3A12",
     "accent2": "#FF7A45",
-    "font": "Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
+    "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
     "mark": "mark.svg"
   },
   "art": "art.svg",
@@ -63,8 +63,14 @@
       "use the web or answer from outside its cards and memory"
     ],
     "hands_to": [
-      { "what": "a person's own food, diet or weight", "to": "nutrition" },
-      { "what": "a person's own exercise, running, stretching or meditation", "to": "fitness" }
+      {
+        "what": "a person's own food, diet or weight",
+        "to": "nutrition"
+      },
+      {
+        "what": "a person's own exercise, running, stretching or meditation",
+        "to": "fitness"
+      }
     ]
   }
 }
