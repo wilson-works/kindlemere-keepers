@@ -269,7 +269,7 @@ What the shell does:
   | `/<file>` | `agents/<agent>/dashboard/public/<file>` |
   | `/art/<file>`, `/brand/<file>` | `agents/<agent>/art/`, `agents/<agent>/brand/` |
   | `/art.svg`, `/mark.svg` | the agent's figure and mark, from its folder |
-  | `/kit/kit.js`, `/kit/kit.css`, `/kit/kindlemere.js` | `kit/dashboard/public/` (the shared script, the page frame, the live sky) |
+  | `/kit/kit.js`, `/kit/kit.css`, `/kit/kindlemere.js`, `/kit/kindlemere-dog.js` | `kit/dashboard/public/` (the shared script, the page frame, the live scene, the dog's day and fetch) |
   | `/kit/kindlemere.html`, `/kit/kindlemere-page.js` | `kit/dashboard/public/`: the whole park, the page the office doors open; a click on a character steps into its keeper's room |
   | `/kit/design/<file>` | `kit/design/` (`tokens.css`) |
   | `/kit/art/<file>` | `kit/art/` |
@@ -288,21 +288,35 @@ What the shell does:
   | `/api/park` | `{ rooms: [{ key, name, place, local, phone }] }`: each agent in `bundle.json` with its address here and, when its `agent.config.json` names one, its tailnet address |
   | `POST /api/ask-louise` `{ topic, framing }` | `louise.js ask`: `{ queued, message }` |
 
-- `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`.
+- `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`;
+  `kit.park()` returns the rooms from `/api/park` (fetched once, `[]` when it fails); `kit.address(place)` is a place's
+  address from this page: `'realm'` is `/kit/kindlemere.html`, an agent's key is its room on this computer, or its
+  tailnet address when the page came from there (`null` when it has none).
+- The ways between places. On a page that shows the scene, `kit.js` puts a bar of places in the `.km-top` bar, before
+  the room's own button: Kindlemere, Orchard, Hill, Field (`nav.km-nav`, `a.km-nav-way`, the page's own place marked
+  `aria-current="page"`). A plain click goes there by `kindlemere.go`; a place with no address is `aria-disabled`.
 - The live scene. When the page shows an `<img src="/kit/art/kindlemere*.svg">`, `kit.js` also loads
-  `/kit/kindlemere.js`. That replaces the picture with a stack of depth layers (a `div` that keeps the image's class,
-  id, alt, box, `object-fit: cover` and `object-position`) and runs it (`kit/REALM.md`, "Day and night" and "At
-  rest"). The scene's own ids are prefixed per scene: find parts with `part()`, never by id.
+  `/kit/kindlemere-dog.js` and then `/kit/kindlemere.js`. That replaces the picture with a stack of depth layers (a
+  `div` that keeps the image's class, id, alt, box, `object-fit: cover` and `object-position`) and runs it
+  (`kit/REALM.md`, "Day and night", "Life", "The dog" and "Between the places"). The scene's own ids are prefixed per scene: find parts with
+  `part()`, never by id. A picture whose address ends `#km-still` stays a still picture (`kindlemere.html`'s cards).
 
   | On `window` | What |
   |---|---|
-  | `kindlemere:ready` `{ svg, scene, part }` | fired once per scene. `svg` is the characters' layer, `scene` the stack, `part(name)` the element marked `data-km-part="<name>"`: `dog`, `dog-head`, `dog-pupils`, `dog-ball`, `telescope`, `dog-house-<1..6>`, `dog-house-name-<1..6>` |
-  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley`, `Sizzle` or `dog`. Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line |
+  | `kindlemere:ready` `{ svg, scene, part }` | fired once per scene, after the page's own scripts have run. `svg` is the characters' layer, `scene` the stack, `part(name)` the element marked `data-km-part="<name>"`: `dog`, `dog-head`, `dog-pupils`, `dog-ball`, `telescope`, `sign-nutrition`, `sign-fitness`, `sign-dog-training`, `sign-louise`, `dog-house-<1..6>`, `dog-house-name-<1..6>` |
+  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley` or `Sizzle` (the dog is its own button: fetch). Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line |
   | `kindlemere:dogs` `{ svg, names }` | fired by a page (Tumble's) when its dogs change: the kit shows one dog house per name (one at least, six at most) with the name on its board |
   | `kindlemere.hold(true \| false)` | a room busy with its own work (a run clock, a timer, a game) holds the keepers at home; `kit.js` defines it, so it is safe to call before the scene loads |
+  | `kindlemere.go(url, place)` | go to another place: the camera glides toward `place` (`realm`, `nutrition`, `fitness`, `dog-training`) and the next page glides the rest of the way in (`#km-from=` on its address). Reduced motion: a plain page change |
+  | `kindlemere.say(el, text)` | a line in the scene's paper bubble over `el` |
+  | `kindlemereDog.attach(svg, dogEl, { say, chatty })` | the dog's game on a scene's characters layer: its day, fetch and the commands. Returns `{ setPaused, state, show(cmd), beg, wake, asleep, visit(points), home, busy, where }`, or `null` without the dog's parts or the ground. `chatty` says every line through `say`, not only the first hints |
+  | `kindlemereDog.of(svg)`, `kindlemereDog.ground(svg)` | the game attached to a layer; the ground the art marks out (`inside`, `span`, `water`, `where`, `snap`) |
+  | `kindlemereDogManual = true` | a room that brings its own dog sets this before the scene starts and attaches its dog itself on `kindlemere:ready` (Tumble's `fetch.js`) |
 
   The stack and every layer carry `data-km-night="1"` after dark and `data-km-evening="1"` from late afternoon
-  through night. Every character is in a `[data-km-actor]` group with `data-km-name`.
+  through night. Every character is in a `[data-km-actor]` group with `data-km-name`. The characters' layer carries the
+  ground from the art (`data-km-walk`, the outline the dog may walk; `data-km-shore`, the water's edge) and, from the
+  live scene, the camera (`data-km-view`, the box shown in world units; `data-km-scale`, page pixels to a world unit).
 - An agent may pass `routes` to `start`: `{ 'GET /api/<name>': (ctx) => object }`, where `ctx` is
   `{ agentDir, query, body }`. A route may not replace a kit route.
 

@@ -115,19 +115,60 @@ The place comes from `kit/realm.config.json` on this computer, `{ "lat": 35.5, "
 plenty; the file is never committed), read through `GET /api/realm`. Without it, the place is the middle of this
 computer's time zone. To see another hour, add `?km-time=2026-10-08T19:30` to the page's address.
 
-## At rest, in depth, at a touch
+## Life
+
+Owner, 2026-10-08: "the characters should have more free movement in general ... upgrade the animations and
+movement, and create the full scene to be immersive and engaging."
 
 - **Depth.** The scene is a stack of layers: the sky, the far hills and the wood, the hill, the land, the things that
   move on the land, and the characters. Each shifts a little with the pointer or the phone's tilt, far layers least.
-- **At rest they mingle.** After 20 seconds with no touch, key or wheel, one group walks the stitched paths to visit
-  another: Avo and Summer climb to Steady, Steady and the clouds come down to the table, Tumble brings Barkley,
-  Sizzle and the dog to the signpost or the Orchard. They grow as they come nearer the front, stop and talk (a paper
-  bubble, faces that think, smile and go "oh", bodies that tilt to think, hop at an "oh" and sway as they talk),
-  and walk home. Any touch, key or wheel sends everyone home at once.
-  A room busy with its own work holds them at home (`window.kindlemere.hold`). Nobody wanders at night.
-- **A touch.** Every character is a button. Clicking one (or Enter or Space) wakes its face and bubble; the room
-  answers in the character's own words, and on a page with no answer the kit says a short line of its own.
+  Whoever stands nearer the front is bigger and is drawn over whoever is behind, the dog included.
+- **Everyone about their place.** Each character potters about its own patch on its own clock, in its own way:
+  Avo and Spud walk, Summer hops, Steady steps, Puff and Huff float, Tumble rolls, Barkley walks and Sizzle wiggles.
+  Now and then one stops to look about, and neighbours have a word (their bubbles take turns, their faces change).
+- **Visits.** Every so often a group walks the stitched paths to another place: Avo and Summer climb to Steady or
+  cross to the Field, Steady and the clouds come down to the table or over to the Field, Tumble brings Barkley,
+  Sizzle and the dog to the signpost or the Orchard. They stop and talk, then walk home. In a room its own keeper
+  keeps to its spot (the room's bubble points at it) and only goes visiting once the page has been left alone a while.
+  A room busy with its own work holds everyone at home (`window.kindlemere.hold`). Nobody wanders at night.
+- **A touch.** Every character is a button. Clicking one (or Enter or Space) stops it to answer: its face and bubble
+  wake, the room answers in its own words, and on a page with no answer the kit says a short line of its own. On the
+  Kindlemere page a keeper steps you into its room. No box is drawn round what you touch; the keyboard's focus is a
+  soft glow round the shape. Only what is in the picture is a stop for the keyboard.
 - Reduced motion: no depth shift and no wandering; the still scene.
+
+## The dog
+
+Owner, 2026-10-08: "I press the dog in the full view, ball drops and I could throw it up the hill or to the orchard and
+the dog would go fetch it. Also the dog runs in place a lot. Needs more natural rhythm of movement." And: "dog running
+backwards is another fix".
+
+- **Its day** (`/kit/kindlemere-dog.js`, in every view): it splashes along the shallows and shakes off, trots about
+  the Field, sniffs, sits and looks about, lies down, drinks at its bowl, has a mad minute now and then (a play bow,
+  then a gallop), and goes to sit by Tumble. It goes with Tumble's group on their visits.
+- **Its rhythm.** It always faces the way it goes and turns on the spot to change direction, never running backwards.
+  Its legs keep pace with its feet: a gallop, a trot, a walk, slowing as it slows, and still when it stands.
+- **Fetch, anywhere.** Tap the dog and it drops the ball at its feet. Drag the ball and it watches (so does Tumble);
+  held 2 s it sits, held 10 s within its reach it jumps up and takes it. A flick throws it where it was aimed: up the
+  hill, into the Orchard, out on the lake (where it floats back in to the shallows). The dog runs for it, picks it
+  up, brings it back to where you threw from, drops it and waits. On a phone the dog and the ball are at least a
+  finger wide. In Tumble's room the same dog also takes the commands Tumble shows and the look for the treats.
+- **The ground** it may walk is marked in the art (`data-km-walk`: the Orchard's meadow, the hill's face to its top,
+  the Field and the shallows; `data-km-shore`: the water's edge). A ball can come down anywhere on it.
+- After dark it sleeps in its house. In Tumble's room a command wakes it for a while, sleepy: a sit, a lie down.
+
+## Between the places
+
+Owner, 2026-10-08: "Need to be able to navigate between the 3 scenes or return to the main full view screen while
+inside a scene ... flow inside each scene".
+
+- The places are one world seen through four cameras (the realm, the Orchard, the Hill, the Field), so going from one
+  to another is a camera move: the view glides toward the next place and dips to the page's colour, and the next
+  page starts where it left off and glides the rest of the way in.
+- The ways: the bar of places on every page with the scene (Kindlemere, Orchard, Hill, Field), the signpost's arms
+  in the scene (Louise's arm points across the lake), a keeper on the Kindlemere page, and each place's card there.
+- The Kindlemere page shows the places' cards as still pictures (`#km-still`): three more live scenes would make the
+  page crawl on a phone.
 
 ## Colour
 
@@ -160,7 +201,8 @@ No slot uses cream with plum, no land is Bert's fern (`#3E8F5E`) or his butter (
 - `<body data-agent="<key>">` gives every kit part the agent's colours.
 - The hero is the agent's close view as an `<img>` in a 16:9 card. It goes live by itself (Day and night, above);
   `object-fit: cover` and `object-position` on the image still frame it once it is live.
-- The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role), `.km-card` (a paper card; `.km-sky` for a
+- The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role, and on a page with the scene the bar of places
+  that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
   sky-coloured one), `.km-btn` and `.km-btn-quiet` (pill buttons, 44 px tall), `.km-field`, `.km-chip`,
   `.km-lantern` (a question for Louise), `.km-thread` (a stitched path, as a divider), `.km-source` (a fact's
   source), `.km-foot` (the lake at the bottom), `.km-grid`.

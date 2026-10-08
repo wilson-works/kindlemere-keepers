@@ -28,10 +28,12 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
 
 - **All of Kindlemere** (owner, 2026-10-08: one park, three doors): run `node kit/dashboard/park.js` from this folder.
   One process opens all three rooms, each on its own port, and prints the park's address,
-  `/kit/kindlemere.html` on any of them. That page is the whole realm, live. Click Avo, Steady or Tumble, or anyone
-  with them, to step into their room; each place also has its own button under the realm. The office's three doors
-  all start the park this way and open this page, so any door wakes the whole park and Sleep on any door puts it to
-  sleep.
+  `/kit/kindlemere.html` on any of them. That page is the whole realm, live. Click Avo, Steady or Tumble to step into
+  their room, or take the signpost; each place also has its own card under the realm. The bar at the top of every
+  page goes between Kindlemere, the Orchard, the Hill and the Field, and the camera glides from one to the next. Click
+  the dog to play fetch anywhere in the park: drag the ball and flick it up the hill, into the Orchard or out on the
+  lake. The office's three doors all start the park this way and open this page, so any door wakes the whole park and
+  Sleep on any door puts it to sleep.
 - **Its room** (the dashboard): run `node agents/<agent>/dashboard/server.js` from this folder, then open the address
   it prints. The room is a step into the keeper's place, made for doing: Avo plans meals with you, Steady takes you
   through a run, a workout or a stretch, Tumble trains with you and your dog. What the keeper knows, what it

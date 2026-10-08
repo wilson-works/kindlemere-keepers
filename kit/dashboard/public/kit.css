@@ -113,4 +113,37 @@ a { color: var(--a-land); text-underline-offset: 3px; }
 
 .km-grid { display: grid; gap: var(--km-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
 
+/* The ways between the places (kit.js), on the bar of every page with the scene: the whole park and the three places.
+   The page you are on is filled in its land colour. On a phone they take a row of their own under the name. */
+.km-nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--km-space-2); margin-left: auto; }
+.km-top > .km-nav + * { margin-left: var(--km-space-3); }
+.km-nav-way {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px;
+  border-radius: var(--km-radius-pill); background: rgba(255, 255, 255, 0.62); box-shadow: 0 2px 0 var(--km-shadow);
+  font: 700 var(--km-text-sm)/1 var(--km-font-head); color: var(--km-ink); text-decoration: none; white-space: nowrap;
+}
+.km-nav-way:hover { background: var(--km-paper); }
+.km-nav-way[aria-current="page"] { background: var(--a-land); color: #FFFFFF; box-shadow: 0 2px 0 var(--km-shadow-deep); cursor: default; }
+.km-nav-way[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+@media (max-width: 720px) {
+  .km-top { flex-wrap: wrap; }
+  /* the name wraps in its own room, so the room's own button keeps the first row */
+  .km-top:has(> .km-nav) > div:first-of-type { flex: 1 1 0; }
+  .km-nav { order: 5; width: 100%; margin-left: 0; gap: 6px; }
+  .km-top > .km-nav + * { margin-left: auto; }
+  .km-nav-way { flex: 1 1 0; padding: 0 6px; min-height: 38px; }
+}
+
+/* The live scene (kindlemere.js): its characters, the dog, the ball and the signpost's arms are buttons and links drawn
+   in the picture. A click or a tap draws no box round them and selects nothing; the keyboard's focus is a soft glow
+   round the shape instead of a box (owner, 2026-10-08: "get rid of the black boxes when interacting with a character"). */
+.km-live { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.km-live :is([data-km-actor], [data-km-part], .dt-dog, .km-ball):focus { outline: none; }
+.km-live :is([data-km-actor], [data-km-part], .dt-dog):focus-visible { outline: none; filter: drop-shadow(0 0 2px #FFFFFF) drop-shadow(0 0 4px var(--km-mere-deep)); }
+/* A splash where the ball meets the water. */
+.km-live .km-ring { animation: km-ring 1.1s ease-out forwards; transform-box: fill-box; transform-origin: center; opacity: 0; }
+@keyframes km-ring { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(2.6); opacity: 0; } }
+/* Arriving from another place: the picture waits under its veil until it is live (kit.js, kindlemere.js). */
+.km-arriving img[src^="/kit/art/kindlemere"] { opacity: 0; }
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
