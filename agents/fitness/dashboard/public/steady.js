@@ -12,7 +12,7 @@
   const plain = (t) => String(t || '').replace(/\s*@\S+/g, '').replace(/\s*\[\^\d+\]/g, '').trim();
   const say = (id, n, one, many) => { $(id).textContent = n === 1 ? one : many; };
   // Steady's mood shows in the face and the pose. The figures come from the kit (kit/art/keepers/fitness-<mood>.svg);
-  // until the kit has exported them, the figure stays hidden and the hero shows the hill alone.
+  // until the kit has exported them the page carries no figure (the owner: "do not ship a figure of your own"), so mood() does nothing.
   const MOODS = {
     happy: "Steady, smiling: three stacked granite stones with bright eyes and a pebble sash, on the grass of Stepping Hill",
     thinking: "Steady, thinking: head tilted, eyes up, little pebbles of thought rising",
@@ -120,10 +120,6 @@
     if (jokes.length) $('greeting').textContent = jokes[Math.floor(Math.random() * jokes.length)];
   }
 
-  const fig = $("figure");
-  fig.addEventListener("load", () => { fig.hidden = false; });
-  fig.addEventListener("error", () => { fig.hidden = true; });
-  if (fig.complete && fig.naturalWidth > 0) fig.hidden = false;
   $('find').addEventListener('submit', (e) => {
     e.preventDefault();
     find($('q').value.trim()).catch((err) => { $('know-note').textContent = err.message; mood('worried'); });

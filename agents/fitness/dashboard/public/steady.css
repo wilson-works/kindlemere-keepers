@@ -8,7 +8,6 @@
 .room { padding: 0; overflow: hidden; }
 .room-view { position: relative; aspect-ratio: 16 / 9; background: var(--a-sky); }
 .room-hero { display: block; width: 100%; height: 100%; object-fit: cover; }
-.room-mood { position: absolute; right: var(--km-space-4); bottom: var(--km-space-4); width: 22%; max-width: 160px; height: auto; }
 .room-words { padding: var(--km-space-5); }
 .room h1 { color: var(--a-land); }
 .room-line { font-family: var(--km-font-head); font-size: var(--km-text-lg); }
