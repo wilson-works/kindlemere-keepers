@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kindlemere</title>
+<link rel="stylesheet" href="/kit/design/tokens.css">
+<link rel="stylesheet" href="/kit/kit.css">
+<style>
+  .km-realm { display: block; width: 100%; height: auto; border-radius: var(--km-radius-lg); box-shadow: var(--km-layer); background: #DCE5EC; }
+  .km-realm-box { margin: 0; }
+  .km-hint { margin: var(--km-space-3) 0 0; color: var(--km-ink-soft); font-size: var(--km-text-sm); }
+  .km-ways { margin-top: var(--km-space-6); }
+  .km-way { display: flex; flex-direction: column; gap: var(--km-space-3); margin: 0; padding: var(--km-space-3) var(--km-space-3) var(--km-space-5); }
+  .km-way img { display: block; width: 100%; height: auto; border-radius: var(--km-radius-sm); }
+  .km-way h3 { margin: var(--km-space-2) var(--km-space-2) 0; }
+  .km-way p { margin: 0 var(--km-space-2); font-size: var(--km-text-sm); }
+  .km-way .km-btn { align-self: flex-start; margin: var(--km-space-2) var(--km-space-2) 0; text-decoration: none; }
+  .km-way .km-btn[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
+  .km-shut:empty { display: none; }
+</style>
+</head>
+<body>
+<header class="km-top">
+  <div><h1 class="km-name" style="margin: 0">Kindlemere</h1><div class="km-role">One park beside one lake, under the real sky</div></div>
+</header>
+<main class="km-page">
+  <figure class="km-realm-box">
+    <img class="km-realm" src="/kit/art/kindlemere.svg" width="3200" height="1800" alt="Kindlemere: the Orchard, Stepping Hill and Lakeside Field beside a teal lake, joined by paths at a signpost, under a sky that follows the time of day.">
+    <figcaption class="km-hint">Click Avo, Steady or Tumble, or anyone with them, to step into their place.</figcaption>
+  </figure>
+  <p class="km-hint km-shut" id="shut" role="status"></p>
+
+  <section class="km-ways" aria-labelledby="ways">
+    <h2 id="ways">Three ways in</h2>
+    <div class="km-grid">
+      <article class="km-card km-sky km-way" data-agent="nutrition" data-room="nutrition">
+        <img src="/kit/art/kindlemere-orchard.svg" width="1600" height="900" alt="The Orchard: Avo the avocado by the long table under the string lights.">
+        <h3>The Orchard</h3>
+        <p>Avo, with Summer and Spud. Plan your meals, the shop and a week of cooking.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Step into the Orchard</a>
+      </article>
+      <article class="km-card km-sky km-way" data-agent="fitness" data-room="fitness">
+        <img src="/kit/art/kindlemere-hill.svg" width="1600" height="900" alt="Stepping Hill: Steady the stacked stones at the foot of the stone steps.">
+        <h3>Stepping Hill</h3>
+        <p>Steady, with Puff and Huff. Runs, workouts, stretches and slow breath.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Climb Stepping Hill</a>
+      </article>
+      <article class="km-card km-sky km-way" data-agent="dog-training" data-room="dog-training">
+        <img src="/kit/art/kindlemere-field.svg" width="1600" height="900" alt="Lakeside Field: Tumble the herding ball by the dog house, and the dog in the shallows.">
+        <h3>Lakeside Field</h3>
+        <p>Tumble, with Barkley, Sizzle and your dog. Train, play and treats.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Walk to Lakeside Field</a>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="km-foot"><p>When a keeper doesn't know something, they send a lantern across the lake to Louise, our librarian.</p></footer>
+<script src="/kit/kit.js"></script>
+<script src="/kit/kindlemere-page.js"></script>
+</body>
+</html>

@@ -88,6 +88,39 @@ function localConfig(agentDir) {
   return common.readJson(path.join(agentDir, 'agent.config.json'), {}) || {};
 }
 
+/** The agent's port: `port` in agent.config.json, else probe.port in agent.json; null when neither is a usable port. */
+function portOf(agentDir) {
+  const manifest = common.readJson(path.join(agentDir, 'agent.json'), {}) || {};
+  const port = Number(localConfig(agentDir).port || (manifest.probe && manifest.probe.port));
+  return Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null;
+}
+
+/**
+ * The park's three rooms, for the Kindlemere page's ways in (owner 2026-10-08: one park, three doors): each agent in
+ * bundle.json with its name, its place, its address on this computer and, when agent.config.json names one, its
+ * tailnet address. An agent whose files can't be read is left out.
+ */
+function parkRooms() {
+  const root = path.join(KIT, '..');
+  const bundle = common.readJson(path.join(root, 'bundle.json'), {}) || {};
+  const rooms = [];
+  for (const b of bundle.agents || []) {
+    if (!b || !/^[a-z][a-z-]{0,30}$/.test(String(b.key || ''))) continue;
+    const dir = path.join(root, 'agents', b.key);
+    try {
+      const m = common.readJson(path.join(dir, 'agent.json'), {}) || {};
+      const port = portOf(dir);
+      let phone = null;
+      try {
+        const u = new URL(String(localConfig(dir).phone || ''));
+        if (u.protocol === 'https:' || u.protocol === 'http:') phone = `${u.origin}/`;
+      } catch (_) { /* no phone address */ }
+      rooms.push({ key: b.key, name: m.name || b.key, place: b.place || null, local: port ? `http://127.0.0.1:${port}/` : null, phone });
+    } catch (_) { /* unreadable: left out */ }
+  }
+  return rooms;
+}
+
 function createShell(opts) {
   const o = opts || {};
   const agentDir = path.resolve(o.agentDir);
@@ -118,6 +151,7 @@ function createShell(opts) {
     'GET /api/memory': () => engine.memory.recall(key),
     'GET /api/louise': () => ({ requests: engine.louise.requests(key), gaps: engine.louise.gaps(key) }),
     'GET /api/realm': () => realmPlace(),
+    'GET /api/park': () => ({ rooms: parkRooms() }),
     'GET /api/tools': () => {
       const status = new Map(engine.toolsmith.list(key).map((t) => [t.name, t]));
       return { tools: engine.toolsmith.registry(key).tools.map((t) => Object.assign({}, t, { ok: Boolean(status.get(t.name) && status.get(t.name).ok) })) };
@@ -253,9 +287,9 @@ function start(opts) {
   const o = opts || {};
   const agentDir = path.resolve(o.agentDir);
   const manifest = common.readJson(path.join(agentDir, 'agent.json'), {}) || {};
-  const port = Number(localConfig(agentDir).port || (manifest.probe && manifest.probe.port));
+  const port = portOf(agentDir);
   const name = manifest.name || path.basename(agentDir);
-  if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+  if (!port) {
     process.stderr.write(`${name} has no port: set probe.port in agent.json.\n`);
     process.exit(2);
   }
@@ -279,4 +313,4 @@ function start(opts) {
   return server;
 }
 
-module.exports = { createShell, start };
+module.exports = { createShell, start, portOf };

@@ -1,7 +1,7 @@
 'use strict';
 
 /* Steady's page: the foot of Stepping Hill, getting ready to run. Reads the kit API (kit/CONTRACT.md, section 10) and
-   Steady's two routes in dashboard/server.js. Every fact on the trail is read from a card, with its source.
+   Steady's two routes in dashboard/routes.js. Every fact on the trail is read from a card, with its source.
    Memory is shown as counts, never contents. */
 (function () {
   const $ = (id) => document.getElementById(id);

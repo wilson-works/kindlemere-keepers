@@ -253,6 +253,9 @@ What the shell does:
 
 - Listens on `127.0.0.1` only, on `port` from `agent.config.json`, else `probe.port` in `agent.json`. Writes
   `dashboard/.pid` while it runs and removes it on exit. A taken port: exit `1` with a plain sentence.
+- `node kit/dashboard/park.js` opens every agent in `bundle.json` at once, in one process, each on its own port with
+  its own routes, exactly as its own `server.js` would. It keeps `kit/dashboard/.pid` while any room is open. A taken
+  port leaves that room out with a plain sentence; no room open: exit `1`.
 - Answers only Host `127.0.0.1`, `localhost` or the `phone` host from `agent.config.json`. Any other Host: `403`.
 - `GET /health` answers `{"ok":true}` with no token, always.
 - A new token each start. The shell puts it in the page as `<meta name="kit-token" content="…">`. Every `/api/`
@@ -267,6 +270,7 @@ What the shell does:
   | `/art/<file>`, `/brand/<file>` | `agents/<agent>/art/`, `agents/<agent>/brand/` |
   | `/art.svg`, `/mark.svg` | the agent's figure and mark, from its folder |
   | `/kit/kit.js`, `/kit/kit.css`, `/kit/kindlemere.js` | `kit/dashboard/public/` (the shared script, the page frame, the live sky) |
+  | `/kit/kindlemere.html`, `/kit/kindlemere-page.js` | `kit/dashboard/public/`: the whole park, the page the office doors open; a click on a character steps into its keeper's room |
   | `/kit/design/<file>` | `kit/design/` (`tokens.css`) |
   | `/kit/art/<file>` | `kit/art/` |
 
@@ -281,6 +285,7 @@ What the shell does:
   | `/api/louise` | `{ requests: [...] }` from `state/asked-louise.json`, and `{ gaps: [...] }` from `GAPS.md` |
   | `/api/tools` | `registry.json`, each tool with `ok` (it still matches its entry) |
   | `/api/realm` | `{ lat, lon }` from `kit/realm.config.json` (this computer's place, never committed), else `{}` |
+  | `/api/park` | `{ rooms: [{ key, name, place, local, phone }] }`: each agent in `bundle.json` with its address here and, when its `agent.config.json` names one, its tailnet address |
   | `POST /api/ask-louise` `{ topic, framing }` | `louise.js ask`: `{ queued, message }` |
 
 - `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`.
