@@ -7,6 +7,7 @@
  *   louiseDir()                      her folder: LOUISE_DIR, else <Hub>\20-Coding\{Projects,Active}\louise, where
  *                                    <Hub> is D:\Hub then C:\Hub (the first holding CLAUDE.md). Throws when none
  *   libraryDir()                     her library (her own `node engine/config.js where`), or null
+ *   libraryDirs()                    every shelf she reads (her own config's roots), first root first
  *   ask(key, topic, framing)         { queued, message, already }
  *   requests(key)                    the agent's state/asked-louise.json requests
  *   pending(key)                     those still pending
@@ -57,6 +58,19 @@ function libraryDir() {
   let out = '';
   try { out = node(dir, ['engine/config.js', 'where']).trim(); } catch (_) { return null; }
   return out || null;
+}
+
+/** Every shelf she reads (her config's roots, not her examples), first root first. */
+function libraryDirs() {
+  const dir = louiseDir();
+  try {
+    const out = node(dir, ['-e', "process.stdout.write(JSON.stringify(require('./engine/config').load().roots.filter((r) => !r.example).map((r) => r.path)))"]);
+    const roots = JSON.parse(out);
+    return Array.isArray(roots) ? roots : [];
+  } catch (_) {
+    const one = libraryDir();
+    return one ? [one] : [];
+  }
 }
 
 const stateFile = (key) => path.join(common.agentDir(key), 'state', 'asked-louise.json');
@@ -123,7 +137,7 @@ function sendGaps(key) {
   return sent;
 }
 
-module.exports = { louiseDir, libraryDir, ask, requests, pending, gaps, sendGaps, saveRequests };
+module.exports = { louiseDir, libraryDir, libraryDirs, ask, requests, pending, gaps, sendGaps, saveRequests };
 
 if (require.main === module) {
   common.cli((args) => {
