@@ -7,8 +7,11 @@
  *
  *   GET  /api/table                   today's meals, this week at a glance, and the weeks she has kept
  *   GET  /api/week?k=<link>           one week's full plan, while its link is open
- *   POST /api/meal-check {week, day, slot, mark}   mark is eaten, swapped or clear
+ *   POST /api/meal-check {week, day, slot, mark}   mark is eaten, swapped or clear; slot "prep" marks a prep day done
  *   POST /api/week-link {week}        a new link for a kept week (open 7 days)
+ *   POST /api/talk {text, fresh}      say something to Avo at her table (one turn of Claude Code in her folder; talk.js)
+ *   GET  /api/talk                    the conversation, and what she is doing while she answers
+ *   POST /api/talk-stop               stop the answer she is working on
  *   GET  /api/sources                 the titles behind each footnote number, from the sources.md of each of
  *                                     Louise's books in knowledge/books (read only)
  */
@@ -29,6 +32,7 @@ const mondayOf = (d) => addDays(d, -((d.getDay() + 6) % 7));
 const bad = (message, status) => Object.assign(new Error(message), { status: status || 400 });
 
 module.exports = function routes(agentDir) {
+  const talk = require('./talk')(agentDir);
   const dir = path.join(agentDir, 'state', 'tools', 'meal-week');
   const read = (name, dflt) => {
     try { return JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')); } catch (_) { return dflt; }
@@ -67,7 +71,10 @@ module.exports = function routes(agentDir) {
     });
     if (!cook.length) return null;
     const lastDay = w.days[until - 1];
-    return { week: w.id, through: lastDay ? lastDay.name : '', cook, keep: w.safety ? w.safety.keep : '', flags: w.flags || [] };
+    // The prep day's own tick: the day key, or "before" for the Sunday before the week.
+    const day = idx < 0 ? 'before' : DAYS[idx];
+    const c = read(`week-${w.id}.checks.json`, {});
+    return { week: w.id, day, done: Boolean((c.done || {})[`${day}.prep`]), through: lastDay ? lastDay.name : '', cook, keep: w.safety ? w.safety.keep : '', flags: w.flags || [] };
   }
 
   return {
@@ -113,6 +120,10 @@ module.exports = function routes(agentDir) {
       };
     },
 
+    'POST /api/talk': (ctx) => talk.start((ctx.body || {}).text, (ctx.body || {}).fresh === true),
+    'GET /api/talk': () => talk.status(),
+    'POST /api/talk-stop': () => talk.stop(),
+
     'GET /api/sources': () => {
       const root = path.join(agentDir, 'knowledge', 'books');
       const books = {};
@@ -147,7 +158,9 @@ module.exports = function routes(agentDir) {
       const b = ctx.body || {};
       const id = String(b.week || '');
       if (!week(id)) throw bad('That week is not on my table.');
-      if (!DAYS.includes(b.day) || !SLOTS.includes(b.slot)) throw bad('Tell me the day and the meal.');
+      // A meal on a day, or a prep day done (slot "prep"; the Sunday before the week is day "before").
+      const isPrep = b.slot === 'prep' && (DAYS.includes(b.day) || b.day === 'before');
+      if (!isPrep && (!DAYS.includes(b.day) || !SLOTS.includes(b.slot))) throw bad('Tell me the day and the meal.');
       if (!['eaten', 'swapped', 'clear'].includes(b.mark)) throw bad('Mark a meal eaten, swapped or clear.');
       const c = checks(id);
       const key = `${b.day}.${b.slot}`;

@@ -586,7 +586,7 @@
         `<circle cx="4" cy="-40" r="4" fill="#CFC8B0"/><circle cx="36" cy="22" r="4.6" fill="#CFC8B0"/><circle cx="-40" cy="-30" r="3.4" fill="#CFC8B0"/><circle cx="10" cy="44" r="3.6" fill="#CFC8B0"/></g>`;
     }
     wrap.innerHTML = `<svg viewBox="-100 -100 200 200" width="${size.toFixed(0)}" height="${size.toFixed(0)}" aria-hidden="true" style="max-width:none"><circle r="96" fill="#060C16"/>${stars}${body}<circle r="96" fill="none" stroke="#1A2433" stroke-width="8"/></svg>` +
-      `<p style="margin:0;color:#CFE6EA;font:600 14px/1.3 ui-rounded,Candara,'Gill Sans','Segoe UI',sans-serif;text-align:center">${m.lit < 0.03 ? `New moon tonight (${Math.round(m.lit * 100)}% lit), so you see the stars. ` : `${m.lit > 0.97 ? 'Full moon' : phaseName(m.phase)}, ${Math.round(m.lit * 100)}% lit. `}${t.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.</p>` +
+      `<p style="margin:0;color:#CFE6EA;font:600 14px/1.3 ui-rounded,Candara,'Gill Sans','Segoe UI',sans-serif;text-align:center">${m.lit < 0.03 ? (m.lit < 0.005 ? 'New moon tonight, so you see the stars. ' : `Almost new tonight, a thin ${m.waxing ? 'waxing' : 'waning'} crescent (${Math.round(m.lit * 100)}% lit), so you see the stars. `) :`${m.lit > 0.97 ? 'Full moon' : phaseName(m.phase)}, ${Math.round(m.lit * 100)}% lit. `}${t.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.</p>` +
       `<p style="margin:0;color:#8797A5;font:400 12px/1.3 system-ui,sans-serif">Tap or press Escape to step back.</p>`;
     const close = () => { wrap.remove(); document.removeEventListener('keydown', esc); if (back && back.focus) back.focus(); };
     const esc = (e) => { if (e.key === 'Escape') close(); };

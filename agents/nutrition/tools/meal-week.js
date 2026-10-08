@@ -335,6 +335,44 @@ run(__filename, (ctx) => {
     }).join('\n');
   }
 
+  // What worked: every recipe from the kept weeks, how often it was planned, eaten and swapped (the person's own
+  // ticks), and whether to keep it or change it. The recipes themselves sit in each week's file, ready to reuse.
+  function worked() {
+    const links = readJson('links.json', { links: [] });
+    const ids = [...new Set(links.links.map((l) => l.week))].sort().reverse();
+    const per = {};
+    const used = [];
+    for (const id of ids) {
+      const rec = readJson(weekFile(id), null);
+      if (!rec) continue;
+      used.push(id);
+      const checks = readJson(checksFile(id), { done: {}, swapped: {} });
+      for (const d of rec.days) {
+        for (const s of d.slots) {
+          if (!s.recipe) continue;
+          const r = rec.recipes.find((x) => x.id === s.recipe) || {};
+          const k = s.name.toLowerCase();
+          const row = per[k] || (per[k] = { name: s.name, kind: r.kind, from: r.source && r.source.card ? 'a recipe card' : 'your recipe box', week: id, planned: 0, eaten: 0, swapped: 0 });
+          row.planned += 1;
+          if (checks.done[`${d.key}.${s.slot}`]) row.eaten += 1;
+          if ((checks.swapped || {})[`${d.key}.${s.slot}`]) row.swapped += 1;
+        }
+      }
+    }
+    if (!used.length) return 'No weeks kept yet, so nothing to learn from. We start fresh.';
+    const rows = Object.values(per).sort((a, b) => (b.eaten - b.swapped) - (a.eaten - a.swapped));
+    const say = (r) => {
+      const verdict = !r.eaten && !r.swapped ? 'not ticked yet' : r.swapped > r.eaten ? 'change it' : 'keep it';
+      return `- ${r.name} (${r.from}, ${r.kind === 'prep' ? 'meal prep' : 'quick cook'}): planned ${r.planned}, eaten ${r.eaten}, swapped ${r.swapped}. ${verdict}.`;
+    };
+    return [
+      `What worked, from ${used.length} kept ${used.length === 1 ? 'week' : 'weeks'} (latest first: ${used.join(', ')}). Only recipes are counted; plain meals are not.`,
+      ...rows.map(say),
+      '',
+      `To reuse a recipe, copy it from its week file (state/tools/meal-week/week-<monday>.json, "recipes") into the draft.`,
+    ].join('\n');
+  }
+
   function showTargets() {
     const d = readJson('draft.json', null);
     const t = targets(d && d.person);
@@ -348,5 +386,6 @@ run(__filename, (ctx) => {
   if (cmd === 'track') return track();
   if (cmd === 'weeks') return weeks();
   if (cmd === 'targets') return showTargets();
-  return 'Use: meal-week.js publish | today [YYYY-MM-DD] | track | weeks | targets';
+  if (cmd === 'worked') return worked();
+  return 'Use: meal-week.js publish | today [YYYY-MM-DD] | track | weeks | worked | targets';
 });

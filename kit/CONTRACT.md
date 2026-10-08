@@ -309,5 +309,5 @@ An agent's page links `/kit/design/tokens.css` and `/kit/kit.css`, then its own 
 `kit/art/` and drawn by `kit/art/make-kindlemere.js`: the scene and its close views, and every character in five
 moods (`happy`, `thinking`, `oh`, `worried`, `sleepy`): the keepers as `kit/art/keepers/<agent>-<mood>.svg` and
 their sidekicks as `kit/art/keepers/<agent>-<sidekick>-<mood>.svg` (`nutrition-summer`, `nutrition-spud`,
-`fitness-puff`, `fitness-huff`, `dog-training-barkley`, `dog-training-sizzle`). The Field's dog is lane D's drawing,
-kept in the kit as `kit/art/parts/field-dog.svg`.
+`fitness-puff`, `fitness-huff`, `dog-training-barkley`, `dog-training-sizzle`). The Field's dog, Barkley and Sizzle are
+lane D's drawings, kept in the kit as `kit/art/parts/field-dog.svg` and `kit/art/parts/dog-sidekicks.js`.
