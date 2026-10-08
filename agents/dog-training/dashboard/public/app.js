@@ -273,7 +273,11 @@
     // Tumble answers a click (or Enter) with a line of its own; the kit's character event does the same (talk)
     const keeper = svg.querySelector('[id$="km-keeper-dog-training"]');
     // the kit makes every character a button and fires kindlemere:character; on an older kit the page does it here
-    if (keeper && keeper.getAttribute('role') !== 'button') {
+    // The dog already has its own button here (fetch.js: "Play fetch with ..."), so the kit's wrapper for it leaves the
+    // tab order: one stop per character.
+    const dogActor = svg.querySelector('[data-km-actor="dog"][role="button"]');
+    if (dogActor && game) dogActor.setAttribute('tabindex', '-1');
+    if (keeper && !keeper.closest('[role="button"]')) {
       keeper.setAttribute('role', 'button');
       keeper.setAttribute('tabindex', '0');
       keeper.setAttribute('aria-label', 'Talk to Tumble');
