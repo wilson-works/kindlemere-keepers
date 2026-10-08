@@ -1,0 +1,60 @@
+{
+  "tools": [
+    {
+      "name": "week-plan",
+      "file": "week-plan.js",
+      "purpose": "Builds a week of eating shaped on DASH and on what the person has told me, every line a card fact with its card named.",
+      "inputs": [
+        "days"
+      ],
+      "cards": [
+        "eating-patterns.md",
+        "labels-and-energy.md",
+        "protein.md",
+        "diabetes.md",
+        "food-allergies.md",
+        "celiac-and-gluten.md",
+        "plant-based-and-genes.md",
+        "pregnancy.md",
+        "training-fuel.md",
+        "kidney-disease.md",
+        "scope-and-escalation.md",
+        "medicines-and-pku.md"
+      ],
+      "sha256": "b5a6cfa1d1347122a69e6f3ec9409288a2d0703f30e74bcda66a1106ed5a4bfa",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "swap-finder",
+      "file": "swap-finder.js",
+      "purpose": "Finds the safe swap for a food someone must avoid, telling an allergy from an intolerance, from my allergy and gluten cards.",
+      "inputs": [
+        "food",
+        "allergy",
+        "intolerance"
+      ],
+      "cards": [
+        "food-allergies.md",
+        "celiac-and-gluten.md",
+        "scope-and-escalation.md"
+      ],
+      "sha256": "20c440ebd22f22ea3878f912486953da3b56081986e6173f0abfa90281567b65",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "prep-list",
+      "file": "prep-list.js",
+      "purpose": "Makes the shopping order and a batch-cook schedule whose keep-times and temperatures come from my food-safety card.",
+      "inputs": [
+        "cook"
+      ],
+      "cards": [
+        "meal-planning-and-shopping.md",
+        "food-safety.md",
+        "food-allergies.md"
+      ],
+      "sha256": "134f72e60773e871824149f62284fff9261899c2cfc8c64dc820675c5eff0cf1",
+      "checked": "2026-10-07"
+    }
+  ]
+}
