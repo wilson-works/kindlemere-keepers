@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" width="240" height="280" role="img" aria-labelledby="t d">
+  <title id="t">Cairn, keeper of the Stepping Peaks</title>
+  <desc id="d">An invented creature of cut paper: three stacked round stones, rose, periwinkle and rose, with two
+    crescent eyes on the top stone, a sash of white pebbles across the middle one, a tiny white star in the seam,
+    and two small round feet. No background: the scene is the realm's own.</desc>
+  <!-- Cut paper (kit/REALM.md): flat shapes, no outlines or gradients; depth only from a short hard shadow below. -->
+  <g fill="rgba(26,36,51,0.14)">
+    <ellipse cx="96" cy="262" rx="20" ry="9"/>
+    <ellipse cx="144" cy="262" rx="20" ry="9"/>
+    <ellipse cx="120" cy="214" rx="78" ry="44"/>
+    <ellipse cx="120" cy="146" rx="56" ry="32"/>
+    <ellipse cx="120" cy="92" rx="38" ry="27"/>
+  </g>
+  <!-- feet -->
+  <ellipse cx="96" cy="258" rx="20" ry="9" fill="#1A2433"/>
+  <ellipse cx="144" cy="258" rx="20" ry="9" fill="#1A2433"/>
+  <!-- base stone -->
+  <ellipse cx="120" cy="210" rx="78" ry="44" fill="#B0205C"/>
+  <ellipse cx="92" cy="196" rx="22" ry="7" fill="#C64479"/>
+  <!-- middle stone and its pebble sash -->
+  <ellipse cx="120" cy="142" rx="56" ry="32" fill="#8FA2FF"/>
+  <path d="M70 136 Q120 176 170 132 L170 142 Q120 186 70 146 Z" fill="#D9E1FF"/>
+  <g fill="#FFFFFF">
+    <circle cx="80" cy="146" r="5.5"/>
+    <circle cx="95" cy="155" r="5.5"/>
+    <circle cx="111" cy="160" r="5.5"/>
+    <circle cx="127" cy="160" r="5.5"/>
+    <circle cx="143" cy="156" r="5.5"/>
+    <circle cx="158" cy="147" r="5.5"/>
+  </g>
+  <!-- the star in the seam -->
+  <path d="M152 108 l4 8.5 8.5 4 -8.5 4 -4 8.5 -4 -8.5 -8.5 -4 8.5 -4z" fill="#FFFFFF"/>
+  <!-- top stone with crescent eyes (pleased) -->
+  <ellipse cx="120" cy="88" rx="38" ry="27" fill="#B0205C"/>
+  <ellipse cx="104" cy="78" rx="11" ry="4.5" fill="#C64479"/>
+  <path d="M100 92 q8 -9 16 0" fill="none" stroke="#1A2433" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M124 92 q8 -9 16 0" fill="none" stroke="#1A2433" stroke-width="4.5" stroke-linecap="round"/>
+</svg>
