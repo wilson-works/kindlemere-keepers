@@ -664,6 +664,22 @@
   $('pack-open').addEventListener('click', () => $('pack').showModal());
   $('pack-close').addEventListener('click', () => $('pack').close());
 
+  /* The warm-up walk: the room opens at the foot of the hill with Steady a little way up. Walking up eases the view
+     toward her (CSS, about 1.5 s; none with reduced motion), then her bubble and the trail appear beside her. */
+  $('walk-up').addEventListener('click', () => {
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $('walk-up').hidden = true;
+    $('stage').classList.add('walking');
+    timers.walk = setTimeout(() => {
+      timers.walk = null;
+      busy();
+      $('stage').classList.remove('at-foot');
+      go('arrive');
+      speak("You made it up. Nice warm-up walk. What are we doing today?");
+    }, still ? 0 : 1500);
+    busy();
+  });
+
   kit.agent().then((a) => { jokes = Array.isArray(a.jokes) ? a.jokes : []; go('arrive', false); }).catch((err) => speak(err.message));
   Promise.all([ready.then(() => renderCards(shelf, 'My shelf is empty.')), loadMemory(), loadTools(), loadLouise()])
     .catch((err) => { speak(err.message); mood('worried'); });

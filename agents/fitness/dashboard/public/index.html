@@ -22,8 +22,11 @@
 </header>
 
 <main class="hill">
-  <div class="stage">
-    <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="The foot of Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady waiting at the bottom of the steps" width="1600" height="900">
+  <div class="stage at-foot" id="stage">
+    <div class="view">
+      <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady and her two clouds, Puff and Huff, a little way up the slope" width="1600" height="900">
+      <button class="km-btn go walk-up" id="walk-up" type="button">Walk up to Steady</button>
+    </div>
 
     <div class="bubble" id="bubble">
       <span class="face" id="face" aria-hidden="true"><img id="face-img" src="/kit/art/keepers/fitness-happy.svg" alt="" width="244" height="217"></span>
@@ -192,7 +195,7 @@
         <details class="rests" id="cool-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="cool-rests"></ul></details>
       </div>
 
-      <button class="km-btn-quiet start-over" id="start-over" type="button" data-next="arrive" hidden>Back to the foot of the hill</button>
+      <button class="km-btn-quiet start-over" id="start-over" type="button" data-next="arrive" hidden>Back to the start</button>
     </section>
   </div>
 </main>
