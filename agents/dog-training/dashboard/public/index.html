@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tumble, the dog trainer</title>
+<link rel="icon" href="/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/kit/design/tokens.css">
+<link rel="stylesheet" href="/kit/kit.css">
+<link rel="stylesheet" href="/tumble.css">
+</head>
+<body data-agent="dog-training">
+<header class="km-top">
+  <img class="km-mark" src="/mark.svg" alt="">
+  <div>
+    <div class="km-name" id="name">Tumble</div>
+    <div class="km-role" id="title">The Dog Trainer, keeper of Whistle Meadow</div>
+  </div>
+  <span class="km-chip tm-hour">Late afternoon</span>
+</header>
+
+<main class="km-page">
+  <section class="tm-hero" aria-labelledby="greeting">
+    <img class="tm-figure" src="/art.svg" alt="Tumble, a large russet herding ball with a handle and a smiling face, waving, with a white and ginger dog in a green bandana sitting beside them.">
+    <div class="tm-hello">
+      <p class="tm-greeting" id="greeting">Come in. Mind the hoops.</p>
+      <p class="tm-line" id="line">Coaches you and your dog with rewards, and says plainly when it's a job for a vet.</p>
+      <div class="tm-chips">
+        <span class="km-chip">Dogs</span><span class="km-chip">Training</span><span class="km-chip">Trust</span><span class="km-chip">The dog's own food</span>
+      </div>
+      <p class="tm-how">To talk with me, open a Claude chat in my folder: <code>agents/dog-training</code>.</p>
+    </div>
+  </section>
+
+  <hr class="km-thread" aria-hidden="true">
+
+  <div class="km-grid tm-rooms">
+    <section class="km-card" aria-labelledby="know-h">
+      <h2 class="tm-h" id="know-h">
+        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="9" width="7" height="19" rx="2" fill="#6E3A12"/><rect x="12" y="6" width="7" height="22" rx="2" fill="#C2D77A"/><rect x="20" y="10" width="7" height="18" rx="2" fill="#1F5C6E" transform="rotate(8 23 19)"/><rect x="13" y="11" width="5" height="2" fill="#FFFFFF"/><rect x="2" y="28" width="28" height="3" rx="1.5" fill="#B06A2F"/></svg>
+        What I know
+      </h2>
+      <p class="tm-big" id="know-count">My cards</p>
+      <p id="know-facts">Every fact has its page in Louise's book beside it.</p>
+      <p id="know-learned" class="tm-note"></p>
+      <ul class="tm-list" id="know-list"></ul>
+    </section>
+
+    <section class="km-card" aria-labelledby="mem-h">
+      <h2 class="tm-h" id="mem-h">
+        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="13" width="24" height="15" rx="3" fill="#B06A2F"/><path d="M3 11 h26 v5 h-26 Z" fill="#6E3A12"/><rect x="13" y="16" width="6" height="5" rx="1.5" fill="#E5B07A"/><circle cx="16" cy="7" r="3" fill="#C2D77A"/><circle cx="12" cy="5" r="2" fill="#C2D77A"/><circle cx="20" cy="5" r="2" fill="#C2D77A"/></svg>
+        What I remember
+      </h2>
+      <p id="mem-dogs" class="tm-big">Dogs I know</p>
+      <ul class="tm-tiles">
+        <li><span class="tm-n" id="mem-facts-n">0</span><span id="mem-facts">things I've been told</span></li>
+        <li><span class="tm-n" id="mem-worked-n">0</span><span id="mem-worked">notes on what helped</span></li>
+        <li><span class="tm-n" id="mem-lessons-n">0</span><span id="mem-lessons">lessons I've learned</span></li>
+      </ul>
+      <p class="tm-note">Counts only. What you tell me stays on this computer, and I'll forget anything you ask me to.</p>
+    </section>
+
+    <section class="km-card" aria-labelledby="tools-h">
+      <h2 class="tm-h" id="tools-h">
+        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6 Q16 18 26 6" fill="none" stroke="#CFE6EA" stroke-width="2.5"/><rect x="6" y="15" width="20" height="9" rx="4.5" fill="#FFFFFF" stroke="#DDEBA6" stroke-width="1"/><rect x="3" y="17" width="5" height="5" rx="2" fill="#DDEBA6"/><rect x="13" y="15" width="3" height="9" fill="#1F5C6E"/><rect x="19" y="17" width="1.6" height="5" rx="0.8" fill="#1A2433"/><rect x="22" y="17" width="1.6" height="5" rx="0.8" fill="#1A2433"/></svg>
+        My tools
+      </h2>
+      <p class="tm-big" id="tools-count">Tools</p>
+      <ul class="tm-list" id="tools-list"></ul>
+      <p class="tm-note">I make new tools with the realm's toolsmith. Each one reads only my cards and my memory.</p>
+    </section>
+
+    <section class="km-card" aria-labelledby="louise-h">
+      <h2 class="tm-h" id="louise-h">
+        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="14" y="2" width="4" height="4" rx="1" fill="#1A2433"/><path d="M9 8 h14 l2 3 v12 l-2 3 h-14 l-2 -3 v-12 Z" fill="#FF7A45"/><rect x="11" y="12" width="10" height="10" rx="3" fill="#FFD0B8"/><rect x="8" y="27" width="16" height="3" rx="1.5" fill="#1F5C6E"/></svg>
+        Waiting on Louise
+      </h2>
+      <p class="tm-big" id="louise-count">Lanterns on the water</p>
+      <ul class="tm-lanterns" id="louise-list"></ul>
+      <p id="gaps-count"></p>
+      <ul class="tm-list tm-gaps" id="gaps-list"></ul>
+    </section>
+  </div>
+
+  <hr class="km-thread" aria-hidden="true">
+
+  <section class="km-card km-sky tm-weave" aria-labelledby="weave-h">
+    <h2 class="tm-h" id="weave-h">Along the Weave</h2>
+    <p>Your own food goes to the nutritionist in the Orchard, up the terraced hill. Your own running, stretching or breathing goes to the fitness coach on the Stepping Peaks. Your dog stays here with me.</p>
+  </section>
+</main>
+
+<footer class="km-foot"><p>Whistle Meadow, on the mere of Kindlemere. A dog that ate something poisonous, can't breathe or collapsed: call your vet or an emergency vet now.</p></footer>
+<script src="/kit/kit.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
