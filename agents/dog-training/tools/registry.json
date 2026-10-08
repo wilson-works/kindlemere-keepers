@@ -1,0 +1,65 @@
+{
+  "tools": [
+    {
+      "name": "training-plan",
+      "file": "training-plan.js",
+      "purpose": "Builds a training plan for a remembered dog from its breed, age, temperament and level, citing the cards it rests on",
+      "inputs": [
+        "dog"
+      ],
+      "cards": [
+        "life-stages.md",
+        "breed.md",
+        "high-drive-dogs.md",
+        "intake-and-base-rates.md",
+        "obedience-ladder.md",
+        "sessions-and-criteria.md",
+        "scope-and-referral.md",
+        "pain-first.md",
+        "reactivity.md",
+        "resource-guarding.md",
+        "separation-and-compulsion.md",
+        "scent-sport-enrichment.md",
+        "off-leash-and-recall.md",
+        "weight-and-treats.md"
+      ],
+      "sha256": "b0899f55fabafcd2a87b061df0effb1cb38675f890665a4a038d4a67d2f2ce48",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "session-log",
+      "file": "session-log.js",
+      "purpose": "Logs a training session for a remembered dog and says what the cards say about its pattern",
+      "inputs": [
+        "dog",
+        "skill",
+        "reps",
+        "hits",
+        "minutes",
+        "changed",
+        "note"
+      ],
+      "cards": [
+        "sessions-and-criteria.md",
+        "pain-first.md"
+      ],
+      "sha256": "1df97de1cd4114e8fdb55787526e93224380fb480acb247fc301f6874035bdb9",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "trust-ladder",
+      "file": "trust-ladder.js",
+      "purpose": "Walks a dog through the day-one trust protocol step by step and keeps its progress",
+      "inputs": [
+        "dog",
+        "done",
+        "undo"
+      ],
+      "cards": [
+        "cooperative-care-and-trust.md"
+      ],
+      "sha256": "69e8dfb9cdb6527ef6383c47398a3c2f117accfbdd1712c4e01ecf25e8816824",
+      "checked": "2026-10-07"
+    }
+  ]
+}
