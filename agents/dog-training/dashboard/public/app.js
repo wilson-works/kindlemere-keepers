@@ -95,20 +95,35 @@
     for (const g of notAsked) gl.appendChild(el('li', 'gap', g.topic));
   }
 
-  // Tumble and the dog, inlined so the dog can play fetch (fetch.js). If that fails, the picture stays as it is.
+  async function svgAt(path) {
+    const res = await fetch(path, { credentials: 'same-origin' });
+    if (!res.ok) return null;
+    const doc = new DOMParser().parseFromString(await res.text(), 'image/svg+xml');
+    if (doc.querySelector('parsererror') || !doc.documentElement || doc.documentElement.nodeName !== 'svg') return null;
+    return document.importNode(doc.documentElement, true);
+  }
+
+  // Lakeside Field, inlined so the dog can play fetch (fetch.js): the kit's close view, with this lane's dog
+  // (art/field-dog.svg) running where the scene's own dog runs. If any of that fails, the plain picture stays.
   async function stage() {
-    const box = $('figure-box');
+    const box = $('scene-box');
     const img = box && box.querySelector('img');
     if (!img || !window.tmFetch || !window.DOMParser) return;
-    const res = await fetch('/art.svg', { credentials: 'same-origin' });
-    if (!res.ok) return;
-    const doc = new DOMParser().parseFromString(await res.text(), 'image/svg+xml');
-    if (doc.querySelector('parsererror') || !doc.documentElement || doc.documentElement.nodeName !== 'svg') return;
-    const svg = document.importNode(doc.documentElement, true);
-    svg.setAttribute('class', 'tm-figure');
+    const [svg, art] = await Promise.all([svgAt('/kit/art/kindlemere-field.svg'), svgAt('/art/field-dog.svg')]);
+    const theirs = svg && svg.querySelector('#km-dogs > g');
+    const ours = art && art.querySelector('#dt-dog');
+    const defs = art && art.querySelector('defs');
+    if (!theirs || !ours || !defs) return;
+    svg.insertBefore(defs, svg.firstChild);
+    theirs.replaceWith(ours);
+    const splash = svg.querySelector('#km-dogs > .km-bob');   // the scene dog's own splash; ours brings its own
+    if (splash) splash.setAttribute('display', 'none');
+    svg.setAttribute('class', 'tm-scene');
     svg.setAttribute('role', 'group');
     svg.setAttribute('aria-label', img.getAttribute('alt'));
     svg.removeAttribute('aria-labelledby');
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
     img.replaceWith(svg);
     const game = window.tmFetch.init(svg, $('play-status'));
     const pause = $('pause');
@@ -117,7 +132,7 @@
     pause.addEventListener('click', () => {
       const on = pause.getAttribute('aria-pressed') !== 'true';
       pause.setAttribute('aria-pressed', String(on));
-      pause.textContent = on ? 'Play the meadow' : 'Pause the meadow';
+      pause.textContent = on ? 'Play Lakeside Field' : 'Pause Lakeside Field';
       svg.classList.toggle('is-paused', on);
       game.setPaused(on);
     });
