@@ -407,6 +407,7 @@
       // Only the warm-up runs on the clock here. The cool-down comes after the moves, on its own step.
       for (const p of sessions.workout.parts) if (!/^warm up/i.test(p.label)) p.secs = 0;
       renderWorkout(sessions.workout);
+      startSets();
     } catch (err) { speak(err.message); }
   });
   $('workout-start').addEventListener('click', () => {
@@ -417,6 +418,93 @@
   $('workout-phases').addEventListener('change', () => {
     const boxes = [...$('workout-phases').querySelectorAll('input[type=checkbox]')];
     if (boxes.length && boxes.every((x) => x.checked)) speak("That's every move. Ready to cool down?", gearCloud);
+  });
+
+  /* Set by set: after each set a rest, counted on screen and pausable, while the cloud talks you through it.
+     What it should feel like, when to stop and how to move up are her card facts, shown with their sources. */
+  const FEEL = [['strength.md', 'Default for a general adult'], ['strength.md', 'Training to failure is optional'],
+    ['strength-safety.md', 'Breath-holding: do not coach the Valsalva']];
+  const STOP = [['screening-red-flags.md', 'Chest pain'], ['screening-red-flags.md', 'Fainting or near-fainting'],
+    ['screening-red-flags.md', 'New or worsening joint pain']];
+  const UP = [['progression.md', 'The concrete rule (ACSM 2009)'], ['progression.md', 'Progression must be gradual']];
+  const REST = [['strength-safety.md', '2 to 3 sets per major muscle group, 2 min rest'],
+    ['strength.md', 'Local muscular endurance: 40 to 60% 1RM'], ['strength.md', 'Advanced strength: 70 to 100% 1RM']];
+  let moveAt = 0;
+  let setNo = 1;
+  let restFor = 120;
+  let restLeft = 0;
+  const moves = () => [...$('workout-phases').querySelectorAll('li.move')];
+  function showMove() {
+    const all = moves();
+    all.forEach((li, i) => li.classList.toggle('now', i === moveAt));
+    const li = all[moveAt];
+    $('set-move').textContent = li ? li.querySelector('strong').textContent.replace(/:\s*$/, '') : '';
+    $('set-n').textContent = !li ? '' : setNo > 3 ? 'three sets done' : `set ${setNo} of 2 to 3`;
+    $('set-done').hidden = !li || setNo > 3;
+    $('move-next').hidden = !li;
+  }
+  function startSets() {
+    moveAt = 0;
+    setNo = 1;
+    $('sets').hidden = !moves().length;
+    $('notes').hidden = !moves().length;
+    for (const [id, picks] of [['feel-facts', FEEL], ['stop-facts', STOP], ['up-facts', UP], ['rest-facts', REST]]) {
+      facts(id, picks).catch((err) => speak(err.message));
+    }
+    showMove();
+  }
+  function restOff() {
+    clearInterval(timers.rest);
+    timers.rest = null;
+    busy();
+  }
+  function endRest(said) {
+    restOff();
+    $('rest-clock').hidden = true;
+    $('rest-pause').hidden = true;
+    $('rest-skip').hidden = true;
+    $('rest-pause').textContent = 'Pause';
+    if (said) speak(said, gearCloud);
+  }
+  function restTick() {
+    restLeft -= 1;
+    $('rest-time').textContent = clock(Math.max(restLeft, 0));
+    if (restLeft === Math.floor(restFor / 2)) speak("Anything sharp or new in a joint? That's a stop, not a push.", gearCloud);
+    if (restLeft <= 0) endRest(`Rest's up. ${$('set-move').textContent}, set ${setNo}. Stop with a rep or two left.`);
+  }
+  $('rest-pick').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rest]');
+    if (!b) return;
+    restFor = Number(b.dataset.rest);
+    for (const x of $('rest-pick').querySelectorAll('[data-rest]')) x.setAttribute('aria-pressed', String(x === b));
+  });
+  $('set-done').addEventListener('click', () => {
+    setNo += 1;
+    showMove();
+    if (setNo > 3) { speak("That's three sets. Next move when you're ready.", gearCloud); return; }
+    restLeft = restFor;
+    $('rest-time').textContent = clock(restLeft);
+    restOff();
+    for (const id of ['rest-clock', 'rest-pause', 'rest-skip']) $(id).hidden = false;
+    timers.rest = setInterval(restTick, 1000);
+    busy();
+    speak('Rest now. Keep breathing through it. I\'ll count.', gearCloud);
+  });
+  $('rest-pause').addEventListener('click', () => {
+    if (timers.rest) { restOff(); $('rest-pause').textContent = 'Keep resting'; speak("Paused. Take what you need.", gearCloud); }
+    else { timers.rest = setInterval(restTick, 1000); busy(); $('rest-pause').textContent = 'Pause'; }
+  });
+  $('rest-skip').addEventListener('click', () => endRest(`Ready? ${$('set-move').textContent}, set ${setNo}.`));
+  $('move-next').addEventListener('click', () => {
+    endRest();
+    const all = moves();
+    const box = all[moveAt] && all[moveAt].querySelector('input');
+    if (box) { box.checked = true; $('workout-phases').dispatchEvent(new Event('change', { bubbles: true })); }
+    moveAt += 1;
+    setNo = 1;
+    showMove();
+    if (moveAt >= all.length) speak("Every move done. Beat your reps two sessions running, then add a little load.", gearCloud);
+    else speak(`${$('set-move').textContent} next. Hard by the last reps, with a rep or two left.`, gearCloud);
   });
 
   /* Plan my week: her week-plan tool, laid out day by day. */
@@ -469,6 +557,7 @@
       stop('warm');
       stop('cool');
       stop('workout');
+      endRest();
       if (b.dataset.next === 'arrive') {
         clearInterval(runTimer);
         runTimer = null;
@@ -476,7 +565,7 @@
         busy();
         for (const id of ['run-start', 'warm-start']) $(id).hidden = false;
         for (const id of ['run-pause', 'run-back', 'run-clock', 'warm-clock', 'cool-clock', 'cool-rests-box', 'log-rests-box',
-          'workout-clock', 'workout-go', 'workout-rests-box', 'plan-rests-box']) $(id).hidden = true;
+          'workout-clock', 'workout-go', 'workout-rests-box', 'plan-rests-box', 'sets', 'notes']) $(id).hidden = true;
         for (const id of ['cool-head', 'cool-phases', 'log-out', 'workout-head', 'workout-phases', 'plan-out']) $(id).textContent = '';
         for (const x of $('gear').querySelectorAll('[data-gear]')) x.setAttribute('aria-pressed', 'false');
       }
@@ -574,6 +663,22 @@
   });
   $('pack-open').addEventListener('click', () => $('pack').showModal());
   $('pack-close').addEventListener('click', () => $('pack').close());
+
+  /* The warm-up walk: the room opens at the foot of the hill with Steady a little way up. Walking up eases the view
+     toward her (CSS, about 1.5 s; none with reduced motion), then her bubble and the trail appear beside her. */
+  $('walk-up').addEventListener('click', () => {
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $('walk-up').hidden = true;
+    $('stage').classList.add('walking');
+    timers.walk = setTimeout(() => {
+      timers.walk = null;
+      busy();
+      $('stage').classList.remove('at-foot');
+      go('arrive');
+      speak("You made it up. Nice warm-up walk. What are we doing today?");
+    }, still ? 0 : 1500);
+    busy();
+  });
 
   kit.agent().then((a) => { jokes = Array.isArray(a.jokes) ? a.jokes : []; go('arrive', false); }).catch((err) => speak(err.message));
   Promise.all([ready.then(() => renderCards(shelf, 'My shelf is empty.')), loadMemory(), loadTools(), loadLouise()])
