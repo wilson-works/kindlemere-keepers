@@ -17,11 +17,13 @@
     </filter>
   </defs>
 
-  <!-- The meadow patch -->
-  <g filter="url(#tumble-layer)">
-    <ellipse cx="160" cy="276" rx="150" ry="18" fill="#C2D77A"/>
-    <ellipse cx="160" cy="272" rx="128" ry="12" fill="#DDEBA6"/>
-  </g>
+  <!-- The meadow floor: ground that runs off both edges, never a floating patch -->
+  <path d="M0 266 Q60 258 120 264 T240 262 T320 265 V300 H0 Z" fill="#C2D77A"/>
+  <path d="M0 280 Q80 274 160 279 T320 278 V300 H0 Z" fill="#9DB54E"/>
+  <path d="M0 292 Q90 288 170 292 T320 291 V300 H0 Z" fill="#6E3A12"/>
+  <!-- contact shadows where Tumble and the dog stand -->
+  <ellipse cx="165" cy="268" rx="76" ry="7" fill="rgba(26,36,51,0.18)"/>
+  <ellipse cx="262" cy="270" rx="34" ry="5" fill="rgba(26,36,51,0.18)"/>
   <g fill="#9DB54E">
     <path d="M22 276 l6 -22 l5 22 Z"/><path d="M34 278 l4 -15 l5 15 Z"/><path d="M64 280 l5 -18 l4 18 Z"/>
     <path d="M250 280 l5 -20 l5 20 Z"/><path d="M290 276 l4 -16 l4 16 Z"/><path d="M302 274 l3 -12 l4 12 Z"/>
