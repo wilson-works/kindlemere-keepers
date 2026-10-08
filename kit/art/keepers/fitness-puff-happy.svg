@@ -28,6 +28,15 @@
   .km-ear-l, .km-ear-r { transform-box: fill-box; transform-origin: bottom center; animation: km-ear 4s ease-in-out infinite; }
   .km-ear-r { animation-delay: -0.4s; }
   .km-treat, .km-card-wave { animation: km-lift 2.6s ease-in-out infinite alternate; }
+  .km-face-thinking, .km-face-oh, .km-talk { display: none; }
+  [data-km-mood="thinking"] .km-face-happy, [data-km-mood="oh"] .km-face-happy { display: none; }
+  [data-km-mood="thinking"] .km-face-thinking, [data-km-mood="oh"] .km-face-oh, [data-km-talk="1"] .km-talk { display: inline; }
+  .km-dots circle { animation: km-dots 1.2s ease-in-out infinite; }
+  .km-dots circle:nth-child(2) { animation-delay: -0.8s; }
+  .km-dots circle:nth-child(3) { animation-delay: -0.4s; }
+  .km-ashore .dt-splash { display: none; }
+  svg:not([data-km-night="1"]) :is(.km-twinkle, .km-ff, .km-blink, .km-zz, .km-breathe) { animation: none; }
+  @keyframes km-dots { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
   @keyframes km-gallop { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-5px) rotate(-2deg); } }
   @keyframes km-drift { from { transform: translateX(0); } to { transform: translateX(36px); } }
