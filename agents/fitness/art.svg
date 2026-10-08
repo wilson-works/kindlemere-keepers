@@ -1,12 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 58 304 310" width="304" height="310" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 58 320 314" width="320" height="314" role="img" aria-labelledby="t d">
   <title id="t">Steady, keeper of the Stepping Peaks</title>
   <desc id="d">An invented creature of cut paper standing with both feet planted on a wide stone step: three stacked
     round stones, rose, periwinkle and rose, flat paper with speckles and facets. The top stone tilts a little, with bright
     eyes, round cheeks and a small pebble balanced on it. Across the middle stone runs a stitched sash of mismatched
     pebbles with a mountain flower tucked in it. Five scratched tally marks on the base count the steps climbed. A tiny
-    white star sits in the seam. Beside the step: the edge of the summit pool, peak grass and a trail flag. No sky or
+    white star sits in the seam. Beside the step: the edge of the summit pool, peak grass and a trail flag. The step sits in a strip of grass over a cut bank of soil and roots. No sky or
     scene behind: that is the realm's own.</desc>
   <!-- Cut paper (kit/REALM.md): flat pieces, no outlines or gradients; depth from layering and short hard shadows. -->
+
+  <!-- The ground: grass running off both edges over a cut bank of soil, roots and pebbles. Nothing floats. -->
+  <g>
+    <path d="M0 336 Q80 328 160 332 Q240 336 340 330 L340 372 L0 372 Z" fill="#8A5A3C"/>
+    <path d="M0 352 Q90 346 170 350 Q250 354 340 348 L340 372 L0 372 Z" fill="#6E4630"/>
+    <g stroke="#C9A27E" stroke-width="2.2" fill="none" stroke-linecap="round">
+      <path d="M40 340 q6 10 -2 20 M44 350 q8 2 12 10"/><path d="M250 342 q-4 12 4 22 M252 354 q-8 4 -10 12"/><path d="M300 340 q6 8 2 18"/>
+    </g>
+    <g fill="#A9B1C2"><ellipse cx="110" cy="360" rx="6" ry="3.5"/><ellipse cx="196" cy="364" rx="5" ry="3"/><ellipse cx="286" cy="362" rx="4" ry="2.6"/></g>
+    <path d="M0 332 Q80 322 160 326 Q240 330 340 324 L340 340 Q240 344 160 340 Q80 336 0 344 Z" fill="#4E8A5A"/>
+    <path d="M0 340 q6 -10 10 0 q6 -12 10 0 q6 -9 10 0 M300 334 q6 -10 10 0 q6 -12 10 0" fill="#6FAF78"/>
+  </g>
 
   <!-- The stone step -->
   <g>
