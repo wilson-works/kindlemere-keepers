@@ -55,6 +55,27 @@
       ],
       "sha256": "134f72e60773e871824149f62284fff9261899c2cfc8c64dc820675c5eff0cf1",
       "checked": "2026-10-07"
+    },
+    {
+      "name": "meal-week",
+      "file": "meal-week.js",
+      "purpose": "Publishes a planned week at the table: the 7-day plan, prep and quick-cook recipes, a grocery list by store and macro targets from my cards; keeps every week and answers what's for today and am I on track.",
+      "inputs": [
+        "do",
+        "week"
+      ],
+      "cards": [
+        "labels-and-energy.md",
+        "protein.md",
+        "macronutrients.md",
+        "training-fuel.md",
+        "food-safety.md",
+        "meal-planning-and-shopping.md",
+        "kidney-disease.md",
+        "pregnancy.md"
+      ],
+      "sha256": "fb9088df5f0644bcf5c8fdfa07a4bfd9477f29049d268ab0cbd4b95caa648848",
+      "checked": "2026-10-07"
     }
   ]
 }
