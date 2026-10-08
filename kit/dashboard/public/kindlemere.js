@@ -195,7 +195,9 @@
       if (gEl.getAttribute('data-km-layer') !== 'actors') s.setAttribute('aria-hidden', 'true');
       s.setAttribute('focusable', 'false');
       s.setAttribute('preserveAspectRatio', 'none');
-      s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;${still ? '' : 'will-change:transform;'}`;
+      // its transform's origin is the stack's top left corner (look())
+      const o = `${((OVER / (1 + 2 * OVER)) * 100).toFixed(4)}%`;
+      s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;transform-origin:${o} ${o};${still ? '' : 'will-change:transform;'}`;
       if (i === 0) for (const n of Array.from(svg.children)) if (n.nodeName === 'style' || n.nodeName === 'defs') s.appendChild(document.importNode(n, true));
       s.appendChild(document.importNode(gEl, true));
       root.appendChild(s);
@@ -209,22 +211,56 @@
     };
   }
 
-  /** Fill the stack's box with the view, as object-fit: cover at the picture's object-position. */
-  function crop(scene) {
+  /** Fill the stack's box with the view, as object-fit: cover at the picture's object-position. The view is drawn; or,
+   * given a wider box (look()), that is drawn, and moved and scaled to show the view. */
+  function crop(scene, wide) {
     const w = scene.root.clientWidth;
     const h = scene.root.clientHeight;
     if (!w || !h) return;
-    let [x, y, bw, bh] = scene.box;
-    if (w / h < bw / bh) { const cw = bh * (w / h); x += (bw - cw) * scene.pos[0]; bw = cw; } else { const ch = bw / (w / h); y += (bh - ch) * scene.pos[1]; bh = ch; }
-    scene.vb = [x, y, bw, bh];
     scene.cw = w;   // the size on the page, kept here so the frame loop never has to measure it (a forced layout)
     scene.ch = h;
+    scene.vb = onScreen(scene, scene.box);
+    scene.drawn = wide || scene.vb;
+    const [x, y, bw, bh] = scene.drawn;
     const v = `${(x - bw * OVER).toFixed(1)} ${(y - bh * OVER).toFixed(1)} ${(bw * (1 + 2 * OVER)).toFixed(1)} ${(bh * (1 + 2 * OVER)).toFixed(1)}`;
     Object.values(scene.layers).forEach((s) => s.setAttribute('viewBox', v));
-    // What the camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js)
+    seeing(scene);
+  }
+
+  /* A camera on the move (a glide, a zoom, a drag) does not draw each frame: a new view box costs a layout and a paint of
+     every layer, a tenth of a second a frame on a 4K screen. What is drawn is moved and scaled on the compositor
+     instead, and drawn again, sharp, where the camera comes to rest (crop()). A move that runs past what is drawn first
+     draws a wider view, round where the camera is and where it is heading, with room to move. */
+  function look(scene, toward) {
+    const v = onScreen(scene, scene.box);
+    const d = scene.drawn;
+    const inside = d && v[2] * 4 > d[2] && v[0] >= d[0] - d[2] * OVER && v[1] >= d[1] - d[3] * OVER &&
+      v[0] + v[2] <= d[0] + d[2] * (1 + OVER) && v[1] + v[3] <= d[1] + d[3] * (1 + OVER);
+    if (!inside) {
+      const t = toward ? onScreen(scene, toward) : v;
+      const [px, py] = [v[2] * 0.25, v[3] * 0.25];
+      const x = Math.min(v[0], t[0]) - px;
+      const y = Math.min(v[1], t[1]) - py;
+      const w = Math.max(v[0] + v[2], t[0] + t[2]) + px - x;
+      const h = Math.max(v[1] + v[3], t[1] + t[3]) + py - y;
+      const a = scene.cw / scene.ch;
+      crop(scene, w / h < a ? [x - (h * a - w) / 2, y, h * a, h] : [x, y - (w / a - h) / 2, w, w / a]);
+      return;
+    }
+    scene.vb = v;
+    seeing(scene);
+  }
+  // What is drawn, moved and scaled to show the view (nothing to do when the view is what is drawn), and what the
+  // camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js).
+  function seeing(scene) {
+    const v = scene.vb;
+    const d = scene.drawn;
+    const s = scene.cw / v[2];
+    const cam = d === v ? '' : `translate(${((d[0] - v[0]) * s).toFixed(2)}px, ${((d[1] - v[1]) * s).toFixed(2)}px) scale(${(d[2] / v[2]).toFixed(5)}) `;
+    if (cam !== (scene.cam || '')) { scene.cam = cam; shift(scene); }
     if (scene.layers.actors) {
-      scene.layers.actors.setAttribute('data-km-view', `${x.toFixed(1)} ${y.toFixed(1)} ${bw.toFixed(1)} ${bh.toFixed(1)}`);
-      scene.layers.actors.setAttribute('data-km-scale', (w / bw).toFixed(4));
+      scene.layers.actors.setAttribute('data-km-view', `${v[0].toFixed(1)} ${v[1].toFixed(1)} ${v[2].toFixed(1)} ${v[3].toFixed(1)}`);
+      scene.layers.actors.setAttribute('data-km-scale', s.toFixed(4));
     }
   }
 
@@ -254,6 +290,13 @@
     const moonLight = h < -6 && moon.alt > 0 ? moonPhase(d).lit * Math.sin(moon.alt * RAD) * 0.14 : 0;
     const m = $('light-m');
     if (m) m.setAttribute('values', lightMatrix(r + moonLight * 0.8, g + moonLight * 0.9, b + moonLight, sat));
+    // Full daylight is the picture as drawn, so the light's filter comes off then: on a big screen it halves the frame rate
+    const plain = r === 1 && g === 1 && b === 1 && sat === 1 && !moonLight;
+    if (plain !== scene.plain) {
+      scene.plain = plain;
+      if (!scene.lit) scene.lit = [...scene.root.querySelectorAll('[filter$="km-light)"]')].map((el) => [el, el.getAttribute('filter')]);
+      for (const [el, f] of scene.lit) if (plain) el.removeAttribute('filter'); else el.setAttribute('filter', f);
+    }
 
     const sunEl = $('sun');
     if (sunEl) {
@@ -313,16 +356,21 @@
   function parallax(scene) {
     scene.cur[0] += (scene.target[0] - scene.cur[0]) * 0.08;
     scene.cur[1] += (scene.target[1] - scene.cur[1]) * 0.08;
+    if (!shift(scene)) return false;
+    return Math.abs(scene.target[0] - scene.cur[0]) + Math.abs(scene.target[1] - scene.cur[1]) > 0.002;
+  }
+  // Each layer's shift for its depth, after the camera's move (look()). False when there is nothing new to write (the
+  // cast walking keeps the frames coming).
+  function shift(scene) {
     const amp = (scene.cw || 0) * 0.012;
-    // nothing to write while the layers are where they were (the cast walking keeps the frames coming)
-    const key = `${(scene.cur[0] * amp).toFixed(2)} ${(scene.cur[1] * amp).toFixed(2)}`;
+    const key = `${(scene.cur[0] * amp).toFixed(2)} ${(scene.cur[1] * amp).toFixed(2)} ${scene.cam || ''}`;
     if (key === scene.parallaxAt) return false;
     scene.parallaxAt = key;
     for (const [name, s] of Object.entries(scene.layers)) {
       const k = DEPTH[name] === undefined ? 1 : DEPTH[name];
-      s.style.transform = `translate3d(${(-scene.cur[0] * amp * k).toFixed(2)}px, ${(-scene.cur[1] * amp * k * 0.5).toFixed(2)}px, 0)`;
+      s.style.transform = `${scene.cam || ''}translate3d(${(-scene.cur[0] * amp * k).toFixed(2)}px, ${(-scene.cur[1] * amp * k * 0.5).toFixed(2)}px, 0)`;
     }
-    return Math.abs(scene.target[0] - scene.cur[0]) + Math.abs(scene.target[1] - scene.cur[1]) > 0.002;
+    return true;
   }
 
   /* ---------------------------------------------------------------- life: everyone about their place */
@@ -794,7 +842,7 @@
       const step = (t) => {
         const k = Math.min(1, (t - t0) / ms);
         scene.box = lerpBox(from, to, easeInOut(k));
-        crop(scene);
+        look(scene, to);
         veilEl.style.opacity = String(v0 + (v1 - v0) * k);
         if (k < 1) requestAnimationFrame(step); else resolve();
       };
@@ -826,6 +874,7 @@
     veil(scene).style.opacity = '1';
     document.documentElement.classList.remove('km-arriving');
     await glide(scene, from, to, 760, 1, 0);
+    crop(scene);
     draw(scene, herePlaceCache, now());
   }
 
@@ -896,7 +945,7 @@
     const next = s.box.map((v, i) => v + (s.aim[i] - v) * k);
     const done = next.every((v, i) => Math.abs(v - s.aim[i]) < 0.5);
     s.box = done ? s.aim.slice() : next;
-    crop(s);
+    if (done && !s.held) crop(s); else look(s, s.aim);   // drawn sharp where it comes to rest, not under a finger
     wayfinding(s);
     if (!done) camRaf = requestAnimationFrame(camera);
   }
@@ -904,7 +953,14 @@
     scene.aim = allowed(scene, box);
     const said = scene.root.querySelector('.km-say');   // a bubble is pinned to the screen, so it goes when the camera moves
     if (said) said.remove();
-    if (now) { scene.box = scene.aim.slice(); crop(scene); wayfinding(scene); return; }
+    if (now) {
+      scene.box = scene.aim.slice();
+      if (scene.held) look(scene, scene.aim); else crop(scene);
+      wayfinding(scene);
+      return;
+    }
+    // already there and drawn (a wheel turned at the closest look): nothing to do
+    if (!scene.cam && !camRaf && scene.aim.every((v, i) => Math.abs(v - scene.box[i]) < 0.5)) return;
     if (!camRaf) camRaf = requestAnimationFrame(camera);
   }
   // Zoom by k (above 1 is out) about a point given as a fraction of the screen.
@@ -1049,6 +1105,7 @@
       down.set(e.pointerId, { x: e.clientX, y: e.clientY });
       try { scene.root.setPointerCapture(e.pointerId); } catch (_) { /* a pointer the browser no longer tracks */ }
       scene.root.classList.add('km-dragging');
+      scene.held = true;
       if (down.size === 2) {
         const [a, b] = [...down.values()];
         pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1 };
@@ -1075,7 +1132,10 @@
     const up = (e) => {
       down.delete(e.pointerId);
       if (down.size < 2) pinch = null;
-      if (!down.size) scene.root.classList.remove('km-dragging');
+      if (down.size) return;
+      scene.root.classList.remove('km-dragging');
+      scene.held = false;
+      if (scene.cam && !camRaf) crop(scene);   // let go: drawn sharp where it is
     };
     scene.root.addEventListener('pointerup', up);
     scene.root.addEventListener('pointercancel', up);
