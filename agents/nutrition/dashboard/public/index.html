@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clem, the nutritionist</title>
+  <link rel="stylesheet" href="/kit/design/tokens.css">
+  <link rel="stylesheet" href="/kit/kit.css">
+  <link rel="stylesheet" href="/room.css">
+  <link rel="icon" href="/mark.svg">
+</head>
+<body data-agent="nutrition">
+  <header class="km-top">
+    <img class="km-mark" src="/mark.svg" alt="">
+    <div class="who">
+      <div class="km-name" id="name">Clem</div>
+      <div class="km-role" id="title">Keeper of the Orchard Isle, the nutritionist</div>
+    </div>
+  </header>
+
+  <main class="km-page">
+    <section class="km-card km-sky hello" aria-labelledby="greeting">
+      <p class="greeting" id="greeting">Pull up a stool at the long table.</p>
+      <p class="line" id="line"></p>
+      <p class="how">To talk with me, open a Claude chat in my folder, <code>agents/nutrition</code>.</p>
+    </section>
+
+    <section class="km-card find" aria-labelledby="find-h">
+      <h2 id="find-h">Find it on my shelf</h2>
+      <form id="ask" class="ask" role="search">
+        <label class="sr" for="q">What are you looking for?</label>
+        <input class="km-field" id="q" name="q" type="search" placeholder="Try: leftovers, protein, sesame" autocomplete="off">
+        <button class="km-btn" type="submit">Find it</button>
+      </form>
+      <div id="found" class="found" aria-live="polite"></div>
+    </section>
+
+    <div class="km-grid">
+      <section class="km-card" aria-labelledby="shelf-h">
+        <h2 id="shelf-h">What I know</h2>
+        <p class="sub"><span class="km-chip" id="shelf-count">My cards</span> Each card says where its facts came from.</p>
+        <ul class="cards" id="shelf"><li class="quiet">Taking the cards down from the wall.</li></ul>
+      </section>
+
+      <div class="stack">
+        <section class="km-card" aria-labelledby="mem-h">
+          <h2 id="mem-h">What I remember</h2>
+          <ul class="counts" id="memory"><li class="quiet">Opening my keepsake box.</li></ul>
+          <p class="quiet small">Kept on this computer only. Ask me in a chat to forget anything.</p>
+        </section>
+
+        <section class="km-card" aria-labelledby="tools-h">
+          <h2 id="tools-h">My tools</h2>
+          <ul class="tools" id="tools"><li class="quiet">Finding my tools.</li></ul>
+        </section>
+
+        <section class="km-card" aria-labelledby="louise-h">
+          <h2 id="louise-h">Waiting on Louise</h2>
+          <p class="sub"><span class="km-chip" id="louise-count">Lanterns</span> Questions I've sent to Louise, our librarian.</p>
+          <ul class="lanterns" id="louise"><li class="quiet">Looking along the Lantern Shore.</li></ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="km-card scope" aria-labelledby="scope-h">
+      <h2 id="scope-h">What I cover</h2>
+      <div class="km-grid">
+        <div>
+          <h3>I can help with</h3>
+          <ul class="ticks" id="scope-does"></ul>
+        </div>
+        <div>
+          <h3>What I won't do</h3>
+          <ul class="ticks not" id="scope-not"></ul>
+        </div>
+      </div>
+      <hr class="km-thread">
+      <ul class="weave" id="weave"></ul>
+    </section>
+  </main>
+
+  <footer class="km-foot">
+    <p>I answer only from my cards and what you've told me. Never the web. If I don't know, I ask Louise.</p>
+  </footer>
+
+  <script src="/kit/kit.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
