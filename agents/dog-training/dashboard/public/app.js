@@ -380,7 +380,37 @@
     say(`${$('sess-skill').value}, then. ${short ? short.text : ''} Tap Got it or Not yet after each try.`);
   });
   const mark = (hit) => { if (!sess.on) return; sess.reps += 1; if (hit) sess.hits += 1; put('sess-hits', sess.hits); put('sess-reps', sess.reps); };
-  $('sess-hit').addEventListener('click', () => mark(true));
+  // A win feels like a win (owner, 00:3x CDT: "as rewarding as the eyes the owner gets when the dog wants
+  // something"): on Got it the field dog does the skill and Tumble hops. The words come from the log itself, and there
+  // is no daily streak to keep up, because the cards prefer short, spaced sessions.
+  const SHOWN = ['sit', 'down', 'stay', 'paw', 'spin', 'come'];
+  function hop() {
+    const me = document.querySelector('[data-km-actor="dog-training"]');
+    if (!me) return;
+    me.setAttribute('data-km-mood', 'oh');
+    setTimeout(() => me.removeAttribute('data-km-mood'), 900);
+  }
+  function celebrate(d, text) {
+    let o = null;
+    try { o = JSON.parse(text); } catch (_) { o = null; }
+    const skill = $('sess-skill').value;
+    const k = o && Array.isArray(o.skills) ? o.skills.find((s) => s.skill === skill.toLowerCase()) : null;
+    const last = k ? parseInt(k.last, 10) : NaN;
+    const before = k && k.earlier_average ? parseInt(k.earlier_average, 10) : NaN;
+    const all = sess.hits === sess.reps;
+    let line = all ? `${sess.hits} of ${sess.reps}, every one!` : `${sess.hits} of ${sess.reps}.`;
+    if (last > before) line += ` ${skill[0].toUpperCase()}${skill.slice(1)} is up to ${last}% from ${before}%.`;
+    if (o && o.sessions_logged) line += ` That's session ${o.sessions_logged} for ${d.name}.`;
+    if (last < before) { say(`${line} Have a look at what my books say about that, below.`, 'Tumble', 'thinking'); return; }
+    say(`${line} Good work, both of you.`, 'Tumble', 'happy');
+    if (all || last > before || !Number.isFinite(before)) { hop(); if (game) game.show('spin'); }
+  }
+  $('sess-hit').addEventListener('click', () => {
+    mark(true);
+    const s = $('sess-skill').value;
+    if (game && SHOWN.includes(s)) game.show(s);
+    hop();
+  });
   $('sess-miss').addEventListener('click', () => mark(false));
   $('sess-end').addEventListener('click', async () => {
     const d = dogNow();
@@ -392,7 +422,7 @@
     try {
       const r = await api('/api/log', { dog: d.name, skill: $('sess-skill').value, reps: sess.reps, hits: sess.hits, minutes: Math.max(1, Math.round((Date.now() - sess.start) / 60000)) });
       toolOut($('sess-out'), r.text);
-      say(`Logged: ${sess.hits} right of ${sess.reps}. Good work, both of you.`);
+      if (r.ok) celebrate(d, r.text); else say(r.text, 'Tumble', 'oh');
     } catch (e) { say(`I couldn't log that: ${e.message}`, 'Tumble', 'worried'); }
   });
 
