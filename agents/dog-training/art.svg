@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 300" role="img" aria-labelledby="tumble-t tumble-d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 54 320 246" role="img" aria-labelledby="tumble-t tumble-d">
   <title id="tumble-t">Tumble, the dog trainer of Whistle Meadow</title>
-  <desc id="tumble-d">Tumble, a round haystack-shaped keeper made of russet cut paper with straw strands, stands on the meadow grass. One grass-plume ear is perked and one tips forward to listen. Tumble waves with one stub arm and holds out a small biscuit with the other, a willow whistle on a braided cord at the chest. Beside Tumble a lean, long-legged, mostly white dog with a ginger head and a white blaze sits nicely with a head tilt, one ear perked with its tip folded and one flopped, a green paisley bandana and a bone-shaped tag, its curled tail mid-wag and a tennis ball at its paws. A willow hoop stands on the left and a scent-trail flag on the right.</desc>
+  <desc id="tumble-d">Tumble, a large russet herding ball of cut paper with a moulded handle loop on top, seams, a lighter highlight panel, a few tooth marks and grass stains, sits on the meadow grass. Tumble has bright eyes, warm cheeks and a smile, waves with one stub arm and holds out a small biscuit with the other. A willow whistle hangs from the handle on a braided cord, and a treat pouch is clipped to Tumble's side. Beside Tumble a lean, long-legged, mostly white dog with a ginger head and a white blaze sits nicely with a head tilt, one ear perked with its tip folded and one flopped, a green paisley bandana and a bone-shaped tag, its curled tail mid-wag and a tennis ball at its paws. A willow hoop stands on the left and a scent-trail flag on the right.</desc>
   <defs>
     <!-- Cut paper: each layer sits on a short, hard shadow 3 px straight below it. No blur. -->
-    <filter id="tumble-layer" x="-10%" y="-10%" width="120%" height="130%">
+    <filter id="tumble-layer" x="-30%" y="-40%" width="160%" height="180%">
       <feFlood flood-color="#1A2433" flood-opacity="0.16" result="ink"/>
       <feComposite in="ink" in2="SourceAlpha" operator="in" result="sil"/>
       <feOffset in="sil" dy="3" result="drop"/>
       <feMerge><feMergeNode in="drop"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="tumble-lift" x="-10%" y="-10%" width="120%" height="130%">
+    <filter id="tumble-lift" x="-30%" y="-40%" width="160%" height="180%">
       <feFlood flood-color="#1A2433" flood-opacity="0.24" result="ink"/>
       <feComposite in="ink" in2="SourceAlpha" operator="in" result="sil"/>
       <feOffset in="sil" dy="5" result="drop"/>
@@ -22,7 +22,7 @@
   <path d="M0 280 Q80 274 160 279 T320 278 V300 H0 Z" fill="#9DB54E"/>
   <path d="M0 292 Q90 288 170 292 T320 291 V300 H0 Z" fill="#6E3A12"/>
   <!-- contact shadows where Tumble and the dog stand -->
-  <ellipse cx="165" cy="268" rx="76" ry="7" fill="rgba(26,36,51,0.18)"/>
+  <ellipse cx="160" cy="266" rx="70" ry="7" fill="rgba(26,36,51,0.18)"/>
   <ellipse cx="262" cy="270" rx="34" ry="5" fill="rgba(26,36,51,0.18)"/>
   <g fill="#9DB54E">
     <path d="M22 276 l6 -22 l5 22 Z"/><path d="M34 278 l4 -15 l5 15 Z"/><path d="M64 280 l5 -18 l4 18 Z"/>
@@ -56,99 +56,86 @@
     <path d="M300 207 L318 207 L300 216 Z" fill="#CFE6EA"/>
   </g>
 
-  <!-- Tumble: ears behind the body -->
+  <!-- Tumble: a large herding ball. The waving stub arm sits behind the ball. -->
   <g filter="url(#tumble-layer)">
-    <!-- left ear, perked straight up -->
-    <path d="M140 116 C126 84 114 46 120 14 C132 40 150 80 154 112 Z" fill="#9DB54E"/>
-    <path d="M144 114 C134 86 126 54 132 26 C142 52 156 84 158 112 Z" fill="#C2D77A"/>
-    <path d="M148 112 C142 92 138 68 142 46 C150 66 158 92 160 110 Z" fill="#DDEBA6"/>
-    <!-- right ear, tipped forward to listen -->
-    <path d="M178 112 C190 78 216 50 254 46 C236 66 206 88 192 116 Z" fill="#9DB54E"/>
-    <path d="M182 112 C194 84 214 64 244 58 C228 76 206 94 194 116 Z" fill="#C2D77A"/>
-    <path d="M186 112 C196 92 210 78 232 72 C220 86 204 100 196 116 Z" fill="#DDEBA6"/>
+    <ellipse cx="244" cy="150" rx="11" ry="17" transform="rotate(-36 244 150)" fill="#A8622E"/>
+    <ellipse cx="253" cy="136" rx="10" ry="9" fill="#6E3A12"/>
   </g>
 
-  <!-- Tumble: the waving arm, behind the body -->
+  <!-- The moulded handle loop on top -->
   <g filter="url(#tumble-layer)">
-    <ellipse cx="236" cy="176" rx="13" ry="24" transform="rotate(-32 236 176)" fill="#8E4E1E"/>
-    <ellipse cx="248" cy="156" rx="11" ry="10" fill="#6E3A12"/>
+    <path d="M128 112 C126 70 194 70 192 112" fill="none" stroke="#6E3A12" stroke-width="16" stroke-linecap="round"/>
   </g>
+  <path d="M136 106 C136 80 184 80 184 106" fill="none" stroke="#8A4F22" stroke-width="4" stroke-linecap="round"/>
 
-  <!-- Tumble: the body, with a darker hem of straw tufts -->
+  <!-- The ball itself -->
   <g filter="url(#tumble-lift)">
-    <path d="M100 256 q8 14 18 2 q9 14 19 1 q9 14 19 1 q9 14 19 1 q9 14 19 1 q9 14 19 1 q8 12 17 -4 L218 236 L102 236 Z" fill="#6E3A12"/>
-    <path d="M96 246 C96 156 126 100 165 100 C204 100 234 156 234 246 Q234 258 220 258 L110 258 Q96 258 96 246 Z" fill="#8E4E1E"/>
+    <circle cx="160" cy="180" r="84" fill="#A8622E"/>
   </g>
-  <!-- straw tufts at the crown -->
-  <g fill="#B06A2F">
-    <path d="M158 102 q2 -12 8 -16 q-2 8 -2 16 Z"/>
-    <path d="M168 101 q6 -10 14 -12 q-6 6 -8 13 Z"/>
-    <path d="M150 104 q-6 -8 -14 -8 q8 4 10 10 Z"/>
+  <!-- the highlight panel, a lighter piece of paper on the upper left -->
+  <path d="M96 150 C104 118 130 100 160 98 C150 112 128 132 118 164 C112 170 100 166 96 150 Z" fill="#C98A5A"/>
+  <path d="M110 128 q8 -12 22 -18" fill="none" stroke="#E2B48E" stroke-width="4" stroke-linecap="round"/>
+  <!-- moulded seams -->
+  <path d="M160 96 C206 120 214 238 160 264" fill="none" stroke="#6E3A12" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M78 196 C120 218 200 218 242 196" fill="none" stroke="#6E3A12" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M86 140 C110 150 128 152 140 150" fill="none" stroke="#6E3A12" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <!-- grass stains low on the ball -->
+  <path d="M110 238 q10 -8 22 -4 q8 4 4 10 q-12 6 -26 -6 Z" fill="#7E9A3A" opacity="0.55"/>
+  <path d="M192 246 q8 -6 18 -2 q4 4 -2 8 q-10 2 -16 -6 Z" fill="#7E9A3A" opacity="0.5"/>
+  <path d="M150 252 q6 -3 12 0 q-4 4 -12 0 Z" fill="#7E9A3A" opacity="0.5"/>
+  <!-- tooth marks from the meadow dogs -->
+  <g fill="#6E3A12" opacity="0.8">
+    <rect x="212" y="214" width="3" height="7" rx="1.5" transform="rotate(20 213 217)"/>
+    <rect x="219" y="210" width="3" height="7" rx="1.5" transform="rotate(20 220 213)"/>
+    <rect x="226" y="205" width="3" height="7" rx="1.5" transform="rotate(20 227 208)"/>
+    <rect x="216" y="228" width="3" height="6" rx="1.5" transform="rotate(20 217 231)"/>
+    <rect x="223" y="224" width="3" height="6" rx="1.5" transform="rotate(20 224 227)"/>
+    <rect x="100" y="210" width="3" height="6" rx="1.5" transform="rotate(-15 101 213)"/>
+    <rect x="106" y="214" width="3" height="6" rx="1.5" transform="rotate(-15 107 217)"/>
   </g>
-  <!-- straw strands, cut as thin slivers -->
-  <g fill="#B06A2F">
-    <path d="M118 150 q14 -10 30 -8 q-16 2 -30 12 Z"/>
-    <path d="M186 132 q16 2 28 14 q-14 -8 -28 -10 Z"/>
-    <path d="M108 200 q10 -14 24 -18 q-12 8 -22 22 Z"/>
-    <path d="M206 196 q14 4 22 18 q-10 -10 -22 -14 Z"/>
-    <path d="M150 116 q12 -6 26 -2 q-14 0 -26 6 Z"/>
-    <path d="M122 236 q6 -14 18 -20 q-10 10 -14 22 Z"/>
-    <path d="M214 232 q-2 -14 -12 -22 q12 6 16 20 Z"/>
-  </g>
-  <g fill="#6E3A12">
-    <path d="M128 172 q8 -10 20 -12 q-10 4 -18 14 Z"/>
-    <path d="M196 158 q12 0 20 8 q-10 -4 -20 -4 Z"/>
-    <path d="M100 222 q8 -8 18 -10 q-8 4 -16 12 Z"/>
-    <path d="M226 220 q-6 -10 -16 -14 q10 2 18 12 Z"/>
-  </g>
-  <!-- warm belly patch -->
-  <g filter="url(#tumble-layer)">
-    <ellipse cx="165" cy="222" rx="46" ry="30" fill="#E5B07A"/>
-  </g>
-  <path d="M140 214 q10 -6 20 -4 q-10 2 -18 8 Z" fill="#B06A2F"/>
-  <path d="M176 230 q10 -2 18 4 q-10 -2 -18 0 Z" fill="#B06A2F"/>
 
   <!-- Tumble's face -->
-  <path d="M136 148 q9 -7 18 -1" fill="none" stroke="#6E3A12" stroke-width="4" stroke-linecap="round"/>
-  <path d="M176 147 q9 -6 18 1" fill="none" stroke="#6E3A12" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="145" cy="162" r="8.5" fill="#1A2433"/>
-  <circle cx="185" cy="162" r="8.5" fill="#1A2433"/>
-  <circle cx="142" cy="159" r="3" fill="#FFFFFF"/>
-  <circle cx="182" cy="159" r="3" fill="#FFFFFF"/>
-  <circle cx="148" cy="165" r="1.3" fill="#FFFFFF"/>
-  <circle cx="188" cy="165" r="1.3" fill="#FFFFFF"/>
-  <ellipse cx="131" cy="180" rx="9" ry="6" fill="#E5B07A"/>
-  <ellipse cx="199" cy="180" rx="9" ry="6" fill="#E5B07A"/>
-  <path d="M157 180 Q165 188 173 180" fill="none" stroke="#1A2433" stroke-width="3" stroke-linecap="round"/>
+  <path d="M130 150 q9 -7 18 -1" fill="none" stroke="#6E3A12" stroke-width="4" stroke-linecap="round"/>
+  <path d="M172 149 q9 -6 18 1" fill="none" stroke="#6E3A12" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="139" cy="166" r="9" fill="#1A2433"/>
+  <circle cx="181" cy="166" r="9" fill="#1A2433"/>
+  <circle cx="136" cy="163" r="3.2" fill="#FFFFFF"/>
+  <circle cx="178" cy="163" r="3.2" fill="#FFFFFF"/>
+  <circle cx="142" cy="169" r="1.3" fill="#FFFFFF"/>
+  <circle cx="184" cy="169" r="1.3" fill="#FFFFFF"/>
+  <ellipse cx="124" cy="185" rx="10" ry="6.5" fill="#E5B07A"/>
+  <ellipse cx="196" cy="185" rx="10" ry="6.5" fill="#E5B07A"/>
+  <path d="M150 186 Q160 196 170 186" fill="none" stroke="#1A2433" stroke-width="3.2" stroke-linecap="round"/>
 
-  <!-- The willow whistle on its braided cord -->
-  <path d="M138 176 Q150 206 160 210" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
-  <path d="M192 176 Q180 206 170 210" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
-  <path d="M138 176 Q150 206 160 210" fill="none" stroke="#CFE6EA" stroke-width="3.5" stroke-dasharray="3 4"/>
-  <path d="M192 176 Q180 206 170 210" fill="none" stroke="#CFE6EA" stroke-width="3.5" stroke-dasharray="3 4"/>
-  <g filter="url(#tumble-layer)" transform="rotate(-8 165 214)">
-    <rect x="146" y="206" width="40" height="15" rx="7.5" fill="#FFFFFF"/>
-    <rect x="140" y="209" width="10" height="9" rx="3" fill="#F3F8DF"/>
-    <rect x="160" y="206" width="6" height="15" fill="#1F5C6E"/>
-    <rect x="171" y="210" width="3" height="7" rx="1.5" fill="#1A2433"/>
-    <rect x="177" y="210" width="3" height="7" rx="1.5" fill="#1A2433"/>
-    <circle cx="185" cy="209" r="3" fill="none" stroke="#1F5C6E" stroke-width="2"/>
+  <!-- The willow whistle hangs from the handle on its braided cord -->
+  <path d="M188 104 C204 112 208 124 206 134" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M188 104 C204 112 208 124 206 134" fill="none" stroke="#CFE6EA" stroke-width="3.5" stroke-dasharray="3 4"/>
+  <g filter="url(#tumble-layer)" transform="rotate(78 206 146)">
+    <rect x="188" y="139" width="38" height="14" rx="7" fill="#FFFFFF"/>
+    <rect x="182" y="142" width="9" height="8" rx="3" fill="#F3F8DF"/>
+    <rect x="200" y="139" width="6" height="14" fill="#1F5C6E"/>
+    <rect x="211" y="143" width="3" height="6" rx="1.5" fill="#1A2433"/>
+    <rect x="217" y="143" width="3" height="6" rx="1.5" fill="#1A2433"/>
+    <circle cx="225" cy="142" r="3" fill="none" stroke="#1F5C6E" stroke-width="2"/>
   </g>
 
-  <!-- The other arm, holding out a biscuit -->
+  <!-- The treat pouch, clipped to Tumble's side -->
   <g filter="url(#tumble-layer)">
-    <ellipse cx="104" cy="214" rx="13" ry="22" transform="rotate(38 104 214)" fill="#8E4E1E"/>
-    <ellipse cx="90" cy="232" rx="11" ry="10" fill="#6E3A12"/>
-    <path d="M78 226 q6 -8 14 -4 q4 2 4 6 q-2 6 -10 6 q-8 0 -8 -8 Z" fill="#E5B07A"/>
+    <circle cx="90" cy="206" r="4" fill="none" stroke="#CFE6EA" stroke-width="2.5"/>
+    <path d="M74 212 h32 v20 q0 10 -10 10 h-12 q-10 0 -10 -10 Z" fill="#E5B07A"/>
+    <path d="M72 210 h36 v8 q-18 8 -36 0 Z" fill="#6E3A12"/>
+    <circle cx="90" cy="218" r="2.5" fill="#CFE6EA"/>
   </g>
-  <circle cx="84" cy="228" r="1.2" fill="#B06A2F"/>
-  <circle cx="89" cy="226" r="1.2" fill="#B06A2F"/>
+  <path d="M80 230 q6 3 12 0" fill="none" stroke="#B06A2F" stroke-width="2" stroke-linecap="round"/>
 
-  <!-- Tumble's feet -->
+  <!-- The other stub arm, holding out a biscuit -->
   <g filter="url(#tumble-layer)">
-    <ellipse cx="138" cy="264" rx="20" ry="9" fill="#6E3A12"/>
-    <ellipse cx="192" cy="264" rx="20" ry="9" fill="#6E3A12"/>
+    <ellipse cx="86" cy="182" rx="10" ry="16" transform="rotate(48 86 182)" fill="#A8622E"/>
+    <ellipse cx="72" cy="192" rx="9" ry="8.5" fill="#6E3A12"/>
+    <path d="M58 186 q6 -8 14 -4 q4 2 4 6 q-2 6 -10 6 q-8 0 -8 -8 Z" fill="#E5B07A"/>
   </g>
+  <circle cx="64" cy="188" r="1.2" fill="#B06A2F"/>
+  <circle cx="69" cy="186" r="1.2" fill="#B06A2F"/>
 
   <!-- The dog: lean and long-legged, mostly white, a ginger head with a white blaze, sitting nicely with a head tilt -->
   <!-- curled white tail with a ginger base -->

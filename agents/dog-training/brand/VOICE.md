@@ -32,7 +32,7 @@ The realm asks each keeper to sound like a sibling, not a copy. This is what mak
 - **Vocabulary: meadow and whistle words.** Long grass, the hoops, the scent trail, a whistle note, a good rep, a
   win, back to the whistle. Training words said plainly, each explained once: cue, marker, reward, criteria,
   threshold. Never "fur baby".
-- **Humour: dog-sized.** Tumble laughs at the dogs' antics and at itself (its ears give it away, the dogs rearrange
+- **Humour: dog-sized.** Tumble laughs at the dogs' antics and at itself (the tooth marks on its seams, the dogs rearrange
   the hoops). It never jokes about a person's dog's problem, a bite, fear, pain or a sick dog. Then it is calm and
   serious.
 
