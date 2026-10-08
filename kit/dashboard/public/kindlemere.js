@@ -665,10 +665,11 @@
   }
   function kick() { if (!raf && !still) raf = requestAnimationFrame(frame); }
 
-  /** Whoever stands nearer the front is drawn over whoever is behind, the dog included (not while one has the focus). */
+  /** Whoever stands nearer the front is drawn over whoever is behind, the dog included. The one with the focus (the
+   * last one clicked keeps it) is never moved itself, as moving it would drop the focus; the others go round it. */
   function layerByDepth(scene) {
     const host = scene.layers.actors && scene.layers.actors.querySelector('[data-km-layer="actors"]');
-    if (!host || host.contains(document.activeElement)) return;
+    if (!host) return;
     const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
     const items = [...host.children].filter((n) => n.hasAttribute('data-km-actor')).map((el) => {
       const key = el.getAttribute('data-km-actor');
@@ -676,21 +677,31 @@
       const y = a ? a.y : key === 'dog' && dog && dog.where ? dog.where().y : Number((el.getAttribute('data-km-home') || '0 0').split(/\s+/)[1]);
       return { el, y };
     });
+    // In order give or take a hair: two standing level never swap back and forth.
+    let fine = true;
+    for (let i = 1; i < items.length && fine; i += 1) if (items[i - 1].y > items[i].y + 3) fine = false;
+    if (fine) return;
     const sorted = items.slice().sort((p, q) => p.y - q.y);
-    if (sorted.every((it, i) => it.el === items[i].el)) return;
-    // The fewest moves (a moved character's own animations start over): keep the longest run already in depth order
-    // and put only the others in their places.
+    // The fewest moves (a moved character's own animations start over): keep the longest run already in depth order,
+    // through the focused one when there is one, and put only the others in their places.
     const rank = new Map(sorted.map((it, i) => [it.el, i]));
     const seq = items.map((it) => rank.get(it.el));
-    const len = seq.map(() => 1);
-    const prev = seq.map(() => -1);
-    for (let i = 0; i < seq.length; i += 1) {
-      for (let j = 0; j < i; j += 1) if (seq[j] < seq[i] && len[j] + 1 > len[i]) { len[i] = len[j] + 1; prev[i] = j; }
+    const n = seq.length;
+    const upTo = seq.map(() => 1);      // the longest run in order ending here
+    const before = seq.map(() => -1);
+    for (let i = 0; i < n; i += 1) {
+      for (let j = 0; j < i; j += 1) if (seq[j] < seq[i] && upTo[j] + 1 > upTo[i]) { upTo[i] = upTo[j] + 1; before[i] = j; }
     }
-    let best = 0;
-    for (let i = 1; i < seq.length; i += 1) if (len[i] > len[best]) best = i;
+    const from = seq.map(() => 1);      // and starting here
+    const after = seq.map(() => -1);
+    for (let i = n - 1; i >= 0; i -= 1) {
+      for (let j = i + 1; j < n; j += 1) if (seq[j] > seq[i] && from[j] + 1 > from[i]) { from[i] = from[j] + 1; after[i] = j; }
+    }
+    let best = items.findIndex((it) => it.el.contains(document.activeElement));
+    if (best < 0) { best = 0; for (let i = 1; i < n; i += 1) if (upTo[i] + from[i] > upTo[best] + from[best]) best = i; }
     const keep = new Set();
-    for (let i = best; i >= 0; i = prev[i]) keep.add(items[i].el);
+    for (let i = best; i >= 0; i = before[i]) keep.add(items[i].el);
+    for (let i = after[best]; i >= 0; i = after[i]) keep.add(items[i].el);
     let next = items[items.length - 1].el.nextSibling;   // whatever follows the characters stays after them
     for (let i = sorted.length - 1; i >= 0; i -= 1) {
       const el = sorted[i].el;
@@ -736,7 +747,6 @@
     let started = false;
     for (const s of scenes) {
       if (!s.cast || s.seen === false) continue;
-      layerByDepth(s);
       reachable(s);
       if (held || s.night) {
         if (Object.values(s.cast).some((a) => !['home', 'back', 'watch'].includes(a.mode) && !a.el.hasAttribute('data-km-awake'))) { goHome(s, true); started = true; }
@@ -1008,6 +1018,13 @@
       kick();
     });
     setInterval(tick, 400);
+    // Whoever is nearer the front is drawn in front, looked at every frame so two crossing never show the wrong way
+    // round (owner, 2026-10-08: "there are still some layering issues when characters cross over each other").
+    const depths = () => {
+      if (!document.hidden) scenes.forEach((s) => { if (s.cast && s.seen !== false) layerByDepth(s); });
+      requestAnimationFrame(depths);
+    };
+    requestAnimationFrame(depths);
   }
 
   if (window.kindlemere) Object.assign(window.kindlemere, { go, say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); } });

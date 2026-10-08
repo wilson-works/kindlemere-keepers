@@ -19,21 +19,22 @@
   <button class="km-btn-quiet tm-books-open" id="books-open" type="button">Tumble's books</button>
 </header>
 
-<main class="km-page">
-  <section class="km-card km-sky tm-room" aria-label="Lakeside Field">
+<main class="tm-field-room">
+  <div class="tm-stage" id="stage">
     <div class="tm-view" id="scene-box">
       <img class="tm-scene" src="/kit/art/kindlemere-field.svg" width="1600" height="900" alt="Lakeside Field in Kindlemere: open grass down to a bay of the lake, a kennel, weave poles and a willow hoop, Tumble the herding ball with a treat pouch, and the dog in the shallows with a tennis ball.">
     </div>
 
-    <div class="tm-talk">
-      <div class="tm-bubble" id="bubble">
-        <img class="tm-mood" id="mood" src="/kit/art/keepers/dog-training-happy.svg" alt="" width="64" height="64">
-        <p class="tm-say"><span class="tm-who" id="who">Tumble</span> <span id="say" role="status" aria-live="polite">Come in. Mind the hoops.</span></p>
-      </div>
-      <button class="km-btn-quiet tm-pause" id="pause" type="button" aria-pressed="false" hidden>Pause Lakeside Field</button>
+    <div class="tm-bubble" id="bubble">
+      <img class="tm-mood" id="mood" src="/kit/art/keepers/dog-training-happy.svg" alt="" width="64" height="64">
+      <p class="tm-say"><span class="tm-who" id="who">Tumble</span> <span id="say" role="status" aria-live="polite">Come in. Mind the hoops.</span></p>
     </div>
 
-    <div class="tm-dogs" id="dogs" aria-label="Your dogs"></div>
+    <section class="tm-board" aria-label="With Tumble in Lakeside Field">
+    <div class="tm-board-top">
+      <div class="tm-dogs" id="dogs" aria-label="Your dogs"></div>
+      <button class="km-btn-quiet tm-pause" id="pause" type="button" aria-pressed="false" hidden>Pause Lakeside Field</button>
+    </div>
 
     <nav class="tm-actions" aria-label="What we can do">
       <button class="tm-act" type="button" data-panel="talk" aria-pressed="false">Talk</button>
@@ -149,7 +150,8 @@
         <p class="tm-note">What you tell me stays on this computer, in my memory, and I'll forget anything you ask me to.</p>
       </section>
     </div>
-  </section>
+    </section>
+  </div>
 </main>
 
 <dialog class="tm-drawer" id="books" aria-labelledby="books-h">
@@ -190,7 +192,7 @@
   </div>
 </dialog>
 
-<footer class="km-foot"><p>Lakeside Field, on the shore of Kindlemere. Your own food goes to the nutritionist in the Orchard; your own running, stretching or breathing to the fitness coach on Stepping Hill.</p></footer>
+<footer class="km-foot"><p>Lakeside Field, on the shore of Kindlemere. Your own food goes to the nutritionist in the Orchard. Your own running, stretching or breathing goes to the fitness coach on Stepping Hill.</p></footer>
 <script src="/kit/kit.js"></script>
 <script src="/fetch.js"></script>
 <script src="/app.js"></script>
