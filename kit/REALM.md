@@ -199,8 +199,11 @@ No slot uses cream with plum, no land is Bert's fern (`#3E8F5E`) or his butter (
 
 - Link `/kit/design/tokens.css`, then `/kit/kit.css`, then the agent's own css; load `/kit/kit.js` before its script.
 - `<body data-agent="<key>">` gives every kit part the agent's colours.
-- The hero is the agent's close view as an `<img>` in a 16:9 card. It goes live by itself (Day and night, above);
-  `object-fit: cover` and `object-position` on the image still frame it once it is live.
+- The hero is the agent's close view as an `<img>` on a 16:9 stage that fills the window under the bar: you step into
+  the place. The keeper's words float just above the keeper, and the room's own card or board floats beside them,
+  clear of where things happen (the Orchard's table card, the Hill's trail, the Field's board over the sky and the
+  farmland). In a narrow window the scene comes first, then the words, then the card. The picture goes live by itself
+  (Day and night, above); `object-fit: cover` and `object-position` on the image still frame it once it is live.
 - The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role, and on a page with the scene the bar of places
   that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
   sky-coloured one), `.km-btn` and `.km-btn-quiet` (pill buttons, 44 px tall), `.km-field`, `.km-chip`,
