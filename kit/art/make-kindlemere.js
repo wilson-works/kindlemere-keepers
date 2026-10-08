@@ -548,6 +548,10 @@ function shrub(x, y, s, kind) {
   return o;
 }
 
+// The hill's flock is drawn big enough to read from across the park (owner, 2026-10-08: "the sheep on the hill need to be
+// bigger").
+const FLOCK = 1.9;
+
 /** A sheep: wool in three papers, dark legs and face; `pose` graze (head down), look (head up) or lie. */
 function sheep(x, y, s, flip, pose, lamb) {
   const k = lamb ? 1.25 : 1; // a lamb's head is big for its body
@@ -890,16 +894,16 @@ function hillBody() {
     const things = [
       [300, granite(820, 300, 104, 22, true) + granite(776, 302, 26, 9, true) + granite(864, 301, 22, 8, false)],
       [302, shrub(760, 302, 0.6, 'gorse')], [300, shrub(880, 301, 0.55, 'juniper')],
-      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85, false, 'lie')],
+      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85 * FLOCK, false, 'lie')],
       [346, pine(735, 346, 22)], [352, pine(748, 352, 18)], [354, granite(836, 354, 28, 12, false)],
-      [362, sheep(708, 362, 0.8, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
+      [362, sheep(708, 362, 0.8 * FLOCK, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
       [392, granite(700, 392, 30, 13, true)], [394, shrub(856, 394, 0.7, 'bush')], [404, shrub(690, 404, 0.7, 'gorse')],
       [412, birch(676, 412, 44, -2)], [420, shrub(802, 420, 0.8, 'gorse')], [434, pine(818, 434, 30)],
       [437, birch(988, 437, 50, 2)], [444, birch(1001, 444, 38, -1.5)], [452, granite(796, 452, 34, 15, true)],
       [455, bench(664, 455) + bird(668, 439.6, 1, false)], [455.5, rabbit(686, 455, 0.9, false)], [454, rabbit(903, 454, 0.85, true)],
-      [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85, true, 'lie')], [462, sheep(951, 463, 0.55, true, 'lie', true)],
+      [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85 * FLOCK, true, 'lie')], [462, sheep(951, 463, 0.55 * FLOCK, true, 'lie', true)],
       [466, pine(1042, 466, 36)], [472, shrub(816, 474, 0.9, 'juniper')], [474, stoneWall([[826, 467], [862, 470.6], [900, 473], [940, 474.2], [972, 474]], [904, 919]) + bird(868, 463.4, 1, true)], [486, trough(884, 487)],
-      [480, pine(630, 480, 46)], [502, shrub(918, 502, 0.8, 'gorse')], [504, pine(612, 504, 34)], [512, sheep(920, 512, 0.55, false, 'look', true)],
+      [480, pine(630, 480, 46)], [502, shrub(918, 502, 0.8, 'gorse')], [504, pine(612, 504, 34)], [512, sheep(920, 512, 0.55 * FLOCK, false, 'look', true)],
       [514, shrub(606, 514, 0.9, 'juniper')], [524, granite(598, 530, 22, 9, true)], [527, trailBoard(620, 528)], [528, stretchBar(770, 528)], [529, balanceLog(806, 530)], [453, ropeRail()],
       [466, fern(1004, 466, 1, true)], [476, fern(999, 477, 0.9)], [471, fern(1021, 471.5, 0.8)], [483, fern(1013, 484, 0.85, true)], [500, fern(1047, 499.5, 0.8, true)], [508, fern(1035, 508.5, 0.9)], [445, fern(975, 445.4, 0.7)],
       [389, stack(977, 389, 1) + marker(972, 398, 3)], [452.5, stack(855, 452, 1) + marker(857, 463, 2)], [498, stack(994, 498, 1.1) + marker(987, 508, 1)], [331, stack(850, 331, 0.9) + marker(853, 341, 4, 0.9)],
@@ -910,7 +914,7 @@ function hillBody() {
     // What moves on the hill, drawn in the life layer: flags at the turns and on the top, grazing sheep, butterflies,
     // grass in the wind and a dragonfly over the pool.
     let life = flag(786, 288, 66, C.fGlow, 0, 2) + flag(982, 392, 15, C.paper, 0.8) + flag(850, 452, 15, C.sand, 1.6) + flag(1000, 500, 16, C.paper, 0.4) + flag(845, 333, 14, C.sand, 1.2);
-    life += sheep(850, 497, 0.9, true, 'graze') + sheep(906, 507, 0.85, false, 'graze') + sheep(764, 404, 0.8, true, 'graze');
+    life += sheep(850, 497, 0.9 * FLOCK, true, 'graze') + sheep(906, 507, 0.85 * FLOCK, false, 'graze') + sheep(776, 406, 0.8 * FLOCK, true, 'graze');
     life += swayGrass(862, 520, 0) + swayGrass(792, 476, 1.4) + swayGrass(1002, 461, 2.2) + swayGrass(706, 432, 3) + swayGrass(948, 486, 0.7) + swayGrass(732, 380, 2.6);
     life += butterfly(742, 428, C.paper, 0) + butterfly(872, 532, '#F2D27A', 3) + butterfly(690, 384, C.cream, 6);
     life += `<g transform="translate(916 424) scale(1.3)" class="km-day-only"><g class="km-flit" style="animation-duration:6s;animation-delay:-2s"><g class="km-wing"><path d="M-1.6 -0.4 q-1 -3 0.4 -3.2 q0.6 1.6 -0.4 3.2 Z M0.4 -0.4 q0.4 -3.2 1.8 -3 q-0.4 1.8 -1.8 3 Z" fill="${C.paper}" opacity="0.85"/></g><path d="M-3 0 H5" stroke="${C.mereShine}" stroke-width="0.7" stroke-linecap="round"/><circle cx="-3.4" cy="-0.1" r="0.75" fill="${C.mere}"/></g></g>`;
