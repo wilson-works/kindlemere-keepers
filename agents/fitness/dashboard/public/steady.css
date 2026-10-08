@@ -5,8 +5,11 @@
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 
-.room { display: flex; gap: var(--km-space-5); align-items: center; }
-.room-figure { width: 220px; height: auto; flex: none; }
+.room { padding: 0; overflow: hidden; }
+.room-view { position: relative; aspect-ratio: 16 / 9; background: var(--a-sky); }
+.room-hero { display: block; width: 100%; height: 100%; object-fit: cover; }
+.room-mood { position: absolute; right: var(--km-space-4); bottom: var(--km-space-4); width: 22%; max-width: 160px; height: auto; }
+.room-words { padding: var(--km-space-5); }
 .room h1 { color: var(--a-land); }
 .room-line { font-family: var(--km-font-head); font-size: var(--km-text-lg); }
 .room-about { color: var(--km-ink-soft); }
@@ -52,8 +55,6 @@
 .foot-in { max-width: var(--km-page-max); margin: 0 auto; display: flex; flex-wrap: wrap; gap: var(--km-space-2) var(--km-space-5); }
 
 @media (max-width: 520px) {
-  .room { flex-direction: column; align-items: flex-start; }
-  .room-figure { width: 170px; align-self: center; }
   .counts { grid-template-columns: 1fr 1fr; gap: var(--km-space-3); }
   .count { padding: var(--km-space-4); }
   .find { flex-direction: column; }
