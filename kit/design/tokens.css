@@ -2,8 +2,8 @@
  * Kindlemere design tokens (kit/REALM.md). Every agent page links this first, then /kit/kit.css, then its own css.
  * The realm's shared colours start --km-. Each agent has one palette slot, named for its folder key. A page picks its
  * slot with <body data-agent="<key>">, and kit.css maps that slot onto the --a- names its components use.
- * Contrast (WCAG): ink on every bg and sky is 12:1 or more; every land on its own bg 5:1 or more; white on every land
- * and on mere 5.6:1 or more. Change a value only with that table re-measured (REALM.md, "Colour").
+ * Contrast (WCAG): ink on every bg and sky 12:1 or more; every land on its own bg and sky 5:1 or more; white on every
+ * land and on mere 6.4:1 or more. Change a value only with that table re-measured (REALM.md, "Colour").
  */
 :root {
   /* The shared ground: the lake, the night ink, the lantern flame. */
@@ -21,23 +21,25 @@
   /* Palette slot: nutrition. The Orchard Isle, morning. */
   --nutrition-bg: #FFF3E6;
   --nutrition-sky: #FFE1C2;
-  --nutrition-land: #2E7533;
+  --nutrition-land: #525C12;
   --nutrition-glow: #FFB36B;
 
   /* Palette slot: fitness. The Stepping Peaks, high noon. */
   --fitness-bg: #F1F4FF;
   --fitness-sky: #D9E1FF;
-  --fitness-land: #BD2465;
+  --fitness-land: #B0205C;
   --fitness-glow: #8FA2FF;
 
   /* Palette slot: dog-training. Whistle Meadow, late afternoon. */
-  --dog-training-bg: #FBF8E1;
-  --dog-training-sky: #F1E9A6;
-  --dog-training-land: #8A4116;
-  --dog-training-glow: #C9D86A;
+  --dog-training-bg: #F3F8DF;
+  --dog-training-sky: #DDEBA6;
+  --dog-training-land: #6E3A12;
+  --dog-training-glow: #E5B07A;
 
-  /* Type. No web fonts: these are on every Windows, Mac and phone, so the page needs nothing from another site. */
-  --km-font-head: Candara, "Gill Sans", "Gill Sans MT", "Trebuchet MS", "Segoe UI", sans-serif;
+  /* Type. No web fonts, so the page needs nothing from another site. Headings are rounded on Apple (ui-rounded),
+     humanist on Windows (Candara) and Gill Sans elsewhere; Android has none of these and falls back to its sans,
+     so headings there lean on weight and size alone. */
+  --km-font-head: ui-rounded, Candara, "Gill Sans", "Gill Sans MT", "Trebuchet MS", "Segoe UI", sans-serif;
   --km-font-body: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --km-text-xs: 0.8125rem;
   --km-text-sm: 0.9375rem;
