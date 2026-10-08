@@ -20,3 +20,9 @@ I answer "is this still good?" and plan batch cooking. My book says to use FoodS
 
 ## What fruit and vegetables are in season, month by month
 I tell people to buy produce in season to save money. My book points to Nutrition.gov's seasonal produce guide but does not hold it. I need a month-by-month US list of fruit and vegetables in season (SNAP-Ed or Nutrition.gov), how to store each one, and whether frozen or canned is a good swap. No prices, please.
+
+## Activity levels and total daily energy (EER)
+I give resting energy (Mifflin-St Jeor) as a range, but a weekly meal plan needs total daily energy. My book has no activity multipliers. I need the IOM/NASEM Estimated Energy Requirement equations for adults (2023 update) with their physical activity levels, the common activity factors used with Mifflin-St Jeor (sedentary to very active) and how each level is described in plain words, and the error band on each. Note which groups they should not be used for.
+
+## A guide to shopping at Walmart, Sam's Club and Sprouts
+People plan their weekly shopping across these three stores. I need what a shopper should know about each, from public sources: which kinds of foods each one carries (bulk packs at a warehouse club, a produce-forward market, a general supercenter), pack sizes that suit batch cooking, and how to split a list across a warehouse club and a grocery store without waste. No prices, please, and nothing that ranks one store as cheaper.

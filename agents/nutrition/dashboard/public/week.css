@@ -1,0 +1,101 @@
+/* One week from Avo's table: a letter you can keep open in the kitchen, or print and stick on the fridge.
+   Kit tokens and parts first (/kit/design/tokens.css, /kit/kit.css), then only what this page needs. */
+
+[hidden] { display: none !important; }
+body { background: var(--a-sky); }
+.km-top { display: flex; align-items: center; }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.print { margin-left: auto; flex: none; }
+.quiet { color: var(--km-ink-soft); }
+.small { font-size: var(--km-text-sm); margin: 0 0 var(--km-space-3); }
+.letter > * + *, #body > * + * { margin-top: var(--km-space-4); }
+.km-card h2 { color: var(--a-land); margin-top: 0; }
+.with-obj { display: flex; align-items: center; gap: var(--km-space-2); }
+.with-obj .obj { width: 36px; height: 36px; flex: none; }
+
+.open-letter h1 { color: var(--a-land); font-size: var(--km-text-2xl); margin: 0 0 var(--km-space-2); line-height: 1.15; }
+.lead { font-size: var(--km-text-md); margin: 0; }
+.facts-row { list-style: none; margin: var(--km-space-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--km-space-2); }
+
+.jump { display: flex; flex-wrap: wrap; gap: var(--km-space-2); }
+.jump a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--km-space-4); border-radius: var(--km-radius-pill);
+  background: var(--a-bg); color: var(--km-ink); font-weight: 600; font-size: var(--km-text-sm); text-decoration: none; box-shadow: var(--km-layer);
+}
+
+/* The week, a day per row, a tick for each meal. */
+.week-days, .meals, .flags, .ingredients, .basket, .ticks { list-style: none; margin: 0; padding: 0; }
+.week-days > li { padding: var(--km-space-3) 0; }
+.week-days > li + li { border-top: 1px solid rgba(26, 36, 51, 0.1); }
+.week-days h3 { margin: 0 0 var(--km-space-2); font-size: var(--km-text-md); }
+.meals > li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--km-space-2) var(--km-space-3); padding: var(--km-space-1) 0; }
+.meal-what { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--km-space-1) var(--km-space-3); min-width: 0; flex: 1 1 220px; }
+.slot { font-size: var(--km-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--a-land); min-width: 6.5em; }
+.dish { font-weight: 600; color: var(--km-ink); }
+a.dish { text-decoration-color: var(--a-glow); text-underline-offset: 3px; }
+.kind { font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+.meals > li.eaten .dish, .meals > li.swapped .dish { color: var(--km-ink-soft); }
+.acts { display: flex; gap: var(--km-space-2); }
+.tick {
+  min-height: 44px; border: 0; border-radius: var(--km-radius-pill); cursor: pointer; padding: 0 var(--km-space-4);
+  background: var(--a-sky); color: var(--km-ink); font: 600 var(--km-text-sm)/1 var(--km-font-body);
+}
+.tick[aria-pressed="true"] { background: var(--a-land); color: #FFFFFF; }
+.flags:not(:empty) { margin-top: var(--km-space-4); }
+.flags > li { background: var(--a-sky); border-radius: var(--km-radius-sm); padding: var(--km-space-3) var(--km-space-4); font-size: var(--km-text-sm); }
+.flags > li + li { margin-top: var(--km-space-2); }
+
+/* Recipes. */
+.recipes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--km-space-4); }
+.recipe { background: var(--km-paper); border-radius: var(--km-radius); box-shadow: var(--km-layer); padding: var(--km-space-4) var(--km-space-5); scroll-margin-top: var(--km-space-4); }
+.recipe h3 { margin: 0 0 var(--km-space-1); font-size: var(--km-text-lg); }
+.recipe h4 { margin: var(--km-space-3) 0 var(--km-space-1); font-size: var(--km-text-sm); color: var(--a-land); }
+.recipe .meta, .recipe .from { margin: 0; font-size: var(--km-text-sm); }
+.recipe .from { color: var(--km-ink-soft); }
+.ingredients > li { display: flex; justify-content: space-between; gap: var(--km-space-3); padding: 2px 0; font-size: var(--km-text-sm); }
+.where { color: var(--km-ink-soft); font-size: var(--km-text-xs); white-space: nowrap; }
+.steps { margin: 0; padding-left: var(--km-space-5); font-size: var(--km-text-sm); }
+.steps li + li { margin-top: var(--km-space-1); }
+
+/* Shopping, a column per store. */
+.stores { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--km-space-4); }
+.store { background: var(--km-paper); border-radius: var(--km-radius); box-shadow: var(--km-layer); padding: var(--km-space-4); }
+.store h3 { margin: 0; font-size: var(--km-text-lg); }
+.basket > li { display: flex; align-items: flex-start; gap: var(--km-space-2); padding: var(--km-space-1) 0; }
+.basket input { width: 22px; height: 22px; margin: 2px 0 0; flex: none; accent-color: var(--a-land); }
+.basket label { display: flex; flex-direction: column; cursor: pointer; min-height: 28px; }
+.basket input:checked + label .item { text-decoration: line-through; color: var(--km-ink-soft); }
+.item { font-size: var(--km-text-sm); font-weight: 600; }
+.for { font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+
+/* Targets. */
+.targets { width: 100%; border-collapse: collapse; font-size: var(--km-text-sm); }
+.targets + .targets { margin-top: var(--km-space-5); }
+.targets caption { text-align: left; font-weight: 700; font-family: var(--km-font-head); font-size: var(--km-text-md); padding-bottom: var(--km-space-2); }
+.targets th, .targets td { text-align: left; vertical-align: top; padding: var(--km-space-2) var(--km-space-3) var(--km-space-2) 0; border-top: 1px solid rgba(26, 36, 51, 0.1); }
+.targets thead th { border-top: 0; font-size: var(--km-text-xs); color: var(--km-ink-soft); font-weight: 600; }
+.targets .val { font-weight: 700; white-space: nowrap; color: var(--a-land); }
+.targets .km-source { display: block; margin-top: 2px; }
+
+.ticks > li { position: relative; padding: var(--km-space-1) 0 var(--km-space-1) 22px; font-size: var(--km-text-sm); }
+.ticks > li::before { content: ""; position: absolute; left: 2px; top: 0.75em; width: 10px; height: 10px; border-radius: 50%; background: var(--a-land); }
+.ticks + .ticks:not(:empty) { margin-top: var(--km-space-3); }
+
+@media (max-width: 600px) {
+  .targets thead { display: none; }
+  .targets tr { display: grid; grid-template-columns: 1fr auto; padding: var(--km-space-2) 0; border-top: 1px solid rgba(26, 36, 51, 0.1); }
+  .targets th, .targets td { border: 0; padding: 0; }
+  .targets td:last-child { grid-column: 1 / -1; margin-top: var(--km-space-1); }
+  .targets .val { white-space: normal; text-align: right; }
+  .recipe { padding: var(--km-space-4); }
+}
+
+/* On paper: the letter only, ticks as boxes to pencil in. */
+@media print {
+  body { background: #FFFFFF; }
+  .print, .jump, .km-foot, .acts { display: none !important; }
+  .km-card, .recipe, .store { box-shadow: none; border: 1px solid #CCCCCC; break-inside: avoid; }
+  .meals > li::before { content: ""; width: 12px; height: 12px; border: 1.5px solid #555555; border-radius: 3px; flex: none; }
+  .meals > li { justify-content: flex-start; }
+  a.dish { text-decoration: none; }
+}

@@ -1,3 +1,4 @@
 'use strict';
 const path = require('path');
-require('../../../kit/dashboard/shell').start({ agentDir: path.resolve(__dirname, '..') });
+const agentDir = path.resolve(__dirname, '..');
+require('../../../kit/dashboard/shell').start({ agentDir, routes: require('./routes')(agentDir) });
