@@ -17,7 +17,8 @@ const path = require('path');
 const common = require('./common');
 const toolsmith = require('./toolsmith');
 
-const MUST_DENY = ['WebSearch', 'WebFetch', 'mcp__*'];
+// Every deny rule in the kit's own settings copy must be in each checked settings file.
+const MUST_DENY = common.readJson(path.join(common.REPO, 'kit', 'claude', 'settings.agent.json'), {}).permissions.deny;
 const isWeb = (rule) => /^(WebSearch|WebFetch)\b|^mcp__/.test(String(rule));
 
 function settingsProblems(dir, where) {
