@@ -25,6 +25,20 @@ require('../../../kit/dashboard/shell').start({
       if (!m) return { ok: false, text: 'Tell me how many whole minutes you ran, from 1 to 300.' };
       return tool('progress-log', ['--kind', 'run', '--minutes', m]);
     },
+    'POST /api/log-workout': () => tool('progress-log', ['--kind', 'workout']),
+    'GET /api/progress': () => {
+      const r = tool('progress-log', ['--summary']);
+      try { return r.ok ? JSON.parse(r.text) : {}; } catch (_) { return {}; }
+    },
+    // How the person felt after a session, kept in Steady's memory on this computer. Fixed words only, never free text.
+    'POST /api/feel': ({ body }) => {
+      const feel = { better: 'better', same: 'about the same', worse: 'worse' }[body.feel];
+      const after = { run: 'a run', workout: 'a strength workout', calm: 'stretching or breathing' }[body.after];
+      if (!feel || !after) return { ok: false, text: 'Tell me better, about the same or worse.' };
+      const r = spawnSync(process.execPath, [path.resolve(agentDir, '..', '..', 'kit', 'engine', 'memory.js'), 'remember', 'fitness', 'worked',
+        `Felt ${feel} after ${after}.`, '--about', 'feel'], { cwd: agentDir, encoding: 'utf8', timeout: 15000, windowsHide: true });
+      return { ok: r.status === 0 };
+    },
     'POST /api/workout': ({ body }) => {
       if (!['bodyweight', 'bands', 'dumbbells', 'machines'].includes(body.equipment)) return { ok: false, text: 'Tell me what you have: just you, bands, dumbbells or machines.' };
       return tool('quick-workout', ['--equipment', body.equipment]);

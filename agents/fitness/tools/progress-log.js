@@ -2,9 +2,9 @@
 
 /**
  * progress-log: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
- * Purpose: Logs lifts and runs and says what the next step can be, using the 2 to 10 percent load rule and the 110 percent single-run rule.
- * Inputs: kind, exercise, load, reps, target, minutes, date
- * Cards: progression.md, running.md
+ * Purpose: Logs lifts, runs and strength workouts and says what the next step can be, using the 2 to 10 percent load rule, the 110 percent single-run rule and the 2-days-a-week strength guideline.
+ * Inputs: kind, exercise, load, reps, target, minutes, date, summary
+ * Cards: progression.md, running.md, activity-dose.md
  *
  * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
  * Run: node agents/fitness/tools/progress-log.js --kind <kind> --exercise <exercise> --load <load> --reps <reps> --target <target> --minutes <minutes> --date <date>
@@ -70,11 +70,30 @@ run(__filename, (ctx) => {
     } else {
       out.push('This is your first run in the log for the last 30 days. Build from here, about 10% at a time per run.');
     }
+  } else if (a.kind === 'workout') {
+    // A whole strength workout, counted against the guideline of muscle-strengthening on 2 or more days a week.
+    lean('activity-dose.md', 'muscle-strengthening on at least 2 days a week');
+    log.entries.push({ day, kind: 'workout' });
+    const week = new Set(log.entries.filter((e) => e.kind === 'workout' && daysBetween(e.day, day) >= 0 && daysBetween(e.day, day) < 7).map((e) => e.day)).size;
+    out.push(`Logged a strength workout. That's ${week} strength ${week === 1 ? 'day' : 'days'} in the last 7.`);
+    out.push(week >= 2 ? 'That meets the guideline of strength work on 2 or more days a week.' : 'One more strength day this week meets the guideline of 2 or more.');
+  } else if (a.summary) {
+    // Counts for the page to notice progress. Numbers only, read from this tool's own log.
+    const today = new Date().toISOString().slice(0, 10);
+    const ago = (e) => daysBetween(e.day, today);
+    const runs = log.entries.filter((e) => e.kind === 'run');
+    const month = runs.filter((e) => ago(e) >= 0 && ago(e) <= 30);
+    return {
+      sessions7: new Set(log.entries.filter((e) => ago(e) >= 0 && ago(e) < 7).map((e) => `${e.day} ${e.kind}`)).size,
+      workouts7: new Set(log.entries.filter((e) => e.kind === 'workout' && ago(e) >= 0 && ago(e) < 7).map((e) => e.day)).size,
+      runs30: month.length,
+      longestRun30: month.reduce((m, e) => Math.max(m, e.minutes), 0),
+    };
   } else if (a.show) {
     if (!log.entries.length) return 'Nothing logged yet. Log a lift or a run first.';
-    return ['Your log, newest last:', ...log.entries.slice().sort((x, y) => (x.day < y.day ? -1 : x.day > y.day ? 1 : 0)).slice(-20).map((e) => (e.kind === 'run' ? `${e.day}  run ${e.minutes} min` : `${e.day}  ${e.exercise} ${e.load} x ${e.reps} (target ${e.target})`))].join('\n');
+    return ['Your log, newest last:', ...log.entries.slice().sort((x, y) => (x.day < y.day ? -1 : x.day > y.day ? 1 : 0)).slice(-20).map((e) => (e.kind === 'run' ? `${e.day}  run ${e.minutes} min` : e.kind === 'workout' ? `${e.day}  strength workout` : `${e.day}  ${e.exercise} ${e.load} x ${e.reps} (target ${e.target})`))].join('\n');
   } else {
-    throw Object.assign(new Error('Use --kind lift (with --exercise, --load, --reps, --target), --kind run (with --minutes), or --show.'), { status: 2 });
+    throw Object.assign(new Error('Use --kind lift (with --exercise, --load, --reps, --target), --kind run (with --minutes), --kind workout, --summary or --show.'), { status: 2 });
   }
 
   ctx.state.write('log.json', log);

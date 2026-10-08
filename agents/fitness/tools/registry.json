@@ -27,7 +27,7 @@
     {
       "name": "progress-log",
       "file": "progress-log.js",
-      "purpose": "Logs lifts and runs and says what the next step can be, using the 2 to 10 percent load rule and the 110 percent single-run rule.",
+      "purpose": "Logs lifts, runs and strength workouts and says what the next step can be, using the 2 to 10 percent load rule, the 110 percent single-run rule and the 2-days-a-week strength guideline.",
       "inputs": [
         "kind",
         "exercise",
@@ -35,14 +35,16 @@
         "reps",
         "target",
         "minutes",
-        "date"
+        "date",
+        "summary"
       ],
       "cards": [
         "progression.md",
-        "running.md"
+        "running.md",
+        "activity-dose.md"
       ],
-      "sha256": "4aef122c094f3a31be075f3ebe63cb570beaf431d45b5757040a50a45b165d18",
-      "checked": "2026-10-07"
+      "sha256": "770a7812e861b9b7133b8acdc5d09086084ddf76f9a8532d22754d47f9fa8947",
+      "checked": "2026-10-08"
     },
     {
       "name": "calm-session",
