@@ -137,7 +137,24 @@
     }));
     li.append(ul);
     if (p.keep) li.append(el('p', 'quiet small', plain(p.keep)));
+    const done = el('button', 'tick prep-done', p.done ? 'Prep done' : 'I\'ve done the prep');
+    done.type = 'button';
+    done.setAttribute('aria-pressed', String(p.done));
+    done.addEventListener('click', () => prepDone(p, !p.done));
+    li.append(done);
+    if (p.done) li.classList.add('done');
     return li;
+  }
+
+  // Finishing a prep day is the week's big job done: Avo says so, and Summer chimes in a moment later.
+  async function prepDone(p, on) {
+    try {
+      await kit.api('/api/meal-check', { body: { week: p.week, day: p.day, slot: 'prep', mark: on ? 'eaten' : 'clear' } });
+      await load();
+      if (!on) { say('No rush. The prep will keep until you get to it.', null, 'thinking'); return; }
+      say(`That's the cooking done through ${p.through}. Why did we ever do this by hand?`, null, 'happy');
+      setTimeout(() => say('Treat earned! Tell me what you fancy and I\'ll find one.', 'Summer', 'happy'), 3500);
+    } catch (e) { say(e.message, null, 'worried'); }
   }
 
   function mark(s) {
@@ -173,10 +190,55 @@
     try {
       await kit.api('/api/meal-check', { body: { week: table.thisWeek.id, day: table.dayKey, slot: s.slot, mark: m } });
       await load();
-      if (m === 'eaten') nextUp('Good. ');
-      else if (m === 'swapped') say('Swapped is fine. I\'ll count it as a swap when you ask how the week is going.');
+      react(s, m);
     } catch (e) { say(e.message, null, 'worried'); }
   }
+
+  // Whoever keeps the meal answers the tick, in their own voice and mood.
+  function react(s, m) {
+    const who = KEEPER[s.slot] || 'Avo';
+    if (m === 'clear') { say('Unticked. No harm done.', who === 'Avo' ? null : who, 'oh'); return; }
+    if (m === 'swapped') {
+      if (who === 'Spud') say('No harm. I\'ll remember that one when we plan the next dinners.', 'Spud', 'thinking');
+      else if (who === 'Summer') say('Swapped your treat? I\'ll find you a better one next week.', 'Summer', 'thinking');
+      else say('Swapped is fine. I\'ll remember, and we can change it next week.', null, 'thinking');
+      return;
+    }
+    const left = table.todayMeals.filter((x) => !mark(x));
+    if (who === 'Spud') say(left.length ? 'Glad that hit the spot. Dinner done.' : 'Dinner done, and that\'s the whole day ticked. Nicely done.', 'Spud', 'happy');
+    else if (who === 'Summer') say('Sweet! That\'s the treat ticked.', 'Summer', 'happy');
+    else nextUp('Good. ');
+  }
+
+  /* ---------------------------------------------------------------- clicking a character in the scene */
+  // The kit makes every character a button and fires 'kindlemere:character'; the Orchard's three answer here.
+  function openTalk(prefill) {
+    show($('tab-plan'));
+    const box = $('talk-text');
+    if (prefill != null && !box.value) box.value = prefill;
+    box.focus();
+  }
+  window.addEventListener('kindlemere:character', (ev) => {
+    const who = ev.detail && ev.detail.name;
+    if (!['Avo', 'Summer', 'Spud'].includes(who)) return;
+    ev.preventDefault();
+    const dinner = table && table.todayMeals.find((s) => s.slot === 'dinner');
+    const treat = table && table.todayMeals.find((s) => s.slot === 'snack');
+    if (asleep()) {
+      if (who === 'Avo') sleepy();
+      else say(`${who} is fast asleep. Let's not wake ${who === 'Spud' ? 'him' : 'her'}.`, null, 'sleepy');
+      return;
+    }
+    if (who === 'Avo') { say('What can I help with? Ask me anything, or let\'s plan a week.', null, 'happy'); openTalk(); return; }
+    if (who === 'Summer') {
+      say(treat ? `Today's treat is ${treat.name}. Fancy something else? Ask me.` : 'Something sweet? Ask me and I\'ll find a treat that fits.', 'Summer', 'happy');
+      openTalk('I want something sweet. Any ideas?');
+      return;
+    }
+    const evening = new Date().getHours() >= 17;
+    if (evening) say(dinner ? `Evening! Dinner tonight is ${dinner.name}.` : 'Evening! No dinner planned tonight. Want to plan one?', 'Spud', 'happy');
+    else say(`Spud's still snoozing till dinner time. ${dinner ? `Tonight it's ${dinner.name}.` : 'No dinner planned tonight yet.'}`, null, 'happy');
+  });
 
   /* ---------------------------------------------------------------- this week */
   function week() {

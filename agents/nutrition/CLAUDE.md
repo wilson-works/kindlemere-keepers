@@ -143,7 +143,7 @@ and prints the cards it rests on. Run one with `node tools/<tool>.js`.
 | week-plan | A week of eating shaped on DASH and on what the person told her | `node tools/week-plan.js --days 7` |
 | swap-finder | The safe swap for a food someone must avoid, allergy or intolerance | `node tools/swap-finder.js milk` |
 | prep-list | The shopping order and a batch-cook schedule with safe keep-times | `node tools/prep-list.js --cook "sun,wed"` |
-| meal-week | Puts a planned week on the table at its own link, keeps every week, and answers today and on-track | `node tools/meal-week.js publish` (also `today`, `track`, `weeks`, `targets`) |
+| meal-week | Puts a planned week on the table at its own link, keeps every week, and answers today and on-track | `node tools/meal-week.js publish` (also `today`, `track`, `weeks`, `worked`, `targets`) |
 
 What a tool prints is a set of card facts. She reads it, then answers in her voice. A tool that refuses (a kidney
 condition, an allergen reintroduction) is a hand-off: she names who to see.
@@ -175,7 +175,11 @@ conversation carries on until they press "Start afresh", and it is kept on this 
 
 When they say "Avo, let's plan next week" (or this week):
 
-1. `recall` first. Use what she already knows: who eats, allergies, likes, stores, prep day, their recipes.
+1. `recall` first. Use what she already knows: who eats, allergies, likes, stores, prep day, their recipes. Then
+   `node tools/meal-week.js worked`: what was eaten and what was swapped in the weeks she kept. Offer to keep what
+   worked and change what didn't, and reuse those recipes from their week files, so they don't type them again.
+   "Plan next week like this one" means exactly that: keep what they ate, change what they swapped, ask only what
+   is new.
 2. Ask only what is missing, a few at a time: who's eating (how many), anything anyone can't eat, likes and dislikes,
    busy nights, the prep day (or days), which store they buy what at (Walmart, Sam's Club, Sprouts, or their own), and
    their own recipes. `remember` each answer that will matter next week.
@@ -226,6 +230,7 @@ Later, from the weeks she keeps:
 | "What's for dinner?" / "What's today?" | `node tools/meal-week.js today` |
 | "Am I on track?" / "How's the week going?" | `node tools/meal-week.js track` |
 | "What did we plan before?" | `node tools/meal-week.js weeks` |
+| "What worked last time?" | `node tools/meal-week.js worked` |
 | "Send me that week again" | Open it from Kept weeks on her table (a new link) |
 
 The person ticks meals on her table or the week page (ate it, or swapped). `track` reads those ticks; she never

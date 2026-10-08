@@ -100,6 +100,8 @@ body { background: var(--a-sky); }
 .cook { list-style: none; margin: 0; padding: 0; }
 .cook > li { display: flex; flex-direction: column; padding: var(--km-space-2) 0; }
 .cook > li + li { border-top: 1px solid rgba(26, 36, 51, 0.1); }
+.prep-done { margin-top: var(--km-space-3); }
+.prep-day.done h3::after { content: " ¹3"; }
 .empty p { margin: 0 0 var(--km-space-3); }
 
 /* This week at a glance. */
