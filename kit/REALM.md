@@ -165,10 +165,34 @@ inside a scene ... flow inside each scene".
 - The places are one world seen through four cameras (the realm, the Orchard, the Hill, the Field), so going from one
   to another is a camera move: the view glides toward the next place and dips to the page's colour, and the next
   page starts where it left off and glides the rest of the way in.
-- The ways: the bar of places on every page with the scene (Kindlemere, Orchard, Hill, Field), the signpost's arms
-  in the scene (Louise's arm points across the lake), a keeper on the Kindlemere page, and each place's card there.
+- The ways: the bar of places on every page with the scene (signs to Kindlemere, the Orchard, the Hill and the Field,
+  each in its place's colour, the page you are on wearing a "you are here" pin), the signpost's arms in the scene
+  (Louise's arm points across the lake), a keeper on the Kindlemere page, and each place's card there.
 - The Kindlemere page shows the places' cards as still pictures (`#km-still`): three more live scenes would make the
   page crawl on a phone.
+
+## Full screen
+
+Owner, 2026-10-08: "Kindlemere needs to have a full screen option as well to complete the immersion, with scroll to
+zoom in and out of different areas and when switching between the 3 scenes, having wayfinding buttons to switch like
+the signs to each scene".
+
+- **In and out.** The corner button at the end of the bar of places, on every page with the scene, shows the scene and
+  nothing else, the whole screen. Where the browser has no full screen (an iPhone) the scene fills the window. Leave
+  full screen, or Esc, comes back to the page as it was.
+- **Looking about.** The wheel or a pinch zooms toward the pointer, from the whole park down to a close look, and a
+  drag looks round. The + and − buttons, the + and - keys and the arrow keys do the same. The camera stays in the world.
+- **The signpost.** A signpost stands in the corner with an arm for the whole park and one for each place, in the
+  places' colours. An arm glides the camera there, and the place the camera has come to wears the pin. Arrived at a
+  place, a bigger arm offers the way into its keeper's room (Step into the Orchard, Climb Stepping Hill, Walk to
+  Lakeside Field), never the room you are in. The signposts in the art glide the camera too.
+- **Everyone carries on.** The characters go about their day and the dog plays fetch. A character you click answers
+  in the scene, since a room's own answers would be off the screen.
+- **Smooth on a big screen.** A camera on the move is moved and scaled on the graphics card, not drawn again each
+  frame, and the view is drawn sharp where it comes to rest (for a moment in a long move the picture is a little
+  soft). In full daylight the land's light filter is left off, since it is then the picture as drawn: that doubles
+  the frame rate. On HQ's 4K screen, by day: 60 frames a second at rest, 54 to 57 in a glide. At night, with the
+  light on: about 30 at rest and 20 to 25 on the move.
 
 ## Colour
 
@@ -205,7 +229,7 @@ No slot uses cream with plum, no land is Bert's fern (`#3E8F5E`) or his butter (
   farmland). In a narrow window the scene comes first, then the words, then the card. The picture goes live by itself
   (Day and night, above); `object-fit: cover` and `object-position` on the image still frame it once it is live.
 - The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role, and on a page with the scene the bar of places
-  that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
+  and the full screen button that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
   sky-coloured one), `.km-btn` and `.km-btn-quiet` (pill buttons, 44 px tall), `.km-field`, `.km-chip`,
   `.km-lantern` (a question for Louise), `.km-thread` (a stitched path, as a divider), `.km-source` (a fact's
   source), `.km-foot` (the lake at the bottom), `.km-grid`.
