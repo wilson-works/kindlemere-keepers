@@ -203,9 +203,12 @@ node kit/engine/toolsmith.js list  <agent>
 
   The value the body returns is printed (JSON for an object).
 - `check` refuses a tool that requires anything else (`http`, `https`, `net`, `dns`, `child_process`, `fs` included),
-  that calls `fetch`, `import()`, `eval` or `Function`, or that touches `process.binding` or `globalThis`. Writes can
-  only go through `ctx.state.write`, so nothing is written outside the agent's `state/`. When it passes, `check` prints
-  the registry entry for the lane to add.
+  that uses `fetch`, `process`, `module`, `exports` or `global` in its code, that calls `import()`, `eval` or
+  `Function`, or that mentions `globalThis`, `constructor` or `__proto__` anywhere. Words inside strings and comments
+  are prose ("play fetch", "processed food" are fine). Writes can only go through `ctx.state.write`, so nothing is
+  written outside the agent's `state/`. Every card named on the tool's `Cards:` line must be on the shelf and not
+  refused. When it passes, `check` prints the registry entry for the lane to add. The check keeps an honest agent off
+  the network; it is not a sandbox against a tool written to escape it.
 - **The registry**, `agents/<agent>/tools/registry.json`, written by the agent's lane only:
 
   ```json
