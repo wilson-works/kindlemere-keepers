@@ -246,11 +246,10 @@ function far() {
     const s = r(0.35, 0.7);
     o += `<rect x="${f(x - 1.5 * s)}" y="${f(y - 12 * s)}" width="${f(3 * s)}" height="${f(12 * s)}" fill="${col}"/><circle cx="${f(x)}" cy="${f(y - 14 * s)}" r="${f(r(5, 8) * s)}" fill="${col}"/>`;
   }
-  o += ridge([[1040, 476], [1180, 462], [1320, 472], [1460, 456], [1600, 466]], 560, '#93B48F');
-  o += ridge([[1060, 492], [1200, 482], [1340, 490], [1480, 476], [1600, 484]], 560, '#86AA80');
-  for (let i = 0; i < 7; i += 1) { const y = 470 + i * 6; o += `<path d="M${f(1050 + i * 9)} ${y + 6} C${f(1200 + r(-20, 20))} ${y} ${f(1380 + r(-20, 20))} ${y + 8} 1600 ${y + r(-2, 4)}" stroke="#6F9468" stroke-width="${f(1.2 + i * 0.25)}" stroke-dasharray="${f(3 + i)} ${f(2 + i * 0.6)}" fill="none" opacity="0.7"/>`; }
-  for (let i = 0; i < 46; i += 1) { const x = r(1050, 1596); const y = r(468, 500); const s = 0.3 + (y - 468) / 80; const col = pick(['#5E8A58', '#6C9662', '#79A06B', '#557F50']); o += `<circle cx="${f(x)}" cy="${f(y - 6 * s)}" r="${f(r(4, 7) * s)}" fill="${col}"/><circle cx="${f(x + 5 * s)}" cy="${f(y - 4 * s)}" r="${f(r(3, 5) * s)}" fill="${col}"/>`; }
-  o += `<path d="M1080 500 C1200 494 1300 488 1420 480 C1500 474 1560 472 1600 470" stroke="#D9C9A8" stroke-width="2" fill="none" opacity="0.8"/>`;
+  // The farmland and hedgerows beyond the Field's fence (farmland(), with the Field), from a seed of their own; the park's
+  // random sequence then moves on by the draws the old farmland took, so everything after it stays as it was.
+  o += ownSeed(FARM_SEED, farmland);
+  for (let i = 0; i < FARM_DRAWS; i += 1) rnd();
   return g('id="km-far"', o);
 }
 
@@ -548,6 +547,10 @@ function shrub(x, y, s, kind) {
   if (kind === 'bush') o += blobs('#C8433A', spots.slice(0, 3));
   return o;
 }
+
+// The hill's flock is drawn big enough to read from across the park (owner, 2026-10-08: "the sheep on the hill need to be
+// bigger").
+const FLOCK = 1.9;
 
 /** A sheep: wool in three papers, dark legs and face; `pose` graze (head down), look (head up) or lie. */
 function sheep(x, y, s, flip, pose, lamb) {
@@ -891,16 +894,16 @@ function hillBody() {
     const things = [
       [300, granite(820, 300, 104, 22, true) + granite(776, 302, 26, 9, true) + granite(864, 301, 22, 8, false)],
       [302, shrub(760, 302, 0.6, 'gorse')], [300, shrub(880, 301, 0.55, 'juniper')],
-      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85, false, 'lie')],
+      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85 * FLOCK, false, 'lie')],
       [346, pine(735, 346, 22)], [352, pine(748, 352, 18)], [354, granite(836, 354, 28, 12, false)],
-      [362, sheep(708, 362, 0.8, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
+      [362, sheep(708, 362, 0.8 * FLOCK, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
       [392, granite(700, 392, 30, 13, true)], [394, shrub(856, 394, 0.7, 'bush')], [404, shrub(690, 404, 0.7, 'gorse')],
       [412, birch(676, 412, 44, -2)], [420, shrub(802, 420, 0.8, 'gorse')], [434, pine(818, 434, 30)],
       [437, birch(988, 437, 50, 2)], [444, birch(1001, 444, 38, -1.5)], [452, granite(796, 452, 34, 15, true)],
       [455, bench(664, 455) + bird(668, 439.6, 1, false)], [455.5, rabbit(686, 455, 0.9, false)], [454, rabbit(903, 454, 0.85, true)],
-      [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85, true, 'lie')], [462, sheep(951, 463, 0.55, true, 'lie', true)],
+      [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85 * FLOCK, true, 'lie')], [462, sheep(951, 463, 0.55 * FLOCK, true, 'lie', true)],
       [466, pine(1042, 466, 36)], [472, shrub(816, 474, 0.9, 'juniper')], [474, stoneWall([[826, 467], [862, 470.6], [900, 473], [940, 474.2], [972, 474]], [904, 919]) + bird(868, 463.4, 1, true)], [486, trough(884, 487)],
-      [480, pine(630, 480, 46)], [502, shrub(918, 502, 0.8, 'gorse')], [504, pine(612, 504, 34)], [512, sheep(920, 512, 0.55, false, 'look', true)],
+      [480, pine(630, 480, 46)], [502, shrub(918, 502, 0.8, 'gorse')], [504, pine(612, 504, 34)], [512, sheep(920, 512, 0.55 * FLOCK, false, 'look', true)],
       [514, shrub(606, 514, 0.9, 'juniper')], [524, granite(598, 530, 22, 9, true)], [527, trailBoard(620, 528)], [528, stretchBar(770, 528)], [529, balanceLog(806, 530)], [453, ropeRail()],
       [466, fern(1004, 466, 1, true)], [476, fern(999, 477, 0.9)], [471, fern(1021, 471.5, 0.8)], [483, fern(1013, 484, 0.85, true)], [500, fern(1047, 499.5, 0.8, true)], [508, fern(1035, 508.5, 0.9)], [445, fern(975, 445.4, 0.7)],
       [389, stack(977, 389, 1) + marker(972, 398, 3)], [452.5, stack(855, 452, 1) + marker(857, 463, 2)], [498, stack(994, 498, 1.1) + marker(987, 508, 1)], [331, stack(850, 331, 0.9) + marker(853, 341, 4, 0.9)],
@@ -911,7 +914,7 @@ function hillBody() {
     // What moves on the hill, drawn in the life layer: flags at the turns and on the top, grazing sheep, butterflies,
     // grass in the wind and a dragonfly over the pool.
     let life = flag(786, 288, 66, C.fGlow, 0, 2) + flag(982, 392, 15, C.paper, 0.8) + flag(850, 452, 15, C.sand, 1.6) + flag(1000, 500, 16, C.paper, 0.4) + flag(845, 333, 14, C.sand, 1.2);
-    life += sheep(850, 497, 0.9, true, 'graze') + sheep(906, 507, 0.85, false, 'graze') + sheep(764, 404, 0.8, true, 'graze');
+    life += sheep(850, 497, 0.9 * FLOCK, true, 'graze') + sheep(906, 507, 0.85 * FLOCK, false, 'graze') + sheep(776, 406, 0.8 * FLOCK, true, 'graze');
     life += swayGrass(862, 520, 0) + swayGrass(792, 476, 1.4) + swayGrass(1002, 461, 2.2) + swayGrass(706, 432, 3) + swayGrass(948, 486, 0.7) + swayGrass(732, 380, 2.6);
     life += butterfly(742, 428, C.paper, 0) + butterfly(872, 532, '#F2D27A', 3) + butterfly(690, 384, C.cream, 6);
     life += `<g transform="translate(916 424) scale(1.3)" class="km-day-only"><g class="km-flit" style="animation-duration:6s;animation-delay:-2s"><g class="km-wing"><path d="M-1.6 -0.4 q-1 -3 0.4 -3.2 q0.6 1.6 -0.4 3.2 Z M0.4 -0.4 q0.4 -3.2 1.8 -3 q-0.4 1.8 -1.8 3 Z" fill="${C.paper}" opacity="0.85"/></g><path d="M-3 0 H5" stroke="${C.mereShine}" stroke-width="0.7" stroke-linecap="round"/><circle cx="-3.4" cy="-0.1" r="0.75" fill="${C.mere}"/></g></g>`;
@@ -1149,53 +1152,589 @@ function orchard() {
 /* ------------------------------------------------------------------ Lakeside Field (dog-training), to the right */
 const KENNEL = [1076, 496]; // land units; the door is at local 18..42 x 44..60
 
-function field() {
-  // Lakeside Field: open grass running down to the lake bay, a split-rail fence, the dog house, weave poles, a willow
-  // hoop, flags with paw prints, toys, and paw prints running into the water.
-  let o = '';
-  o += `<g filter="url(#layer)">`;
-  o += ridge([[920, 552], [1020, 540], [1140, 524], [1280, 530], [1440, 512], [1600, 520]], 760, 'url(#km-fade-field-1)');
-  o += ridge([[920, 558], [1020, 546], [1140, 532], [1280, 536], [1440, 520], [1600, 528]], 760, 'url(#km-fade-field-2)');
-  o += `</g>`;
-  // A row of trees along the far side of the field.
-  for (let i = 0; i < 9; i += 1) { const x = 1150 + i * 52 + r(-10, 10); o += `<g filter="url(#layer-sm)">${roundTree(x, 522 - (i % 2) * 4, 0.7 + r(0, 0.2), [C.pineMid, C.pineLight, '#5E8A52'])}</g>`; }
-  [[1176, 470], [1236, 466], [1296, 470], [1356, 464], [1416, 468]].forEach(([x, y], i) => {
-    const n = i + 2;
-    o += `<g data-km-part="dog-house-${n}" display="none" filter="url(#layer-sm)" transform="translate(${x} ${y}) scale(0.62)">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M18 60 V46 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/>${`<rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-${n}" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`}</g>`;
-  });
-  for (let i = 0; i < 9; i += 1) o += `<rect x="${1060 + i * 60}" y="${f(500 - (i % 3) * 3)}" width="5" height="34" rx="2.5" fill="${C.dRusset}"/>`;
-  o += `<path d="M1058 508 C1200 500 1360 492 1590 498 M1058 520 C1200 512 1360 504 1590 510" stroke="${C.dTan}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
-  // The dog house: a pitched roof of shingles, a name board, a round door, a water bowl.
-  o += `<g data-km-part="dog-house-1" filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-  for (let i = 0; i < 4; i += 1) o += `<path d="M${4 + i * 8} ${20 - i * 5} l8 6 M${56 - i * 8} ${20 - i * 5} l-8 6" stroke="${C.dRusset}" stroke-width="2"/>`;
-  o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`;
-  o += `<ellipse cx="76" cy="60" rx="8" ry="3.2" fill="${C.fGlow}"/><ellipse cx="76" cy="58.6" rx="5.6" ry="2" fill="${C.mereLight}"/><path d="M-4 60 h8 l-1 -3 h-6 Z" fill="${C.dTan}"/></g>`;
-  for (let i = 0; i < 6; i += 1) {
-    const x = 1392 + i * 14;
-    o += `<g filter="url(#layer-sm)"><rect x="${x}" y="${500 + (i % 2) * 2}" width="4" height="46" rx="2" fill="${C.paper}"/>`;
-    for (let k = 0; k < 3; k += 1) o += `<rect x="${x}" y="${506 + k * 13 + (i % 2) * 2}" width="4" height="5" fill="${C.dLand}"/>`;
-    o += `</g>`;
+/*
+ * Lakeside Field, built to the Orchard's standard (owner, 2026-10-08: the Field to match the presentation of the other
+ * scenes). Land units, scale 2. Open grass in the hill's greens with a mown training lane and longer grass round it,
+ * drifts of wildflowers and clover, a split-rail fence with the course along it (a bar jump, weave poles on their base,
+ * the woven willow hoop), a weeping willow by the bay with a bench, a toy basket and a trough, toys and paw prints in
+ * the grass, a little beach of sand and pebbles where the Field runs down into the bay, and beyond the fence the
+ * farmland: fields in strips, hedgerows with trees in them, a barn, hay bales, a track through a gate, and sheep.
+ * Everything solid stands behind the back of the ground the dog may walk (world y 1104, land 552), so it never runs
+ * through a drawn thing; only flat things (grass, flowers, toys, paw prints) lie on the open grass.
+ * The Field and the farmland take their random detail from seeds of their own and then move the park's seed on by the
+ * draws the old ones took (FIELD_DRAWS, FARM_DRAWS), so everything outside them stays as it was.
+ */
+const FIELD_DRAWS = 3093;
+const FIELD_SEED = 20261009;
+const FARM_DRAWS = 251;
+const FARM_SEED = 20261010;
+const FIELD_BACK = 551.5; // the back of the walkable Field (world 1104 is land 552): solid things stand behind it
+
+/** y along a gentle line through [[x, y], ...], eased between its points (as the shore is). */
+function along(pts, x) {
+  if (x <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i += 1) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    if (x <= x1) { const k = (x - x0) / (x1 - x0); return y0 + (y1 - y0) * k * k * (3 - 2 * k); }
   }
-  o += `${shadow(1516, 552, 36, 3)}<path d="M1484 550 V516 a32 32 0 0 1 64 0 V550" stroke="${C.dRusset}" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M1484 550 V516 a32 32 0 0 1 64 0 V550" stroke="${C.dGlow}" stroke-width="7" stroke-dasharray="4 7" fill="none"/>`;
-  [[1100, 612, C.paper], [1160, 610, C.dGlow], [1230, 606, C.paper]].forEach(([x, y, col], i) => {
-    LIFE += `<path d="M${x} ${y} v-20" stroke="${C.dLand}" stroke-width="1.6"/><path d="M${x} ${y - 20} h12 a4.5 4.5 0 0 1 0 9 h-12 Z" fill="${col}" class="km-flag" style="animation-delay:-${i * 0.6}s"/>`;
-    LIFE += `<g fill="${C.dLand}"><ellipse cx="${x + 6}" cy="${y - 14.6}" rx="1.6" ry="1.3"/><circle cx="${x + 4.2}" cy="${y - 17.2}" r="0.8"/><circle cx="${x + 6}" cy="${y - 17.8}" r="0.8"/><circle cx="${x + 7.8}" cy="${y - 17.2}" r="0.8"/></g>`;
+  return pts[pts.length - 1][1];
+}
+
+/** A soft paper patch: an oval with a wavering edge, smoothed. */
+function softPatch(cx, cy, rx, ry, fill, wob) {
+  const pts = [];
+  const n = 16;
+  for (let i = 0; i < n; i += 1) {
+    const a = (i / n) * Math.PI * 2;
+    const k = 1 + r(-1, 1) * (wob || 0.12);
+    pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]);
+  }
+  let d = `M${f((pts[0][0] + pts[n - 1][0]) / 2)} ${f((pts[0][1] + pts[n - 1][1]) / 2)}`;
+  for (let i = 0; i < n; i += 1) { const p = pts[i]; const q = pts[(i + 1) % n]; d += `Q${f(p[0])} ${f(p[1])} ${f((p[0] + q[0]) / 2)} ${f((p[1] + q[1]) / 2)}`; }
+  return `<path d="${d}Z" fill="${fill}"/>`;
+}
+
+/* ---- the farmland beyond the fence (far layer) */
+const FARM_LINES = [
+  [[1040, 457], [1180, 449], [1340, 454], [1480, 445], [1600, 449]],
+  [[1040, 468], [1180, 461], [1340, 466], [1480, 457], [1600, 461]],
+  [[1040, 483], [1180, 476], [1340, 481], [1480, 472], [1600, 476]],
+  [[1040, 503], [1180, 496], [1340, 500], [1480, 492], [1600, 496]],
+];
+
+/** A hedgerow along a list of points: a dark foot, a lit top, a few sprays of light leaves (one path per colour). */
+function hedgerow(pts, s, cols, extra) {
+  const d = []; const m = []; const l = []; const dots = [];
+  pts.forEach(([x, y]) => {
+    d.push([x, y - s * 0.7, s * r(0.85, 1.15)]);
+    m.push([x - s * 0.25, y - s * 1.05, s * r(0.55, 0.85)]);
+    if (rnd() < 0.45) l.push([x - s * 0.45, y - s * 1.4, s * r(0.28, 0.45)]);
+    if (extra && rnd() < 0.3) dots.push([x + r(-s, s) * 0.6, y - s * r(0.6, 1.5), s * 0.13]);
   });
-  for (let i = 0; i < 10; i += 1) { const x = 1250 + i * 12; const y = shoreY(x) - 6 - (i % 2) * 3; o += `<g fill="${C.dGrassDark}" opacity="0.75"><ellipse cx="${f(x)}" cy="${f(y)}" rx="1.8" ry="1.4"/><circle cx="${f(x - 1.8)}" cy="${f(y - 2.1)}" r="0.8"/><circle cx="${f(x)}" cy="${f(y - 2.7)}" r="0.8"/><circle cx="${f(x + 1.8)}" cy="${f(y - 2.1)}" r="0.8"/></g>`; }
-  o += `<g filter="url(#layer-sm)"><ellipse cx="1316" cy="578" rx="9" ry="3.2" fill="${C.fGlow}"/><ellipse cx="1316" cy="577.4" rx="6" ry="2" fill="none" stroke="${C.paper}" stroke-width="1"/>` +
-    `<path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dGlow}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dLand}" stroke-width="3" stroke-dasharray="2 3" fill="none"/><circle cx="1167" cy="588.6" r="3" fill="${C.dLand}"/><circle cx="1202" cy="587" r="3" fill="${C.dLand}"/>` +
-    `<circle cx="1372" cy="566" r="3.4" fill="#D8E04A"/><path d="M1369.6 564.8 q2.4 1.8 4.8 0" stroke="${C.paper}" stroke-width="0.8" fill="none"/></g>`;
-  // Bushes with berries, like the Orchard's, along the Field.
-  [[1272, 552, 1], [1336, 560, 0.8], [1504, 566, 1.1], [1586, 592, 0.9], [1060, 560, 0.8]].forEach(([x, y, s]) => {
-    o += `<g filter="url(#layer-sm)">${shadow(x, y + 2, f(16 * s), 2)}<circle cx="${x}" cy="${f(y - 9 * s)}" r="${f(10 * s)}" fill="#5F7A3A"/><circle cx="${f(x - 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7 * s)}" fill="#6E8A42"/><circle cx="${f(x + 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7.5 * s)}" fill="#748F48"/>` +
-      `<circle cx="${f(x - 3 * s)}" cy="${f(y - 12 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 4 * s)}" cy="${f(y - 8 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 1 * s)}" cy="${f(y - 14 * s)}" r="${f(1.2 * s)}" fill="#C8433A"/></g>`;
+  return blobs(cols[0], d) + blobs(cols[1], m) + blobs(cols[2], l) + (extra ? blobs(extra, dots) : '');
+}
+/** A far hedgerow as strokes: a dark body, bumps of round dots along its top, a lit spray (one path per paper). */
+function hedgeLine(segs, s, cols) {
+  const at = (k, dx) => segs.map((pts) => line(pts.map(([x, y]) => [x + dx, y - s * k]))).join('');
+  const dots = (a, b) => `0 ${f(a)} 0 ${f(b)} 0 ${f((a + b) / 2)} 0 ${f(b * 1.25)}`;
+  return `<path d="${at(0.55, 0)}" stroke="${cols[0]}" stroke-width="${f(s * 1.5)}" stroke-linejoin="round" fill="none"/>` +
+    `<path d="${at(0.95, 0)}" stroke="${cols[0]}" stroke-width="${f(s * 1.9)}" stroke-linecap="round" stroke-dasharray="${dots(s * 0.85, s * 1.2)}" fill="none"/>` +
+    `<path d="${at(1.2, -s * 0.3)}" stroke="${cols[1]}" stroke-width="${f(s * 1.3)}" stroke-linecap="round" stroke-dasharray="${dots(s * 1.1, s * 1.6)}" fill="none"/>` +
+    `<path d="${at(1.5, -s * 0.5)}" stroke="${cols[2]}" stroke-width="${f(s * 0.65)}" stroke-linecap="round" stroke-dasharray="${dots(s * 2.4, s * 3.2)}" fill="none"/>`;
+}
+/** Points along a farm line every ~10 units, split where there are gaps (a gate). */
+const segsAlong = (line0, x0, x1, gaps) => {
+  const out = [[]];
+  for (let x = x0; x <= x1; x += 10) {
+    if ((gaps || []).some(([a, b]) => x > a && x < b)) { if (out[out.length - 1].length) out.push([]); continue; }
+    out[out.length - 1].push([x, along(line0, x)]);
+  }
+  return out.filter((p) => p.length > 1);
+};
+const stepAlong = (line0, x0, x1, step, gaps) => {
+  const out = [];
+  for (let x = x0; x < x1; x += step * r(0.8, 1.25)) if (!(gaps || []).some(([a, b]) => x > a && x < b)) out.push([x, along(line0, x)]);
+  return out;
+};
+
+/** A tree standing in a hedgerow: a short trunk and a round crown in three papers. */
+function hedgeTree(x, y, s, cols) {
+  return `<path d="M${f(x - 0.8 * s)} ${f(y)} L${f(x - 0.4 * s)} ${f(y - 5 * s)} H${f(x + 0.4 * s)} L${f(x + 0.8 * s)} ${f(y)} Z" fill="#5E4E3A"/>` +
+    blobs(cols[0], [[x, y - 7 * s, 3.8 * s], [x - 2.8 * s, y - 5.4 * s, 2.7 * s], [x + 3 * s, y - 5.6 * s, 2.9 * s]]) +
+    blobs(cols[1], [[x - 0.9 * s, y - 8 * s, 2.7 * s], [x - 3 * s, y - 6.2 * s, 1.7 * s], [x + 1.8 * s, y - 6.6 * s, 1.6 * s]]) +
+    blobs(cols[2], [[x - 1.8 * s, y - 9 * s, 1.3 * s], [x - 3.4 * s, y - 7 * s, 0.8 * s]]);
+}
+
+/** A barn: its gable end toward us, the long side going back, a roof in two papers and a cross-braced door. */
+function barn(x, y, s) {
+  const w = 16 * s; const h = 9 * s; const sw = 11 * s; const pk = 6.4 * s; const rise = 2.2 * s;
+  let o = `<ellipse cx="${f(x + w * 0.9)}" cy="${f(y + 0.3)}" rx="${f(w * 1.1)}" ry="${f(1.1 * s)}" fill="${C.ink}" opacity="0.16"/>`;
+  o += `<path d="${poly([[x + w, y], [x + w + sw, y - rise], [x + w + sw, y - h - rise], [x + w, y - h]])}" fill="#8A4E2C"/>`;
+  o += `<path d="${poly([[x, y], [x + w, y], [x + w, y - h], [x + w / 2, y - h - pk], [x, y - h]])}" fill="#A9633A"/>`;
+  o += `<path d="${poly([[x + w / 2, y - h - pk], [x + w / 2 + sw, y - h - pk - rise], [x + w + sw + 0.8 * s, y - h - rise + 0.6 * s], [x + w + 0.8 * s, y - h + 0.6 * s]])}" fill="#6B3D22"/>`;
+  o += `<path d="M${f(x - 0.6 * s)} ${f(y - h + 0.5 * s)} L${f(x + w / 2)} ${f(y - h - pk)} L${f(x + w + 0.8 * s)} ${f(y - h + 0.6 * s)}" stroke="#EDE6D4" stroke-width="${f(0.7 * s)}" stroke-linejoin="round" fill="none"/>`;
+  o += `<path d="M${f(x + w / 2 + 0.4 * s)} ${f(y - h - pk - 0.2 * s)} L${f(x + w / 2 + sw)} ${f(y - h - pk - rise)}" stroke="#8C5634" stroke-width="${f(0.6 * s)}" stroke-linecap="round"/>`;
+  o += `<rect x="${f(x + w * 0.3)}" y="${f(y - h * 0.72)}" width="${f(w * 0.4)}" height="${f(h * 0.72)}" fill="#6E3F22"/><path d="M${f(x + w * 0.3)} ${f(y - h * 0.72)} l${f(w * 0.4)} ${f(h * 0.72)} m0 ${f(-h * 0.72)} l${f(-w * 0.4)} ${f(h * 0.72)}" stroke="#EDE6D4" stroke-width="${f(0.45 * s)}"/>`;
+  o += `<rect x="${f(x + w / 2 - 1.2 * s)}" y="${f(y - h - pk * 0.55)}" width="${f(2.4 * s)}" height="${f(2 * s)}" fill="#EDE6D4"/>`;
+  o += `<path d="M${f(x + w + 2 * s)} ${f(y - h * 0.55 - 0.4 * s)} h${f(2.6 * s)} M${f(x + w + 6.4 * s)} ${f(y - h * 0.55 - 1.2 * s)} h${f(2.6 * s)}" stroke="#6E3F22" stroke-width="${f(1.6 * s)}"/>`;
+  return o;
+}
+
+/** A round hay bale lying on its side: its rolled face toward us, its body going back. */
+const bale = (x, y, s) => `<ellipse cx="${f(x + 1.4 * s)}" cy="${f(y + 0.2)}" rx="${f(3.4 * s)}" ry="${f(0.7 * s)}" fill="${C.ink}" opacity="0.14"/>` +
+  `<path d="M${f(x)} ${f(y - 4 * s)} h${f(2.6 * s)} a${f(1.4 * s)} ${f(2 * s)} 0 0 1 0 ${f(4 * s)} h${f(-2.6 * s)} Z" fill="#BFA062"/>` +
+  `<circle cx="${f(x)}" cy="${f(y - 2 * s)}" r="${f(2 * s)}" fill="#DCC688"/><path d="M${f(x - 0.9 * s)} ${f(y - 2 * s)} a${f(0.9 * s)} ${f(0.9 * s)} 0 1 1 ${f(0.9 * s)} ${f(0.9 * s)} a${f(0.5 * s)} ${f(0.5 * s)} 0 1 1 ${f(-0.3 * s)} ${f(-0.9 * s)}" stroke="#B4955A" stroke-width="${f(0.35 * s)}" fill="none"/>`;
+
+function farmland() {
+  // The farmland beyond the Field's fence, in the far layer so it keeps its distance as the layers shift and stands
+  // behind the hill: strips of pasture, young crops, wheat and ploughed earth running back to the hills, hedgerows with
+  // trees in them, a barn, hay bales, a track through a gate, and sheep at grass.
+  const L = FARM_LINES;
+  const VX = 1330; const VY = 330; // where the field edges run back to
+  const backX = (x, yb, yt) => VX + ((x - VX) * (yt - VY)) / (yb - VY);
+  const edge = (pts, x0, x1) => { const out = []; const n = Math.max(2, Math.ceil(Math.abs(x1 - x0) / 14)); for (let i = 0; i <= n; i += 1) { const x = x0 + ((x1 - x0) * i) / n; out.push([x, along(pts, x)]); } return out; };
+  let o = '';
+  // The ground the fields lie on, from the far hedge down behind the Field.
+  o += `<path d="${poly([...edge(L[0], 1040, 1600), [1600, 560], [1040, 560]])}" fill="#A6C287"/>`;
+  const PAL = [
+    ['#AFC995', '#BCD09C', '#CFCB9C', '#BBAA8A', '#A4C08E', '#C4D3A0'],
+    ['#A2C084', '#B2CB8C', '#D5C78F', '#B49D79', '#97B676', '#C3D08E'],
+    ['#98B874', '#AAC67F', '#D8C889', '#AE956F', '#8DAF69', '#C6D489'],
+  ];
+  const WIDE = [[46, 74], [58, 96], [74, 120]];
+  const kinds = { 2: 'wheat', 3: 'plough' };
+  const dividers = [[], [], []];
+  let tex = '';
+  for (let b = 0; b < 3; b += 1) {
+    const top = L[b]; const bot = L[b + 1];
+    let x = 1060 + r(-20, 10); let last = -1;
+    while (x < 1600) {
+      const w = r(WIDE[b][0], WIDE[b][1]);
+      const x1 = Math.min(1640, x + w);
+      let c = Math.floor(rnd() * PAL[b].length); if (c === last) c = (c + 1) % PAL[b].length; last = c;
+      const t0 = backX(x, along(bot, x), along(top, x)); const t1 = backX(x1, along(bot, x1), along(top, x1));
+      o += `<path d="${poly([...edge(bot, x, x1), ...edge(top, t1, t0)])}" fill="${PAL[b][c]}"/>`;
+      const kind = kinds[c];
+      const lerp = (k, u) => { const xb = x + (x1 - x) * u; const xt = t0 + (t1 - t0) * u; return [xb + (xt - xb) * k, along(bot, xb) + (along(top, xt) - along(bot, xb)) * k]; };
+      if (kind === 'plough') {
+        let fur = '';
+        const n = 5 + b * 2;
+        for (let j = 1; j < n; j += 1) { const u = j / n; const [ax, ay] = lerp(0.04, u); const [bx, by] = lerp(0.96, u); fur += `M${f(ax)} ${f(ay)}L${f(bx)} ${f(by)}`; }
+        tex += `<path d="${fur}" stroke="#97805E" stroke-width="${f(0.35 + b * 0.18)}" stroke-linecap="round" fill="none"/>`;
+      } else if (kind === 'wheat') {
+        let st = '';
+        [0.3, 0.62].forEach((k) => { const pts = []; for (let u = 0.04; u <= 0.97; u += 0.093) pts.push(lerp(k, u)); st += line(pts); });
+        tex += `<path d="${st}" stroke="#E6DBA8" stroke-width="${f(0.5 + b * 0.35)}" stroke-linecap="round" fill="none"/>`;
+      }
+      dividers[b].push(x1);
+      x = x1;
+    }
+  }
+  o += tex;
+  // The far side: a thin hedge with little trees, where the fields meet the hills.
+  o += hedgeLine(segsAlong(L[0], 1050, 1600), 1.3, ['#6F9468', '#7FA172', '#93B385']);
+  for (let x = 1090 + r(0, 30); x < 1600; x += r(50, 90)) o += hedgeTree(x, along(L[0], x) + 0.4, 0.5, ['#6C9064', '#7C9E70', '#90B082']);
+  // Hedgerows between the strips, a few running back between the fields, a gate where the track goes through.
+  const GATE = [1294, 1307];
+  const divs = [[], [], []];
+  dividers.forEach((xs, b) => {
+    xs.forEach((xb) => {
+      if (rnd() < 0.35 || xb > 1600) return;
+      const yb = along(L[b + 1], xb); const xt = backX(xb, yb, along(L[b], xb)); const yt = along(L[b], xt);
+      divs[b].push([[xt, yt], [xb, yb]]);
+    });
   });
-  o += flowers(20, 1040, 1590, 548, 600, [C.paper, C.nGlow, '#F2D27A'], C.nGlowDeep, 0.8);
-  o += grassBlades(1030, 1600, 540, 600, 150, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 18);
-  o += flowers(30, 1040, 1590, 540, 596, [C.paper, C.dGlow, C.paper, '#F2D27A'], C.dGlow, 0.8);
-  o += grassBlades(1030, 1600, 598, 660, 90, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 16);
-  o += flowers(16, 1040, 1590, 600, 656, [C.paper, C.dGlow, '#F2D27A'], C.dGlow, 0.8);
-  return g('id="km-field"', o);
+  divs.forEach((segs, b) => { if (segs.length) o += hedgeLine(segs, 0.9 + b * 0.5, ['#5F8858', '#709A63', '#86AC76']); });
+  o += hedgeLine(segsAlong(L[1], 1050, 1600), 1.7, ['#5C8655', '#6D9761', '#82A973']);
+  for (let x = 1110 + r(0, 30); x < 1600; x += r(56, 96)) o += hedgeTree(x, along(L[1], x) + 0.6, 0.75, ['#5A8452', '#6A9460', '#7FA672']);
+  // The barn and its tree, in the strip behind the gate's hedge, and the track coming down to the gate.
+  o += hedgeTree(1494, along(L[2], 1494) - 1.6, 1.1, ['#557F4D', '#65905A', '#7AA26C']);
+  o += barn(1448, along(L[2], 1460) - 1.8, 1);
+  o += `<path d="${strip(sample([[1268, 504, 3.6], [1286, 492, 2.4], [1300, 482, 1.8], [1336, 476.6, 1.4], [1392, 473, 1.1], [1440, 471.4, 0.9]], 2), -1, 1, 0.15)}" fill="#D9C9A8"/>`;
+  o += hedgeLine(segsAlong(L[2], 1050, 1600, [GATE]), 2.3, ['#55804D', '#66915A', '#7CA46C']);
+  for (let x = 1124 + r(0, 30); x < 1600; x += r(60, 100)) if (x < 1440 || x > 1520) o += hedgeTree(x, along(L[2], x) + 0.8, 1.05, ['#527C4A', '#628E58', '#78A06A']);
+  // The gate: two posts and five bars with a brace, open country through it.
+  const gy = along(L[2], 1300);
+  o += `<path d="M1294.6 ${f(gy + 0.6)} v-5.6 M1306.4 ${f(gy + 0.4)} v-5.6" stroke="#8E7A5E" stroke-width="1.1" stroke-linecap="round"/>`;
+  o += `<path d="${[0, 1, 2, 3, 4].map((i) => `M1295 ${f(gy - 0.8 - i * 1.05)} H1306`).join(' ')} M1295 ${f(gy - 0.8)} L1306 ${f(gy - 5)}" stroke="#E9E4D4" stroke-width="0.5" stroke-linecap="round"/>`;
+  // Round hay bales in the near hay field, and sheep at grass in the pasture behind it.
+  [[1356, 497.6, 1], [1368, 499, 1.05], [1384, 496.4, 0.95], [1402, 498.4, 1.05], [1418, 495.2, 0.9], [1376, 491.2, 0.82], [1396, 490.4, 0.8]].forEach(([x, y, s]) => { o += bale(x, y, s); });
+  let flock = '';
+  [[1196, 470.4], [1204, 471.4], [1216, 470.2], [1228, 471.8], [1222, 468.8], [1550, 466.6], [1560, 467.6], [1572, 466.2]].forEach(([x, y]) => {
+    flock += `<ellipse cx="${x}" cy="${y}" rx="1.5" ry="0.95" fill="#F4F1E8"/><circle cx="${f(x + 1.5)}" cy="${f(y - 0.3)}" r="0.5" fill="#3A3530"/>`;
+  });
+  o += flock;
+  // The near hedge, at the Field's back beyond the fence: hawthorn, blossom and berries, oaks standing in it.
+  [[1196, 2.1], [1386, 2.3], [1300, 1.5]].forEach(([x, s]) => { o += hedgeTree(x, along(L[3], x) + 1, s, ['#476F3C', '#577F46', '#6E9654']); });
+  o += hedgerow(stepAlong(L[3], 1120, 1600, 4.6), 3.8, ['#4A743E', '#5B8548', '#739C56'], '#F4F1E8');
+  o += blobs('#B8433A', stepAlong(L[3], 1062, 1600, 26).map(([x, y]) => [x + r(-3, 3), y - r(2, 5), 0.55]));
+  return `<g class="km-farm">${o}</g>`;
+}
+
+/* ---- the Field's own pieces (land units) */
+
+/** A split-rail fence: rough posts with a lit face, two hewn rails between each pair, a shadow under each rail. */
+function fence() {
+  const base = (x) => 535.4 - (x - 1056) * 0.012;
+  const xs = [];
+  for (let x = 1062; x < 1612; x += 54 + r(-3, 3)) xs.push(x);
+  let shade = ''; let posts = ''; let lit = ''; let caps = ''; let rails = ''; let tops = ''; let under = '';
+  xs.forEach((x, i) => {
+    const b = base(x); const h = 35 + r(-1.5, 1.5);
+    shade += `M${f(x - 2.6)} ${f(b)}L${f(x - 2.3)} ${f(b - h)}L${f(x + 2.5)} ${f(b - h - 0.8)}L${f(x + 2.8)} ${f(b)}Z`;
+    lit += `M${f(x - 2.6)} ${f(b)}L${f(x - 2.3)} ${f(b - h)}L${f(x - 0.4)} ${f(b - h - 0.4)}L${f(x - 0.6)} ${f(b)}Z`;
+    caps += `M${f(x - 2.4)} ${f(b - h)}L${f(x + 2.6)} ${f(b - h - 0.9)}L${f(x + 2.4)} ${f(b - h + 1.2)}L${f(x - 2.3)} ${f(b - h + 1.8)}Z`;
+    under += `M${f(x - 3)} ${f(b + 0.4)}h${f(7.4)}`;
+    if (i) {
+      const p = xs[i - 1]; const pb = base(p);
+      [[27, 2.1], [13.5, 1.9]].forEach(([up, th], k) => {
+        const y0 = pb - up + r(-0.6, 0.6); const y1 = b - up + r(-0.6, 0.6); const sag = r(0.2, 1);
+        rails += `M${f(p - 1)} ${f(y0 - th)}Q${f((p + x) / 2)} ${f((y0 + y1) / 2 - th + sag)} ${f(x + 1)} ${f(y1 - th)}L${f(x + 1)} ${f(y1 + th)}Q${f((p + x) / 2)} ${f((y0 + y1) / 2 + th + sag)} ${f(p - 1)} ${f(y0 + th)}Z`;
+        tops += `M${f(p + 1)} ${f(y0 - th + 0.5)}Q${f((p + x) / 2)} ${f((y0 + y1) / 2 - th + sag + 0.5)} ${f(x - 1)} ${f(y1 - th + 0.5)}`;
+        under += `M${f(p + 2)} ${f(y0 + th + 1.6)}Q${f((p + x) / 2)} ${f((y0 + y1) / 2 + th + sag + 1.6)} ${f(x - 2)} ${f(y1 + th + 1.6)}`;
+        if (k === 0 && rnd() < 0.5) tops += `M${f(p + 8 + r(0, 20))} ${f((y0 + y1) / 2 - th + 1.4)}h${f(r(3, 7))}`;
+      });
+    }
+  });
+  return `<path d="${under}" stroke="${C.ink}" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.13"/><path d="${shade}" fill="${C.dDark}"/><path d="${lit}" fill="${C.dRusset}"/><path d="${caps}" fill="${C.dTan}"/>` +
+    `<path d="${rails}" fill="${C.dTan}"/><path d="${tops}" stroke="${C.dGlow}" stroke-width="0.9" stroke-linecap="round" fill="none"/>`;
+}
+
+/** The bar jump: two white uprights on crossed feet, cups, a striped bar and a lower bar, little lattice wings. */
+function barJump(x, y) {
+  const up = (ux) => `<path d="M${ux - 4.2} ${y} h8.4" stroke="${C.dRusset}" stroke-width="1.5" stroke-linecap="round"/><rect x="${ux - 1.3}" y="${y - 25}" width="2.6" height="25" rx="0.7" fill="${C.paper}"/><rect x="${ux + 0.5}" y="${y - 25}" width="0.8" height="25" fill="${C.fPale}"/><rect x="${ux - 1.7}" y="${y - 26.6}" width="3.4" height="2.2" rx="1.1" fill="${C.dLand}"/>`;
+  const wing = (wx, dir) => `<path d="M${wx} ${y} V${y - 17} M${wx + dir * 7} ${y} V${y - 12} M${wx} ${y - 16} L${wx + dir * 7} ${y - 11} M${wx} ${y - 9} L${wx + dir * 7} ${y - 5} M${wx} ${y - 3} L${wx + dir * 7} ${y - 11}" stroke="${C.dTan}" stroke-width="1.1" stroke-linecap="round"/>`;
+  return `<g>${contact(x + 15, y + 0.6, 22, 1.6)}${wing(x - 1.4, -1)}${wing(x + 31.4, 1)}${up(x)}${up(x + 30)}` +
+    `<path d="M${x + 1} ${y - 15.4} H${x + 29}" stroke="${C.paper}" stroke-width="2.2"/><path d="M${x + 1} ${y - 15.4} H${x + 29}" stroke="${C.dLand}" stroke-width="2.2" stroke-dasharray="3.5 3.5"/><path d="M${x + 1} ${y - 14.6} H${x + 29}" stroke="${C.ink}" stroke-width="0.5" opacity="0.18"/>` +
+    `<path d="M${x + 1} ${y - 6.4} H${x + 29}" stroke="${C.dGlow}" stroke-width="1.6"/><path d="M${x - 1.6} ${y - 17.4} h3.4 v2.2 M${x + 28.2} ${y - 17.4} h3.4 v2.2" stroke="${C.inkSoft}" stroke-width="0.6" fill="none"/></g>`;
+}
+
+/** Weave poles: a low wooden base with feet, and poles striped in the Field's russet. */
+function weavePoles(x, y, n, gap) {
+  const w = (n - 1) * gap;
+  let poles = ''; let caps = '';
+  for (let i = 0; i < n; i += 1) { const px = x + i * gap; poles += `M${px} ${y - 2.4}V${y - 33}`; caps += `M${f(px - 1.3)} ${y - 33}a1.3 1.3 0 0 1 2.6 0Z`; }
+  return `<g>${contact(x + w / 2, y + 0.6, w / 2 + 8, 1.6)}<path d="M${x - 5} ${y} h4 M${x + w + 1} ${y} h4" stroke="${C.clay4}" stroke-width="2" stroke-linecap="round"/>` +
+    `<rect x="${x - 4}" y="${y - 3}" width="${w + 8}" height="3" rx="1" fill="${C.clay3}"/><rect x="${x - 4}" y="${y - 3}" width="${w + 8}" height="1" rx="0.5" fill="${C.clay2}"/>` +
+    `<path d="${poles}" stroke="${C.paper}" stroke-width="2.4"/><path d="${poles}" stroke="${C.dLand}" stroke-width="2.4" stroke-dasharray="4 4"/><path d="${poles}" stroke="${C.ink}" stroke-width="0.6" opacity="0.12" transform="translate(0.9 0)"/><path d="${caps}" fill="${C.dTan}"/></g>`;
+}
+
+/** The willow hoop: a ring woven of willow withies, a few leaves still on it, on a frame with feet. */
+function willowHoop(x, y) {
+  const cy = y - 21; const R = 13;
+  let leaves = '';
+  [[-0.5, 1], [0.9, -1], [2.2, 1], [3.6, -1], [4.9, 1]].forEach(([a, s]) => {
+    const lx = x + Math.cos(a) * (R + 0.6); const ly = cy + Math.sin(a) * (R + 0.6);
+    leaves += `<path d="M0 0 C1.4 -1.8 4 -2.2 6 -1.4 C4.4 0 1.8 0.6 0 0 Z" transform="translate(${f(lx)} ${f(ly)}) rotate(${f((a * 180) / Math.PI + 90 * s)})"/>`;
+  });
+  return `<g>${contact(x, y + 0.6, 22, 1.6)}<path d="M${x - 21} ${y} h8 M${x + 13} ${y} h8" stroke="${C.clay4}" stroke-width="2" stroke-linecap="round"/>` +
+    `<path d="M${x - 17} ${y} V${cy - 6} M${x + 17} ${y} V${cy - 6}" stroke="${C.clay3}" stroke-width="2.4" stroke-linecap="round"/><path d="M${x - 17.6} ${y} V${cy - 6}" stroke="${C.clay2}" stroke-width="0.8"/>` +
+    `<path d="M${x - 17} ${cy - 5} L${x - R * 0.72} ${cy - R * 0.68} M${x + 17} ${cy - 5} L${x + R * 0.72} ${cy - R * 0.68} M${x - 17} ${cy + 7} L${x - R * 0.8} ${cy + R * 0.55} M${x + 17} ${cy + 7} L${x + R * 0.8} ${cy + R * 0.55}" stroke="${C.sand}" stroke-width="0.8"/>` +
+    `<circle cx="${x}" cy="${cy}" r="${R}" fill="none" stroke="${C.clay3}" stroke-width="4.2"/><circle cx="${x}" cy="${cy}" r="${R}" fill="none" stroke="${C.clay2}" stroke-width="4.2" stroke-dasharray="5 3.2"/>` +
+    `<circle cx="${x}" cy="${cy}" r="${R + 1.2}" fill="none" stroke="${C.clay1}" stroke-width="0.9" stroke-dasharray="3 5.2"/><circle cx="${x}" cy="${cy}" r="${R - 1.5}" fill="none" stroke="${C.clay4}" stroke-width="0.7" stroke-dasharray="2.4 4.4"/>` +
+    `<g fill="${C.nLeafLight}">${leaves}</g></g>`;
+}
+
+/** A weeping willow: a stout trunk forking into limbs, a low dome of crown, and curtains of long fronds cut deep, parted round the trunk. */
+function willow(x, base, h) {
+  const t = h * 0.046;
+  const cx = x - h * 0.03; const W = h * 0.5; const top = base - h; const H = h * 0.42;
+  const dome = (xx) => { const u = Math.max(-1, Math.min(1, (xx - cx) / W)); return top + H * (1 - Math.sqrt(1 - u * u)); };
+  let o = contact(x + 4, base + 1, W * 0.9, h * 0.035, 0.18);
+  // a curtain: its top along the dome (dropped by dy), long fronds cut deep, their tips ending near `bot`
+  const curtain = (x0, x1, dy, bot, n, cut, fill) => {
+    let d = '';
+    for (let i = 0; i <= 14; i += 1) { const xx = x0 + ((x1 - x0) * i) / 14; d += `${i ? 'L' : 'M'}${f(xx)} ${f(dome(xx) + dy)}`; }
+    const w = (x1 - x0) / n;
+    for (let i = n; i >= 0; i -= 1) {
+      const xx = x0 + w * i; const y0 = dome(xx) + dy; const tip = bot - r(0, (bot - y0) * 0.22);
+      d += `L${f(xx + w * 0.3)} ${f(y0 + (tip - y0) * 0.8)}L${f(xx + r(-0.4, 0.4))} ${f(tip)}L${f(xx - w * 0.3)} ${f(y0 + (tip - y0) * 0.78)}`;
+      if (i) d += `L${f(xx - w * 0.5)} ${f(y0 + (tip - y0) * r(cut * 0.6, cut))}`;
+    }
+    return `<path d="${d}Z" fill="${fill}"/>`;
+  };
+  o += curtain(cx - W, cx + W, h * 0.05, base - h * 0.04, 30, 0.42, '#556F2A');
+  // the trunk, forking into limbs that rise into the crown, lit on the left
+  o += `<path d="M${f(x - t)} ${base} C${f(x - t * 0.7)} ${f(base - h * 0.2)} ${f(x - t * 0.8)} ${f(base - h * 0.34)} ${f(x - t * 3.4)} ${f(base - h * 0.62)} L${f(x - t * 2.4)} ${f(base - h * 0.66)} C${f(x - t * 0.6)} ${f(base - h * 0.46)} ${f(x)} ${f(base - h * 0.5)} ${f(x + t * 0.6)} ${f(base - h * 0.7)} L${f(x + t * 1.5)} ${f(base - h * 0.69)} C${f(x + t * 1)} ${f(base - h * 0.52)} ${f(x + t * 1.6)} ${f(base - h * 0.48)} ${f(x + t * 3.4)} ${f(base - h * 0.62)} L${f(x + t * 3.9)} ${f(base - h * 0.57)} C${f(x + t * 1.6)} ${f(base - h * 0.4)} ${f(x + t * 0.9)} ${f(base - h * 0.22)} ${f(x + t * 1.2)} ${base} Z" fill="${C.bark}"/>`;
+  o += `<path d="M${f(x + t * 0.3)} ${base} C${f(x + t * 0.4)} ${f(base - h * 0.2)} ${f(x + t * 0.8)} ${f(base - h * 0.4)} ${f(x + t * 3.1)} ${f(base - h * 0.6)} L${f(x + t * 3.9)} ${f(base - h * 0.57)} C${f(x + t * 1.6)} ${f(base - h * 0.4)} ${f(x + t * 0.9)} ${f(base - h * 0.22)} ${f(x + t * 1.2)} ${base} Z" fill="#57391F"/>`;
+  o += `<path d="M${f(x - t * 0.4)} ${f(base - 3)} q-1 -8 0.4 -15 M${f(x + t * 0.1)} ${f(base - h * 0.24)} q-0.8 -6 0.6 -11 M${f(x - t * 1.6)} ${f(base - h * 0.44)} q-1 -4 -2.4 -7" stroke="${C.clay4}" stroke-width="0.8" stroke-linecap="round" fill="none"/>`;
+  o += `<path d="M${f(x - t * 1.4)} ${base} q${f(-t * 0.6)} -1 ${f(-t * 1.4)} 0.6 M${f(x + t * 1.1)} ${base} q${f(t * 0.7)} -1.2 ${f(t * 1.6)} 0.4" stroke="${C.bark}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`;
+  // the dome: a band of crown over the limbs, its top in soft bumps, lit on the left
+  const bumps = [[], [], []];
+  for (let xx = cx - W * 0.96; xx <= cx + W * 0.96; xx += W * r(0.1, 0.2)) {
+    const y = dome(xx) + h * r(0.04, 0.07); const rr = h * r(0.05, 0.1);
+    bumps[0].push([xx, y + rr * 0.3, rr]);
+    if (rnd() < 0.6) bumps[0].push([xx + rr * r(0.4, 0.9), y + rr * r(0.5, 1.1), rr * r(0.6, 0.85)]);
+    if (xx < cx + W * 0.5) bumps[1].push([xx - rr * 0.25, y - rr * 0.02, rr * r(0.6, 0.8)]);
+    if (xx < cx - W * 0.1 && rnd() < 0.75) bumps[2].push([xx - rr * 0.35, y - rr * 0.3, rr * r(0.3, 0.45)]);
+  }
+  const band = []; for (let i = 0; i <= 16; i += 1) { const xx = cx - W * 0.97 + (W * 1.94 * i) / 16; band.push([xx, dome(xx) + h * 0.06]); }
+  for (let i = 16; i >= 0; i -= 1) { const xx = cx - W * 0.97 + (W * 1.94 * i) / 16; band.push([xx, dome(xx) + h * (0.2 + 0.05 * Math.sin(i * 1.7))]); }
+  o += `<path d="${poly(band)}" fill="#6E8A36"/>` + blobs('#6E8A36', bumps[0]) + blobs('#86A244', bumps[1]) + blobs('#A3BC5C', bumps[2]);
+  // the curtains in front, parted where the trunk shows, the lit side longer
+  o += curtain(cx - W * 0.98, x - t * 2.4, h * 0.14, base - h * 0.08, 14, 0.36, '#7E9A3A') + curtain(x + t * 2.8, cx + W * 0.98, h * 0.14, base - h * 0.1, 12, 0.36, '#738F36');
+  o += curtain(cx - W * 0.9, x - t * 4, h * 0.17, base - h * 0.2, 10, 0.32, '#9DB55A') + curtain(x + t * 4.6, cx + W * 0.62, h * 0.18, base - h * 0.3, 6, 0.3, '#8BA348');
+  let strands = '';
+  for (let i = 0; i < 10; i += 1) { const sx = cx + r(-W * 0.92, W * 0.6); if (Math.abs(sx - x) < t * 3) continue; const sy = dome(sx) + h * 0.16; const len = r(0.35, 0.6) * (base - sy); strands += `M${f(sx)} ${f(sy)}q${f(r(-1.5, 1.5))} ${f(len * 0.5)} ${f(r(-2.4, 2.4))} ${f(len)}`; }
+  return o + `<path d="${strands}" stroke="#B5CB72" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3.4 1.4" fill="none"/>`;
+}
+
+/** A wicker basket of the dog's toys: a ball, a rope tug and a bone looking out over the rim. */
+function toyBasket(x, y) {
+  return `<g transform="translate(${x} ${y})">${contact(0.6, 0.4, 10, 1.4)}` +
+    `<path d="M1.6 -8.6 l4.4 -8" stroke="${C.dGlow}" stroke-width="2.6" stroke-linecap="round"/><path d="M1.6 -8.6 l4.4 -8" stroke="${C.dLand}" stroke-width="2.6" stroke-dasharray="1.2 1.4"/><circle cx="6.4" cy="-17.2" r="1.7" fill="${C.dLand}"/>` +
+    `<path d="M-6.4 -11.4 a1.3 1.3 0 1 1 1.6 -1.6 l3.2 2.4 a1.3 1.3 0 1 1 1.4 1.8 a1.3 1.3 0 1 1 -1.6 1.6 l-3.2 -2.4 a1.3 1.3 0 1 1 -1.4 -1.8 Z" fill="${C.cream}"/>` +
+    `<circle cx="-1.4" cy="-9.4" r="3" fill="#D8E04A"/><path d="M-3.8 -10.2 q2.4 1.6 4.8 0" stroke="${C.paper}" stroke-width="0.6" fill="none"/>` +
+    `<path d="M-8 -8.4 h16 l-1.8 8.4 h-12.4 Z" fill="${C.clay2}"/><path d="M-7.4 -5.6 h14.8 M-6.8 -2.8 h13.6" stroke="${C.clay3}" stroke-width="0.9"/><path d="M-5 -8.4 l0.6 8.4 M-1.6 -8.4 l0.2 8.4 M1.8 -8.4 l-0.2 8.4 M5.2 -8.4 l-0.6 8.4" stroke="${C.clay1}" stroke-width="0.6"/>` +
+    `<rect x="-8.6" y="-9.6" width="17.2" height="2.2" rx="1.1" fill="${C.clay3}"/><path d="M-8.4 -8.6 h17" stroke="${C.clay1}" stroke-width="0.5"/></g>`;
+}
+
+/** The toys about the grass (flat things, safe anywhere): ball, rope tug, frisbee, squeaky bone. */
+function fieldToys() {
+  const ball = (x, y, k) => `${contact(x + 0.6, y + 2.6 * k, 3.4 * k, 0.8 * k, 0.2)}<circle cx="${x}" cy="${y}" r="${f(3.2 * k)}" fill="#D8E04A"/><path d="M${f(x - 2.6 * k)} ${f(y - 1)} q${f(2.6 * k)} ${f(2 * k)} ${f(5.2 * k)} 0" stroke="${C.paper}" stroke-width="${f(0.7 * k)}" fill="none"/><circle cx="${f(x - 1 * k)}" cy="${f(y - 1.4 * k)}" r="${f(0.8 * k)}" fill="${C.paper}" opacity="0.6"/>`;
+  let o = ball(1376, 566, 1);
+  // the rope tug, knotted at both ends with frayed tassels
+  o += `<g transform="translate(1426 603)">${contact(0, 1.6, 16, 1, 0.16)}<path d="M-12 0 c5 -3.4 10 2.4 15 -0.6 c4 -2.2 7 0.6 9 -0.2" stroke="${C.dGlow}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M-12 0 c5 -3.4 10 2.4 15 -0.6 c4 -2.2 7 0.6 9 -0.2" stroke="${C.dLand}" stroke-width="3" stroke-dasharray="1.6 2.4" fill="none"/>` +
+    `<circle cx="-13" cy="0.4" r="2.6" fill="${C.dLand}"/><circle cx="13.4" cy="-0.6" r="2.6" fill="${C.dLand}"/><path d="M-15.4 0.6 l-3 1.6 M-15.4 1.2 l-2.4 2.6 M15.8 -0.4 l3 1.4 M15.6 0.4 l2.2 2.4" stroke="${C.dGlow}" stroke-width="1" stroke-linecap="round"/></g>`;
+  // the frisbee, lying on the grass, its rim catching the light
+  o += `<g transform="translate(1270 627)">${contact(0.6, 1.4, 9.6, 2.2, 0.16)}<ellipse cx="0" cy="0" rx="9" ry="3.4" fill="${C.mereShine}"/><ellipse cx="0" cy="-0.4" rx="6.6" ry="2.2" fill="${C.mere}"/><path d="M-8.4 -1 a9 3.4 0 0 1 12 -2.2" stroke="${C.mereLight}" stroke-width="0.8" fill="none"/></g>`;
+  // a squeaky bone in the long grass
+  o += `<g transform="translate(1186 640) rotate(-12)">${contact(0, 2, 7, 1, 0.16)}<path d="M-6 -1.6 a1.8 1.8 0 1 1 2.2 -2 h7.6 a1.8 1.8 0 1 1 2.2 2 a1.8 1.8 0 1 1 -2.2 2 h-7.6 a1.8 1.8 0 1 1 -2.2 -2 Z" fill="${C.cream}"/><path d="M-3.6 -0.6 h7.2" stroke="${C.creamDeep}" stroke-width="0.9"/></g>`;
+  return o;
+}
+
+/** Paw prints along a list of points, alternating left and right of the line (the paw is a shared piece). */
+function pawTrail(pts, fill, k) {
+  let o = '';
+  pts.forEach(([x, y], i) => {
+    const side = i % 2 ? 1 : -1;
+    o += `<use href="#kmp-paw" x="${f(x + side * 1.6 * (k || 1))}" y="${f(y)}"/>`;
+  });
+  return `<g fill="${fill}">${o}</g>`;
+}
+
+function fieldMeadow() {
+  // The grass in the hill's greens: patches in several papers, the mown training lane in front of the course with its
+  // stripes, and a rougher strip of longer grass along the fence.
+  let o = '';
+  let p = '';
+  [[1214, 548, 64, 5, '#86A044'], [1352, 546, 74, 5.6, '#93AC4E'], [1520, 540, 90, 6, '#86A044'], [1190, 612, 52, 12, '#A0B85D'], [1300, 618, 80, 10, '#93AC4E'],
+    [1446, 612, 70, 9, '#A0B85D'], [1560, 604, 56, 10, '#8FA74B'], [1236, 646, 70, 10, '#8FA74B'], [1370, 640, 60, 8, '#A5BC62'], [1500, 628, 70, 8, '#93AC4E'],
+    [1160, 584, 24, 9, '#93AC4E'], [1588, 572, 40, 9, '#A0B85D'], [1420, 652, 46, 6, '#7C9840'], [1214, 668, 40, 6, '#86A044'], [1536, 640, 30, 5, '#7C9840'], [1080, 630, 44, 10, '#93AC4E']].forEach(([cx, cy, rx, ry, c]) => { p += softPatch(cx, cy, rx, ry, c, 0.14); });
+  o += `<g filter="url(#km-layer-xs)">${p}</g>`;
+  // The mown lane: in front of the course, from the bridge's path to the bay, mown in stripes along its length.
+  const top = [[1166, 572], [1200, 560], [1300, 556.4], [1440, 555.4], [1610, 554]];
+  const bot = [[1166, 584], [1200, 596], [1300, 600], [1440, 596], [1610, 592]];
+  const at = (k) => (x) => along(top, x) + (along(bot, x) - along(top, x)) * k;
+  const band = (k0, k1, x0, fill) => {
+    const pts = []; for (let x = x0; x <= 1610; x += 10) pts.push([x, at(k0)(x)]);
+    const back = []; for (let x = 1610; x >= x0; x -= 10) back.push([x, at(k1)(x)]);
+    return `<path d="${poly(pts.concat(back))}" fill="${fill}"/>`;
+  };
+  o += `<g filter="url(#km-layer-xs)">${band(0, 1, 1170, '#A9C066')}${band(0.25, 0.5, 1186, '#B5CA72')}${band(0.75, 0.97, 1196, '#B5CA72')}</g>`;
+  o += `<path d="M1172 571 Q1162 578 1172 585" stroke="#A9C066" stroke-width="6" stroke-linecap="round" fill="none"/>`;
+  return o;
+}
+
+function fieldGrass() {
+  // Grass, flowers and clover on the open Field: tufts and blades thick in the rough by the fence and round the lane,
+  // short on the lane, longer toward the bank; drifts of daisies, buttercups and clover; bigger in front.
+  const lip = (x) => shoreY(x) - 5;
+  const laneTop = [[1166, 572], [1200, 560], [1300, 556.4], [1440, 555.4], [1610, 554]];
+  const laneBot = [[1166, 584], [1200, 596], [1300, 600], [1440, 596], [1610, 592]];
+  const onLane = (x, y) => x > 1176 && y > along(laneTop, x) + 1 && y < along(laneBot, x) - 1;
+  let uses = '';
+  const blades = { '#5E7A2A': [], '#6F8A34': [], '#7E9A3A': [], '#8BA348': [], '#97AE52': [] };
+  const blade = (x, y, h, cols) => { const lean = r(-1.8, 1.8); blades[pick(cols)].push(`M${f(x - 0.8)} ${f(y)}q${f(lean * 0.4 + 0.8)} ${f(-h * 0.6)} ${f(lean + 0.8)} ${f(-h)}q${f(-lean * 0.5 + 0.3)} ${f(h * 0.5)} ${f(0.8)} ${f(h)}Z`); };
+  // the rough along the fence and round the course
+  for (let i = 0; i < 150; i += 1) { const x = r(1146, 1600); const y = r(536, 556); uses += `<use href="#kmt-${pick(['a', 'b', 'c', 'd', 'e'])}" x="${f(x)}" y="${f(y)}"/>`; blade(x + r(-4, 4), y + r(0, 3), r(4, 8), ['#5E7A2A', '#6F8A34', '#7E9A3A']); }
+  // the open meadow, the lane mown short
+  for (let i = 0; i < 600; i += 1) {
+    const x = r(1030, 1600); const y = r(556, lip(x));
+    if (onLane(x, y) && rnd() < 0.85) continue;
+    const near = (y - 556) / 100;
+    if (i % 3 === 0) uses += `<use href="#kmt-${pick(['a', 'b', 'c', 'd', 'e'])}" x="${f(x)}" y="${f(y)}"/>`;
+    else blade(x, y, r(3.4, 7) * (0.8 + near * 0.6), near > 0.5 ? ['#6F8A34', '#7E9A3A', '#8BA348', '#97AE52'] : ['#5E7A2A', '#6F8A34', '#7E9A3A', '#8BA348']);
+  }
+  // the lane's edges, where the mower stops
+  for (let x = 1180; x < 1600; x += r(3, 6)) { blade(x, along(laneTop, x) + r(-0.5, 1), r(3, 6), ['#6F8A34', '#7E9A3A']); blade(x + r(-2, 2), along(laneBot, x) + r(0, 1.5), r(4, 7), ['#6F8A34', '#7E9A3A', '#8BA348']); }
+  // longer grass along the top of the bank, with seed heads
+  let seeds = '';
+  for (let x = 1034; x < 1600; x += r(4, 9)) { const y = lip(x) + r(-1, 3); const h = r(7, 12); blade(x, y, h, ['#7E9A3A', '#8BA348', '#97AE52']); if (rnd() < 0.4) seeds += `M${f(x + 0.6)} ${f(y - h - 1.6)}v2.6`; }
+  let o = uses + Object.entries(blades).map(([c, ds]) => (ds.length ? `<path d="${ds.join('')}" fill="${c}"/>` : '')).join('');
+  o += `<path d="${seeds}" stroke="${C.sand}" stroke-width="1.1" stroke-linecap="round"/>`;
+  // drifts of wildflowers and clover (shared pieces), in clusters; mown out of the lane
+  let fl = '';
+  const drift = (cx, cy, rx, ry, n, mix) => {
+    for (let i = 0; i < n; i += 1) {
+      const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd());
+      const x = cx + Math.cos(a) * rx * d; const y = cy + Math.sin(a) * ry * d;
+      if (onLane(x, y) || y > lip(x) - 1 || y < 538) continue;
+      fl += `<use href="#kmf-${pick(mix.split(''))}" x="${f(x)}" y="${f(y)}"/>`;
+    }
+  };
+  [[1196, 548, 40, 4, 22, 'wwyc'], [1330, 546, 34, 4, 18, 'wcy'], [1470, 544, 30, 4, 14, 'ywt'], [1560, 548, 30, 4, 12, 'wwb'],
+    [1214, 618, 34, 10, 34, 'wwcy'], [1330, 626, 40, 10, 36, 'ywwt'], [1452, 614, 40, 10, 34, 'cwwy'], [1560, 608, 32, 9, 26, 'wbwy'],
+    [1170, 652, 24, 8, 18, 'ywc'], [1290, 650, 30, 6, 20, 'wwt'], [1410, 640, 28, 6, 18, 'cwb'], [1064, 600, 26, 14, 26, 'wywc'], [1090, 652, 30, 10, 22, 'wwyt']].forEach(([a, b, c, d, n, m]) => drift(a, b, c, d, n, m));
+  // clover: leaves in low patches and white heads among them
+  let leaves = '';
+  [[1240, 630, 18, 5], [1392, 624, 16, 4], [1520, 618, 14, 4], [1310, 572, 10, 3]].forEach(([cx, cy, rx, ry]) => {
+    for (let i = 0; i < 18; i += 1) { const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd()); const x = cx + Math.cos(a) * rx * d; const y = cy + Math.sin(a) * ry * d; leaves += `<use href="#kmc-leaf" x="${f(x)}" y="${f(y)}"/>`; if (i % 3 === 0) fl += `<use href="#kmf-c" x="${f(x + 0.6)}" y="${f(y - 0.4)}"/>`; }
+  });
+  o += `<g fill="#6F8F38">${leaves}</g>` + fl;
+  // the nearest flowers, bigger toward the front
+  let big = '';
+  for (let i = 0; i < 56; i += 1) { const x = r(1034, 1596); const y = r(lip(x) - 26, lip(x) - 3); if (onLane(x, y)) continue; big += `<use href="#kmf-${pick(['w', 'w', 'y', 'c', 't'])}" x="${f(x / 1.35)}" y="${f(y / 1.35)}"/>`; }
+  o += `<g transform="scale(1.35)">${big}</g>`;
+  return o;
+}
+
+/** A berry bush along the fence, like the Orchard's (berries in the bush's own red). */
+function berryBush(x, y, s) {
+  return `${contact(x + 1, y + 0.6, 15 * s, 1.8 * s, 0.18)}` + blobs('#55732F', [[x, y - 9 * s, 10 * s], [x - 9 * s, y - 5 * s, 7 * s], [x + 9 * s, y - 5 * s, 7.5 * s]]) +
+    blobs('#6B8A3A', [[x - 1.6 * s, y - 11 * s, 7 * s], [x - 9.4 * s, y - 6.4 * s, 4.6 * s], [x + 7.6 * s, y - 7 * s, 5 * s]]) + blobs('#86A246', [[x - 3.4 * s, y - 14 * s, 3 * s], [x - 10.6 * s, y - 8 * s, 1.8 * s]]) +
+    blobs('#C8433A', [[x - 3 * s, y - 12 * s, 1.4 * s], [x + 4 * s, y - 8 * s, 1.4 * s], [x + 1 * s, y - 14.6 * s, 1.2 * s], [x - 7 * s, y - 6 * s, 1.2 * s], [x + 8 * s, y - 4.4 * s, 1.2 * s]]);
+}
+
+function field() {
+  // Lakeside Field: open grass running down to the lake bay, a split-rail fence, the dog house, the course, the willow,
+  // toys, and paw prints running into the water (see FIELD_DRAWS above).
+  const out = ownSeed(FIELD_SEED, () => {
+    let o = '';
+    o += `<g filter="url(#layer)">`;
+    o += ridge([[920, 552], [1020, 540], [1140, 524], [1280, 530], [1440, 512], [1600, 520]], 760, 'url(#km-fade-field-1)');
+    o += ridge([[920, 558], [1020, 546], [1140, 532], [1280, 536], [1440, 520], [1600, 528]], 760, 'url(#km-fade-field-2)');
+    o += `</g>`;
+    o += fieldMeadow();
+    [[1176, 470], [1236, 466], [1296, 470], [1356, 464], [1416, 468]].forEach(([x, y], i) => {
+      const n = i + 2;
+      o += `<g data-km-part="dog-house-${n}" display="none" filter="url(#layer-sm)" transform="translate(${x} ${y}) scale(0.62)">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M18 60 V46 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/>${`<rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-${n}" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`}</g>`;
+    });
+    o += `<g filter="url(#layer-sm)">${fence()}</g>`;
+    // The dog house: a pitched roof of shingles, a name board, a round door, a water bowl.
+    o += `<g data-km-part="dog-house-1" filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+    for (let i = 0; i < 4; i += 1) o += `<path d="M${4 + i * 8} ${20 - i * 5} l8 6 M${56 - i * 8} ${20 - i * 5} l-8 6" stroke="${C.dRusset}" stroke-width="2"/>`;
+    o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`;
+    o += `<ellipse cx="76" cy="60" rx="8" ry="3.2" fill="${C.fGlow}"/><ellipse cx="76" cy="58.6" rx="5.6" ry="2" fill="${C.mereLight}"/><path d="M-4 60 h8 l-1 -3 h-6 Z" fill="${C.dTan}"/></g>`;
+    // Along the fence, behind the open grass, back to front: the willow by the bay, berry bushes, the course (a bar
+    // jump, the weave poles, the willow hoop), a trough, the toy basket and a bench under the willow.
+    const things = [
+      [541, willow(1584, 541, 126)],
+      [546, berryBush(1158, 546, 0.8)], [547, berryBush(1318, 547, 0.62)],
+      [549, barJump(1340, 549)], [550, weavePoles(1394, 550, 6, 11)], [551, willowHoop(1480, 551)],
+      [551.4, toyBasket(1571, 551.4)],
+      [551.2, `<g transform="translate(1546 551.2) scale(1.3)">${bench(0, 0)}</g>`],
+    ];
+    things.sort((a, b) => a[0] - b[0]);
+    o += `<g filter="url(#layer-sm)">${things.map((t) => t[1]).join('')}</g>`;
+    o += fieldGrass();
+    // Paw prints over the grass from the lane, and on down the beach into the water (see fieldBeach).
+    const trail = [];
+    for (let i = 0; i < 12; i += 1) { const t = i / 11; trail.push([1252 + t * 46 + Math.sin(t * 5) * 6, 606 + t * 46]); }
+    o += pawTrail(trail.filter(([x, y]) => y < shoreY(x) - 6), C.dGrassDark, 1);
+    let spots = '';
+    [[1352, 572], [1384, 576], [1416, 574], [1448, 577], [1480, 573], [1512, 576]].forEach(([x, y], i) => { spots += `<ellipse cx="${x}" cy="${y + 0.6}" rx="5" ry="1.7" fill="${C.ink}" opacity="0.14"/><ellipse cx="${x}" cy="${y}" rx="4.6" ry="1.6" fill="${i % 2 ? C.paper : C.dGlow}"/><ellipse cx="${x - 0.6}" cy="${y - 0.3}" rx="2.4" ry="0.7" fill="${i % 2 ? C.fPale : C.sand}"/>`; });
+    let clocks = '';
+    [[1112, 646], [1146, 660], [1248, 652], [1396, 636], [1472, 630], [1574, 618], [1060, 618]].forEach(([x, y]) => { const h = r(9, 13); clocks += `<path d="M${x} ${y} q${f(r(-1, 1))} ${f(-h / 2)} ${f(r(-1.4, 1.4))} ${f(-h)}" stroke="#7E9A3A" stroke-width="0.7" fill="none"/><circle cx="${f(x + r(-1, 1))}" cy="${f(y - h - 2)}" r="2.6" fill="${C.paper}" opacity="0.92"/><circle cx="${x}" cy="${f(y - h - 2.2)}" r="0.7" fill="${C.creamDeep}"/>`; });
+    o += spots + clocks;
+    o += `<g filter="url(#layer-sm)">${fieldToys()}</g>`;
+    // Flags with paw prints at the start and the end of the course, and one by the bridge where the path comes in.
+    let flags = '';
+    [[1100, 612, C.paper], [1380, 551, C.dGlow], [1503, 551, C.paper]].forEach(([x, y, col], i) => {
+      flags += `<path d="M${x} ${y} v-20" stroke="${C.dLand}" stroke-width="1.6"/><path d="M${x} ${y - 20} h12 a4.5 4.5 0 0 1 0 9 h-12 Z" fill="${col}" class="km-flag" style="animation-delay:-${i * 0.6}s"/>`;
+      flags += `<g fill="${C.dLand}"><ellipse cx="${x + 6}" cy="${y - 14.6}" rx="1.6" ry="1.3"/><circle cx="${x + 4.2}" cy="${y - 17.2}" r="0.8"/><circle cx="${x + 6}" cy="${y - 17.8}" r="0.8"/><circle cx="${x + 7.8}" cy="${y - 17.2}" r="0.8"/></g>`;
+    });
+    // A butterfly over the clover (by day).
+    flags += butterfly(1352, 600, C.paper, 2);
+    live(`<g class="km-field-life">${flags}</g>`);
+    return o;
+  });
+  for (let i = 0; i < FIELD_DRAWS; i += 1) rnd(); // the park's random sequence moves on as it did when the old field drew from it
+  return g('id="km-field"', out);
+}
+
+/** The pieces the Field repeats (scene files only): a paw print, a clover leaf. */
+function fieldDefs() {
+  return `<g id="kmp-paw"><ellipse cx="0" cy="0" rx="1.5" ry="1.2"/><circle cx="-1.6" cy="-1.7" r="0.62"/><circle cx="-0.55" cy="-2.35" r="0.62"/><circle cx="0.6" cy="-2.35" r="0.62"/><circle cx="1.65" cy="-1.7" r="0.62"/></g>` +
+    `<g id="kmc-leaf"><circle cx="-0.9" cy="-0.3" r="0.95"/><circle cx="0.9" cy="-0.3" r="0.95"/><circle cx="0" cy="-1.5" r="0.95"/></g>`;
+}
+
+/**
+ * The bay's edge below the Field (land units, drawn over the bank): the bank's cut face sinks into a little beach of
+ * sand and pebbles from the stream's mouth eastward, until the grass runs straight down to the sand. A wrack line, a
+ * stick, grass tufts at the top, and the dog's paw prints down to the water.
+ */
+const BEACH = [1188, 1600];
+function fieldBeach() {
+  const [X0, X1] = BEACH;
+  const reach = (x) => { const k = Math.max(0, Math.min(1, (x - X0) / 230)); return 39 * k * k * (3 - 2 * k); }; // how far up the bank the sand comes
+  const water = (x) => shoreY(x) + 40;
+  const cols = [];
+  for (let x = X0; x <= X1; x += 6) cols.push(x);
+  const lineAt = (k, wob) => cols.map((x) => [x, water(x) - reach(x) * k + (wob ? r(-wob, wob) : 0)]);
+  const fill = (k0, k1, c, wob) => `<path d="${poly(lineAt(k0, wob).concat(lineAt(k1, 0).reverse()))}" fill="${c}"/>`;
+  let o = '';
+  // where the bank still stands above the sand, its overhang throws a short shadow
+  o += fill(1, 0, C.sand, 0.4) + fill(0.55, 0, '#CDB991', 0.5) + fill(0.24, 0, '#B9A47C', 0.4) + fill(0.08, 0, '#A08A66', 0);
+  o += `<path d="${poly(lineAt(1, 0).concat(lineAt(0.92, 0).reverse()))}" fill="${C.ink}" opacity="0.14"/>`;
+  // ripples of sand, a wrack line of dried weed and twigs, a stick
+  let rip = '';
+  for (let i = 0; i < 26; i += 1) { const x = r(X0 + 70, X1 - 6); const k = r(0.35, 0.9); if (reach(x) < 14) continue; const y = water(x) - reach(x) * k; rip += `M${f(x)} ${f(y)}q${f(2.4)} -1 ${f(4.8)} 0`; }
+  o += `<path d="${rip}" stroke="#C2AF8A" stroke-width="0.8" stroke-linecap="round" fill="none"/>`;
+  let wrack = '';
+  for (let x = X0 + 60; x < X1; x += r(5, 12)) { const y = water(x) - reach(x) * 0.3 + r(-1, 1); wrack += `M${f(x)} ${f(y)}q${f(r(1, 3))} ${f(r(-1.2, 1.2))} ${f(r(3, 6))} ${f(r(-0.6, 0.6))}`; }
+  o += `<path d="${wrack}" stroke="#6B5A3A" stroke-width="0.7" stroke-linecap="round" fill="none" opacity="0.8"/>`;
+  o += `<g transform="translate(1444 ${f(water(1444) - 22)}) rotate(-8)">${contact(0, 1.4, 11, 1, 0.16)}<path d="M-10 0 L9 -0.8" stroke="${C.clay3}" stroke-width="2.2" stroke-linecap="round"/><path d="M2 -0.6 l4 -3.4 M-4 -0.2 l-3 -2.6" stroke="${C.clay3}" stroke-width="1.2" stroke-linecap="round"/><path d="M-9.4 -0.6 L8 -1.2" stroke="${C.clay1}" stroke-width="0.6" stroke-linecap="round"/></g>`;
+  // pebbles: a few on the dry sand, many where the water reaches, lit above, wet and dark below
+  const peb = [[], [], [], []];
+  for (let i = 0; i < 96; i += 1) {
+    const x = r(X0 + 4, X1 - 2); if (reach(x) < 4) continue;
+    const k = rnd() < 0.65 ? r(0, 0.28) : r(0.3, 0.95);
+    const y = water(x) - reach(x) * k;
+    const s = r(0.8, 2.2);
+    peb[0].push([x + 0.3, y + 0.5, s * 1.1, s * 0.62]);
+    peb[1 + (i % 3)].push([x, y, s, s * 0.58]);
+  }
+  o += ovals('#8E7A5E', peb[0]) + ovals(C.fGlow, peb[1]) + ovals(C.fLight, peb[2]) + ovals('#C9BFA6', peb[3]);
+  o += ovals(C.fPale, peb[1].filter((_, i) => i % 2).map(([x, y, a, b]) => [x - a * 0.25, y - b * 0.35, a * 0.45, b * 0.3]));
+  // grass tufts where the meadow meets the sand
+  let tufts = '';
+  for (let x = X0 + 30; x < X1; x += r(5, 10)) { const y = water(x) - reach(x) + r(0.5, 3); tufts += `<use href="#kmt-${pick(['a', 'b', 'c', 'e'])}" x="${f(x)}" y="${f(y)}"/>`; }
+  o += tufts;
+  // the dog's paw prints, pressed into the sand down to the water, where the dog is splashing
+  const trail = [];
+  for (let i = 0; i < 7; i += 1) { const t = i / 6; const x = 1300 + t * 18; trail.push([x, water(x) - reach(x) * (1 - t * 0.9) + 1.5]); }
+  o += pawTrail(trail, '#A89470', 1);
+  return `<g class="km-beach">${o}</g>`;
+}
+
+/**
+ * The bay below the Field (land units, over the water): the shallows paler over the sand, the wash at the water's edge,
+ * reeds and cattails, lily pads, a heron fishing, and in the life layer the ducklings after their mother, a clump of
+ * reeds in the wind and a dragonfly over the shallows.
+ */
+function bay() {
+  const [X0, X1] = BEACH;
+  const water = (x) => shoreY(x) + 40;
+  const cols = []; for (let x = X0 + 20; x <= X1; x += 8) cols.push(x);
+  const fade = (x) => Math.max(0, Math.min(1, (x - X0 - 20) / 140));
+  let o = '';
+  o += `<path d="${poly(cols.map((x) => [x, water(x) - 0.4]).concat(cols.slice().reverse().map((x) => [x, water(x) + 2 + 9 * fade(x)])))}" fill="${C.mereShine}"/>`;
+  o += `<path d="${poly(cols.map((x) => [x, water(x) - 0.4]).concat(cols.slice().reverse().map((x) => [x, water(x) + 1 + 4 * fade(x)])))}" fill="#3E8090"/>`;
+  let wash = '';
+  for (let x = X0 + 24; x < X1; x += r(6, 14)) wash += `M${f(x)} ${f(water(x) + 0.3)}q${f(r(2, 4))} ${f(r(0.6, 1.4))} ${f(r(5, 9))} 0`;
+  o += `<path d="${wash}" stroke="${WATER.foam}" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.85"/>`;
+  // reeds and cattails standing in the water at the bay's edge
+  const reedClump = (x0, n, h0) => {
+    let s = ''; let heads = '';
+    for (let i = 0; i < n; i += 1) {
+      const x = x0 + i * r(1.4, 2.4); const y = water(x) + r(2, 6); const h = h0 + r(-5, 6);
+      s += `M${f(x)} ${f(y)}q${f(r(-1, 1))} ${f(-h / 2)} ${f(r(-2, 2))} ${f(-h)}`;
+      if (rnd() < 0.45) heads += `<rect x="${f(x - 0.8)}" y="${f(y - h * 0.9)}" width="1.6" height="4.4" rx="0.8"/>`;
+    }
+    return `<path d="${s}" stroke="${C.dGrassDark}" stroke-width="0.9" stroke-linecap="round" fill="none"/><g fill="${C.clay4}">${heads}</g>`;
+  };
+  o += reedClump(1452, 8, 16) + reedClump(1396, 5, 12);
+  // lily pads on the open water
+  [[1468, 714, 0.32], [1586, 704, 0.36], [1380, 716, 0.28]].forEach(([x, y, s]) => {
+    o += `<path d="M${x} ${y} m${f(-22 * s)} 0 a${f(22 * s)} ${f(9 * s)} 0 1 0 ${f(44 * s)} 0 a${f(22 * s)} ${f(9 * s)} 0 0 0 ${f(-18 * s)} ${f(-8 * s)} l${f(-4 * s)} ${f(8 * s)} Z" fill="#4E7F3A"/>`;
+  });
+  // a grey heron fishing in the shallows by the reeds, still as a post
+  o += `<g transform="translate(1528 ${f(water(1528) + 30)}) scale(0.9)">` +
+    `<ellipse cx="0" cy="0.6" rx="7" ry="1.2" fill="none" stroke="${C.mereLight}" stroke-width="0.7" opacity="0.7"/>` +
+    `<path d="M-1.4 0 L-1 -11 M1.2 0 L1.2 -11" stroke="#8A7F70" stroke-width="0.8" stroke-linecap="round"/>` +
+    `<path d="M-6 -14 C-6 -20 2 -24 7 -20 C9 -18 8 -12 3 -10.6 C-1 -9.6 -5 -10.6 -6 -14 Z" fill="#A9B8C4"/>` +
+    `<path d="M-6 -14 C-4 -12 -1 -11 3 -10.6 C0 -9.6 -4.6 -10.4 -7.4 -12.4 Z" fill="#8C9DAB"/><path d="M-6.4 -14.4 l-4 2.8 l3.4 -0.6 Z" fill="#6B7A88"/>` +
+    `<path d="M5 -19.4 C6.6 -23 4.6 -26 5.4 -29.4" stroke="#C9D3DB" stroke-width="2" stroke-linecap="round" fill="none"/>` +
+    `<ellipse cx="6.2" cy="-30.2" rx="2.2" ry="1.5" fill="#E4EAEF"/><path d="M8 -30.4 l6 0.9 l-6 0.5 Z" fill="${C.dGlow}"/><path d="M4.6 -31 q2 -0.8 4.4 -0.2" stroke="${C.ink}" stroke-width="0.6" fill="none"/><circle cx="7" cy="-30.6" r="0.36" fill="${C.ink}"/><path d="M4.4 -30.6 l-3 1.6" stroke="${C.ink}" stroke-width="0.4"/></g>`;
+  // what moves: ducklings after the duck, reeds in the wind, a dragonfly over the shallows
+  let life = '';
+  life += `<g class="km-bob" style="animation-delay:-0.7s">${[[1530, 721, 0.38], [1543, 723.6, 0.34]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="#E9C24A"/><circle cx="-1" cy="-4" r="5" fill="#E9C24A"/><path d="M-6 -4 l-4 1 l4 2 Z" fill="${C.clay2}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/></g>`).join('')}</g>`;
+  life += `<g class="km-sway" style="animation-delay:-1.3s">${reedClump(1500, 6, 20)}</g>`;
+  life += `<g transform="translate(1416 ${f(water(1416) + 4)}) scale(1.4)" class="km-day-only"><g class="km-flit" style="animation-duration:7s;animation-delay:-4s"><g class="km-wing"><path d="M-1.6 -0.4 q-1 -3 0.4 -3.2 q0.6 1.6 -0.4 3.2 Z M0.4 -0.4 q0.4 -3.2 1.8 -3 q-0.4 1.8 -1.8 3 Z" fill="${C.paper}" opacity="0.85"/></g><path d="M-3 0 H5" stroke="${C.mereShine}" stroke-width="0.7" stroke-linecap="round"/><circle cx="-3.4" cy="-0.1" r="0.75" fill="${C.mere}"/></g></g>`;
+  live(`<g class="km-bay-life">${life}</g>`);
+  return `<g class="km-bay">${o}</g>`;
 }
 
 /* ------------------------------------------------------------------ the bank, the paths and the signpost */
@@ -1209,6 +1748,8 @@ function bank() {
   o += shoreBand(36, 740, C.bark, 1);
   for (let i = 0; i < 90; i += 1) { const x = r(0, 1600); o += `<ellipse cx="${f(x)}" cy="${f(shoreY(x) + r(12, 38))}" rx="${f(r(2, 5))}" ry="${f(r(1.4, 2.4))}" fill="${pick([C.creamDeep, '#D8D1BC', C.clay1])}" opacity="0.9"/>`; }
   for (let i = 0; i < 60; i += 1) { const x = r(0, 1600); const y = shoreY(x) + 6; const len = r(6, 18); o += `<path d="M${f(x)} ${f(y)} c${f(r(-3, 3))} ${f(len * 0.4)} ${f(r(-5, 5))} ${f(len * 0.7)} ${f(r(-3, 3))} ${f(len)}" stroke="${C.dDark}" stroke-width="${f(r(0.8, 1.5))}" stroke-linecap="round" fill="none" opacity="0.8"/>`; }
+  // Below the Field the bank sinks into a little beach on the bay (fieldBeach(), its own seed).
+  o += ownSeed(FIELD_SEED + 1, fieldBeach);
   return g('id="km-bank"', o);
 }
 
@@ -1273,6 +1814,7 @@ function lake() {
   LIFE += `<g class="km-fish"><path d="M1180 836 c6 -6 16 -6 21 0 c-5 6 -15 6 -21 0 Z M1201 836 l6 -5 v10 Z" fill="${C.nGlow}"/><circle cx="1186" cy="835" r="1.2" fill="${C.ink}"/></g>`;
   o += `<path d="M1176 854 a14 3.5 0 0 0 28 0" stroke="${C.mereLight}" stroke-width="1.5" fill="none" opacity="0.6"/>`;
   o += streamMouth();
+  o += ownSeed(FIELD_SEED + 2, bay); // the bay below the Field
   return g('id="km-lake"', o);
 }
 
@@ -1837,7 +2379,7 @@ function defs(view, ripples) {
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
     <pattern id="km-gingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FFE1C2"/><rect width="8" height="4" fill="#FFB36B" opacity="0.4"/></pattern>
     <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>${view ? `
-    <filter id="km-layer-xs" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="1.2" stdDeviation="0" flood-color="${C.ink}" flood-opacity="0.12"/></filter>${hillDefs()}` : ''}
+    <filter id="km-layer-xs" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="1.2" stdDeviation="0" flood-color="${C.ink}" flood-opacity="0.12"/></filter>${hillDefs()}${fieldDefs()}` : ''}
     ${ripples ? `<mask id="km-ripples"><rect y="724" width="1600" height="176" fill="#fff"/>${Array.from({ length: 16 }, (_, i) => `<rect y="${736 + i * 9}" width="1600" height="${3 + (i % 3)}" fill="#000"/>`).join('')}</mask>` : ''}
     <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>
   </defs>`;
@@ -1850,7 +2392,8 @@ const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale,
   'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card, with Summer, a little peach holding a berry tart, beside her. In the evenings Spud, a potato in an apron, brings a pot of dinner to the table. ' +
   'In the middle rises Stepping Hill, a big grassy hill of meadow patches and wildflowers with granite outcrops, pines, birches and gorse, stone steps up its face on a worn trail with a rope rail, a switchback trail with timber steps, turn markers, stacked stones and flags, a dry-stone wall and a trough where sheep and lambs graze, rabbits, a stretching bar and a balance log, a quiet pool set into its shoulder whose stream falls over two granite ledges, runs behind the dog house and under a little bridge into the lake, and a railed lookout on the top with a spyglass. ' +
   'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust, a little way up the hill, where a bench waits part way up the steps and a few sheep graze. ' +
-  'On the right, Lakeside Field: open grass running down to a bay of the lake, a split-rail fence, a row of trees, the dog house, weave poles, a willow hoop, flags with paw prints and toys. ' +
+  'On the right, Lakeside Field: open grass in the hill\'s greens running down to a little beach of sand and pebbles on a bay of the lake, with a mown training lane, drifts of wildflowers and clover, and toys and paw prints in the grass. Along its split-rail fence stand the dog house, a bar jump, weave poles, a woven willow hoop and flags with paw prints, and a weeping willow shades a bench and a basket of toys. ' +
+  'Beyond the fence lies farmland: fields of pasture, wheat and ploughed earth between hedgerows with trees in them, a barn, round hay bales, a gate and a few sheep. In the bay a heron fishes among the reeds and cattails and two ducklings follow the duck. ' +
   'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
   'From the signpost a dock runs out into the lake, with a basket of folded lanterns, a stool with a notebook and a lantern post. Orange paper lanterns drift away across the water toward Louise, the librarian, and a paper boat brings a book back. ' +
   'After dark the sky fills with stars and the moon in its real phase, fireflies rise over the meadows, the string lights and lanterns glow, the keepers doze, and the dog sleeps curled in the door of its house.';

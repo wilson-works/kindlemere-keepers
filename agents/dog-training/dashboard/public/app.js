@@ -1,9 +1,9 @@
 'use strict';
 
 /* Tumble's page: a step into Lakeside Field. The kit's live Field view is the page; the person's own dogs are the dogs
-   in it; Tumble (and Barkley and Sizzle) speak in the bubble; the six actions open under the scene; the books, memory
-   counts, tools and Louise's lanterns sit in a drawer. Every line Tumble says here comes from a card or from what the
-   person told it; everything is drawn with textContent, never as HTML. */
+   in it; Tumble (and Barkley and Sizzle) speak in the bubble over the scene; the actions open on the board beside him;
+   the books, memory counts, tools and Louise's lanterns sit in a drawer. Every line Tumble says here comes from a card
+   or from what the person told it; everything is drawn with textContent, never as HTML. */
 (function () {
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => {
@@ -56,8 +56,10 @@
       say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy');
       return;
     }
-    if (name === 'Tumble') say(jokes.length ? pick(jokes) : 'Small steps, lots of wins.', 'Tumble', 'happy');
-    else if (LINES[name]) say(pick(LINES[name]), name, 'happy');
+    // the room's own lines and the kit's for each of them, never the same twice running (window.kindlemere.line)
+    const next = (key, own) => (window.kindlemere && window.kindlemere.line ? window.kindlemere.line(key, own) : pick(own));
+    if (name === 'Tumble') say(next('dog-training', jokes.length ? jokes : ['Small steps, lots of wins.']), 'Tumble', 'happy');
+    else if (LINES[name]) say(next(`dog-training-${name.toLowerCase()}`, LINES[name]), name, 'happy');
     else if (dogs.some((d) => d.name === name)) chooseDog(name);
   }
   window.addEventListener('kindlemere:character', (e) => {
@@ -299,6 +301,16 @@
     else say(dogNow() ? `Come in. ${dogNow().name} is out in the field. Tap ${pronounOf(dogNow()) === 'they' ? 'them' : pronounOf(dogNow()) === 'she' ? 'her' : 'him'} to play fetch.` : 'Come in. Tap the dog to play fetch, or tell me about your own dog under My dog.');
   }
   window.addEventListener('kindlemere:ready', (e) => { stage(e.detail && e.detail.svg).catch(() => { /* the plain picture stays */ }); });
+  // When the scene is at rest Tumble may walk off to visit: the kit moves him by giving his figure's button a transform
+  // and takes it away when he is home. His bubble steps aside while he is out, so it never points at an empty spot.
+  function watchTumble() {
+    const t = document.querySelector('[data-km-actor="dog-training"][role="button"]');
+    if (!t || t.dataset.watched) return;
+    t.dataset.watched = '1';
+    new MutationObserver(() => $('bubble').classList.toggle('away', t.hasAttribute('transform')))
+      .observe(t, { attributes: true, attributeFilter: ['transform'] });
+  }
+  window.addEventListener('kindlemere:ready', watchTumble);
 
   /* ---------- panels ---------- */
   function openPanel(name) {

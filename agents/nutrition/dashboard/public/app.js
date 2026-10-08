@@ -242,14 +242,16 @@
       else say(`${who} is fast asleep. Let's not wake ${who === 'Spud' ? 'him' : 'her'}.`, null, 'sleepy');
       return;
     }
-    if (who === 'Avo') { say('What can I help with? Ask me anything, or let\'s plan a week.', null, 'happy'); openTalk(); return; }
+    // their own lines (today's treat, tonight's dinner, Avo's jokes) and the kit's, never the same twice running
+    const next = (key, own) => (window.kindlemere && window.kindlemere.line ? window.kindlemere.line(key, own) : own[0]);
+    if (who === 'Avo') { say(next('nutrition', ['What can I help with? Ask me anything, or let\'s plan a week.', ...jokes]), null, 'happy'); openTalk(); return; }
     if (who === 'Summer') {
-      say(treat ? `Today's treat is ${treat.name}. Fancy something else? Ask me.` : 'Something sweet? Ask me and I\'ll find a treat that fits.', 'Summer', 'happy');
+      say(next('nutrition-summer', [treat ? `Today's treat is ${treat.name}. Fancy something else? Ask me.` : 'Something sweet? Ask me and I\'ll find a treat that fits.']), 'Summer', 'happy');
       openTalk('I want something sweet. Any ideas?');
       return;
     }
     const evening = new Date().getHours() >= 17;
-    if (evening) say(dinner ? `Evening! Dinner tonight is ${dinner.name}.` : 'Evening! No dinner planned tonight. Want to plan one?', 'Spud', 'happy');
+    if (evening) say(next('nutrition-spud', [dinner ? `Evening. Dinner tonight is ${dinner.name}.` : 'Evening. No dinner planned tonight. Want to plan one?']), 'Spud', 'happy');
     else say(`Spud's still snoozing till dinner time. ${dinner ? `Tonight it's ${dinner.name}.` : 'No dinner planned tonight yet.'}`, null, 'happy');
   });
 

@@ -293,23 +293,32 @@ What the shell does:
   address from this page: `'realm'` is `/kit/kindlemere.html`, an agent's key is its room on this computer, or its
   tailnet address when the page came from there (`null` when it has none).
 - The ways between places. On a page that shows the scene, `kit.js` puts a bar of places in the `.km-top` bar, before
-  the room's own button: Kindlemere, Orchard, Hill, Field (`nav.km-nav`, `a.km-nav-way`, the page's own place marked
-  `aria-current="page"`). A plain click goes there by `kindlemere.go`; a place with no address is `aria-disabled`.
+  the room's own button: Kindlemere, Orchard, Hill, Field (`nav.km-nav`, `a.km-nav-way` with `data-place`, signs in
+  each place's colour, the page's own place marked `aria-current="page"`). A plain click goes there by
+  `kindlemere.go`; a place with no address is `aria-disabled`. Last on the bar, `button.km-nav-full` (shown once the
+  scene is live) shows the scene full screen (`kindlemere.full()`).
 - The live scene. When the page shows an `<img src="/kit/art/kindlemere*.svg">`, `kit.js` also loads
   `/kit/kindlemere-dog.js` and then `/kit/kindlemere.js`. That replaces the picture with a stack of depth layers (a
   `div` that keeps the image's class, id, alt, box, `object-fit: cover` and `object-position`) and runs it
-  (`kit/REALM.md`, "Day and night", "Life", "The dog" and "Between the places"). The scene's own ids are prefixed per scene: find parts with
+  (`kit/REALM.md`, "Day and night", "Life", "The dog", "Between the places" and "Full screen"). The scene's own ids are prefixed per scene: find parts with
   `part()`, never by id. A picture whose address ends `#km-still` stays a still picture (`kindlemere.html`'s cards).
+  A room that puts its own words and card over the scene marks them, so full screen takes them along: its stage (the
+  element holding the scene, the words and the card) `data-km-stage`, its keeper's words `data-km-words`, and its card
+  `data-km-card="<a short name for its button, Tumble's board>"`. Full screen then shows the stage: the words dock top
+  left (their tail hidden, shown while the keeper is away), the card stands top right (on a narrow screen it opens as a
+  sheet from a button with that name), and the room's own button in `.km-top` (its book) gets a button there too.
 
   | On `window` | What |
   |---|---|
   | `kindlemere:ready` `{ svg, scene, part }` | fired once per scene, after the page's own scripts have run. `svg` is the characters' layer, `scene` the stack, `part(name)` the element marked `data-km-part="<name>"`: `dog`, `dog-head`, `dog-pupils`, `dog-ball`, `telescope`, `sign-nutrition`, `sign-fitness`, `sign-dog-training`, `sign-louise`, `dog-house-<1..6>`, `dog-house-name-<1..6>` |
-  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley` or `Sizzle` (the dog is its own button: fetch). Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line |
+  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley` or `Sizzle` (the dog is its own button: fetch). Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line. In full screen it is fired when the room's stage came along (`data-km-stage`); with the scene alone (the Kindlemere page) the kit's own line answers in the scene |
   | `kindlemere:dogs` `{ svg, names }` | fired by a page (Tumble's) when its dogs change: the kit shows one dog house per name (one at least, six at most) with the name on its board |
   | `kindlemere.hold(true \| false)` | a room busy with its own work (a run clock, a timer, a game) holds the keepers at home; `kit.js` defines it, so it is safe to call before the scene loads |
   | `kindlemere.go(url, place)` | go to another place: the camera glides toward `place` (`realm`, `nutrition`, `fitness`, `dog-training`) and the next page glides the rest of the way in (`#km-from=` on its address). Reduced motion: a plain page change |
   | `kindlemere.say(el, text)` | a line in the scene's paper bubble over `el` |
-  | `kindlemereDog.attach(svg, dogEl, { say, chatty })` | the dog's game on a scene's characters layer: its day, fetch and the commands. Returns `{ setPaused, state, show(cmd), beg, wake, asleep, visit(points), home, busy, where }`, or `null` without the dog's parts or the ground. `chatty` says every line through `say`, not only the first hints |
+  | `kindlemere.full()`, `kindlemere.isFull()`, `kindlemere.toPlace(place)` | show the scene in view full screen (`REALM.md`, "Full screen"); whether a scene is; in full screen, glide the camera to a place (`realm`, `nutrition`, `fitness`, `dog-training`) without leaving the page |
+  | `kindlemere.line(key, own)` | a character's next line (`key` as in `data-km-actor`: `nutrition-summer`, `dog-training-sizzle`), from the room's own lines for it (`own`, an array) and the kit's dozen, never the line it said last |
+  | `kindlemereDog.attach(svg, dogEl, { say, chatty })` | the dog's game on a scene's characters layer: its day, fetch and the commands. Returns `{ setPaused, state, show(cmd), beg, wake, asleep, visit(points), treat(spot, from), home, busy, where }`, or `null` without the dog's parts or the ground. `treat` runs it to `spot` ([x, y] in the world), sits it looking up at `from()` (a function giving the world point a biscuit is tossed from) and has it catch one (the kit's click on Sizzle). `chatty` says every line through `say`, not only the first hints |
   | `kindlemereDog.of(svg)`, `kindlemereDog.ground(svg)` | the game attached to a layer; the ground the art marks out (`inside`, `span`, `water`, `where`, `snap`) |
   | `kindlemereDogManual = true` | a room that brings its own dog sets this before the scene starts and attaches its dog itself on `kindlemere:ready` (Tumble's `fetch.js`) |
 

@@ -523,6 +523,8 @@
       return true;
     }
     function setState(next) {
+      // out of Sizzle's treat, however it ends: no biscuit left in the air, feet on the ground
+      if (state === 'treat' && next !== 'treat') { if (biscuit) biscuit.style.display = 'none'; d.hop = 0; }
       state = next;
       timer = 0;
       if (next !== 'pose') dogEl.classList.remove('dt-beg');
@@ -756,7 +758,7 @@
       return ground.snap(p.x, p.y);
     }
     ballEl.addEventListener('pointerdown', (e) => {
-      if (b.mode === 'mouth' || ['pick', 'leap'].includes(state) || paused || !awake()) return;
+      if (b.mode === 'mouth' || ['pick', 'leap', 'treat'].includes(state) || paused || !awake()) return;
       e.preventDefault();
       e.stopPropagation();
       try { ballEl.setPointerCapture(e.pointerId); } catch (_) { /* a pointer the browser no longer tracks */ }
@@ -863,6 +865,70 @@
       d.lookTo = -16;
       for (const p of pupils) p.setAttribute('transform', '');
       return true;
+    }
+    // Sizzle's treat (owner, 2026-10-08: "when clicking Sizzle, the dog should run to Sizzle and sit in front of Sizzle
+    // waiting for a treat that sizzle tosses"): it runs to the spot in front of him, puts its ball down, sits looking up
+    // at the jar, catches the biscuit he tosses from it (from() is its lid, in the world) and eats it, then picks its
+    // ball up again and goes back to its day.
+    const TOSS = 0.7;
+    let biscuit = null;
+    function treat(spot, from) {
+      if (!['free', 'offer', 'pose', 'visit'].includes(state) || !Array.isArray(spot) || typeof from !== 'function') return false;
+      wake();
+      stopPlan();
+      goTo(spot[0], spot[1], Math.hypot(spot[0] - d.x, spot[1] - d.y) > 600 ? 'gallop' : 'trot');
+      if (reduced.matches) { [d.x, d.y] = ground.snap(spot[0], spot[1]); d.way = []; }
+      act.treat = { from, phase: 'run', t: 0, jar: null, a: null, z: null };
+      setState('treat');
+      return true;
+    }
+    function drawBiscuit(x, y, angle, k) {
+      if (!biscuit) {
+        biscuit = document.createElementNS(NS, 'g');
+        biscuit.setAttribute('pointer-events', 'none');
+        biscuit.setAttribute('aria-hidden', 'true');
+        biscuit.innerHTML = '<path d="M-6.5 -2 H6.5 V2 H-6.5 Z" fill="#D49A68"/><circle cx="-7" cy="-2.4" r="2.9" fill="#D49A68"/><circle cx="-7" cy="2.4" r="2.9" fill="#D49A68"/>' +
+          '<circle cx="7" cy="-2.4" r="2.9" fill="#D49A68"/><circle cx="7" cy="2.4" r="2.9" fill="#D49A68"/><path d="M-5 -0.6 H5" stroke="#F4DDBC" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>';
+        svg.append(biscuit);
+      }
+      biscuit.style.display = '';
+      biscuit.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${angle.toFixed(0)}) scale(${(k * 1.5).toFixed(3)})`);
+    }
+    function treatStep(real) {
+      const tr = act.treat;
+      tr.t += real;
+      if (tr.phase === 'run') {
+        if (d.way.length && !stride(Math.min(0.05, real))) { ahead(); return; }
+        // there: face the jar, put the ball down, sit and look up at it
+        tr.jar = tr.from();
+        d.s = tr.jar.x < d.x ? -1 : 1;
+        if (b.mode === 'mouth') drop();
+        setPose('sit');
+        dogEl.classList.add('dt-beg');
+        tr.phase = 'wait'; tr.t = 0;
+      } else if (tr.phase === 'wait') {
+        watch(tr.jar.x, tr.jar.y, false);
+        if (tr.t > 0.9) { tr.a = tr.from(); tr.z = mouth(); tr.phase = reduced.matches ? 'eat' : 'toss'; tr.t = 0; }
+      } else if (tr.phase === 'toss') {
+        // up out of the jar in an arc, turning over, and down to its mouth
+        const k = Math.min(1, tr.t / TOSS);
+        const x = tr.a.x + (tr.z.x - tr.a.x) * k;
+        const y = tr.a.y + (tr.z.y - tr.a.y) * k - (70 + Math.abs(tr.z.x - tr.a.x) * 0.3) * sc(d.y) * 4 * k * (1 - k);
+        drawBiscuit(x, y, 540 * k, sc(d.y));
+        watch(x, y, false);
+        if (k >= 1) { biscuit.style.display = 'none'; tr.phase = 'eat'; tr.t = 0; }
+      } else if (tr.phase === 'eat') {
+        // a snap at it, then chewing
+        d.hop = tr.t < 0.24 && !reduced.matches ? 9 * Math.sin((Math.PI * tr.t) / 0.24) : 0;
+        d.lookTo = tr.t < 0.24 ? -18 : -4 + Math.sin(tr.t * 20) * 5;
+        if (tr.t > 1.1) {
+          d.hop = 0;
+          dogEl.classList.remove('dt-beg');
+          setPose('stand');
+          ahead();
+          setState(b.mode === 'mouth' ? 'free' : 'chase');
+        }
+      }
     }
     // Off with Tumble's group to visit another place, and home again (the cast in kindlemere.js).
     function visit(points) {
@@ -989,6 +1055,8 @@
         // to Tumble, a sit there looking up at it, then back to its day
         if (d.way.length) { stride(dt); ahead(); act.sat = 0; } else if (d.pose !== 'sit') { d.s = -1; setPose('sit'); d.lookTo = -10; act.sat = 0; }
         else { act.sat += real; if (act.sat > 2.2) { setPose('stand'); setState(act.then); } }
+      } else if (state === 'treat') {
+        treatStep(real);
       }
 
       // the legs at the pace the feet are going
@@ -1049,6 +1117,7 @@
       wake,
       asleep: () => !awake(),
       visit,
+      treat,
       home: goHome,
       busy: () => !['free', 'visit'].includes(state),
       where: () => ({ x: d.x, y: d.y }),

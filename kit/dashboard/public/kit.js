@@ -84,6 +84,8 @@
     const nav = document.createElement('nav');
     nav.className = 'km-nav';
     nav.setAttribute('aria-label', 'Places in Kindlemere');
+    // Each way is a sign like the signpost's arms, in its place's colour (owner, 2026-10-08: "wayfinding buttons to
+    // switch like the signs to each scene"); the page you are on wears a "you are here" pin.
     const links = PLACES.map(([key, label]) => {
       const a = document.createElement('a');
       a.className = 'km-nav-way';
@@ -93,6 +95,24 @@
       nav.appendChild(a);
       return a;
     });
+    // Full screen: the scene and nothing else, with zoom and the signpost (kindlemere.js). It shows once the scene is live.
+    const full = document.createElement('button');
+    full.type = 'button';
+    full.className = 'km-nav-full';
+    full.title = 'Full screen';
+    full.setAttribute('aria-label', 'Full screen');
+    const NS = 'http://www.w3.org/2000/svg';
+    const icon = document.createElementNS(NS, 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    const corners = document.createElementNS(NS, 'path');
+    corners.setAttribute('d', 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5');
+    icon.appendChild(corners);
+    full.appendChild(icon);
+    full.hidden = !document.querySelector('.km-live');
+    full.addEventListener('click', () => { if (window.kindlemere && typeof window.kindlemere.full === 'function') window.kindlemere.full(); });
+    window.addEventListener('kindlemere:ready', () => { full.hidden = false; });
+    nav.appendChild(full);
     // after the agent's name, before the room's own button
     const own = [...top.children].find((c) => c.matches('button, a.km-btn, a.km-btn-quiet, .km-btn, .km-btn-quiet'));
     if (own) top.insertBefore(nav, own); else top.appendChild(nav);

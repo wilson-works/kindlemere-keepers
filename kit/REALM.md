@@ -135,6 +135,9 @@ movement, and create the full scene to be immersive and engaging."
   wake, the room answers in its own words, and on a page with no answer the kit says a short line of its own. On the
   Kindlemere page a keeper steps you into its room. No box is drawn round what you touch; the keyboard's focus is a
   soft glow round the shape. Only what is in the picture is a stop for the keyboard.
+- **Plenty to say.** Owner, 2026-10-08: "characters should have quite a few quotes when pressed to keep things fresh
+  and engaging". Each character has a dozen lines of its own in the kit, and its room adds more (the keepers' jokes,
+  today's treat, tonight's dinner, the hints for the board). A click never gets the line it got last time.
 - Reduced motion: no depth shift and no wandering; the still scene.
 
 ## The dog
@@ -153,6 +156,10 @@ backwards is another fix".
   hill, into the Orchard, out on the lake (where it floats back in to the shallows). The dog runs for it, picks it
   up, brings it back to where you threw from, drops it and waits. On a phone the dog and the ball are at least a
   finger wide. In Tumble's room the same dog also takes the commands Tumble shows and the look for the treats.
+- **Sizzle's treat.** Owner, 2026-10-08: "when clicking Sizzle, the dog should run to Sizzle and sit in front of
+  Sizzle waiting for a treat that sizzle tosses". Click Sizzle and the dog runs to the side of him it is on, puts its
+  ball down, sits looking up at his jar and catches the bone biscuit he lobs from it. It chews, picks its ball up again
+  and goes back to its day. Sizzle stays put until it has, and the dog comes in every view, from wherever it is.
 - **The ground** it may walk is marked in the art (`data-km-walk`: the Orchard's meadow, the hill's face to its top,
   the Field and the shallows; `data-km-shore`: the water's edge). A ball can come down anywhere on it.
 - After dark it sleeps in its house. In Tumble's room a command wakes it for a while, sleepy: a sit, a lie down.
@@ -165,10 +172,42 @@ inside a scene ... flow inside each scene".
 - The places are one world seen through four cameras (the realm, the Orchard, the Hill, the Field), so going from one
   to another is a camera move: the view glides toward the next place and dips to the page's colour, and the next
   page starts where it left off and glides the rest of the way in.
-- The ways: the bar of places on every page with the scene (Kindlemere, Orchard, Hill, Field), the signpost's arms
-  in the scene (Louise's arm points across the lake), a keeper on the Kindlemere page, and each place's card there.
+- The ways: the bar of places on every page with the scene (signs to Kindlemere, the Orchard, the Hill and the Field,
+  each in its place's colour, the page you are on wearing a "you are here" pin), the signpost's arms in the scene
+  (Louise's arm points across the lake), a keeper on the Kindlemere page, and each place's card there.
 - The Kindlemere page shows the places' cards as still pictures (`#km-still`): three more live scenes would make the
   page crawl on a phone.
+
+## Full screen
+
+Owner, 2026-10-08: "Kindlemere needs to have a full screen option as well to complete the immersion, with scroll to
+zoom in and out of different areas and when switching between the 3 scenes, having wayfinding buttons to switch like
+the signs to each scene".
+
+- **In and out.** The corner button at the end of the bar of places, on every page with the scene, shows the scene and
+  nothing else, the whole screen. Where the browser has no full screen (an iPhone) the scene fills the window. Leave
+  full screen, or Esc, comes back to the page as it was.
+- **Looking about.** The wheel or a pinch zooms toward the pointer, from the whole park down to a close look, and a
+  drag looks round. The + and − buttons, the + and - keys and the arrow keys do the same. The camera stays in the world.
+- **The signpost.** A signpost stands in the corner with an arm for the whole park and one for each place, in the
+  places' colours. An arm glides the camera there, and the place the camera has come to wears the pin. Arrived at a
+  place, a bigger arm offers the way into its keeper's room (Step into the Orchard, Climb Stepping Hill, Walk to
+  Lakeside Field), never the room you are in. The signposts in the art glide the camera too.
+- **The agents come too.** Owner, 2026-10-08: "I just wish the agents could work in the full screen mode rather than
+  have to use the windowed mode to get their tools to work". On a room's page the whole stage goes full screen: the
+  keeper's words dock top left (the camera moves, so they no longer point), the room's card stands top right under
+  the buttons, the room's book (Avo's cookbook, Steady's pack, Tumble's books) has a button there and opens over the
+  full screen, and a character you click gets the room's own answer. Typing in the card never moves the camera. On a
+  phone the words go across the top and the card opens as a sheet from its button.
+- **Into a room and on.** Stepping into a room from full screen changes the page, and the browser leaves full screen
+  then. The room offers it back for a moment with one button, as the browser wants a click before it goes again.
+- **Everyone carries on.** The characters go about their day and the dog plays fetch. On the Kindlemere page, where
+  no room comes with the scene, a character you click answers in the scene in the kit's words.
+- **Smooth on a big screen.** A camera on the move is moved and scaled on the graphics card, not drawn again each
+  frame, and the view is drawn sharp where it comes to rest (for a moment in a long move the picture is a little
+  soft). In full daylight the land's light filter is left off, since it is then the picture as drawn: that doubles
+  the frame rate. On HQ's 4K screen, by day: 60 frames a second at rest, 54 to 57 in a glide. At night, with the
+  light on: about 30 at rest and 20 to 25 on the move.
 
 ## Colour
 
@@ -199,10 +238,13 @@ No slot uses cream with plum, no land is Bert's fern (`#3E8F5E`) or his butter (
 
 - Link `/kit/design/tokens.css`, then `/kit/kit.css`, then the agent's own css; load `/kit/kit.js` before its script.
 - `<body data-agent="<key>">` gives every kit part the agent's colours.
-- The hero is the agent's close view as an `<img>` in a 16:9 card. It goes live by itself (Day and night, above);
-  `object-fit: cover` and `object-position` on the image still frame it once it is live.
+- The hero is the agent's close view as an `<img>` on a 16:9 stage that fills the window under the bar: you step into
+  the place. The keeper's words float just above the keeper, and the room's own card or board floats beside them,
+  clear of where things happen (the Orchard's table card, the Hill's trail, the Field's board over the sky and the
+  farmland). In a narrow window the scene comes first, then the words, then the card. The picture goes live by itself
+  (Day and night, above); `object-fit: cover` and `object-position` on the image still frame it once it is live.
 - The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role, and on a page with the scene the bar of places
-  that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
+  and the full screen button that `kit.js` adds), `.km-card` (a paper card; `.km-sky` for a
   sky-coloured one), `.km-btn` and `.km-btn-quiet` (pill buttons, 44 px tall), `.km-field`, `.km-chip`,
   `.km-lantern` (a question for Louise), `.km-thread` (a stitched path, as a divider), `.km-source` (a fact's
   source), `.km-foot` (the lake at the bottom), `.km-grid`.

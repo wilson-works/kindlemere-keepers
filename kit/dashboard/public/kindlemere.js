@@ -195,7 +195,9 @@
       if (gEl.getAttribute('data-km-layer') !== 'actors') s.setAttribute('aria-hidden', 'true');
       s.setAttribute('focusable', 'false');
       s.setAttribute('preserveAspectRatio', 'none');
-      s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;${still ? '' : 'will-change:transform;'}`;
+      // its transform's origin is the stack's top left corner (look())
+      const o = `${((OVER / (1 + 2 * OVER)) * 100).toFixed(4)}%`;
+      s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;transform-origin:${o} ${o};${still ? '' : 'will-change:transform;'}`;
       if (i === 0) for (const n of Array.from(svg.children)) if (n.nodeName === 'style' || n.nodeName === 'defs') s.appendChild(document.importNode(n, true));
       s.appendChild(document.importNode(gEl, true));
       root.appendChild(s);
@@ -209,21 +211,56 @@
     };
   }
 
-  /** Fill the stack's box with the view, as object-fit: cover at the picture's object-position. */
-  function crop(scene) {
+  /** Fill the stack's box with the view, as object-fit: cover at the picture's object-position. The view is drawn; or,
+   * given a wider box (look()), that is drawn, and moved and scaled to show the view. */
+  function crop(scene, wide) {
     const w = scene.root.clientWidth;
     const h = scene.root.clientHeight;
     if (!w || !h) return;
-    let [x, y, bw, bh] = scene.box;
-    if (w / h < bw / bh) { const cw = bh * (w / h); x += (bw - cw) * scene.pos[0]; bw = cw; } else { const ch = bw / (w / h); y += (bh - ch) * scene.pos[1]; bh = ch; }
-    scene.vb = [x, y, bw, bh];
-    scene.cw = w;   // the width on the page, kept here so the frame loop never has to measure it (a forced layout)
+    scene.cw = w;   // the size on the page, kept here so the frame loop never has to measure it (a forced layout)
+    scene.ch = h;
+    scene.vb = onScreen(scene, scene.box);
+    scene.drawn = wide || scene.vb;
+    const [x, y, bw, bh] = scene.drawn;
     const v = `${(x - bw * OVER).toFixed(1)} ${(y - bh * OVER).toFixed(1)} ${(bw * (1 + 2 * OVER)).toFixed(1)} ${(bh * (1 + 2 * OVER)).toFixed(1)}`;
     Object.values(scene.layers).forEach((s) => s.setAttribute('viewBox', v));
-    // What the camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js)
+    seeing(scene);
+  }
+
+  /* A camera on the move (a glide, a zoom, a drag) does not draw each frame: a new view box costs a layout and a paint of
+     every layer, a tenth of a second a frame on a 4K screen. What is drawn is moved and scaled on the compositor
+     instead, and drawn again, sharp, where the camera comes to rest (crop()). A move that runs past what is drawn first
+     draws a wider view, round where the camera is and where it is heading, with room to move. */
+  function look(scene, toward) {
+    const v = onScreen(scene, scene.box);
+    const d = scene.drawn;
+    // inside what is drawn, not its margin: the margin past each edge is the depth shift's (parallax)
+    const inside = d && v[2] * 4 > d[2] && v[0] >= d[0] && v[1] >= d[1] && v[0] + v[2] <= d[0] + d[2] && v[1] + v[3] <= d[1] + d[3];
+    if (!inside) {
+      const t = toward ? onScreen(scene, toward) : v;
+      const [px, py] = [v[2] * 0.25, v[3] * 0.25];
+      const x = Math.min(v[0], t[0]) - px;
+      const y = Math.min(v[1], t[1]) - py;
+      const w = Math.max(v[0] + v[2], t[0] + t[2]) + px - x;
+      const h = Math.max(v[1] + v[3], t[1] + t[3]) + py - y;
+      const a = scene.cw / scene.ch;
+      crop(scene, w / h < a ? [x - (h * a - w) / 2, y, h * a, h] : [x, y - (w / a - h) / 2, w, w / a]);
+      return;
+    }
+    scene.vb = v;
+    seeing(scene);
+  }
+  // What is drawn, moved and scaled to show the view (nothing to do when the view is what is drawn), and what the
+  // camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js).
+  function seeing(scene) {
+    const v = scene.vb;
+    const d = scene.drawn;
+    const s = scene.cw / v[2];
+    const cam = d === v ? '' : `translate(${((d[0] - v[0]) * s).toFixed(2)}px, ${((d[1] - v[1]) * s).toFixed(2)}px) scale(${(d[2] / v[2]).toFixed(5)}) `;
+    if (cam !== (scene.cam || '')) { scene.cam = cam; shift(scene); }
     if (scene.layers.actors) {
-      scene.layers.actors.setAttribute('data-km-view', `${x.toFixed(1)} ${y.toFixed(1)} ${bw.toFixed(1)} ${bh.toFixed(1)}`);
-      scene.layers.actors.setAttribute('data-km-scale', (w / bw).toFixed(4));
+      scene.layers.actors.setAttribute('data-km-view', `${v[0].toFixed(1)} ${v[1].toFixed(1)} ${v[2].toFixed(1)} ${v[3].toFixed(1)}`);
+      scene.layers.actors.setAttribute('data-km-scale', s.toFixed(4));
     }
   }
 
@@ -253,6 +290,13 @@
     const moonLight = h < -6 && moon.alt > 0 ? moonPhase(d).lit * Math.sin(moon.alt * RAD) * 0.14 : 0;
     const m = $('light-m');
     if (m) m.setAttribute('values', lightMatrix(r + moonLight * 0.8, g + moonLight * 0.9, b + moonLight, sat));
+    // Full daylight is the picture as drawn, so the light's filter comes off then: on a big screen it halves the frame rate
+    const plain = r === 1 && g === 1 && b === 1 && sat === 1 && !moonLight;
+    if (plain !== scene.plain) {
+      scene.plain = plain;
+      if (!scene.lit) scene.lit = [...scene.root.querySelectorAll('[filter$="km-light)"]')].map((el) => [el, el.getAttribute('filter')]);
+      for (const [el, f] of scene.lit) if (plain) el.removeAttribute('filter'); else el.setAttribute('filter', f);
+    }
 
     const sunEl = $('sun');
     if (sunEl) {
@@ -312,16 +356,21 @@
   function parallax(scene) {
     scene.cur[0] += (scene.target[0] - scene.cur[0]) * 0.08;
     scene.cur[1] += (scene.target[1] - scene.cur[1]) * 0.08;
+    if (!shift(scene)) return false;
+    return Math.abs(scene.target[0] - scene.cur[0]) + Math.abs(scene.target[1] - scene.cur[1]) > 0.002;
+  }
+  // Each layer's shift for its depth, after the camera's move (look()). False when there is nothing new to write (the
+  // cast walking keeps the frames coming).
+  function shift(scene) {
     const amp = (scene.cw || 0) * 0.012;
-    // nothing to write while the layers are where they were (the cast walking keeps the frames coming)
-    const key = `${(scene.cur[0] * amp).toFixed(2)} ${(scene.cur[1] * amp).toFixed(2)}`;
+    const key = `${(scene.cur[0] * amp).toFixed(2)} ${(scene.cur[1] * amp).toFixed(2)} ${scene.cam || ''}`;
     if (key === scene.parallaxAt) return false;
     scene.parallaxAt = key;
     for (const [name, s] of Object.entries(scene.layers)) {
       const k = DEPTH[name] === undefined ? 1 : DEPTH[name];
-      s.style.transform = `translate3d(${(-scene.cur[0] * amp * k).toFixed(2)}px, ${(-scene.cur[1] * amp * k * 0.5).toFixed(2)}px, 0)`;
+      s.style.transform = `${scene.cam || ''}translate3d(${(-scene.cur[0] * amp * k).toFixed(2)}px, ${(-scene.cur[1] * amp * k * 0.5).toFixed(2)}px, 0)`;
     }
-    return Math.abs(scene.target[0] - scene.cur[0]) + Math.abs(scene.target[1] - scene.cur[1]) > 0.002;
+    return true;
   }
 
   /* ---------------------------------------------------------------- life: everyone about their place */
@@ -364,18 +413,94 @@
   let herePlaceCache = { lat: 40, lon: 0 };
   const scenes = [];
 
+  // What each one says when clicked, a dozen each and never the same twice running (owner, 2026-10-08: "characters
+  // should have quite a few quotes when pressed to keep things fresh and engaging"). The rooms mix their own in
+  // (window.kindlemere.lines).
   const LINES = {
-    nutrition: 'Breakfast and lunch are mine. Shall we plan a week of meals?',
-    'nutrition-summer': 'Treats are my thing. Fruit first, then the fun.',
-    'nutrition-spud': 'Dinner is on. Pull up a chair.',
-    fitness: 'One step at a time. Shall we warm up?',
-    'fitness-puff': 'Home workouts and wet-weather runs. That is me.',
-    'fitness-huff': 'Gym days and hot runs. Bring water.',
-    'dog-training': 'Ready to train? Grab the treats.',
-    'dog-training-barkley': 'Out in the woods with your dog? Ask me.',
-    'dog-training-sizzle': 'Treats are my department. Small ones.',
-    dog: 'Woof.',
+    nutrition: [
+      'Breakfast and lunch are mine. Shall we plan a week of meals?', 'Soup on Sunday makes lunch on Monday easy.',
+      "Bring me your shopping list. I'll make it a menu.", 'Half an avocado on toast. The other half is me, thank you.',
+      'A good week starts with a list. Shall we write one together?', "Leftovers are tomorrow's lunch with a plan.",
+      'The long table always has room for one more.', "Not sure what's for lunch? That's my favourite question.",
+      "I keep the pit. It's where I keep my good ideas.", 'Fresh herbs make a Tuesday taste like a Saturday.',
+      'A bowl of fruit on the table gets eaten. One in the drawer does not.', 'Plan the shop and the week plans itself.',
+    ],
+    'nutrition-summer': [
+      'Treats are my thing. Fruit first, then the fun.', "I'm a peach. Sweet is sort of my job.", 'Berries count as a treat. Ask anyone.',
+      'Something sweet at four o\'clock keeps the grumbles away.', "A treat tastes better when it's planned.",
+      'I hop. Avo walks. We get there together.', 'Frozen grapes. Try them once and thank me later.',
+      'Dark chocolate and an apple. A very fine pairing.', 'Yoghurt, honey and a handful of nuts. My kind of pudding.',
+      'Fuzzy on the outside, sweet in the middle.', "Ask Avo for a treat that fits the week. She knows the numbers.",
+      "Peaches are best in summer. I'm called Summer, so I'm best all year.",
+    ],
+    'nutrition-spud': [
+      'Dinner is on. Pull up a chair.', "Evening. I've been in the ground all day, so I'm starving.",
+      "Roast, mash or baked. I don't take it personally.", 'A good dinner is a plate with a bit of everything on it.',
+      "Is it dinner time? It's always dinner time when I'm up.", "I'm a spud. Comfort is my whole personality.",
+      'Leftover dinner makes a fine lunch. Ask Avo.', "Warm plates, cold butter, early night. That's my evening.",
+      "Soup tonight? I'll bring myself.", 'I pop up at dinner and down at bedtime. Good routine.',
+      'Greens on the plate first. Then me.', 'Avo plans it. Summer sweetens it. I eat it.',
+    ],
+    fitness: [
+      'One step at a time. Shall we warm up?', "Balance is easy when you're three stones high.", 'Slow is still forward.',
+      'A walk counts. A stretch counts. Turning up counts most.', 'In through the nose, slow out through the mouth. There.',
+      "The hill isn't going anywhere, and neither am I.", 'Every stone in me was carried here one at a time.',
+      'Missed a day? The hill will wait.', 'Warm up first. Your knees will thank you.',
+      'The top of the hill has a telescope. Worth the climb.', 'Drink some water. Then drink a little more.',
+      'Rest days are training days in disguise.',
+    ],
+    'fitness-puff': [
+      'Home workouts and wet-weather runs. That is me.', "Rain? Lovely. Bring a hat and let's go.",
+      'No gym? No problem. A chair and a wall will do.', "I'm a cloud. Floating is my cardio.",
+      'Ten minutes on the living room floor is ten minutes well spent.', 'Puddles are just tiny lakes to jump.',
+      'Stretch while the kettle boils. Avo taught me that.', "I'm fluffy, not soft. There's a difference.",
+      'A drizzle run feels like the whole sky is cheering.', 'Squats by the window, and watch the weather do its thing.',
+      'Cold out? Warm up longer, then off we go.', 'Huff likes the heat. I like weather with character.',
+    ],
+    'fitness-huff': [
+      'Gym days and hot runs. Bring water.', 'Sunny out? Early run, shady route, full bottle.',
+      "Dumbbells, a bench and a plan. That's a good day.", "I'm a dust cloud. I've been on a lot of runs.",
+      'Heavy things, lifted slowly, put down gently.', 'Hot day? Slow the pace and keep the smile.',
+      "A few sips every ten minutes. I'm serious about water.", 'Puff loves rain. I love a sunny track.',
+      "Rest between sets. The weights aren't going anywhere.", 'A good lift starts with good feet.',
+      'Sunscreen is part of the warm-up.', "I kick up a bit of dust when I'm excited. Sorry about that.",
+    ],
+    'dog-training': [
+      'Ready to train? Grab the treats.', "Small steps, lots of wins. That's the whole method.",
+      'Every tooth mark on me is a dog who got it right.', 'Patience first, treats second, praise always.',
+      'Short sessions. Five minutes beats fifty.', 'Every dog learns at its own pace. So do people.',
+      "I roll everywhere. The dogs think it's a game. It is.", 'Sit, stay, good. The good is the important part.',
+      'End on a win, then go and play.', 'Louise has the answers my books do not. I ask her often.',
+      'The best training happens on walks.', 'A dog that sniffs is a dog that thinks.',
+    ],
+    'dog-training-barkley': [
+      'Out in the woods with your dog? Ask me.', 'Sniff first, walk second.', "I've been a branch, a log and a stick. Stick is my favourite.",
+      'The bay smells of heron and adventure.', "I'm a stick. Dogs adore me. It's a lot of pressure.",
+      'A slow walk with lots of sniffs tires a dog more than a fast one.', 'Fetch is good. Hide and seek is better.',
+      'Take a long lead to the woods and let them explore.', 'Muddy paws mean a good walk.',
+      'After the woods, check ears and toes for ticks.', 'Throw me if you like. I always come back. Eventually.',
+      'Leaves to sniff, logs to climb. Best playground going.',
+    ],
+    'dog-training-sizzle': [
+      'Treats are my department. Small ones.', 'Sit. Good. Here it comes.', 'One biscuit, not the jar. I keep count.',
+      'Treats are training money. Spend them well.', "Small and often. That's the treat rule.",
+      'Catch. Lovely. That one goes in the book.', 'I smell like bacon. The dogs never let me forget it.',
+      'Eyes on me, and catch.', 'A treat for a sit. A bigger smile for a stay.',
+      "Count the treats into the day's food. Little ones add up.", 'Bone biscuits, counted in and counted out.',
+      "Who's a good dog? This one. Here you go.",
+    ],
+    dog: ['Woof.'],
   };
+  const lastLine = {};
+  /** A line for a character from its pool (and a room's own lines for it), never the one it said last. */
+  function line(key, own) {
+    const all = [...new Set([...(Array.isArray(own) ? own : []), ...(LINES[key] || [])])];
+    if (!all.length) return '';
+    let i = Math.floor(Math.random() * all.length);
+    if (all.length > 1 && i === lastLine[key]) i = (i + 1) % all.length;
+    lastLine[key] = i;
+    return all[i];
+  }
 
   /** A short line in a paper bubble over a point of the stack (the kit's own answer when no room answers). */
   function say(scene, el, text) {
@@ -408,7 +533,29 @@
     setTimeout(() => { a.el.removeAttribute('data-km-talk'); }, 2600);
     const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root } });
     const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (key === 'nutrition-spud' && !scene.dinner);
-    if (window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
+    // the scene alone full screen (the Kindlemere page) has no room on it to answer: the kit answers
+    const bare = fullScene === scene && stageOf(scene) === scene.root;
+    if (bare || window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : line(key) || name);
+    if (key === 'dog-training-sizzle' && !asleep) treatFrom(scene, a);
+  }
+
+  // Owner, 2026-10-08: "when clicking Sizzle, the dog should run to Sizzle and sit in front of Sizzle waiting for a
+  // treat that sizzle tosses". The dog comes to whichever side of him it is on and catches a biscuit from his jar
+  // (/kit/kindlemere-dog.js); he stays put until it has.
+  function treatFrom(scene, a) {
+    const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+    if (!dog || typeof dog.treat !== 'function') return;
+    const svg = scene.layers.actors;
+    const jar = a.el.querySelector('.km-treat > g[transform]');
+    // the jar's lid in the world, wherever he stands (read twice: as the dog sits, and as he tosses)
+    const lid = () => {
+      try {
+        const bb = jar.getBBox();
+        return new DOMPoint(bb.x + bb.width / 2, bb.y).matrixTransform(svg.getScreenCTM().inverse().multiply(jar.getScreenCTM()));
+      } catch (_) { return { x: a.x + 50, y: a.y - 130 }; }
+    };
+    const side = dog.where().x < a.x ? -1 : 1;
+    if (dog.treat([a.x + side * 165, a.y + 14], lid)) a.pauseUntil = performance.now() + 9000;
   }
 
   // The scene's own room (a room page), whose keeper keeps to its spot.
@@ -665,10 +812,11 @@
   }
   function kick() { if (!raf && !still) raf = requestAnimationFrame(frame); }
 
-  /** Whoever stands nearer the front is drawn over whoever is behind, the dog included (not while one has the focus). */
+  /** Whoever stands nearer the front is drawn over whoever is behind, the dog included. The one with the focus (the
+   * last one clicked keeps it) is never moved itself, as moving it would drop the focus; the others go round it. */
   function layerByDepth(scene) {
     const host = scene.layers.actors && scene.layers.actors.querySelector('[data-km-layer="actors"]');
-    if (!host || host.contains(document.activeElement)) return;
+    if (!host) return;
     const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
     const items = [...host.children].filter((n) => n.hasAttribute('data-km-actor')).map((el) => {
       const key = el.getAttribute('data-km-actor');
@@ -676,21 +824,31 @@
       const y = a ? a.y : key === 'dog' && dog && dog.where ? dog.where().y : Number((el.getAttribute('data-km-home') || '0 0').split(/\s+/)[1]);
       return { el, y };
     });
+    // In order give or take a hair: two standing level never swap back and forth.
+    let fine = true;
+    for (let i = 1; i < items.length && fine; i += 1) if (items[i - 1].y > items[i].y + 3) fine = false;
+    if (fine) return;
     const sorted = items.slice().sort((p, q) => p.y - q.y);
-    if (sorted.every((it, i) => it.el === items[i].el)) return;
-    // The fewest moves (a moved character's own animations start over): keep the longest run already in depth order
-    // and put only the others in their places.
+    // The fewest moves (a moved character's own animations start over): keep the longest run already in depth order,
+    // through the focused one when there is one, and put only the others in their places.
     const rank = new Map(sorted.map((it, i) => [it.el, i]));
     const seq = items.map((it) => rank.get(it.el));
-    const len = seq.map(() => 1);
-    const prev = seq.map(() => -1);
-    for (let i = 0; i < seq.length; i += 1) {
-      for (let j = 0; j < i; j += 1) if (seq[j] < seq[i] && len[j] + 1 > len[i]) { len[i] = len[j] + 1; prev[i] = j; }
+    const n = seq.length;
+    const upTo = seq.map(() => 1);      // the longest run in order ending here
+    const before = seq.map(() => -1);
+    for (let i = 0; i < n; i += 1) {
+      for (let j = 0; j < i; j += 1) if (seq[j] < seq[i] && upTo[j] + 1 > upTo[i]) { upTo[i] = upTo[j] + 1; before[i] = j; }
     }
-    let best = 0;
-    for (let i = 1; i < seq.length; i += 1) if (len[i] > len[best]) best = i;
+    const from = seq.map(() => 1);      // and starting here
+    const after = seq.map(() => -1);
+    for (let i = n - 1; i >= 0; i -= 1) {
+      for (let j = i + 1; j < n; j += 1) if (seq[j] > seq[i] && from[j] + 1 > from[i]) { from[i] = from[j] + 1; after[i] = j; }
+    }
+    let best = items.findIndex((it) => it.el.contains(document.activeElement));
+    if (best < 0) { best = 0; for (let i = 1; i < n; i += 1) if (upTo[i] + from[i] > upTo[best] + from[best]) best = i; }
     const keep = new Set();
-    for (let i = best; i >= 0; i = prev[i]) keep.add(items[i].el);
+    for (let i = best; i >= 0; i = before[i]) keep.add(items[i].el);
+    for (let i = after[best]; i >= 0; i = after[i]) keep.add(items[i].el);
     let next = items[items.length - 1].el.nextSibling;   // whatever follows the characters stays after them
     for (let i = sorted.length - 1; i >= 0; i -= 1) {
       const el = sorted[i].el;
@@ -736,7 +894,6 @@
     let started = false;
     for (const s of scenes) {
       if (!s.cast || s.seen === false) continue;
-      layerByDepth(s);
       reachable(s);
       if (held || s.night) {
         if (Object.values(s.cast).some((a) => !['home', 'back', 'watch'].includes(a.mode) && !a.el.hasAttribute('data-km-awake'))) { goHome(s, true); started = true; }
@@ -782,7 +939,7 @@
       const step = (t) => {
         const k = Math.min(1, (t - t0) / ms);
         scene.box = lerpBox(from, to, easeInOut(k));
-        crop(scene);
+        look(scene, to);
         veilEl.style.opacity = String(v0 + (v1 - v0) * k);
         if (k < 1) requestAnimationFrame(step); else resolve();
       };
@@ -798,22 +955,28 @@
     // the scene in view glides (the realm, or a place's picture further down the Kindlemere page)
     const hero = scenes.find((s) => s.seen) || scenes[0];
     const to = CAMERAS[VIEW_OF[place] || place];
-    if (!hero || !to || still) { location.assign(url); return; }
+    const full = fullScene ? 'km-full' : '';   // left from full screen: the next page offers it back
+    const base = url.split('#')[0];
+    if (!hero || !to || still) { location.assign(full ? `${base}#${full}` : url); return; }
     const mid = lerpBox(hero.box.slice(), to, 0.55);
     await glide(hero, hero.box.slice(), mid, 620, 0, 1);
-    location.assign(`${url.split('#')[0]}#km-from=${mid.map((v) => Math.round(v)).join(',')}`);
+    location.assign(`${base}#km-from=${mid.map((v) => Math.round(v)).join(',')}${full ? `&${full}` : ''}`);
   }
   /** Arriving from another place: start where that page's camera left off and glide the rest of the way in. */
   async function arrive(scene) {
     const m = /km-from=(-?\d+),(-?\d+),(\d+),(\d+)/.exec(location.hash);
-    if (!m) return;
+    const full = /km-full/.test(location.hash);
+    if (!m && !full) return;
     history.replaceState(null, '', location.pathname + location.search);
+    if (full) offerFull(scene);
+    if (!m) return;
     const from = m.slice(1, 5).map(Number);
     if (still || from[2] < 100 || from[3] < 60) return;
     const to = scene.box.slice();
     veil(scene).style.opacity = '1';
     document.documentElement.classList.remove('km-arriving');
     await glide(scene, from, to, 760, 1, 0);
+    crop(scene);
     draw(scene, herePlaceCache, now());
   }
 
@@ -836,12 +999,312 @@
       el.setAttribute('role', 'link');
       el.setAttribute('aria-label', `To ${PLACE_NAMES[key]}`);
       on(async () => {
+        if (fullScene === scene) { toPlace(scene, key); return; }   // full screen: the camera goes, the page stays
         if (key === roomKey()) { say(scene, el, `You're in ${PLACE_NAMES[key]}.`); return; }
         const url = window.kit && window.kit.address ? await window.kit.address(key) : null;
         if (url) go(url, key); else say(scene, el, `${PLACE_NAMES[key].replace(/^the /, 'The ')} isn't open from here.`);
       });
     });
   }
+
+  /* ---------------------------------------------------------------- full screen: the whole world, your own camera */
+  // Owner, 2026-10-08: "Kindlemere needs to have a full screen option as well to complete the immersion, with scroll to
+  // zoom in and out of different areas and when switching between the 3 scenes, having wayfinding buttons to switch like
+  // the signs to each scene". The scene fills the screen and nothing else shows. The wheel or a pinch zooms toward the
+  // pointer, a drag looks around, and + - and the arrow keys do the same. A signpost in the corner glides the camera to
+  // each place; arrived at one, its arm offers the way into its keeper's room. Where the browser has no full screen
+  // (an iPhone), the scene fills the window instead. Characters, the dog and fetch all go on as before.
+  const WORLD_W = 3200;
+  const WORLD_H = 1800;
+  const MIN_W = 360;   // the closest look, in world units across
+  const STEP_IN = { nutrition: 'Step into the Orchard', fitness: 'Climb Stepping Hill', 'dog-training': 'Walk to Lakeside Field' };
+  let fullScene = null;
+  // What goes full screen: a room's stage, so its keeper's words and its card come too and the room works there as it
+  // does on the page (owner, 2026-10-08: "I just wish the agents could work in the full screen mode"), or the scene alone.
+  const stageOf = (scene) => scene.root.closest('[data-km-stage]') || scene.root;
+
+  // The visible box for a camera box on this screen (object-fit: cover at the scene's position, as crop() does).
+  function onScreen(scene, box) {
+    const a = (scene.cw || 16) / (scene.ch || 9);
+    let [x, y, w, h] = box;
+    if (w / h > a) { const cw = h * a; x += (w - cw) * scene.pos[0]; w = cw; } else { const ch = w / a; y += (h - ch) * scene.pos[1]; h = ch; }
+    return [x, y, w, h];
+  }
+  // A box the camera may take: the screen's shape, no closer than MIN_W, no wider than the whole park, inside the world.
+  function allowed(scene, box) {
+    const a = (scene.cw || 16) / (scene.ch || 9);
+    const most = onScreen(scene, CAMERAS.realm)[2];
+    const w = clamp(box[2], Math.min(MIN_W, most), most);
+    const h = w / a;
+    const x = clamp(box[0] + (box[2] - w) / 2, 0, Math.max(0, WORLD_W - w));
+    const y = clamp(box[1] + (box[3] - h) / 2, 0, Math.max(0, WORLD_H - h));
+    return [x, y, w, h];
+  }
+  // The camera eases toward where it is aimed (scene.aim), a little each frame; a drag moves it at once.
+  let camRaf = 0;
+  function camera() {
+    camRaf = 0;
+    const s = fullScene;
+    if (!s || !s.aim) return;
+    const k = still ? 1 : 0.2;
+    const next = s.box.map((v, i) => v + (s.aim[i] - v) * k);
+    const done = next.every((v, i) => Math.abs(v - s.aim[i]) < 0.5);
+    s.box = done ? s.aim.slice() : next;
+    if (done && !s.held) crop(s); else look(s, s.aim);   // drawn sharp where it comes to rest, not under a finger
+    wayfinding(s);
+    if (!done) camRaf = requestAnimationFrame(camera);
+  }
+  function aim(scene, box, now) {
+    scene.aim = allowed(scene, box);
+    const said = scene.root.querySelector('.km-say');   // a bubble is pinned to the screen, so it goes when the camera moves
+    if (said) said.remove();
+    if (now) {
+      scene.box = scene.aim.slice();
+      if (scene.held) look(scene, scene.aim); else crop(scene);
+      wayfinding(scene);
+      return;
+    }
+    // already there and drawn (a wheel turned at the closest look): nothing to do
+    if (!scene.cam && !camRaf && scene.aim.every((v, i) => Math.abs(v - scene.box[i]) < 0.5)) return;
+    if (!camRaf) camRaf = requestAnimationFrame(camera);
+  }
+  // Zoom by k (above 1 is out) about a point given as a fraction of the screen.
+  function zoomBy(scene, k, fx, fy) {
+    const [x, y, w, h] = scene.aim || scene.vb;
+    const nw = w * k;
+    const nh = h * k;
+    aim(scene, [x + fx * (w - nw), y + fy * (h - nh), nw, nh]);
+  }
+  function panBy(scene, dx, dy, now) {
+    const [x, y, w, h] = scene.aim || scene.vb;
+    aim(scene, [x + dx, y + dy, w, h], now);
+  }
+  function toPlace(scene, key) {
+    const box = CAMERAS[VIEW_OF[key] || key];
+    if (box) aim(scene, onScreen(scene, box));
+  }
+
+  // The signpost in the corner: the arms for the whole park and the three places, and the way in to the place the
+  // camera has come to.
+  function chrome(scene) {
+    if (scene.fs) return scene.fs;
+    const button = (cls, text, label) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.textContent = text;
+      if (label) b.setAttribute('aria-label', label);
+      return b;
+    };
+    const box = document.createElement('div');
+    box.className = 'km-fs';
+    const post = document.createElement('nav');
+    post.className = 'km-fs-post';
+    post.setAttribute('aria-label', 'Ways about Kindlemere');
+    const step = button('km-fs-sign km-fs-step', '');
+    step.hidden = true;
+    step.addEventListener('click', async () => {
+      const key = step.dataset.place;
+      const url = key && window.kit && window.kit.address ? await window.kit.address(key) : null;
+      if (url) go(url, key);
+    });
+    post.append(step);
+    const signs = [['realm', 'Kindlemere'], ['nutrition', 'Orchard'], ['fitness', 'Hill'], ['dog-training', 'Field']].map(([key, text]) => {
+      const b = button('km-fs-sign', text, key === 'realm' ? 'The whole of Kindlemere' : `To ${PLACE_NAMES[key]}`);
+      b.dataset.place = key;
+      b.addEventListener('click', () => toPlace(scene, key));
+      post.append(b);
+      return b;
+    });
+    const tools = document.createElement('div');
+    tools.className = 'km-fs-tools';
+    const stage = stageOf(scene);
+    // a room's own book (Avo's cookbook, Steady's pack, Tumble's books) opens over the full screen as it does on the page
+    const own = stage !== scene.root && document.querySelector('.km-top > :is(button, a)');
+    if (own) {
+      const b = button('km-fs-tool', own.textContent.trim());
+      b.addEventListener('click', () => own.click());
+      tools.append(b);
+    }
+    // on a narrow screen the room's card waits behind its button, so it does not bury the scene
+    const card = stage.querySelector('[data-km-card]');
+    let cardButton = null;
+    if (card) {
+      cardButton = button('km-fs-tool km-fs-card', card.getAttribute('data-km-card') || 'Card');
+      cardButton.setAttribute('aria-expanded', 'false');
+      cardButton.addEventListener('click', () => cardButton.setAttribute('aria-expanded', String(stage.classList.toggle('km-card-open'))));
+      tools.append(cardButton);
+    }
+    const zin = button('km-fs-tool km-fs-zoom', '+', 'Zoom in');
+    const zout = button('km-fs-tool km-fs-zoom', '−', 'Zoom out');
+    const leave = button('km-fs-tool km-fs-leave', 'Leave', 'Leave full screen');
+    const more = document.createElement('span');
+    more.className = 'km-fs-wide';
+    more.textContent = ' full screen';
+    leave.append(more);
+    zin.addEventListener('click', () => zoomBy(scene, 1 / 1.4, 0.5, 0.5));
+    zout.addEventListener('click', () => zoomBy(scene, 1.4, 0.5, 0.5));
+    leave.addEventListener('click', () => leaveFull());
+    tools.append(zin, zout, leave);
+    const hint = document.createElement('p');
+    hint.className = 'km-fs-hint';
+    hint.setAttribute('aria-hidden', 'true');
+    box.append(tools, post, hint);
+    stage.append(box);
+    scene.fs = { box, step, signs, hint, cardButton };
+    return scene.fs;
+  }
+  // Arrived from full screen: the browser wants a click before it goes full screen again, so the way back is offered.
+  function offerFull(scene) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'km-fs-offer';
+    b.textContent = 'Back to full screen';
+    b.addEventListener('click', () => { b.remove(); enterFull(scene); });
+    stageOf(scene).append(b);
+    setTimeout(() => b.remove(), 15000);
+  }
+  // Which place the camera is at, if any: its sign is lit, and the way in shows (not for the room you are in).
+  function wayfinding(scene) {
+    const fs = scene.fs;
+    if (!fs) return;
+    const [x, , w] = scene.box;
+    const cx = x + w / 2;
+    // the whole park when it is all in view; else the place the middle of the view is in (the Orchard runs to the hill's
+    // foot, the hill to the kennel, the Field to the east edge)
+    const at = w > onScreen(scene, CAMERAS.realm)[2] * 0.8 ? 'realm' : cx < 1120 ? 'nutrition' : cx < 2150 ? 'fitness' : 'dog-training';
+    for (const b of fs.signs) {
+      if (b.dataset.place === at) b.setAttribute('aria-current', 'location'); else b.removeAttribute('aria-current');
+    }
+    const way = at && at !== 'realm' && at !== roomKey() ? at : '';
+    if (fs.step.dataset.place !== way) {
+      fs.step.dataset.place = way;
+      fs.step.textContent = way ? STEP_IN[way] : '';
+      fs.step.hidden = !way;
+    }
+  }
+
+  function enterFull(scene) {
+    if (!scene || fullScene) return;
+    fullScene = scene;
+    scene.homeBox = scene.box.slice();
+    const fs = chrome(scene);
+    const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    fs.hint.textContent = touch ? 'Pinch to zoom. Drag to look around.' : 'Scroll to zoom. Drag to look around.';
+    fs.hint.classList.remove('km-fs-hint-gone');
+    setTimeout(() => fs.hint.classList.add('km-fs-hint-gone'), 5000);
+    const stage = stageOf(scene);
+    const offer = stage.querySelector('.km-fs-offer');
+    if (offer) offer.remove();
+    // the scene's frame fills the stage too, whatever shape the room gives it on the page (a narrow room stacks it)
+    for (let el = scene.root; el && el !== stage; el = el.parentElement) el.classList.add('km-fill');
+    stage.classList.add('km-full');
+    document.documentElement.classList.add('km-full-on');
+    const real = stage.requestFullscreen ? stage.requestFullscreen({ navigationUI: 'hide' }) : null;
+    if (real && real.catch) real.catch(() => { /* not allowed here: the scene still fills the window */ });
+    // once the scene has its new size, the camera starts where the page's was
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (fullScene !== scene) return;
+      scene.cw = scene.root.clientWidth;
+      scene.ch = scene.root.clientHeight;
+      aim(scene, onScreen(scene, scene.box), true);
+      fs.signs[0].focus({ preventScroll: true });
+    }));
+  }
+  function leaveFull() {
+    const scene = fullScene;
+    if (!scene) return;
+    fullScene = null;
+    scene.aim = null;
+    stageOf(scene).classList.remove('km-full', 'km-card-open');
+    for (const el of [scene.root, ...stageOf(scene).querySelectorAll('.km-fill')]) el.classList.remove('km-fill');
+    if (scene.fs.cardButton) scene.fs.cardButton.setAttribute('aria-expanded', 'false');
+    document.documentElement.classList.remove('km-full-on');
+    if (document.fullscreenElement && document.exitFullscreen) { const p = document.exitFullscreen(); if (p && p.catch) p.catch(() => { /* already out */ }); }
+    requestAnimationFrame(() => { scene.box = scene.homeBox.slice(); crop(scene); draw(scene, herePlaceCache, now()); });
+  }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && fullScene) leaveFull(); });
+
+  // Wheel, drag, pinch and keys, on a scene shown full screen.
+  function steering(scene) {
+    const at = (e) => {
+      const r = scene.root.getBoundingClientRect();
+      return { fx: clamp((e.clientX - r.left) / r.width, 0, 1), fy: clamp((e.clientY - r.top) / r.height, 0, 1), r };
+    };
+    scene.root.addEventListener('wheel', (e) => {
+      if (fullScene !== scene) return;
+      e.preventDefault();
+      const p = at(e);
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? p.r.height : 1;
+      const dy = clamp(e.deltaY * unit, -240, 240);
+      if (dy) zoomBy(scene, Math.exp(dy * 0.0016), p.fx, p.fy);
+      if (e.deltaX && !e.ctrlKey) panBy(scene, (e.deltaX * unit * scene.vb[2]) / p.r.width, 0);
+    }, { passive: false });
+    const down = new Map();
+    let pinch = null;
+    // The drag takes hold of the pointers only once one has moved a few pixels (or two are down): a press that does not
+    // move stays a click on whatever it is on (one of your dogs seated in Tumble's room, a dog house).
+    const grab = () => {
+      for (const id of down.keys()) try { scene.root.setPointerCapture(id); } catch (_) { /* a pointer the browser no longer tracks */ }
+      scene.root.classList.add('km-dragging');
+      scene.held = true;
+    };
+    scene.root.addEventListener('pointerdown', (e) => {
+      if (fullScene !== scene || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (e.target.closest('.km-fs, [role="button"], [role="link"], .km-ball')) return;
+      down.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY });
+      if (down.size === 2) {
+        grab();
+        const [a, b] = [...down.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1 };
+      }
+    });
+    scene.root.addEventListener('pointermove', (e) => {
+      const was = down.get(e.pointerId);
+      if (fullScene !== scene || !was) return;
+      if (!scene.held) {
+        if (Math.hypot(e.clientX - was.x0, e.clientY - was.y0) < 4) return;
+        grab();
+      }
+      const now = { x: e.clientX, y: e.clientY, x0: was.x0, y0: was.y0 };
+      down.set(e.pointerId, now);
+      const r = scene.root.getBoundingClientRect();
+      const u = scene.vb[2] / r.width;   // world units to a pixel
+      if (down.size === 1) { panBy(scene, -(now.x - was.x) * u, -(now.y - was.y) * u, true); return; }
+      if (down.size === 2 && pinch) {
+        const [a, b] = [...down.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        const mid = { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 };
+        const p = at(mid);
+        panBy(scene, -((now.x - was.x) / 2) * u, -((now.y - was.y) / 2) * u, true);
+        zoomBy(scene, pinch.d / d, p.fx, p.fy);
+        pinch.d = d;
+      }
+    });
+    const up = (e) => {
+      down.delete(e.pointerId);
+      if (down.size < 2) pinch = null;
+      if (down.size || !scene.held) return;
+      scene.root.classList.remove('km-dragging');
+      scene.held = false;
+      if (scene.cam && !camRaf) crop(scene);   // let go: drawn sharp where it is
+    };
+    scene.root.addEventListener('pointerup', up);
+    scene.root.addEventListener('pointercancel', up);
+  }
+  document.addEventListener('keydown', (e) => {
+    const s = fullScene;
+    if (!s || e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+    const t = e.target instanceof Element ? e.target : document.body;
+    // Escape closes an open book or the telescope's lens first; what is typed in the room's card is the room's
+    if (e.key === 'Escape') { if (!t.closest('dialog, [role="dialog"]')) { e.preventDefault(); leaveFull(); } return; }
+    if (t.closest('input, textarea, select, [contenteditable], dialog, [role="dialog"], [data-km-card]')) return;
+    const [, , w, h] = s.aim || s.vb;
+    const step = { ArrowLeft: [-w * 0.12, 0], ArrowRight: [w * 0.12, 0], ArrowUp: [0, -h * 0.12], ArrowDown: [0, h * 0.12] }[e.key];
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomBy(s, 1 / 1.25, 0.5, 0.5); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomBy(s, 1.25, 0.5, 0.5); }
+    else if (step) { e.preventDefault(); panBy(s, step[0], step[1]); }
+  });
 
   /* ---------------------------------------------------------------- the telescope, the watcher, the dog houses */
   // Owner, 2026-10-08: "if clicking the telescope at night, it will open a circle port like view ... the moon in its
@@ -957,12 +1420,13 @@
       draw(scene, place, now());
       makeCast(scene);
       signposts(scene);
+      steering(scene);
       // A layer with something to press in it (the signpost's arms, the telescope) is not hidden from assistive tech;
       // its other words (plates, labels) still are.
       for (const s of Object.values(scene.layers)) {
         if (s.getAttribute('aria-hidden') !== 'true' || !s.querySelector('[role]')) continue;
         s.removeAttribute('aria-hidden');
-        s.querySelectorAll('text').forEach((t) => { if (!t.closest('[role]')) t.setAttribute('aria-hidden', 'true'); });
+        s.querySelectorAll('text').forEach((t) => { if (!t.closest('[role="button"], [role="link"]')) t.setAttribute('aria-hidden', 'true'); });
       }
       watch(scene, now());
       scenes.push(scene);
@@ -996,7 +1460,12 @@
     setInterval(hourly, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) hourly(); });
     if (window.ResizeObserver) {
-      const ro = new ResizeObserver(() => scenes.forEach((s) => { crop(s); draw(s, place, now()); reachable(s); }));
+      const ro = new ResizeObserver(() => scenes.forEach((s) => {
+        crop(s);
+        if (s === fullScene) aim(s, s.aim || s.vb, true);   // a turned phone: the same look, the screen's new shape
+        draw(s, place, now());
+        reachable(s);
+      }));
       scenes.forEach((s) => ro.observe(s.root));
     }
     if (still) return;
@@ -1008,8 +1477,26 @@
       kick();
     });
     setInterval(tick, 400);
+    // Whoever is nearer the front is drawn in front, looked at every frame so two crossing never show the wrong way
+    // round (owner, 2026-10-08: "there are still some layering issues when characters cross over each other").
+    const depths = () => {
+      if (!document.hidden) scenes.forEach((s) => { if (s.cast && s.seen !== false) layerByDepth(s); });
+      requestAnimationFrame(depths);
+    };
+    requestAnimationFrame(depths);
   }
 
-  if (window.kindlemere) Object.assign(window.kindlemere, { go, say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); } });
+  if (window.kindlemere) {
+    Object.assign(window.kindlemere, {
+      go,
+      say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); },
+      // full screen (kit.js's button): the scene in view, or the first
+      full: () => enterFull(scenes.find((s) => s.seen) || scenes[0]),
+      isFull: () => Boolean(fullScene),
+      toPlace: (key) => { if (fullScene) toPlace(fullScene, key); },
+      // a character's next line: from a room's own lines for it and the kit's, never the last one again
+      line,
+    });
+  }
   start();
 }());
