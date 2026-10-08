@@ -31,9 +31,11 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
   through a run, a workout or a stretch, Tumble trains with you and your dog. What the keeper knows, what it
   remembers, its tools and what it is waiting on from Louise are in a drawer. It answers only on this computer
   (127.0.0.1).
-- **Talking with it:** open a Claude chat in the agent's own folder (`agents/nutrition`, `agents/fitness` or
-  `agents/dog-training`). The folder's `CLAUDE.md` makes that chat the agent, and its `.claude/settings.json` turns
-  the web off.
+- **Talking with it:** Avo and Tumble talk with you in their rooms. Each message runs one Claude Code turn on this
+  computer, in the agent's own folder and under its own rules, with no web and no connectors, so Claude Code must
+  be installed. Steady's room is guided steps instead. You can also open a Claude chat in any agent's own folder
+  (`agents/nutrition`, `agents/fitness` or `agents/dog-training`). The folder's `CLAUDE.md` makes that chat the
+  agent, and its `.claude/settings.json` turns the web off.
 
 ## How a gap reaches Louise
 
