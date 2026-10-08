@@ -101,6 +101,15 @@ body { background: var(--a-sky); }
 .rests { margin: var(--km-space-4) 0 0; font-size: var(--km-text-sm); }
 .rests summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--a-land); font-weight: 600; }
 
+/* Set by set: the move, the rest clock, and her notes. */
+.sets { margin-top: var(--km-space-4); padding-top: var(--km-space-3); box-shadow: inset 0 1px 0 var(--km-shadow); }
+.set-now { font-size: var(--km-text-md); margin: 0 0 var(--km-space-2); }
+.set-now span { color: var(--km-ink-soft); }
+.rest-pick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--km-space-2); font-size: var(--km-text-sm); font-weight: 600; }
+.rest-pick .km-btn { min-height: 40px; padding: 0 var(--km-space-4); }
+.rest-pick [aria-pressed="true"] { background: var(--a-land); color: #FFFFFF; }
+.notes h3 { font-size: var(--km-text-md); color: var(--a-land); margin: var(--km-space-4) 0 var(--km-space-2); }
+
 /* What are we doing today: four ways up the hill. */
 .paths { display: grid; grid-template-columns: 1fr 1fr; gap: var(--km-space-3); margin: var(--km-space-4) 0 0; }
 .paths .km-btn { min-height: 56px; padding: var(--km-space-2) var(--km-space-3); line-height: 1.25; text-align: center; }
