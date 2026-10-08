@@ -217,7 +217,8 @@
     let [x, y, bw, bh] = scene.box;
     if (w / h < bw / bh) { const cw = bh * (w / h); x += (bw - cw) * scene.pos[0]; bw = cw; } else { const ch = bw / (w / h); y += (bh - ch) * scene.pos[1]; bh = ch; }
     scene.vb = [x, y, bw, bh];
-    scene.cw = w;   // the width on the page, kept here so the frame loop never has to measure it (a forced layout)
+    scene.cw = w;   // the size on the page, kept here so the frame loop never has to measure it (a forced layout)
+    scene.ch = h;
     const v = `${(x - bw * OVER).toFixed(1)} ${(y - bh * OVER).toFixed(1)} ${(bw * (1 + 2 * OVER)).toFixed(1)} ${(bh * (1 + 2 * OVER)).toFixed(1)}`;
     Object.values(scene.layers).forEach((s) => s.setAttribute('viewBox', v));
     // What the camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js)
@@ -408,7 +409,8 @@
     setTimeout(() => { a.el.removeAttribute('data-km-talk'); }, 2600);
     const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root } });
     const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (key === 'nutrition-spud' && !scene.dinner);
-    if (window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
+    // full screen shows the scene and nothing else, so a room's own answer would be off the screen: the kit answers
+    if (fullScene === scene || window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
   }
 
   // The scene's own room (a room page), whose keeper keeps to its spot.
@@ -846,12 +848,248 @@
       el.setAttribute('role', 'link');
       el.setAttribute('aria-label', `To ${PLACE_NAMES[key]}`);
       on(async () => {
+        if (fullScene === scene) { toPlace(scene, key); return; }   // full screen: the camera goes, the page stays
         if (key === roomKey()) { say(scene, el, `You're in ${PLACE_NAMES[key]}.`); return; }
         const url = window.kit && window.kit.address ? await window.kit.address(key) : null;
         if (url) go(url, key); else say(scene, el, `${PLACE_NAMES[key].replace(/^the /, 'The ')} isn't open from here.`);
       });
     });
   }
+
+  /* ---------------------------------------------------------------- full screen: the whole world, your own camera */
+  // Owner, 2026-10-08: "Kindlemere needs to have a full screen option as well to complete the immersion, with scroll to
+  // zoom in and out of different areas and when switching between the 3 scenes, having wayfinding buttons to switch like
+  // the signs to each scene". The scene fills the screen and nothing else shows. The wheel or a pinch zooms toward the
+  // pointer, a drag looks around, and + - and the arrow keys do the same. A signpost in the corner glides the camera to
+  // each place; arrived at one, its arm offers the way into its keeper's room. Where the browser has no full screen
+  // (an iPhone), the scene fills the window instead. Characters, the dog and fetch all go on as before.
+  const WORLD_W = 3200;
+  const WORLD_H = 1800;
+  const MIN_W = 360;   // the closest look, in world units across
+  const STEP_IN = { nutrition: 'Step into the Orchard', fitness: 'Climb Stepping Hill', 'dog-training': 'Walk to Lakeside Field' };
+  let fullScene = null;
+
+  // The visible box for a camera box on this screen (object-fit: cover at the scene's position, as crop() does).
+  function onScreen(scene, box) {
+    const a = (scene.cw || 16) / (scene.ch || 9);
+    let [x, y, w, h] = box;
+    if (w / h > a) { const cw = h * a; x += (w - cw) * scene.pos[0]; w = cw; } else { const ch = w / a; y += (h - ch) * scene.pos[1]; h = ch; }
+    return [x, y, w, h];
+  }
+  // A box the camera may take: the screen's shape, no closer than MIN_W, no wider than the whole park, inside the world.
+  function allowed(scene, box) {
+    const a = (scene.cw || 16) / (scene.ch || 9);
+    const most = onScreen(scene, CAMERAS.realm)[2];
+    const w = clamp(box[2], Math.min(MIN_W, most), most);
+    const h = w / a;
+    const x = clamp(box[0] + (box[2] - w) / 2, 0, Math.max(0, WORLD_W - w));
+    const y = clamp(box[1] + (box[3] - h) / 2, 0, Math.max(0, WORLD_H - h));
+    return [x, y, w, h];
+  }
+  // The camera eases toward where it is aimed (scene.aim), a little each frame; a drag moves it at once.
+  let camRaf = 0;
+  function camera() {
+    camRaf = 0;
+    const s = fullScene;
+    if (!s || !s.aim) return;
+    const k = still ? 1 : 0.2;
+    const next = s.box.map((v, i) => v + (s.aim[i] - v) * k);
+    const done = next.every((v, i) => Math.abs(v - s.aim[i]) < 0.5);
+    s.box = done ? s.aim.slice() : next;
+    crop(s);
+    wayfinding(s);
+    if (!done) camRaf = requestAnimationFrame(camera);
+  }
+  function aim(scene, box, now) {
+    scene.aim = allowed(scene, box);
+    const said = scene.root.querySelector('.km-say');   // a bubble is pinned to the screen, so it goes when the camera moves
+    if (said) said.remove();
+    if (now) { scene.box = scene.aim.slice(); crop(scene); wayfinding(scene); return; }
+    if (!camRaf) camRaf = requestAnimationFrame(camera);
+  }
+  // Zoom by k (above 1 is out) about a point given as a fraction of the screen.
+  function zoomBy(scene, k, fx, fy) {
+    const [x, y, w, h] = scene.aim || scene.vb;
+    const nw = w * k;
+    const nh = h * k;
+    aim(scene, [x + fx * (w - nw), y + fy * (h - nh), nw, nh]);
+  }
+  function panBy(scene, dx, dy, now) {
+    const [x, y, w, h] = scene.aim || scene.vb;
+    aim(scene, [x + dx, y + dy, w, h], now);
+  }
+  function toPlace(scene, key) {
+    const box = CAMERAS[VIEW_OF[key] || key];
+    if (box) aim(scene, onScreen(scene, box));
+  }
+
+  // The signpost in the corner: the arms for the whole park and the three places, and the way in to the place the
+  // camera has come to.
+  function chrome(scene) {
+    if (scene.fs) return scene.fs;
+    const button = (cls, text, label) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.textContent = text;
+      if (label) b.setAttribute('aria-label', label);
+      return b;
+    };
+    const box = document.createElement('div');
+    box.className = 'km-fs';
+    const post = document.createElement('nav');
+    post.className = 'km-fs-post';
+    post.setAttribute('aria-label', 'Ways about Kindlemere');
+    const step = button('km-fs-sign km-fs-step', '');
+    step.hidden = true;
+    step.addEventListener('click', async () => {
+      const key = step.dataset.place;
+      const url = key && window.kit && window.kit.address ? await window.kit.address(key) : null;
+      if (url) go(url, key);
+    });
+    post.append(step);
+    const signs = [['realm', 'Kindlemere'], ['nutrition', 'Orchard'], ['fitness', 'Hill'], ['dog-training', 'Field']].map(([key, text]) => {
+      const b = button('km-fs-sign', text, key === 'realm' ? 'The whole of Kindlemere' : `To ${PLACE_NAMES[key]}`);
+      b.dataset.place = key;
+      b.addEventListener('click', () => toPlace(scene, key));
+      post.append(b);
+      return b;
+    });
+    const tools = document.createElement('div');
+    tools.className = 'km-fs-tools';
+    const zin = button('km-fs-tool', '+', 'Zoom in');
+    const zout = button('km-fs-tool', '−', 'Zoom out');
+    const leave = button('km-fs-tool km-fs-leave', 'Leave full screen');
+    zin.addEventListener('click', () => zoomBy(scene, 1 / 1.4, 0.5, 0.5));
+    zout.addEventListener('click', () => zoomBy(scene, 1.4, 0.5, 0.5));
+    leave.addEventListener('click', () => leaveFull());
+    tools.append(zin, zout, leave);
+    const hint = document.createElement('p');
+    hint.className = 'km-fs-hint';
+    hint.setAttribute('aria-hidden', 'true');
+    box.append(tools, post, hint);
+    scene.root.append(box);
+    scene.fs = { box, step, signs, hint };
+    return scene.fs;
+  }
+  // Which place the camera is at, if any: its sign is lit, and the way in shows (not for the room you are in).
+  function wayfinding(scene) {
+    const fs = scene.fs;
+    if (!fs) return;
+    const [x, , w] = scene.box;
+    const cx = x + w / 2;
+    // the whole park when it is all in view; else the place the middle of the view is in (the Orchard runs to the hill's
+    // foot, the hill to the kennel, the Field to the east edge)
+    const at = w > onScreen(scene, CAMERAS.realm)[2] * 0.8 ? 'realm' : cx < 1120 ? 'nutrition' : cx < 2150 ? 'fitness' : 'dog-training';
+    for (const b of fs.signs) {
+      if (b.dataset.place === at) b.setAttribute('aria-current', 'location'); else b.removeAttribute('aria-current');
+    }
+    const way = at && at !== 'realm' && at !== roomKey() ? at : '';
+    if (fs.step.dataset.place !== way) {
+      fs.step.dataset.place = way;
+      fs.step.textContent = way ? STEP_IN[way] : '';
+      fs.step.hidden = !way;
+    }
+  }
+
+  function enterFull(scene) {
+    if (!scene || fullScene) return;
+    fullScene = scene;
+    scene.homeBox = scene.box.slice();
+    const fs = chrome(scene);
+    const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    fs.hint.textContent = touch ? 'Pinch to zoom. Drag to look around.' : 'Scroll to zoom. Drag to look around.';
+    fs.hint.classList.remove('km-fs-hint-gone');
+    setTimeout(() => fs.hint.classList.add('km-fs-hint-gone'), 5000);
+    scene.root.classList.add('km-full');
+    document.documentElement.classList.add('km-full-on');
+    const real = scene.root.requestFullscreen ? scene.root.requestFullscreen({ navigationUI: 'hide' }) : null;
+    if (real && real.catch) real.catch(() => { /* not allowed here: the scene still fills the window */ });
+    // once the scene has its new size, the camera starts where the page's was
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (fullScene !== scene) return;
+      scene.cw = scene.root.clientWidth;
+      scene.ch = scene.root.clientHeight;
+      aim(scene, onScreen(scene, scene.box), true);
+      fs.signs[0].focus({ preventScroll: true });
+    }));
+  }
+  function leaveFull() {
+    const scene = fullScene;
+    if (!scene) return;
+    fullScene = null;
+    scene.aim = null;
+    scene.root.classList.remove('km-full');
+    document.documentElement.classList.remove('km-full-on');
+    if (document.fullscreenElement && document.exitFullscreen) { const p = document.exitFullscreen(); if (p && p.catch) p.catch(() => { /* already out */ }); }
+    requestAnimationFrame(() => { scene.box = scene.homeBox.slice(); crop(scene); draw(scene, herePlaceCache, now()); });
+  }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && fullScene) leaveFull(); });
+
+  // Wheel, drag, pinch and keys, on a scene shown full screen.
+  function steering(scene) {
+    const at = (e) => {
+      const r = scene.root.getBoundingClientRect();
+      return { fx: clamp((e.clientX - r.left) / r.width, 0, 1), fy: clamp((e.clientY - r.top) / r.height, 0, 1), r };
+    };
+    scene.root.addEventListener('wheel', (e) => {
+      if (fullScene !== scene) return;
+      e.preventDefault();
+      const p = at(e);
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? p.r.height : 1;
+      const dy = clamp(e.deltaY * unit, -240, 240);
+      if (dy) zoomBy(scene, Math.exp(dy * 0.0016), p.fx, p.fy);
+      if (e.deltaX && !e.ctrlKey) panBy(scene, (e.deltaX * unit * scene.vb[2]) / p.r.width, 0);
+    }, { passive: false });
+    const down = new Map();
+    let pinch = null;
+    scene.root.addEventListener('pointerdown', (e) => {
+      if (fullScene !== scene || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (e.target.closest('.km-fs, [role="button"], [role="link"], .km-ball')) return;
+      down.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      try { scene.root.setPointerCapture(e.pointerId); } catch (_) { /* a pointer the browser no longer tracks */ }
+      scene.root.classList.add('km-dragging');
+      if (down.size === 2) {
+        const [a, b] = [...down.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1 };
+      }
+    });
+    scene.root.addEventListener('pointermove', (e) => {
+      const was = down.get(e.pointerId);
+      if (fullScene !== scene || !was) return;
+      const now = { x: e.clientX, y: e.clientY };
+      down.set(e.pointerId, now);
+      const r = scene.root.getBoundingClientRect();
+      const u = scene.vb[2] / r.width;   // world units to a pixel
+      if (down.size === 1) { panBy(scene, -(now.x - was.x) * u, -(now.y - was.y) * u, true); return; }
+      if (down.size === 2 && pinch) {
+        const [a, b] = [...down.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        const mid = { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 };
+        const p = at(mid);
+        panBy(scene, -((now.x - was.x) / 2) * u, -((now.y - was.y) / 2) * u, true);
+        zoomBy(scene, pinch.d / d, p.fx, p.fy);
+        pinch.d = d;
+      }
+    });
+    const up = (e) => {
+      down.delete(e.pointerId);
+      if (down.size < 2) pinch = null;
+      if (!down.size) scene.root.classList.remove('km-dragging');
+    };
+    scene.root.addEventListener('pointerup', up);
+    scene.root.addEventListener('pointercancel', up);
+  }
+  document.addEventListener('keydown', (e) => {
+    const s = fullScene;
+    if (!s || e.altKey || e.ctrlKey || e.metaKey) return;
+    const [, , w, h] = s.aim || s.vb;
+    const step = { ArrowLeft: [-w * 0.12, 0], ArrowRight: [w * 0.12, 0], ArrowUp: [0, -h * 0.12], ArrowDown: [0, h * 0.12] }[e.key];
+    if (e.key === 'Escape') { e.preventDefault(); leaveFull(); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomBy(s, 1 / 1.25, 0.5, 0.5); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomBy(s, 1.25, 0.5, 0.5); }
+    else if (step && !(document.activeElement && document.activeElement.closest('.km-fs'))) { e.preventDefault(); panBy(s, step[0], step[1]); }
+  });
 
   /* ---------------------------------------------------------------- the telescope, the watcher, the dog houses */
   // Owner, 2026-10-08: "if clicking the telescope at night, it will open a circle port like view ... the moon in its
@@ -967,12 +1205,13 @@
       draw(scene, place, now());
       makeCast(scene);
       signposts(scene);
+      steering(scene);
       // A layer with something to press in it (the signpost's arms, the telescope) is not hidden from assistive tech;
       // its other words (plates, labels) still are.
       for (const s of Object.values(scene.layers)) {
         if (s.getAttribute('aria-hidden') !== 'true' || !s.querySelector('[role]')) continue;
         s.removeAttribute('aria-hidden');
-        s.querySelectorAll('text').forEach((t) => { if (!t.closest('[role]')) t.setAttribute('aria-hidden', 'true'); });
+        s.querySelectorAll('text').forEach((t) => { if (!t.closest('[role="button"], [role="link"]')) t.setAttribute('aria-hidden', 'true'); });
       }
       watch(scene, now());
       scenes.push(scene);
@@ -1006,7 +1245,12 @@
     setInterval(hourly, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) hourly(); });
     if (window.ResizeObserver) {
-      const ro = new ResizeObserver(() => scenes.forEach((s) => { crop(s); draw(s, place, now()); reachable(s); }));
+      const ro = new ResizeObserver(() => scenes.forEach((s) => {
+        crop(s);
+        if (s === fullScene) aim(s, s.aim || s.vb, true);   // a turned phone: the same look, the screen's new shape
+        draw(s, place, now());
+        reachable(s);
+      }));
       scenes.forEach((s) => ro.observe(s.root));
     }
     if (still) return;
@@ -1027,6 +1271,15 @@
     requestAnimationFrame(depths);
   }
 
-  if (window.kindlemere) Object.assign(window.kindlemere, { go, say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); } });
+  if (window.kindlemere) {
+    Object.assign(window.kindlemere, {
+      go,
+      say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); },
+      // full screen (kit.js's button): the scene in view, or the first
+      full: () => enterFull(scenes.find((s) => s.seen) || scenes[0]),
+      isFull: () => Boolean(fullScene),
+      toPlace: (key) => { if (fullScene) toPlace(fullScene, key); },
+    });
+  }
   start();
 }());
