@@ -413,18 +413,94 @@
   let herePlaceCache = { lat: 40, lon: 0 };
   const scenes = [];
 
+  // What each one says when clicked, a dozen each and never the same twice running (owner, 2026-10-08: "characters
+  // should have quite a few quotes when pressed to keep things fresh and engaging"). The rooms mix their own in
+  // (window.kindlemere.lines).
   const LINES = {
-    nutrition: 'Breakfast and lunch are mine. Shall we plan a week of meals?',
-    'nutrition-summer': 'Treats are my thing. Fruit first, then the fun.',
-    'nutrition-spud': 'Dinner is on. Pull up a chair.',
-    fitness: 'One step at a time. Shall we warm up?',
-    'fitness-puff': 'Home workouts and wet-weather runs. That is me.',
-    'fitness-huff': 'Gym days and hot runs. Bring water.',
-    'dog-training': 'Ready to train? Grab the treats.',
-    'dog-training-barkley': 'Out in the woods with your dog? Ask me.',
-    'dog-training-sizzle': 'Treats are my department. Small ones.',
-    dog: 'Woof.',
+    nutrition: [
+      'Breakfast and lunch are mine. Shall we plan a week of meals?', 'Soup on Sunday makes lunch on Monday easy.',
+      "Bring me your shopping list. I'll make it a menu.", 'Half an avocado on toast. The other half is me, thank you.',
+      'A good week starts with a list. Shall we write one together?', "Leftovers are tomorrow's lunch with a plan.",
+      'The long table always has room for one more.', "Not sure what's for lunch? That's my favourite question.",
+      "I keep the pit. It's where I keep my good ideas.", 'Fresh herbs make a Tuesday taste like a Saturday.',
+      'A bowl of fruit on the table gets eaten. One in the drawer does not.', 'Plan the shop and the week plans itself.',
+    ],
+    'nutrition-summer': [
+      'Treats are my thing. Fruit first, then the fun.', "I'm a peach. Sweet is sort of my job.", 'Berries count as a treat. Ask anyone.',
+      'Something sweet at four o\'clock keeps the grumbles away.', "A treat tastes better when it's planned.",
+      'I hop. Avo walks. We get there together.', 'Frozen grapes. Try them once and thank me later.',
+      'Dark chocolate and an apple. A very fine pairing.', 'Yoghurt, honey and a handful of nuts. My kind of pudding.',
+      'Fuzzy on the outside, sweet in the middle.', "Ask Avo for a treat that fits the week. She knows the numbers.",
+      "Peaches are best in summer. I'm called Summer, so I'm best all year.",
+    ],
+    'nutrition-spud': [
+      'Dinner is on. Pull up a chair.', "Evening. I've been in the ground all day, so I'm starving.",
+      "Roast, mash or baked. I don't take it personally.", 'A good dinner is a plate with a bit of everything on it.',
+      "Is it dinner time? It's always dinner time when I'm up.", "I'm a spud. Comfort is my whole personality.",
+      'Leftover dinner makes a fine lunch. Ask Avo.', "Warm plates, cold butter, early night. That's my evening.",
+      "Soup tonight? I'll bring myself.", 'I pop up at dinner and down at bedtime. Good routine.',
+      'Greens on the plate first. Then me.', 'Avo plans it. Summer sweetens it. I eat it.',
+    ],
+    fitness: [
+      'One step at a time. Shall we warm up?', "Balance is easy when you're three stones high.", 'Slow is still forward.',
+      'A walk counts. A stretch counts. Turning up counts most.', 'In through the nose, slow out through the mouth. There.',
+      "The hill isn't going anywhere, and neither am I.", 'Every stone in me was carried here one at a time.',
+      'Missed a day? The hill will wait.', 'Warm up first. Your knees will thank you.',
+      'The top of the hill has a telescope. Worth the climb.', 'Drink some water. Then drink a little more.',
+      'Rest days are training days in disguise.',
+    ],
+    'fitness-puff': [
+      'Home workouts and wet-weather runs. That is me.', "Rain? Lovely. Bring a hat and let's go.",
+      'No gym? No problem. A chair and a wall will do.', "I'm a cloud. Floating is my cardio.",
+      'Ten minutes on the living room floor is ten minutes well spent.', 'Puddles are just tiny lakes to jump.',
+      'Stretch while the kettle boils. Avo taught me that.', "I'm fluffy, not soft. There's a difference.",
+      'A drizzle run feels like the whole sky is cheering.', 'Squats by the window, and watch the weather do its thing.',
+      'Cold out? Warm up longer, then off we go.', 'Huff likes the heat. I like weather with character.',
+    ],
+    'fitness-huff': [
+      'Gym days and hot runs. Bring water.', 'Sunny out? Early run, shady route, full bottle.',
+      "Dumbbells, a bench and a plan. That's a good day.", "I'm a dust cloud. I've been on a lot of runs.",
+      'Heavy things, lifted slowly, put down gently.', 'Hot day? Slow the pace and keep the smile.',
+      "A few sips every ten minutes. I'm serious about water.", 'Puff loves rain. I love a sunny track.',
+      "Rest between sets. The weights aren't going anywhere.", 'A good lift starts with good feet.',
+      'Sunscreen is part of the warm-up.', "I kick up a bit of dust when I'm excited. Sorry about that.",
+    ],
+    'dog-training': [
+      'Ready to train? Grab the treats.', "Small steps, lots of wins. That's the whole method.",
+      'Every tooth mark on me is a dog who got it right.', 'Patience first, treats second, praise always.',
+      'Short sessions. Five minutes beats fifty.', 'Every dog learns at its own pace. So do people.',
+      "I roll everywhere. The dogs think it's a game. It is.", 'Sit, stay, good. The good is the important part.',
+      'End on a win, then go and play.', 'Louise has the answers my books do not. I ask her often.',
+      'The best training happens on walks.', 'A dog that sniffs is a dog that thinks.',
+    ],
+    'dog-training-barkley': [
+      'Out in the woods with your dog? Ask me.', 'Sniff first, walk second.', "I've been a branch, a log and a stick. Stick is my favourite.",
+      'The bay smells of heron and adventure.', "I'm a stick. Dogs adore me. It's a lot of pressure.",
+      'A slow walk with lots of sniffs tires a dog more than a fast one.', 'Fetch is good. Hide and seek is better.',
+      'Take a long lead to the woods and let them explore.', 'Muddy paws mean a good walk.',
+      'After the woods, check ears and toes for ticks.', 'Throw me if you like. I always come back. Eventually.',
+      'Leaves to sniff, logs to climb. Best playground going.',
+    ],
+    'dog-training-sizzle': [
+      'Treats are my department. Small ones.', 'Sit. Good. Here it comes.', 'One biscuit, not the jar. I keep count.',
+      'Treats are training money. Spend them well.', "Small and often. That's the treat rule.",
+      'Catch. Lovely. That one goes in the book.', 'I smell like bacon. The dogs never let me forget it.',
+      'Eyes on me, and catch.', 'A treat for a sit. A bigger smile for a stay.',
+      "Count the treats into the day's food. Little ones add up.", 'Bone biscuits, counted in and counted out.',
+      "Who's a good dog? This one. Here you go.",
+    ],
+    dog: ['Woof.'],
   };
+  const lastLine = {};
+  /** A line for a character from its pool (and a room's own lines for it), never the one it said last. */
+  function line(key, own) {
+    const all = [...new Set([...(Array.isArray(own) ? own : []), ...(LINES[key] || [])])];
+    if (!all.length) return '';
+    let i = Math.floor(Math.random() * all.length);
+    if (all.length > 1 && i === lastLine[key]) i = (i + 1) % all.length;
+    lastLine[key] = i;
+    return all[i];
+  }
 
   /** A short line in a paper bubble over a point of the stack (the kit's own answer when no room answers). */
   function say(scene, el, text) {
@@ -459,7 +535,27 @@
     const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (key === 'nutrition-spud' && !scene.dinner);
     // the scene alone full screen (the Kindlemere page) has no room on it to answer: the kit answers
     const bare = fullScene === scene && stageOf(scene) === scene.root;
-    if (bare || window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
+    if (bare || window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : line(key) || name);
+    if (key === 'dog-training-sizzle' && !asleep) treatFrom(scene, a);
+  }
+
+  // Owner, 2026-10-08: "when clicking Sizzle, the dog should run to Sizzle and sit in front of Sizzle waiting for a
+  // treat that sizzle tosses". The dog comes to whichever side of him it is on and catches a biscuit from his jar
+  // (/kit/kindlemere-dog.js); he stays put until it has.
+  function treatFrom(scene, a) {
+    const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+    if (!dog || typeof dog.treat !== 'function') return;
+    const svg = scene.layers.actors;
+    const jar = a.el.querySelector('.km-treat > g[transform]');
+    // the jar's lid in the world, wherever he stands (read twice: as the dog sits, and as he tosses)
+    const lid = () => {
+      try {
+        const bb = jar.getBBox();
+        return new DOMPoint(bb.x + bb.width / 2, bb.y).matrixTransform(svg.getScreenCTM().inverse().multiply(jar.getScreenCTM()));
+      } catch (_) { return { x: a.x + 50, y: a.y - 130 }; }
+    };
+    const side = dog.where().x < a.x ? -1 : 1;
+    if (dog.treat([a.x + side * 165, a.y + 14], lid)) a.pauseUntil = performance.now() + 9000;
   }
 
   // The scene's own room (a room page), whose keeper keeps to its spot.
@@ -1398,6 +1494,8 @@
       full: () => enterFull(scenes.find((s) => s.seen) || scenes[0]),
       isFull: () => Boolean(fullScene),
       toPlace: (key) => { if (fullScene) toPlace(fullScene, key); },
+      // a character's next line: from a room's own lines for it and the kit's, never the last one again
+      line,
     });
   }
   start();

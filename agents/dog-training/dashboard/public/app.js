@@ -56,8 +56,10 @@
       say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy');
       return;
     }
-    if (name === 'Tumble') say(jokes.length ? pick(jokes) : 'Small steps, lots of wins.', 'Tumble', 'happy');
-    else if (LINES[name]) say(pick(LINES[name]), name, 'happy');
+    // the room's own lines and the kit's for each of them, never the same twice running (window.kindlemere.line)
+    const next = (key, own) => (window.kindlemere && window.kindlemere.line ? window.kindlemere.line(key, own) : pick(own));
+    if (name === 'Tumble') say(next('dog-training', jokes.length ? jokes : ['Small steps, lots of wins.']), 'Tumble', 'happy');
+    else if (LINES[name]) say(next(`dog-training-${name.toLowerCase()}`, LINES[name]), name, 'happy');
     else if (dogs.some((d) => d.name === name)) chooseDog(name);
   }
   window.addEventListener('kindlemere:character', (e) => {

@@ -762,8 +762,10 @@
     if (d.svg && d.svg.getAttribute('data-km-night') === '1') return;
     e.preventDefault();
     if (!$('walk-up').hidden) { walkUp(); return; }
-    if (d.name === 'Steady') { mood('happy'); speak(jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Hello again.'); }
-    else speak(LINES_BY[d.name], d.name);
+    // her own lines and the kit's for each of them, never the same twice running (window.kindlemere.line)
+    const next = (key, own) => (window.kindlemere && window.kindlemere.line ? window.kindlemere.line(key, own) : own[Math.floor(Math.random() * own.length)]);
+    if (d.name === 'Steady') { mood('happy'); speak(next('fitness', jokes.length ? jokes : ['Hello again.'])); }
+    else speak(next(`fitness-${d.name.toLowerCase()}`, [LINES_BY[d.name]]), d.name);
   });
 
   kit.agent().then((a) => { jokes = Array.isArray(a.jokes) ? a.jokes : []; go('arrive', false); }).catch((err) => speak(err.message));
