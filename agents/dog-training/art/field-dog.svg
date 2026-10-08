@@ -45,6 +45,29 @@
 @keyframes dt-tail { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(10deg); } }
 @keyframes dt-drop { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.95; } 100% { transform: translate(-10px, -14px); opacity: 0; } }
 @keyframes dt-ripple { from { transform: scale(0.96, 1); } to { transform: scale(1.04, 1); } }
+/* Gaits (the live scene, kit/dashboard/public/kindlemere-dog.js, sets one; none is the gallop): dt-trot, dt-walk and
+   dt-stand, each with its stride matched to how fast the dog moves, so its paws never slide. dt-dry: paws out of the
+   water, so no splash and no drops. A pose below (sit, down, paw, bow) wins over a gait. */
+.dt-dog.dt-trot :is(.dt-r, .dt-fu, .dt-fl, .dt-hu, .dt-hl, .dt-steady, .dt-flop, .dt-tail, .dt-drop) { animation-duration: 0.64s; }
+.dt-dog.dt-trot .dt-far { animation-delay: -0.32s; }
+.dt-dog.dt-walk .dt-fu { animation: dt-fu-walk 0.9s ease-in-out infinite; }
+.dt-dog.dt-walk .dt-fl { animation: dt-fl-walk 0.9s ease-in-out infinite; }
+.dt-dog.dt-walk .dt-hu { animation: dt-hu-walk 0.9s ease-in-out infinite; }
+.dt-dog.dt-walk .dt-hl { animation: dt-hl-walk 0.9s ease-in-out infinite; }
+.dt-dog.dt-walk .dt-far { animation-delay: -0.45s; }
+.dt-dog.dt-walk .dt-r { animation: dt-rock-walk 0.45s ease-in-out infinite; }
+.dt-dog.dt-walk :is(.dt-steady, .dt-flop) { animation-duration: 0.9s; }
+.dt-dog.dt-walk .dt-tail { animation-duration: 0.7s; }
+.dt-dog.dt-stand :is(.dt-r, .dt-fu, .dt-fl, .dt-hu, .dt-hl, .dt-steady, .dt-flop) { animation: none; }
+.dt-dog.dt-stand :is(.dt-fu, .dt-fl, .dt-hu, .dt-hl) { transform: rotate(0deg); }
+.dt-dog.dt-stand .dt-tail { animation-duration: 0.8s; }
+.dt-dog:is(.dt-trot, .dt-walk, .dt-stand) .dt-speed { display: none; }
+.dt-dog.dt-dry :is(.dt-splash, .dt-drop, .dt-speed) { display: none; }
+@keyframes dt-fu-walk { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(16deg); } }
+@keyframes dt-fl-walk { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(4deg); } 62% { transform: rotate(40deg); } 84% { transform: rotate(10deg); } }
+@keyframes dt-hu-walk { 0%, 100% { transform: rotate(16deg); } 50% { transform: rotate(-16deg); } }
+@keyframes dt-hl-walk { 0%, 100% { transform: rotate(2deg); } 38% { transform: rotate(-4deg); } 60% { transform: rotate(16deg); } 84% { transform: rotate(4deg); } }
+@keyframes dt-rock-walk { 0%, 100% { transform: translateY(-1px); } 50% { transform: translateY(1px); } }
 /* Sitting (the class dt-sit): legs still and folded, the body tipped back onto its haunches by whatever moves .dt-body. */
 .dt-dog .dt-fu, .dt-dog .dt-fl, .dt-dog .dt-hu, .dt-dog .dt-hl { transition: transform 0.25s ease-out; }
 .dt-dog.dt-sit .dt-r, .dt-dog.dt-sit .dt-steady, .dt-dog.dt-sit .dt-ripple { animation: none; }
@@ -65,6 +88,14 @@
 /* Paw (dt-paw, from a sit): the near front paw lifted to shake. */
 .dt-dog.dt-sit.dt-paw .dt-fu:not(.dt-far) { transform: rotate(-36deg); }
 .dt-dog.dt-sit.dt-paw .dt-fl:not(.dt-far) { transform: rotate(64deg); }
+/* A play bow (dt-bow): front down on its elbows, rear up, tail going. The live scene tips .dt-body forward. */
+.dt-dog.dt-bow .dt-r, .dt-dog.dt-bow .dt-steady { animation: none; }
+.dt-dog.dt-bow .dt-fu { animation: none; transform: rotate(-58deg); }
+.dt-dog.dt-bow .dt-fl { animation: none; transform: rotate(-24deg); }
+.dt-dog.dt-bow .dt-hu { animation: none; transform: rotate(-14deg); }
+.dt-dog.dt-bow .dt-hl { animation: none; transform: rotate(6deg); }
+.dt-dog.dt-bow .dt-tail { animation-duration: 0.22s; }
+.dt-dog.dt-bow .dt-speed, .dt-dog.dt-bow .dt-drop { display: none; }
 /* A person's own dog: ears, markings and bandana (the colours come from the page, on data-p shapes). */
 .dt-dog.dt-ears-up .dt-near-flop { display: none; }
 .dt-dog.dt-ears-up .dt-near-up { display: inline; }

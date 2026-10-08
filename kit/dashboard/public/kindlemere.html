@@ -12,7 +12,9 @@
   .km-hint { margin: var(--km-space-3) 0 0; color: var(--km-ink-soft); font-size: var(--km-text-sm); }
   .km-ways { margin-top: var(--km-space-6); }
   .km-way { display: flex; flex-direction: column; gap: var(--km-space-3); margin: 0; padding: var(--km-space-3) var(--km-space-3) var(--km-space-5); }
-  .km-way img { display: block; width: 100%; height: auto; border-radius: var(--km-radius-sm); }
+  /* each place's picture holds still (#km-still: three more live scenes would make the page crawl on a phone), and
+     is a way in (kindlemere-page.js) */
+  .km-way img { display: block; width: 100%; height: auto; border-radius: var(--km-radius-sm); cursor: pointer; }
   .km-way h3 { margin: var(--km-space-2) var(--km-space-2) 0; }
   .km-way p { margin: 0 var(--km-space-2); font-size: var(--km-text-sm); }
   .km-way .km-btn { align-self: flex-start; margin: var(--km-space-2) var(--km-space-2) 0; text-decoration: none; }
@@ -27,7 +29,7 @@
 <main class="km-page">
   <figure class="km-realm-box">
     <img class="km-realm" src="/kit/art/kindlemere.svg" width="3200" height="1800" alt="Kindlemere: the Orchard, Stepping Hill and Lakeside Field beside a teal lake, joined by paths at a signpost, under a sky that follows the time of day.">
-    <figcaption class="km-hint">Click Avo, Steady or Tumble, or anyone with them, to step into their place.</figcaption>
+    <figcaption class="km-hint">Click Avo, Steady or Tumble to step into their place, or take the signpost. Click the dog to play fetch anywhere in the park.</figcaption>
   </figure>
   <p class="km-hint km-shut" id="shut" role="status"></p>
 
@@ -35,19 +37,19 @@
     <h2 id="ways">Three ways in</h2>
     <div class="km-grid">
       <article class="km-card km-sky km-way" data-agent="nutrition" data-room="nutrition">
-        <img src="/kit/art/kindlemere-orchard.svg" width="1600" height="900" alt="The Orchard: Avo the avocado by the long table under the string lights.">
+        <img src="/kit/art/kindlemere-orchard.svg#km-still" width="1600" height="900" alt="The Orchard: Avo the avocado by the long table under the string lights.">
         <h3>The Orchard</h3>
         <p>Avo, with Summer and Spud. Plan your meals, the shop and a week of cooking.</p>
         <a class="km-btn" data-way href="#" aria-disabled="true">Step into the Orchard</a>
       </article>
       <article class="km-card km-sky km-way" data-agent="fitness" data-room="fitness">
-        <img src="/kit/art/kindlemere-hill.svg" width="1600" height="900" alt="Stepping Hill: Steady the stacked stones at the foot of the stone steps.">
+        <img src="/kit/art/kindlemere-hill.svg#km-still" width="1600" height="900" alt="Stepping Hill: Steady the stacked stones at the foot of the stone steps.">
         <h3>Stepping Hill</h3>
         <p>Steady, with Puff and Huff. Runs, workouts, stretches and slow breath.</p>
         <a class="km-btn" data-way href="#" aria-disabled="true">Climb Stepping Hill</a>
       </article>
       <article class="km-card km-sky km-way" data-agent="dog-training" data-room="dog-training">
-        <img src="/kit/art/kindlemere-field.svg" width="1600" height="900" alt="Lakeside Field: Tumble the herding ball by the dog house, and the dog in the shallows.">
+        <img src="/kit/art/kindlemere-field.svg#km-still" width="1600" height="900" alt="Lakeside Field: Tumble the herding ball by the dog house, and the dog in the shallows.">
         <h3>Lakeside Field</h3>
         <p>Tumble, with Barkley, Sizzle and your dog. Train, play and treats.</p>
         <a class="km-btn" data-way href="#" aria-disabled="true">Walk to Lakeside Field</a>

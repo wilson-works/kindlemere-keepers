@@ -9,9 +9,11 @@
  *     set behind the hills (east on the left, west on the right);
  *   - the sky takes the colours of the hour, the land takes its light, and the moon shows its real phase;
  *   - after dark the stars, the fireflies and the lights come out, the dog sleeps in its house and the keepers doze.
- * The layers shift a little with the pointer or the phone's tilt, far ones least. After 20 s at rest the keepers and
- * their sidekicks visit each other along the paths and talk; any touch, key or wheel sends them home, and
- * window.kindlemere.hold(true) (from /kit/kit.js) keeps them home while a room is busy. Reduced motion: all still.
+ * The layers shift a little with the pointer or the phone's tilt, far ones least. Everyone potters about their own
+ * place, neighbours have a word, and every so often a group walks the paths to visit another place (the cast, below);
+ * the dog has a day of its own and plays fetch anywhere in the realm (/kit/kindlemere-dog.js). window.kindlemere.hold(true)
+ * (from /kit/kit.js) keeps everyone home while a room is busy. The signpost's arms lead to their places, and going there
+ * is a camera move through the one world (window.kindlemere.go). Reduced motion: all still.
  * The place: kit/realm.config.json ({ "lat": 35.5, "lon": -97.5 }) through /api/realm on an agent's page, else this
  * computer's time zone. Add ?km-time=2026-10-07T21:30 to the page's address to see another hour.
  * Each scene, once drawn, fires 'kindlemere:ready' on window with { svg, scene, part }: svg is the characters' layer,
@@ -180,7 +182,9 @@
     const root = document.createElement('div');
     for (const a of ['class', 'id']) if (img.hasAttribute(a)) root.setAttribute(a, img.getAttribute(a));
     const alt = img.getAttribute('alt');
-    if (alt) { root.setAttribute('role', 'img'); root.setAttribute('aria-label', alt); } else root.setAttribute('aria-hidden', 'true');
+    // A group, not an image: the characters inside it are buttons, and the signpost's arms are links.
+    if (alt) { root.setAttribute('role', 'group'); root.setAttribute('aria-label', alt); } else root.setAttribute('aria-hidden', 'true');
+    root.classList.add('km-live');
     root.style.overflow = 'hidden';
     // No ratio from the page (an img's own is "auto <w> / <h>"): the stack takes the picture's.
     if (!cs.aspectRatio || /^auto/.test(cs.aspectRatio)) root.style.aspectRatio = `${box[2]} / ${box[3]}`;
@@ -188,7 +192,7 @@
     const layers = {};
     groups.forEach((gEl, i) => {
       const s = document.createElementNS(NS, 'svg');
-      s.setAttribute('aria-hidden', 'true');
+      if (gEl.getAttribute('data-km-layer') !== 'actors') s.setAttribute('aria-hidden', 'true');
       s.setAttribute('focusable', 'false');
       s.setAttribute('preserveAspectRatio', 'none');
       s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;${still ? '' : 'will-change:transform;'}`;
@@ -200,7 +204,7 @@
     img.replaceWith(root);
     if (getComputedStyle(root).position === 'static') root.style.position = 'relative';
     return {
-      root, layers, box, pos, vb: box.slice(), sky: (svg.getAttribute('data-km-sky') || '60 900').split(/\s+/).map(Number),
+      root, layers, box, pos, vb: box.slice(), view: svg.getAttribute('data-km-view') || '', sky: (svg.getAttribute('data-km-sky') || '60 900').split(/\s+/).map(Number),
       $: (id) => document.getElementById(`${pre}km-${id}`), cur: [0, 0], target: [0, 0],
     };
   }
@@ -213,8 +217,14 @@
     let [x, y, bw, bh] = scene.box;
     if (w / h < bw / bh) { const cw = bh * (w / h); x += (bw - cw) * scene.pos[0]; bw = cw; } else { const ch = bw / (w / h); y += (bh - ch) * scene.pos[1]; bh = ch; }
     scene.vb = [x, y, bw, bh];
+    scene.cw = w;   // the width on the page, kept here so the frame loop never has to measure it (a forced layout)
     const v = `${(x - bw * OVER).toFixed(1)} ${(y - bh * OVER).toFixed(1)} ${(bw * (1 + 2 * OVER)).toFixed(1)} ${(bh * (1 + 2 * OVER)).toFixed(1)}`;
     Object.values(scene.layers).forEach((s) => s.setAttribute('viewBox', v));
+    // What the camera shows and how many pixels a world unit is, for the dog's game (/kit/kindlemere-dog.js)
+    if (scene.layers.actors) {
+      scene.layers.actors.setAttribute('data-km-view', `${x.toFixed(1)} ${y.toFixed(1)} ${bw.toFixed(1)} ${bh.toFixed(1)}`);
+      scene.layers.actors.setAttribute('data-km-scale', (w / bw).toFixed(4));
+    }
   }
 
   function mark(scene, name, on) {
@@ -302,7 +312,11 @@
   function parallax(scene) {
     scene.cur[0] += (scene.target[0] - scene.cur[0]) * 0.08;
     scene.cur[1] += (scene.target[1] - scene.cur[1]) * 0.08;
-    const amp = scene.root.clientWidth * 0.012;
+    const amp = (scene.cw || 0) * 0.012;
+    // nothing to write while the layers are where they were (the cast walking keeps the frames coming)
+    const key = `${(scene.cur[0] * amp).toFixed(2)} ${(scene.cur[1] * amp).toFixed(2)}`;
+    if (key === scene.parallaxAt) return false;
+    scene.parallaxAt = key;
     for (const [name, s] of Object.entries(scene.layers)) {
       const k = DEPTH[name] === undefined ? 1 : DEPTH[name];
       s.style.transform = `translate3d(${(-scene.cur[0] * amp * k).toFixed(2)}px, ${(-scene.cur[1] * amp * k * 0.5).toFixed(2)}px, 0)`;
@@ -310,21 +324,40 @@
     return Math.abs(scene.target[0] - scene.cur[0]) + Math.abs(scene.target[1] - scene.cur[1]) > 0.002;
   }
 
-  /* ---------------------------------------------------------------- the keepers mingle at rest */
-  // Owner, 2026-10-08: "All the agents and characters should mix and mingle when the scene is at rest". After REST_MS
-  // with no touch, key or wheel, one group walks the stitched paths to visit another, they talk (a bubble, faces that
-  // change), and they walk home. Any input sends everyone home; window.kindlemere.hold(true) keeps everyone home.
-  const REST_MS = 20000;
-  const SPEED = 170; // world units a second
-  const TALK_MS = 9000;
-  // Each visit: who goes, where each one stops (feet, world units), and the path there.
+  /* ---------------------------------------------------------------- life: everyone about their place */
+  // Owner, 2026-10-08: "the characters should have more free movement in general ... upgrade the animations and
+  // movement, and create the full scene to be immersive and engaging". Each character potters about its own place on
+  // its own clock (a stroll, a look about, a word with whoever is near), and every so often a group walks the stitched
+  // paths to visit another place, talks there and walks home. A click stops one to answer. In a room its own keeper
+  // keeps to its spot (the room's bubble points at it) and only goes visiting once the page has been left alone a while.
+  // window.kindlemere.hold(true) brings everyone home and keeps them there while a room is busy. Nobody wanders at
+  // night, Spud only comes up for dinner, and the dog has a day of its own (/kit/kindlemere-dog.js). Reduced motion:
+  // all still.
+  const WAYS = { // how each one goes about: its gait, its speed (world units a second) and how far it potters from home
+    nutrition: { gait: 'walk', speed: 64, zone: [96, 20] },
+    'nutrition-summer': { gait: 'hop', speed: 86, zone: [84, 18] },
+    'nutrition-spud': { gait: 'walk', speed: 52, zone: [70, 12] },
+    fitness: { gait: 'step', speed: 46, zone: [70, 46] },
+    'fitness-puff': { gait: 'float', speed: 58, zone: [110, 50] },
+    'fitness-huff': { gait: 'float', speed: 58, zone: [110, 50] },
+    'dog-training': { gait: 'roll', speed: 74, zone: [120, 20] },
+    'dog-training-barkley': { gait: 'walk', speed: 66, zone: [110, 20] },
+    'dog-training-sizzle': { gait: 'wiggle', speed: 66, zone: [110, 20] },
+  };
+  const SPEED = 170;      // world units a second along the paths, on a visit
+  const TALK_MS = 9000;   // how long a visit's talk lasts
+  const REST_MS = 25000;  // a room's own keeper goes visiting only after the page has been left alone this long
+  const rand = (a, b) => a + Math.random() * (b - a);
+  // Nearer the front is bigger: the keepers' scale by where they stand (the dog uses the same, kindlemere-dog.js).
+  const depthAt = (y) => clamp(1 - (1180 - y) * 0.00078, 0.3, 1.3);
+  // Each visit: who goes, where each one stops (feet, world units), the path there, and where the dog sits.
   const VISITS = [
     { who: ['nutrition', 'nutrition-summer'], to: [[1404, 1018], [1474, 1032]], via: [[1010, 1188], [1200, 1214], [1296, 1104]] },
-    { who: ['dog-training', 'dog', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1690, 1250], [1770, 1288], [1626, 1262], [1752, 1236]], via: [[2300, 1208], [1900, 1236]] },
+    { who: ['dog-training', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1690, 1250], [1626, 1262], [1752, 1236]], via: [[2300, 1208], [1900, 1236]], dog: [1770, 1288] },
     { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[1064, 1226], [990, 1242], [1136, 1242]], via: [[1296, 1104], [1180, 1218]] },
     { who: ['nutrition', 'nutrition-summer'], to: [[2230, 1222], [2166, 1232]], via: [[1010, 1188], [1600, 1248], [2080, 1216]] },
     { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[2200, 1240], [2130, 1252], [2280, 1252]], via: [[1296, 1104], [1450, 1232], [1900, 1236]] },
-    { who: ['dog-training', 'dog', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1130, 1226], [1200, 1262], [1064, 1234], [1262, 1238]], via: [[2080, 1216], [1600, 1250], [1350, 1232]] },
+    { who: ['dog-training', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1130, 1226], [1064, 1234], [1262, 1238]], via: [[2080, 1216], [1600, 1250], [1350, 1232]], dog: [1200, 1262] },
   ];
   const NEAR = 300;
   let lastInput = performance.now();
@@ -365,6 +398,9 @@
     const a = scene.cast[key];
     if (!a) return;
     const name = a.el.getAttribute('data-km-name') || key;
+    // a click stops one to answer: it turns to you, says its piece, and goes back to its day a little later
+    if (a.mode === 'potter' && a.walk) { a.walk = null; a.moving = false; a.mode = 'idle'; stand(a); }
+    a.pauseUntil = performance.now() + 4500;
     a.el.setAttribute('data-km-mood', 'oh');
     a.el.setAttribute('data-km-talk', '1');
     clearTimeout(a.wakeTimer);
@@ -375,13 +411,25 @@
     if (window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
   }
 
+  // The scene's own room (a room page), whose keeper keeps to its spot.
+  const roomKey = () => (document.body && document.body.getAttribute('data-agent')) || '';
+
   function makeCast(scene) {
     const cast = {};
+    const ground = window.kindlemereDog && window.kindlemereDog.ground ? window.kindlemereDog.ground(scene.layers.actors) : null;
+    scene.ground = ground;
     scene.layers.actors && scene.layers.actors.querySelectorAll('[data-km-actor]').forEach((el) => {
       const [hx, hy] = el.getAttribute('data-km-home').split(/\s+/).map(Number);
       const key = el.getAttribute('data-km-actor');
-      cast[key] = { el, hx, hy, x: hx, y: hy, walk: null };
       const name = el.getAttribute('data-km-name') || key;
+      // The dog is its own button (fetch, /kit/kindlemere-dog.js), so its wrapper is not one. The wrapper still takes
+      // clicks for what a room puts in it (Tumble's room seats the person's other dogs there).
+      if (key === 'dog') return;
+      cast[key] = {
+        key, el, hx, hy, x: hx, y: hy, walk: null, moving: false, mode: 'home', phase: 0, dir: 1,
+        way: WAYS[key] || WAYS.nutrition, nextAt: performance.now() + rand(1500, 9000), pauseUntil: 0,
+        locked: key === roomKey(),
+      };
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
       el.setAttribute('aria-label', name === 'dog' ? 'The dog' : name);
@@ -400,18 +448,31 @@
       scope.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); use(); } });
     }
     scene.cast = cast;
-    scene.state = 'home';
-    scene.visit = 0;
+    scene.state = 'free';
+    scene.visit = Math.floor(Math.random() * VISITS.length);
+    scene.nextVisit = performance.now() + rand(16000, 30000);
+    scene.nextChat = performance.now() + rand(6000, 14000);
   }
 
-  function stand(a, x, y, t, walking) {
-    a.x = x;
-    a.y = y;
-    if (!walking && Math.abs(x - a.hx) < 0.5 && Math.abs(y - a.hy) < 0.5) { a.el.removeAttribute('transform'); return; }
-    const k = clamp(1 + (y - a.hy) * 0.0016, 0.7, 1.2); // nearer the front is bigger
-    const hop = walking ? -Math.abs(Math.sin(t / 95)) * 5 : 0;
-    const tilt = walking ? Math.sin(t / 190) * 2.5 : 0;
-    a.el.setAttribute('transform', `translate(${x.toFixed(1)} ${(y + hop).toFixed(1)}) rotate(${tilt.toFixed(2)}) scale(${k.toFixed(3)}) translate(${-a.hx} ${-a.hy})`);
+  /** Draw a character where it is: a step, a hop, a float, a wobble or a wiggle when it moves; at home, as drawn. */
+  function stand(a) {
+    if (!a.moving && Math.abs(a.x - a.hx) < 0.5 && Math.abs(a.y - a.hy) < 0.5) { a.el.removeAttribute('transform'); return; }
+    const k = depthAt(a.y) / depthAt(a.hy);
+    let lift = 0;
+    let tilt = 0;
+    let sx = 1;
+    let sy = 1;
+    if (a.moving) {
+      const p = a.phase;
+      const g = a.walk && a.walk.visit ? (a.way.gait === 'float' ? 'float' : 'walk') : a.way.gait;
+      if (g === 'walk') { lift = Math.abs(Math.sin(p / 18)) * 5; tilt = Math.sin(p / 36) * 3; }
+      else if (g === 'hop') { const h = Math.abs(Math.sin(p / 24)); lift = h * 13; sy = 0.94 + h * 0.08; sx = 1.05 - h * 0.06; }
+      else if (g === 'step') { lift = Math.abs(Math.sin(p / 22)) * 4; tilt = Math.sin(p / 44) * 1.6; }
+      else if (g === 'float') { tilt = a.dir * 5; }
+      else if (g === 'roll') { lift = Math.abs(Math.sin(p / 28)) * 4; tilt = Math.sin(p / 28) * 10; }
+      else if (g === 'wiggle') { lift = Math.abs(Math.sin(p / 15)) * 3; tilt = Math.sin(p / 11) * 7; }
+    }
+    a.el.setAttribute('transform', `translate(${a.x.toFixed(1)} ${(a.y - lift * k).toFixed(1)}) rotate(${tilt.toFixed(2)}) scale(${(k * sx).toFixed(3)} ${(k * sy).toFixed(3)}) translate(${-a.hx} ${-a.hy})`);
   }
 
   function route(points, speed) {
@@ -435,37 +496,98 @@
     return last ? last[1] : [0, 0];
   }
 
-  function dogPart(scene) { return scene.root.querySelector('[data-km-part="dog"]'); }
+  const free = (scene, a, t) => a.mode !== 'visit' && !a.locked && !scene.night && !(window.kindlemere && window.kindlemere.held)
+    && !(a.key === 'nutrition-spud' && !scene.dinner) && !a.el.hasAttribute('data-km-awake') && t > a.pauseUntil;
+  const onGround = (scene, x, y) => !scene.ground || scene.ground.where(x, y) === 'ground';
+
+  /** A stroll about its own place: somewhere in its patch, or home again. */
+  function potter(scene, a, t) {
+    const away = Math.hypot(a.x - a.hx, a.y - a.hy) > 6;
+    let to = null;
+    if (away && Math.random() < 0.38) to = [a.hx, a.hy];
+    for (let i = 0; !to && i < 12; i += 1) {
+      const x = a.hx + rand(-1, 1) * a.way.zone[0];
+      const y = a.hy + rand(-1, 1) * a.way.zone[1];
+      if (Math.hypot(x - a.x, y - a.y) > 24 && onGround(scene, x, y)) to = [x, y];
+    }
+    a.nextAt = t + rand(3500, 11000);
+    if (!to) return false;
+    a.walk = route([[a.x, a.y], to], a.way.speed);
+    a.mode = 'potter';
+    a.moving = true;
+    return true;
+  }
+
+  /** Two neighbours have a word: their bubbles take turns and their faces change, nobody walks. */
+  function chat(scene, t) {
+    scene.nextChat = t + rand(11000, 20000);
+    if (scene.state !== 'free' || scene.night) return;
+    const idle = Object.values(scene.cast).filter((a) => !a.walk && a.mode !== 'visit' && !(a.key === 'nutrition-spud' && !scene.dinner) && t > a.pauseUntil);
+    for (let i = 0; i < 8; i += 1) {
+      const a = idle[Math.floor(Math.random() * idle.length)];
+      const b = idle.filter((x) => x !== a && Math.hypot(x.x - a.x, x.y - a.y) < 260)[0];
+      if (!a || !b) continue;
+      const pair = [a, b];
+      const moods = ['happy', 'thinking', 'oh'];
+      for (let turn = 0; turn < 4; turn += 1) {
+        setTimeout(() => {
+          pair.forEach((p, j) => {
+            if (j === turn % 2) p.el.setAttribute('data-km-talk', '1'); else p.el.removeAttribute('data-km-talk');
+            const m = moods[Math.floor(Math.random() * moods.length)];
+            if (m === 'happy') p.el.removeAttribute('data-km-mood'); else p.el.setAttribute('data-km-mood', m);
+          });
+        }, turn * 1500);
+      }
+      setTimeout(() => pair.forEach((p) => { p.el.removeAttribute('data-km-talk'); p.el.removeAttribute('data-km-mood'); }), 6000);
+      return;
+    }
+  }
 
   function quiet(scene) {
     Object.values(scene.cast).forEach((a) => { a.el.removeAttribute('data-km-talk'); a.el.removeAttribute('data-km-mood'); });
   }
 
-  function setOut(scene) {
-    const v = VISITS[scene.visit % VISITS.length];
-    scene.visit += 1;
-    const going = v.who.map((key, i) => [scene.cast[key], v.to[i]]).filter(([a]) => a && a.el.getBoundingClientRect().width > 0);
-    if (!going.length) return;
-    going.forEach(([a, to]) => { a.walk = route([[a.x, a.y], ...v.via, to], SPEED); });
-    const dog = dogPart(scene);
-    if (going.some(([a]) => a === scene.cast.dog) && dog) scene.cast.dog.el.classList.add('km-ashore');
-    if (dog) dog.classList.remove('dt-sit');
-    scene.guests = going.map(([a]) => a);
-    scene.via = v.via;
-    scene.meet = v.to[0];
-    scene.state = 'out';
+  /** A group sets out along the paths to visit another place (the dog comes too when it is free). */
+  function setOut(scene, t) {
+    scene.nextVisit = t + rand(32000, 58000);
+    const quietPage = t - lastInput > REST_MS;
+    for (let tries = 0; tries < VISITS.length; tries += 1) {
+      const v = VISITS[scene.visit % VISITS.length];
+      scene.visit += 1;
+      const going = v.who.map((key, i) => [scene.cast[key], v.to[i]])
+        .filter(([a]) => a && a.el.getBoundingClientRect().width > 0 && (!a.locked || quietPage) && !(a.key === 'nutrition-spud' && !scene.dinner));
+      if (!going.length) continue;
+      going.forEach(([a, to]) => {
+        a.walk = route([[a.x, a.y], ...v.via, to], SPEED);
+        a.walk.visit = true;
+        a.mode = 'visit';
+        a.moving = true;
+      });
+      const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+      if (v.dog && dog && dog.visit) dog.visit([...v.via, v.dog]);
+      scene.guests = going.map(([a]) => a);
+      scene.via = v.via;
+      scene.meet = v.to[0];
+      scene.state = 'out';
+      return true;
+    }
+    return false;
   }
 
   function goHome(scene, fast) {
     quiet(scene);
-    const dog = dogPart(scene);
-    if (dog) dog.classList.remove('dt-sit');
-    Object.entries(scene.cast).forEach(([key, a]) => {
+    const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+    if (dog && dog.home) dog.home();
+    Object.values(scene.cast).forEach((a) => {
       if (a.el.hasAttribute('data-km-awake')) return;
-      if (Math.abs(a.x - a.hx) < 0.5 && Math.abs(a.y - a.hy) < 0.5) { a.walk = null; return; }
-      if (fast && key === 'dog') { a.walk = null; stand(a, a.hx, a.hy, 0, false); a.el.classList.remove('km-ashore'); return; }
-      const back = !fast && scene.via ? [[a.x, a.y], ...scene.via.slice().reverse(), [a.hx, a.hy]] : [[a.x, a.y], [a.hx, a.hy]];
+      const guest = scene.guests && scene.guests.includes(a);
+      if (!fast && !guest) return;
+      if (Math.abs(a.x - a.hx) < 0.5 && Math.abs(a.y - a.hy) < 0.5) { a.walk = null; a.moving = false; a.mode = 'home'; stand(a); return; }
+      const back = !fast && guest && scene.via ? [[a.x, a.y], ...scene.via.slice().reverse(), [a.hx, a.hy]] : [[a.x, a.y], [a.hx, a.hy]];
       a.walk = route(back, fast ? Math.max(SPEED * 4, Math.hypot(a.x - a.hx, a.y - a.hy) / 0.45) : SPEED);
+      a.walk.visit = true;
+      a.mode = 'back';
+      a.moving = true;
     });
     scene.state = 'back';
     kick();
@@ -474,7 +596,7 @@
   function talk(scene, t) {
     if (t < scene.nextLine) return;
     scene.nextLine = t + 2200;
-    const hosts = Object.values(scene.cast).filter((a) => !scene.guests.includes(a) && Math.hypot(a.hx - scene.meet[0], a.hy - scene.meet[1]) < NEAR);
+    const hosts = Object.values(scene.cast).filter((a) => !scene.guests.includes(a) && !a.walk && Math.hypot(a.x - scene.meet[0], a.y - scene.meet[1]) < NEAR);
     const all = scene.guests.concat(hosts);
     const turn = (scene.turn = (scene.turn || 0) + 1);
     const speaker = turn % 2 && hosts.length ? hosts[turn % hosts.length] : scene.guests[turn % scene.guests.length];
@@ -486,33 +608,44 @@
     });
   }
 
-  /** One frame of the cast: walkers advance; arrivals start the talk; the talk ends in the walk home. */
+  /** One frame of the cast: walkers advance (easing in and out); a visit's arrivals start the talk; the talk ends in
+   * the walk home. */
   function cast(scene, t, dt) {
     let moving = false;
     for (const a of Object.values(scene.cast)) {
       if (!a.walk) continue;
-      a.walk.d = Math.min(a.walk.len, a.walk.d + a.walk.speed * dt);
-      const [x, y] = along(a.walk);
-      const done = a.walk.d >= a.walk.len;
-      stand(a, x, y, t, !done);
-      if (done) {
-        a.walk = null;
-        if (scene.state === 'back' && Math.abs(x - a.hx) < 0.5 && Math.abs(y - a.hy) < 0.5) { stand(a, a.hx, a.hy, t, false); a.el.classList.remove('km-ashore'); }
-      } else moving = true;
+      const w = a.walk;
+      const k = depthAt(a.y) / depthAt(a.hy);
+      const ease = clamp(Math.min(w.d, w.len - w.d) / 34, 0.35, 1);
+      const step = w.speed * (w.visit ? 1 : k) * ease * dt;
+      w.d = Math.min(w.len, w.d + step);
+      const [x, y] = along(w);
+      if (Math.abs(x - a.x) > 0.01) a.dir = x > a.x ? 1 : -1;
+      a.x = x;
+      a.y = y;
+      a.phase += step;
+      a.moving = w.d < w.len;
+      stand(a);
+      if (a.moving) { moving = true; continue; }
+      a.walk = null;
+      if (a.mode === 'back' && Math.abs(x - a.hx) < 0.5 && Math.abs(y - a.hy) < 0.5) { a.mode = 'home'; stand(a); }
+      else if (a.mode === 'potter') {
+        a.mode = Math.abs(x - a.hx) < 0.5 && Math.abs(y - a.hy) < 0.5 ? 'home' : 'idle';
+        // a look about on arrival, now and then
+        if (Math.random() < 0.35) { a.el.setAttribute('data-km-mood', 'thinking'); setTimeout(() => { if (!a.el.hasAttribute('data-km-talk')) a.el.removeAttribute('data-km-mood'); }, 1300); }
+      }
     }
-    if (scene.state === 'out' && !moving) {
+    if (scene.state === 'out' && !scene.guests.some((a) => a.moving)) {
       scene.state = 'talk';
       scene.talkUntil = t + TALK_MS;
       scene.nextLine = t;
-      const dog = dogPart(scene);
-      if (dog && scene.guests.includes(scene.cast.dog)) dog.classList.add('dt-sit');
     }
     if (scene.state === 'talk') {
       if (t > scene.talkUntil) goHome(scene, false);
       else talk(scene, t);
       return true;
     }
-    if (scene.state === 'back' && !moving) { scene.state = 'home'; scene.guests = null; lastInput = t - REST_MS + 12000; }
+    if (scene.state === 'back' && !Object.values(scene.cast).some((a) => a.mode === 'back')) { scene.state = 'free'; scene.guests = null; }
     return moving;
   }
 
@@ -524,24 +657,190 @@
     last = t;
     let again = false;
     for (const s of scenes) {
+      if (s.seen === false || !s.cast) continue;
       if (parallax(s)) again = true;
-      if (s.cast && cast(s, t, dt)) again = true;
+      if (cast(s, t, dt)) again = true;
     }
     if (again) kick(); else last = 0;
   }
   function kick() { if (!raf && !still) raf = requestAnimationFrame(frame); }
 
-  function resting() {
-    if (still || document.hidden || (window.kindlemere && window.kindlemere.held)) return;
-    const t = performance.now();
-    if (t - lastInput < REST_MS) return;
-    for (const s of scenes) if (s.cast && s.state === 'home' && !s.night) { setOut(s); kick(); }
-    lastInput = t; // the next visit waits its turn
+  /** Whoever stands nearer the front is drawn over whoever is behind, the dog included (not while one has the focus). */
+  function layerByDepth(scene) {
+    const host = scene.layers.actors && scene.layers.actors.querySelector('[data-km-layer="actors"]');
+    if (!host || host.contains(document.activeElement)) return;
+    const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+    const items = [...host.children].filter((n) => n.hasAttribute('data-km-actor')).map((el) => {
+      const key = el.getAttribute('data-km-actor');
+      const a = scene.cast[key];
+      const y = a ? a.y : key === 'dog' && dog && dog.where ? dog.where().y : Number((el.getAttribute('data-km-home') || '0 0').split(/\s+/)[1]);
+      return { el, y };
+    });
+    const sorted = items.slice().sort((p, q) => p.y - q.y);
+    if (sorted.every((it, i) => it.el === items[i].el)) return;
+    // The fewest moves (a moved character's own animations start over): keep the longest run already in depth order
+    // and put only the others in their places.
+    const rank = new Map(sorted.map((it, i) => [it.el, i]));
+    const seq = items.map((it) => rank.get(it.el));
+    const len = seq.map(() => 1);
+    const prev = seq.map(() => -1);
+    for (let i = 0; i < seq.length; i += 1) {
+      for (let j = 0; j < i; j += 1) if (seq[j] < seq[i] && len[j] + 1 > len[i]) { len[i] = len[j] + 1; prev[i] = j; }
+    }
+    let best = 0;
+    for (let i = 1; i < seq.length; i += 1) if (len[i] > len[best]) best = i;
+    const keep = new Set();
+    for (let i = best; i >= 0; i = prev[i]) keep.add(items[i].el);
+    let next = items[items.length - 1].el.nextSibling;   // whatever follows the characters stays after them
+    for (let i = sorted.length - 1; i >= 0; i -= 1) {
+      const el = sorted[i].el;
+      if (!keep.has(el)) host.insertBefore(el, next);
+      next = el;
+    }
   }
 
-  function stir() {
-    lastInput = performance.now();
-    for (const s of scenes) if (s.cast && s.state !== 'home') goHome(s, true);
+  /** Only what is in the picture is a stop for the keyboard or read out: in a place's view most of the world is off
+   * camera. A scene shown as a plain picture (role img, the Kindlemere page's cards) has nothing to reach. */
+  function reach(el, on) {
+    if (on !== el.hasAttribute('data-km-off')) return;
+    if (on) { el.removeAttribute('data-km-off'); el.removeAttribute('aria-hidden'); el.setAttribute('tabindex', '0'); return; }
+    if (el.contains(document.activeElement)) return;   // never pull the focus out from under someone
+    el.setAttribute('data-km-off', '');
+    el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('tabindex', '-1');
+  }
+  function reachable(scene) {
+    if (scene.root.getAttribute('role') === 'img') return;
+    const [vx, vy, vw, vh] = scene.vb;
+    const seen = (x, y) => x > vx - 30 && x < vx + vw + 30 && y > vy + 20 && y < vy + vh + 80;
+    for (const a of Object.values(scene.cast)) reach(a.el, seen(a.x, a.y));
+    const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
+    const dogEl = scene.layers.actors && scene.layers.actors.querySelector('[data-km-part="dog"][role="button"]');
+    if (dog && dog.where && dogEl) { const w = dog.where(); reach(dogEl, seen(w.x, w.y)); }
+    // the signpost's arms and the telescope stand still: looked at again only when the camera moves
+    const at = scene.vb.map(Math.round).join();
+    if (scene.reachAt === at) return;
+    scene.reachAt = at;
+    const r = scene.root.getBoundingClientRect();
+    scene.root.querySelectorAll('[data-km-part^="sign-"], [data-km-part="telescope"]').forEach((el) => {
+      const b = el.getBoundingClientRect();
+      reach(el, b.right > r.left && b.left < r.right && b.bottom > r.top && b.top < r.bottom);
+    });
+  }
+
+  /** The cast's clock, a few times a second: strolls, chats and visits start here. */
+  function tick() {
+    if (still || document.hidden) return;
+    const t = performance.now();
+    const held = window.kindlemere && window.kindlemere.held;
+    let started = false;
+    for (const s of scenes) {
+      if (!s.cast || s.seen === false) continue;
+      layerByDepth(s);
+      reachable(s);
+      if (held || s.night) {
+        if (Object.values(s.cast).some((a) => !['home', 'back', 'watch'].includes(a.mode) && !a.el.hasAttribute('data-km-awake'))) { goHome(s, true); started = true; }
+        continue;
+      }
+      for (const a of Object.values(s.cast)) if (!a.walk && free(s, a, t) && t > a.nextAt && potter(s, a, t)) started = true;
+      if (s.state === 'free' && t > s.nextVisit && setOut(s, t)) started = true;
+      if (t > s.nextChat) chat(s, t);
+    }
+    if (started) kick();
+  }
+
+  function stir() { lastInput = performance.now(); }
+
+  /* ---------------------------------------------------------------- one world, four cameras: walking between places */
+  // Owner, 2026-10-08: "Need to be able to navigate between the 3 scenes or return to the main full view screen while
+  // inside a scene ... flow inside each scene". The places are one world seen through four cameras (VIEWS in
+  // kit/art/make-kindlemere.js), so going from one place to another is a camera move: the view glides toward the next
+  // place and dips to the page's colour, and the next page starts where it left off and glides the rest of the way in.
+  // The ways: the signpost's arms in the scene, a keeper on the Kindlemere page, and the bar on every page (/kit/kit.js).
+  // Reduced motion: a plain page change.
+  const CAMERAS = { realm: [48, 27, 3104, 1746], orchard: [260, 700, 1024, 576], hill: [820, 610, 1088, 612], field: [1976, 760, 1200, 675] };
+  const VIEW_OF = { realm: 'realm', nutrition: 'orchard', fitness: 'hill', 'dog-training': 'field' };
+  const PLACE_NAMES = { nutrition: 'the Orchard', fitness: 'Stepping Hill', 'dog-training': 'Lakeside Field' };
+  const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const lerpBox = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+
+  function veil(scene) {
+    let v = scene.root.querySelector('.km-veil');
+    if (!v) {
+      v = document.createElement('div');
+      v.className = 'km-veil';
+      v.style.cssText = `position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:${getComputedStyle(document.body).backgroundColor}`;
+      scene.root.appendChild(v);
+    }
+    return v;
+  }
+  /** Glide a scene's camera from one box to another, its veil going from v0 to v1 on the way. */
+  function glide(scene, from, to, ms, v0, v1) {
+    return new Promise((resolve) => {
+      const veilEl = veil(scene);
+      const t0 = performance.now();
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / ms);
+        scene.box = lerpBox(from, to, easeInOut(k));
+        crop(scene);
+        veilEl.style.opacity = String(v0 + (v1 - v0) * k);
+        if (k < 1) requestAnimationFrame(step); else resolve();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  let leaving = false;
+  /** Go to another place (a room's address, or the Kindlemere page), gliding toward it on the way out. */
+  async function go(url, place) {
+    if (!url || leaving) return;
+    leaving = true;
+    setTimeout(() => { leaving = false; }, 2500);
+    // the scene in view glides (the realm, or a place's picture further down the Kindlemere page)
+    const hero = scenes.find((s) => s.seen) || scenes[0];
+    const to = CAMERAS[VIEW_OF[place] || place];
+    if (!hero || !to || still) { location.assign(url); return; }
+    const mid = lerpBox(hero.box.slice(), to, 0.55);
+    await glide(hero, hero.box.slice(), mid, 620, 0, 1);
+    location.assign(`${url.split('#')[0]}#km-from=${mid.map((v) => Math.round(v)).join(',')}`);
+  }
+  /** Arriving from another place: start where that page's camera left off and glide the rest of the way in. */
+  async function arrive(scene) {
+    const m = /km-from=(-?\d+),(-?\d+),(\d+),(\d+)/.exec(location.hash);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname + location.search);
+    const from = m.slice(1, 5).map(Number);
+    if (still || from[2] < 100 || from[3] < 60) return;
+    const to = scene.box.slice();
+    veil(scene).style.opacity = '1';
+    document.documentElement.classList.remove('km-arriving');
+    await glide(scene, from, to, 760, 1, 0);
+    draw(scene, herePlaceCache, now());
+  }
+
+  /** The signpost's arms are ways to their places (Louise's points across the lake). */
+  function signposts(scene) {
+    scene.root.querySelectorAll('[data-km-part^="sign-"]').forEach((el) => {
+      const key = el.getAttribute('data-km-part').slice(5);
+      el.setAttribute('tabindex', '0');
+      el.style.cursor = 'pointer';
+      const on = (fn) => {
+        el.addEventListener('click', fn);
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
+      };
+      if (!PLACE_NAMES[key]) {
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', 'Louise, the librarian, across the lake');
+        on(() => say(scene, el, 'Louise is across the lake. Questions go to her as lanterns from the dock.'));
+        return;
+      }
+      el.setAttribute('role', 'link');
+      el.setAttribute('aria-label', `To ${PLACE_NAMES[key]}`);
+      on(async () => {
+        if (key === roomKey()) { say(scene, el, `You're in ${PLACE_NAMES[key]}.`); return; }
+        const url = window.kit && window.kit.address ? await window.kit.address(key) : null;
+        if (url) go(url, key); else say(scene, el, `${PLACE_NAMES[key].replace(/^the /, 'The ')} isn't open from here.`);
+      });
+    });
   }
 
   /* ---------------------------------------------------------------- the telescope, the watcher, the dog houses */
@@ -609,13 +908,19 @@
       if (on && !a.el.hasAttribute('data-km-awake')) {
         a.el.setAttribute('data-km-awake', '1');
         a.el.setAttribute('data-km-mood', 'oh');
+        a.walk = null;
+        a.moving = false;
+        a.mode = 'watch';
         a.x = LOOKOUT[0];
         a.y = LOOKOUT[1];
         a.el.setAttribute('transform', `translate(${LOOKOUT[0]} ${LOOKOUT[1]}) scale(0.34) translate(${-a.hx} ${-a.hy})`);
       } else if (!on && a.el.hasAttribute('data-km-awake')) {
         a.el.removeAttribute('data-km-awake');
         a.el.removeAttribute('data-km-mood');
-        stand(a, a.hx, a.hy, 0, false);
+        a.x = a.hx;
+        a.y = a.hy;
+        a.mode = 'home';
+        stand(a);
       }
     }
   }
@@ -639,7 +944,9 @@
   /* ---------------------------------------------------------------- start */
   async function start() {
     const imgs = Array.from(document.querySelectorAll('img[src^="/kit/art/kindlemere"]')).filter((i) => /\/kindlemere(-[a-z]+)?\.svg$/.test(i.getAttribute('src')));
-    if (!imgs.length) return;
+    if (!imgs.length) { document.documentElement.classList.remove('km-arriving'); return; }
+    // The page's own scripts first (they listen for kindlemere:ready, and a room may bring its own dog).
+    if (document.readyState === 'loading') await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
     const place = await herePlace();
     herePlaceCache = place;
     for (const img of imgs) {
@@ -649,8 +956,25 @@
       crop(scene);
       draw(scene, place, now());
       makeCast(scene);
+      signposts(scene);
+      // A layer with something to press in it (the signpost's arms, the telescope) is not hidden from assistive tech;
+      // its other words (plates, labels) still are.
+      for (const s of Object.values(scene.layers)) {
+        if (s.getAttribute('aria-hidden') !== 'true' || !s.querySelector('[role]')) continue;
+        s.removeAttribute('aria-hidden');
+        s.querySelectorAll('text').forEach((t) => { if (!t.closest('[role]')) t.setAttribute('aria-hidden', 'true'); });
+      }
       watch(scene, now());
       scenes.push(scene);
+      if (scenes.length === 1) arrive(scene);
+      // The dog: a day of its own, and fetch (/kit/kindlemere-dog.js). A room that brings its own dog attaches it itself.
+      const dogEl = scene.layers.actors && scene.layers.actors.querySelector('[data-km-part="dog"]');
+      if (dogEl && window.kindlemereDog && !window.kindlemereDogManual) {
+        scene.dog = window.kindlemereDog.attach(scene.layers.actors, dogEl, { say: (text) => say(scene, dogEl, text) });
+      }
+      reachable(scene);
+      // Only what is on screen moves.
+      if (window.IntersectionObserver) new IntersectionObserver((es) => { scene.seen = es.some((x) => x.isIntersecting); if (scene.seen) kick(); }).observe(scene.root);
       if (!still) {
         scene.root.addEventListener('pointermove', (e) => {
           const r = scene.root.getBoundingClientRect();
@@ -662,28 +986,30 @@
       const part = (name) => scene.root.querySelector(`[data-km-part="${name}"]`);
       window.dispatchEvent(new CustomEvent('kindlemere:ready', { detail: { svg: scene.layers.actors || scene.root, scene: scene.root, part } }));
     }
-    const tick = () => scenes.forEach((s) => { draw(s, place, now()); watch(s, now()); });
+    document.documentElement.classList.remove('km-arriving');
+    const hourly = () => scenes.forEach((s) => { draw(s, place, now()); watch(s, now()); });
     window.addEventListener('kindlemere:dogs', (e) => {
       const d = e.detail || {};
       const names = Array.isArray(d.names) ? d.names.filter((n) => typeof n === 'string') : [];
       scenes.filter((s) => !d.svg || s.root === d.svg || s.root.contains(d.svg)).forEach((s) => houses(s, names));
     });
-    setInterval(tick, 60000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+    setInterval(hourly, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) hourly(); });
     if (window.ResizeObserver) {
-      const ro = new ResizeObserver(() => scenes.forEach((s) => { crop(s); draw(s, place, now()); }));
+      const ro = new ResizeObserver(() => scenes.forEach((s) => { crop(s); draw(s, place, now()); reachable(s); }));
       scenes.forEach((s) => ro.observe(s.root));
     }
     if (still) return;
     for (const type of ['pointerdown', 'keydown', 'wheel', 'touchstart']) window.addEventListener(type, stir, { capture: true, passive: true });
-    window.addEventListener('kindlemere:hold', () => { if (window.kindlemere && window.kindlemere.held) stir(); });
+    window.addEventListener('kindlemere:hold', tick);
     window.addEventListener('deviceorientation', (e) => {
       if (e.gamma === null || e.beta === null) return;
       scenes.forEach((s) => { s.target = [clamp(e.gamma / 30, -1, 1), clamp((e.beta - 40) / 30, -1, 1)]; });
       kick();
     });
-    setInterval(resting, 1000);
+    setInterval(tick, 400);
   }
 
+  if (window.kindlemere) Object.assign(window.kindlemere, { go, say: (el, text) => { const s = scenes.find((x) => x.root.contains(el)); if (s) say(s, el, text); } });
   start();
 }());

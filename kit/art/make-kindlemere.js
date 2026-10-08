@@ -585,10 +585,12 @@ function signpost() {
   };
   let o = `<ellipse cx="800" cy="614" rx="40" ry="9" fill="#E8D7B4"/>` + stones(764, 836, 616, 2.5, [C.creamDeep, '#D8D1BC', C.cream]) + `<g transform="translate(800 540) scale(0.7)" filter="url(#layer-sm)">${shadow(0, 108, 18, 4)}`;
   o += `<rect x="-4" y="0" width="8" height="108" rx="4" fill="${C.clay3}"/><rect x="-6" y="-6" width="12" height="8" rx="4" fill="${C.clay4}"/>`;
-  o += `<g transform="rotate(-3)">${arm(6, -1, 62, C.nLand, 'Orchard', C.paper)}</g>`;
-  o += `<g transform="rotate(-8)">${arm(26, -1, 52, C.fLand, 'Hill', C.paper)}</g>`;
-  o += `<g transform="rotate(-2)">${arm(46, 1, 60, C.dLand, 'Field', C.paper)}</g>`;
-  o += `<g transform="rotate(3)">${arm(66, 1, 58, C.mere, 'Louise', C.paper)}</g>`;
+  // Each arm is a way to its place: the live script makes it a link (owner, 2026-10-08: "navigate between the 3 scenes").
+  const way = (rot, key, body) => `<g transform="rotate(${rot})" data-km-part="sign-${key}" pointer-events="visiblePainted">${body}</g>`;
+  o += way(-3, 'nutrition', arm(6, -1, 62, C.nLand, 'Orchard', C.paper));
+  o += way(-8, 'fitness', arm(26, -1, 52, C.fLand, 'Hill', C.paper));
+  o += way(-2, 'dog-training', arm(46, 1, 60, C.dLand, 'Field', C.paper));
+  o += way(3, 'louise', arm(66, 1, 58, C.mere, 'Louise', C.paper));
   o += `<path d="M-14 108 c4 -8 10 -8 14 0 c4 -8 10 -8 14 0" fill="${C.dGrassDeep}"/>`;
   o += `</g>`;
   return g('id="km-signpost"', o);
@@ -1020,6 +1022,48 @@ function glitter() {
   return `<g id="km-glitter" transform="translate(960 0)" stroke="#FFE7B0" opacity="0" class="km-screen" pointer-events="none">${o}</g>`;
 }
 
+/* ------------------------------------------------------------------ the ground the live scene walks on (world units) */
+/*
+ * For the live script (kit/dashboard/public/kindlemere-dog.js and the cast in kindlemere.js): where a character or the
+ * dog may stand, as one outline, and the water's edge. The top edge is the back of the walkable land: the Orchard's
+ * lower terrace, in front of the long table and the basket under the second tree, Stepping Hill's face up to its
+ * skyline (from clear of that tree's canopy), in front of the dog house, and the Field in front of its fence, weave
+ * poles and hoop. The bottom edge runs 40 units into the water, the shallows the dog splashes through. Owner,
+ * 2026-10-08: "I could throw it up the hill or to the orchard and the dog would go fetch it".
+ */
+function ground() {
+  const hill = (hx, hy) => [1630 + 2.6 * (hx - 815), 1112 + 2.6 * (hy - 556)];
+  const bez = (p, t) => {
+    const u = 1 - t;
+    return [0, 1].map((i) => u * u * u * p[0][i] + 3 * u * u * t * p[1][i] + 3 * u * t * t * p[2][i] + t * t * t * p[3][i]);
+  };
+  // The hill's skyline, the same two curves hillBody() draws, sampled and taken into the world.
+  const sky = [];
+  for (const curve of [[[520, 556], [590, 470], [690, 300], [820, 278]], [[820, 278], [950, 300], [1050, 470], [1110, 556]]]) {
+    for (let i = 0; i <= 24; i += 1) sky.push(hill(...bez(curve, i / 24)));
+  }
+  const skyY = (x) => {
+    for (let i = 1; i < sky.length; i += 1) {
+      const [x0, y0] = sky[i - 1];
+      const [x1, y1] = sky[i];
+      if (x >= x0 && x <= x1) return y0 + (y1 - y0) * ((x - x0) / Math.max(1e-6, x1 - x0));
+    }
+    return 1112;
+  };
+  const top = [[0, 1064], [690, 1076], [700, 1174], [1000, 1174], [1000, 1062], [1140, 1062]];
+  for (const [x, y] of sky) if (x > 1140 && x < 2140) top.push([x, Math.min(y, 1112)]);
+  top.push([2140, skyY(2140)], [2140, 1130], [2290, 1130], [2290, skyY(2290)]);
+  for (const [x, y] of sky) if (x > 2290 && x < 2397) top.push([x, y]);
+  top.push([2397, 1104], [3200, 1104]);
+  const water = (x) => 2 * (shoreY(x / 2) + 40);
+  const bottom = [];
+  for (let x = 3200; x >= 0; x -= 40) bottom.push([x, water(x) + 40]);
+  const shore = [];
+  for (let x = 0; x <= 3200; x += 40) shore.push([x, water(x)]);
+  const pts = (list) => list.map(([x, y]) => `${f(x)},${f(y)}`).join(' ');
+  return `data-km-walk="${pts(top.concat(bottom))}" data-km-shore="${pts(shore)}"`;
+}
+
 /* ------------------------------------------------------------------ where the keepers stand (world units) */
 const KEEPERS = {
   nutrition: { x: 600, y: 1166, make: avocadoKeeper, id: 'km-keeper-nutrition', name: 'Avo' },
@@ -1160,13 +1204,16 @@ function build(view) {
     `<g data-km-layer="hill" filter="url(#km-light)"><g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g></g>` +
     `<g data-km-layer="land" filter="url(#km-light)"><g transform="scale(2)">${land2}</g></g>` +
     `<g data-km-layer="life"><g filter="url(#km-light)"><g transform="scale(2)">${LIFE}</g>${sleepingDogAtHome()}</g>${glitter()}${nightLights()}</g>` +
-    `<g data-km-layer="actors">${actors}</g>` +
+    `<g data-km-layer="actors" ${ground()}>${actors}</g>` +
     `<g data-km-layer="grain"><rect id="km-grain" class="km-grain" width="${W}" height="${H}" filter="url(#grain)" opacity="0.3" pointer-events="none"/></g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${view.box}" role="img" aria-labelledby="km-title km-desc" data-km-view="${view.key}" data-km-sky="${view.sky.join(' ')}">
+  // id km-still: shown as a picture at <view>.svg#km-still it holds still (the Kindlemere page's cards); the rule
+  // :root:target stops its animations, which would otherwise redraw the whole picture every frame.
+  return `<svg xmlns="http://www.w3.org/2000/svg" id="km-still" viewBox="${view.box}" role="img" aria-labelledby="km-title km-desc" data-km-view="${view.key}" data-km-sky="${view.sky.join(' ')}">
 <title id="km-title">${view.title}</title>
 <desc id="km-desc">${DESC}</desc>
 <!-- Drawn by kit/art/make-kindlemere.js. Edit that file, not this one. Lit and timed by /kit/kindlemere.js. -->
 <style>${STYLE}${FIELD_DOG.style}
+  :root:target * { animation: none !important; }
 </style>
 ${defs(view, true).replace('</defs>', `${FIELD_DOG.defs}</defs>`)}
 ${body}

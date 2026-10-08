@@ -5,11 +5,15 @@
  *
  *   kit.api(path, { method, body })   the parsed JSON answer; throws an Error with .status and the server's sentence
  *   kit.agent()                       /api/agent, fetched once
+ *   kit.park()                        the park's rooms, /api/park, fetched once
+ *   kit.address(place)                a place's address from here: 'realm' (the Kindlemere page), or an agent's key
+ *                                     (its room on this computer, or its tailnet address when this page came from there)
  */
 (function () {
   const meta = document.querySelector('meta[name="kit-token"]');
   const token = meta ? meta.getAttribute('content') : '';
   let agentPromise = null;
+  let parkPromise = null;
 
   async function api(path, opts) {
     const o = opts || {};
@@ -35,15 +39,74 @@
     return agentPromise;
   }
 
-  window.kit = Object.freeze({ api, agent });
+  function park() {
+    if (!parkPromise) parkPromise = (token ? api('/api/park') : Promise.resolve({})).then((p) => (p && Array.isArray(p.rooms) ? p.rooms : [])).catch(() => []);
+    return parkPromise;
+  }
+
+  const local = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+  async function address(place) {
+    if (place === 'realm') return '/kit/kindlemere.html';
+    const room = (await park()).find((r) => r.key === place);
+    return room ? (local ? room.local : room.phone) || null : null;
+  }
+
+  window.kit = Object.freeze({ api, agent, park, address });
 
   // A busy room keeps the realm's keepers at home: window.kindlemere.hold(true) while its work runs, then hold(false).
   window.kindlemere = { held: false, hold(on) { this.held = Boolean(on); window.dispatchEvent(new Event('kindlemere:hold')); } };
 
-  // A page that shows the realm's scene gets its live sky (/kit/kindlemere.js).
-  if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
-    const s = document.createElement('script');
-    s.src = '/kit/kindlemere.js';
-    document.head.appendChild(s);
+  // Arriving from another place (window.kindlemere.go): the picture waits under its veil until it is live.
+  if (/km-from=/.test(location.hash)) {
+    document.documentElement.classList.add('km-arriving');
+    setTimeout(() => document.documentElement.classList.remove('km-arriving'), 2500);
   }
+
+  // A page that shows the realm's scene gets its live sky, its people and its dog: the dog's script first, so the
+  // scene can hand it the dog (/kit/kindlemere-dog.js, then /kit/kindlemere.js).
+  if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
+    for (const src of ['/kit/kindlemere-dog.js', '/kit/kindlemere.js']) {
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = false;
+      document.head.appendChild(s);
+    }
+  }
+
+  // The ways between the places, on every page's bar (owner, 2026-10-08: "Need to be able to navigate between the 3
+  // scenes or return to the main full view screen while inside a scene"): the whole park, and the three places.
+  const PLACES = [['realm', 'Kindlemere'], ['nutrition', 'Orchard'], ['fitness', 'Hill'], ['dog-training', 'Field']];
+  async function ways() {
+    const top = document.querySelector('.km-top');
+    // pages with the scene: the rooms and the Kindlemere page (not a printed week of meals)
+    if (!top || !token || top.querySelector('.km-nav') || !document.querySelector('img[src^="/kit/art/kindlemere"], .km-live')) return;
+    const here = (document.body && document.body.getAttribute('data-agent')) || 'realm';
+    const nav = document.createElement('nav');
+    nav.className = 'km-nav';
+    nav.setAttribute('aria-label', 'Places in Kindlemere');
+    const links = PLACES.map(([key, label]) => {
+      const a = document.createElement('a');
+      a.className = 'km-nav-way';
+      a.dataset.place = key;
+      a.textContent = label;
+      if (key === here) a.setAttribute('aria-current', 'page');
+      nav.appendChild(a);
+      return a;
+    });
+    // after the agent's name, before the room's own button
+    const own = [...top.children].find((c) => c.matches('button, a.km-btn, a.km-btn-quiet, .km-btn, .km-btn-quiet'));
+    if (own) top.insertBefore(nav, own); else top.appendChild(nav);
+    for (const a of links) {
+      const key = a.dataset.place;
+      if (key === here) { a.href = location.pathname; a.addEventListener('click', (e) => e.preventDefault()); continue; }
+      const to = await address(key);
+      if (!to) { a.setAttribute('aria-disabled', 'true'); a.title = 'Not open from here'; continue; }
+      a.href = to;
+      a.addEventListener('click', (e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (window.kindlemere && typeof window.kindlemere.go === 'function') { e.preventDefault(); window.kindlemere.go(to, key); }
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ways); else ways();
 }());
