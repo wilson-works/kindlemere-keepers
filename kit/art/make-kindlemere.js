@@ -903,46 +903,10 @@ function cloudSidekick(kind) {
   };
 }
 
-function barkleySidekick(mood) {
-  // Barkley, Tumble's sidekick for outdoor play and dogs in the woods: a big stick off a tree standing on end, with bark,
-  // knots, a sprig of leaves on top and two twigs for arms.
-  const bark = '#8A5A34';
-  const barkDark = '#6E4426';
-  let o = `<path d="M22 8 C22 0 26 -6 30 -10" stroke="${barkDark}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M29 -9 c4 -6 11 -7 14 -4 c-4 4 -9 5 -14 4 Z M27 -6 c-5 -4 -10 -3 -12 0 c3 3 8 3 12 0 Z" fill="${C.nLeafLight}"/>`;
-  o += `<path d="M13 106 C9 80 11 40 15 10 C16 2 28 2 29 10 C33 40 35 80 31 106 Z" fill="${bark}"/>`;
-  o += `<path d="M25 8 C31 40 33 80 31 106 L25 106 C27 80 27 40 23 10 Z" fill="${barkDark}"/>`;
-  o += `<path d="M17 60 q2 6 0 12 M28 70 q-2 6 0 10 M18 84 q3 5 1 10 M27 16 q-2 4 0 8" stroke="#5A3820" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
-  o += `<ellipse cx="21" cy="78" rx="3" ry="2.2" fill="#5A3820"/><ellipse cx="21" cy="77.4" rx="1.6" ry="1" fill="#A87A50"/>`;
-  o += faces({ x1: 17, x2: 28, y: 30, rx: 3.6, ry: 4.2, dx: 0.8, dy: -0.8, mx: 22.5, my: 39, k: 0.6, mouth: '#3A2410', tongue: '#D96A4A', cheek: C.nGlow, cheekY: 38, cheekDx: 3, brow: '#5A3820' }, mood, { mood: 'sleepy' });
-  const wave = `<path d="M15 54 C8 50 2 44 -2 36" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none" class="km-treat"/><path d="M-2 36 c-4 -4 -3 -9 1 -10 c2 3 2 7 -1 10 Z" fill="${C.nLeafLight}"/>`;
-  const rest = `<path d="M15 58 C10 62 8 68 8 74" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
-  if (mood === 'scene') o += `<g class="km-day-only">${wave}</g><g class="km-night-only">${rest}</g>`;
-  else o += (mood === 'worried' || mood === 'sleepy') ? rest : wave;
-  o += `<path d="M30 60 C36 58 42 54 44 48" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
-  o += `<path d="M13 106 c-3 1 -6 1 -8 0 M31 106 c3 1 6 1 8 0" stroke="#5A3820" stroke-width="3" stroke-linecap="round"/>`;
-  return { body: o, cx: 22, feet: 108, head: [42, 6], w: 62, top: -14 };
-}
-
-function sizzleSidekick(mood) {
-  // Sizzle, Tumble's sidekick for food and treats: an oversized strip of bacon standing on end, wavy, with stripes of
-  // fat and a crisp edge.
-  const left = [[6, 106], [0, 88], [10, 70], [0, 52], [10, 34], [2, 16], [8, 4]];
-  const edge = (pts) => { let d = ''; for (let i = 1; i < pts.length; i += 1) { const [x0, y0] = pts[i - 1]; const [x1, y1] = pts[i]; d += ` C${x0} ${f((y0 + y1) / 2)} ${x1} ${f((y0 + y1) / 2)} ${x1} ${y1}`; } return d; };
-  const right = left.map(([x, y]) => [x + 34, y]);
-  const strip = `M${left[0][0]} ${left[0][1]}${edge(left)} L${right[right.length - 1][0]} ${right[right.length - 1][1]}${edge(right.slice().reverse())} Z`;
-  const along = (dx) => `M${left[0][0] + dx} ${left[0][1] - 2}${edge(left.map(([x, y]) => [x + dx, y]))}`;
-  let o = `<path d="${strip}" fill="#B5482E"/>`;
-  o += `<path d="${along(9)}" stroke="#F2D9B8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="${along(24)}" stroke="#F2D9B8" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-  o += `<path d="${along(31)}" stroke="#8E3420" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.8"/>`;
-  o += faces({ x1: 11, x2: 25, y: 46, rx: 4, ry: 4.6, dx: 0.8, dy: -0.8, mx: 18, my: 56, k: 0.7, mouth: '#4A1A10', tongue: '#E07A5F', cheek: C.nGlow, cheekY: 55, cheekDx: 4, brow: '#6E2A18' }, mood, { mood: 'sleepy' });
-  const wave = `<ellipse cx="-2" cy="58" rx="5" ry="4.4" fill="#B5482E" class="km-treat"/>`;
-  const rest = `<ellipse cx="2" cy="66" rx="5" ry="4.4" fill="#B5482E"/>`;
-  if (mood === 'scene') o += `<g class="km-day-only">${wave}</g><g class="km-night-only">${rest}</g>`;
-  else o += (mood === 'worried' || mood === 'sleepy') ? rest : wave;
-  o += `<ellipse cx="40" cy="64" rx="5" ry="4.4" fill="#B5482E"/>`;
-  o += `<ellipse cx="12" cy="107" rx="6" ry="3.4" fill="#8E3420"/><ellipse cx="32" cy="107" rx="6" ry="3.4" fill="#8E3420"/>`;
-  return { body: o, cx: 22, feet: 109, head: [44, 4], w: 62, top: -6 };
-}
+/** Barkley and Sizzle, drawn by lane D (agents/dog-training/art/sidekicks.js @ 9c4bda3) on the owner's word: "Both Stick
+ * and Bacon need to be taller than tumble, matching scale with Avo and Steady. And both need enhancements to match the
+ * same standard being set by Avos team". Kept in the kit like the dog. */
+const DOG_SIDEKICKS = require('./parts/dog-sidekicks.js')({ C, f, faces });
 
 function placeSidekick(id, k, x, groundY, lift, cls, sc) {
   // A sidekick on the ground beside its keeper, or (a cloud) hovering `lift` above it with its shadow on the grass.
@@ -1040,7 +1004,7 @@ function nightLights() {
   o += `<g transform="scale(2)">${land}</g>`;
   // The sleepers' z's: the avocado at the table, the ball and the dog by the house.
   const sk = SIDEKICKS;
-  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 24, sk['nutrition-spud'].y - 46, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}</g>`;
+  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 24, sk['nutrition-spud'].y - 46, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}${zees(sk['dog-training-barkley'].x + 34, sk['dog-training-barkley'].y - 196, C.cream)}${zees(sk['dog-training-sizzle'].x + 30, sk['dog-training-sizzle'].y - 200, C.cream)}</g>`;
   o += `<g class="km-night-only">${zees(KEEPERS.nutrition.x + 40, KEEPERS.nutrition.y - 170, C.cream)}${zees(KEEPERS['dog-training'].x + 44, KEEPERS['dog-training'].y - 160, C.cream)}${zees((KENNEL[0] + 52) * 2, (KENNEL[1] + 30) * 2, C.cream)}</g>`;
   return `<g id="km-glow" opacity="0" pointer-events="none">${o}</g>`;
 }
@@ -1069,8 +1033,8 @@ const SIDEKICKS = {
   'fitness-puff': { x: 1232, y: 1012, lift: 50, sc: 0.8, make: cloudSidekick('puff'), id: 'km-sidekick-puff', name: 'Puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
   'fitness-huff': { x: 1430, y: 998, lift: 66, sc: 0.8, make: cloudSidekick('huff'), id: 'km-sidekick-huff', name: 'Huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
 };
-SIDEKICKS['dog-training-barkley'] = { x: 2346, y: 1190, make: barkleySidekick, id: 'km-sidekick-barkley', name: 'Barkley', title: 'Barkley the stick, Tumble\'s sidekick for outdoor play and dogs in the woods' };
-SIDEKICKS['dog-training-sizzle'] = { x: 2604, y: 1198, make: sizzleSidekick, id: 'km-sidekick-sizzle', name: 'Sizzle', title: 'Sizzle the bacon strip, Tumble\'s sidekick for food and treats' };
+SIDEKICKS['dog-training-barkley'] = { x: 2340, y: 1210, make: DOG_SIDEKICKS.barkley, id: 'km-sidekick-barkley', name: 'Barkley', title: 'Barkley the stick, Tumble\'s sidekick for outdoor play and dogs in the woods' };
+SIDEKICKS['dog-training-sizzle'] = { x: 2604, y: 1198, make: DOG_SIDEKICKS.sizzle, id: 'km-sidekick-sizzle', name: 'Sizzle', title: 'Sizzle the bacon strip, Tumble\'s sidekick for food and treats' };
 const FIGURES = Object.assign({}, KEEPERS, SIDEKICKS);
 
 /* ------------------------------------------------------------------ styles and defs */

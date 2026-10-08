@@ -83,6 +83,7 @@ next to it: if it is flatter, emptier, smaller in the frame or less alive, it is
 | `kit/art/keepers/<agent>-<mood>.svg` | Each keeper on its own in a mood: `happy`, `thinking`, `oh`, `worried`, `sleepy`. For a page that shows how the keeper feels about what is happening (searching, nothing found, an error, asleep). The owner, on the sheet of them: "these are phenomenal mood boards!" |
 | `kit/art/keepers/<agent>-<sidekick>-<mood>.svg` | The sidekicks in the same five moods: `nutrition-summer`, `nutrition-spud`, `fitness-puff`, `fitness-huff`, `dog-training-barkley`, `dog-training-sizzle`. |
 | `kit/art/parts/field-dog.svg` | The Field's dog, drawn by lane D from the owner's dog and kept in the kit as the realm's one dog. |
+| `kit/art/parts/dog-sidekicks.js` | Barkley and Sizzle, redrawn by lane D on the owner's word: taller than Tumble, at Avo and Steady's height, to the standard of Avo's team. |
 | `kit/art/scene.html` | All four views on one page, live (`/kit/art/scene.html` from any agent's dashboard). |
 | `kit/dashboard/public/kindlemere.js` | The live scene: the sky by the clock, depth, the keepers at rest, clicks and the telescope (below). |
 
@@ -266,6 +267,8 @@ side before shipping one: if a line could come from any of them, rewrite it.
   walk to greet them, to split them from Avos scene a bitt more"
 - "Can we get Avo and the crew some individual Baskets to sleep in? Like Avo has a bowl, Spud sticks himself into the
   ground and pops up around dinner time, and Summer is in a little woven basket with a checkered napkin blanket."
+- "Both Stick and Bacon need to be taller than tumble, matching scale with Avo and Steady. And both need enhancements
+  to match the same standard being set by Avos team"
 
 ## Consults
 
