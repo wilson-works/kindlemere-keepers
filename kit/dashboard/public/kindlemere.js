@@ -245,6 +245,8 @@
     const glowLayer = $('glow');
     if (glowLayer) glowLayer.setAttribute('opacity', dark.toFixed(2));
     if (h < -4) svg.setAttribute('data-km-night', '1'); else svg.removeAttribute('data-km-night');
+    // Evening: from late afternoon (the sun low in the west) through the night. Spud comes round for dinner.
+    if ((h < 12 && sun.az > 0) || h < -4) svg.setAttribute('data-km-evening', '1'); else svg.removeAttribute('data-km-evening');
 
     // The path of light on the water: under the low sun by day, under the moon by night.
     const glitter = $('glitter');

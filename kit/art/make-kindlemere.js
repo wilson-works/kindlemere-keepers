@@ -19,7 +19,9 @@
  * What it drives (ids): km-sky-0, km-sky-1, km-sky-2 (the sky's colours), km-sunglow, km-sun, km-sun-rays, km-sun-rim,
  * km-sun-core, km-moon, km-moon-lit, km-stars, km-light-m (the land's light), km-glow, km-glitter. Night-only parts
  * carry class km-night-only and day-only parts km-day-only; the script sets data-km-night="1" on the svg.
- * The dog, for a fetch game: km-dog (moved by its transform), km-dog-head, km-dog-pupils, km-dog-ball (centred on 0 0).
+ * Evening-only parts carry class km-evening-only (the script sets data-km-evening="1" from late afternoon through night).
+ * The dog is lane D's drawing (kit/art/parts/field-dog.svg), marked data-km-part dog, dog-head, dog-pupils, dog-ball.
+ * The sidekicks (owner, 2026-10-08): Summer the peach and Spud the potato with Avo, Puff and Huff the clouds with Steady.
  */
 
 const fs = require('fs');
@@ -796,6 +798,94 @@ function ballKeeper(mood) {
   return { body: o, cx: 58, feet: 116, head: [96, 6], w: 150, top: -12 };
 }
 
+/* ------------------------------------------------------------------ the sidekicks (owner, 2026-10-08) */
+function summerSidekick(mood) {
+  // Summer, Avo's sidekick for healthy treats and sweets: a peach about half Avo's size, with a stem, one leaf, the
+  // peach's crease, and a little berry tart in her hand.
+  let o = `<path d="M32 7 C32 2 33 -2 35 -5" stroke="${C.bark}" stroke-width="2.6" stroke-linecap="round" fill="none"/>`;
+  o += `<path d="M34 -3 C40 -10 50 -10 54 -6 C48 0 40 1 34 -3 Z" fill="${C.nLeafLight}"/><path d="M36 -3.4 C42 -5.6 48 -6.4 52 -6" stroke="${C.nLand}" stroke-width="1" fill="none"/>`;
+  o += `<path d="M32 6 C50 4 62 18 62 34 C62 50 48 60 32 60 C16 60 2 50 2 34 C2 18 14 4 32 6 Z" fill="#FFB06A"/>`;
+  o += `<path d="M48 12 C60 22 62 42 50 54 C42 60 30 61 22 58 C40 56 52 44 52 30 C52 22 50 16 48 12 Z" fill="#F2954E"/>`;
+  o += `<path d="M31 8 C25 20 25 36 29 50" stroke="#E5844A" stroke-width="2" stroke-linecap="round" fill="none"/>`;
+  o += `<ellipse cx="15" cy="22" rx="5" ry="3.2" fill="#FFD8A8" transform="rotate(-30 15 22)"/>`;
+  o += faces({ x1: 22, x2: 40, y: 30, rx: 4.4, ry: 5, dx: 1, dy: -1, mx: 31, my: 40, k: 0.7, mouth: '#7A3A1A', tongue: '#D96A4A', cheek: '#E8704A', cheekY: 39, cheekDx: 7, brow: '#C9662E' }, mood, { mood: 'sleepy' });
+  o += `<ellipse cx="4" cy="44" rx="5" ry="4.4" fill="#F2954E"/>`;
+  const tart = `<ellipse cx="66" cy="38" rx="5" ry="4.4" fill="#F2954E"/><g transform="translate(68 30)"><path d="M-9 0 h18 l-2 6 h-14 Z" fill="${C.clay1}"/><ellipse cx="0" cy="0" rx="9" ry="2.6" fill="${C.cream}"/><circle cx="-4" cy="-1" r="2" fill="#C8433A"/><circle cx="1" cy="-1.6" r="2" fill="#4A5FA0"/><circle cx="5" cy="-0.6" r="1.8" fill="#C8433A"/></g>`;
+  const rest = `<ellipse cx="60" cy="46" rx="5" ry="4.4" fill="#F2954E"/>`;
+  if (mood === 'scene') o += `<g class="km-day-only">${tart}</g><g class="km-night-only">${rest}</g>`;
+  else o += (mood === 'worried' || mood === 'sleepy') ? rest : tart;
+  o += `<ellipse cx="24" cy="61" rx="6" ry="3.4" fill="#C9662E"/><ellipse cx="40" cy="61" rx="6" ry="3.4" fill="#C9662E"/>`;
+  return { body: o, cx: 32, feet: 63, head: [56, 0], w: 70, top: -12 };
+}
+
+function spudSidekick(mood) {
+  // Spud, who comes round in the evenings for dinner: a potato with its eyes and a sprout, a cook's apron, and a pot of
+  // something hot.
+  let o = `<path d="M46 9 C44 0 48 -6 52 -10" stroke="#7D9A3A" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M50 -6 c4 -4 9 -4 11 -2 c-3 3 -7 4 -11 2 Z M48 -2 c-4 -3 -8 -2 -10 0 c3 2 7 2 10 0 Z" fill="#8FAE3A"/>`;
+  o += `<path d="M46 8 C70 6 86 22 86 46 C88 70 74 92 48 92 C22 92 6 76 6 52 C4 28 22 10 46 8 Z" fill="#C49A64"/>`;
+  o += `<path d="M72 16 C86 30 90 58 78 78 C70 90 56 94 42 92 C64 88 78 72 80 52 C82 38 78 26 72 16 Z" fill="#A9804E"/>`;
+  o += `<path d="M20 30 C24 20 34 14 44 13" stroke="#D9B680" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+  [[18, 58], [74, 38], [62, 84], [26, 80], [54, 20], [14, 42]].forEach(([x, y]) => { o += `<ellipse cx="${x}" cy="${y}" rx="2" ry="1.4" fill="#8A6438"/><path d="M${x - 2} ${y - 1.6} q2 -1.2 4 0" stroke="#D9B680" stroke-width="0.9" fill="none"/>`; });
+  o += `<path d="M28 66 h38 l-3 22 c-10 4 -22 4 -32 0 Z" fill="${C.cream}"/><path d="M28 66 C30 60 36 58 40 60 M66 66 C64 60 58 58 54 60" stroke="${C.cream}" stroke-width="2" fill="none"/><rect x="40" y="74" width="14" height="8" rx="2" fill="none" stroke="${C.stitch}" stroke-width="1.2"/>`;
+  o += faces({ x1: 36, x2: 58, y: 42, rx: 5.4, ry: 6.2, dx: 1.4, dy: -1.2, mx: 47, my: 54, k: 0.95, mouth: '#4A2A12', tongue: '#D96A4A', cheek: C.nGlowDeep, cheekY: 54, cheekDx: 9, brow: '#7A5530' }, mood, { mood: 'sleepy' });
+  o += `<ellipse cx="88" cy="62" rx="7" ry="6" fill="#C49A64"/>`;
+  // The pot of dinner held out in front, lid on, steam rising (resting on the ground when he is worried or asleep).
+  const pot = (dx, dy) => `<g transform="translate(${dx} ${dy})"><rect x="-18" y="0" width="36" height="22" rx="7" fill="${C.fLand}"/><rect x="-21" y="2" width="6" height="4" rx="2" fill="${C.fDeep}"/><rect x="15" y="2" width="6" height="4" rx="2" fill="${C.fDeep}"/><path d="M-19 0 a19 6 0 0 1 38 0 Z" fill="${C.fLight}"/><circle cx="0" cy="-6" r="2.6" fill="${C.fDeep}"/><path d="M-12 8 h24" stroke="${C.fLight}" stroke-width="1.6" opacity="0.7"/></g>`;
+  const steam = `<g class="km-steam"><path d="M-2 52 c-4 -5 4 -8 0 -13 c-4 -5 4 -8 0 -13" stroke="${C.paper}" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M6 50 c-3 -4 3 -6 0 -10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/></g>`;
+  const held = `<ellipse cx="6" cy="66" rx="7" ry="6" fill="#C49A64"/>${pot(-4, 58)}${steam}`;
+  const down = `<ellipse cx="10" cy="72" rx="7" ry="6" fill="#C49A64"/>${pot(-22, 74)}`;
+  if (mood === 'scene') o += `<g class="km-day-only">${held}</g><g class="km-night-only">${down}</g>`;
+  else o += (mood === 'worried' || mood === 'sleepy') ? down : held;
+  o += `<ellipse cx="34" cy="93" rx="9" ry="5" fill="#7A5530"/><ellipse cx="60" cy="93" rx="9" ry="5" fill="#7A5530"/>`;
+  return { body: o, cx: 47, feet: 96, head: [80, 6], w: 110, top: -14 };
+}
+
+const CLOUDS = {
+  puff: { base: C.paper, shade: '#DCE5EC', deep: '#C3D0DA', mouth: C.fDeeper, brow: C.fLight },
+  huff: { base: '#D9C9A8', shade: '#C2AF8A', deep: '#A8946E', mouth: '#5A4A30', brow: '#8A7550' },
+};
+
+function cloudSidekick(kind) {
+  // Puff and Huff, Steady's sidekicks: the same little cloud, Puff white and Huff a cloud of sandy dust (owner,
+  // 2026-10-08: "Both clouds will look exactly the same execpt for the color and the name"). They hover low.
+  const c = CLOUDS[kind];
+  return (mood) => {
+    const shape = 'M14 50 C2 50 -2 34 10 28 C6 14 22 4 34 12 C40 0 62 -2 68 12 C82 8 92 22 84 32 C94 38 90 54 76 52 Z';
+    let o = `<path d="${shape}" fill="${c.deep}" transform="translate(0 4)"/><path d="${shape}" fill="${c.base}"/>`;
+    o += `<path d="M14 50 C4 48 2 38 10 32 C14 44 40 48 76 48 C82 46 86 42 88 38 C90 50 84 54 76 52 Z" fill="${c.shade}"/>`;
+    o += `<path d="M18 26 C20 18 28 14 34 16 M44 10 C50 6 60 6 64 12" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>`;
+    o += faces({ x1: 36, x2: 54, y: 30, rx: 4.6, ry: 5.4, dx: 1, dy: -1, mx: 45, my: 40, k: 0.7, mouth: c.mouth, tongue: '#D96A4A', cheek: C.nGlow, cheekY: 39, cheekDx: 7, brow: c.brow }, mood, { mood: 'sleepy' });
+    o += `<ellipse cx="2" cy="40" rx="6" ry="5" fill="${c.base}"/><ellipse cx="90" cy="40" rx="6" ry="5" fill="${c.base}"/>`;
+    return { body: o, cx: 45, feet: 56, head: [84, 6], w: 96, top: -4, hovers: true };
+  };
+}
+
+function placeSidekick(id, k, x, groundY, lift, cls) {
+  // A sidekick on the ground beside its keeper, or (a cloud) hovering `lift` above it with its shadow on the grass.
+  const s = KS;
+  const y = groundY - lift;
+  return `<g class="${cls || ''}"><ellipse cx="${x}" cy="${groundY}" rx="${f(k.w * 0.3 * s)}" ry="${f(5 * s)}" fill="${C.ink}" opacity="${lift ? 0.08 : 0.16}"/>` +
+    `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}>${k.body}</g></g></g>`;
+}
+
+/** The Field's dog, drawn by lane D (agents/dog-training/art/field-dog.svg @ faae296), kept in the kit as the one dog. */
+const FIELD_DOG = (() => {
+  const src = fs.readFileSync(path.join(__dirname, 'parts', 'field-dog.svg'), 'utf8');
+  const defsBody = /<defs>([\s\S]*?)<\/defs>/.exec(src)[1];
+  const style = /<style>([\s\S]*?)<\/style>/.exec(defsBody)[1].split('#dt-dog').join('.dt-dog');
+  const defs = defsBody.replace(/<style>[\s\S]*?<\/style>/, '');
+  const start = src.indexOf('<g id="dt-dog"');
+  const group = src.slice(start, src.lastIndexOf('</svg>')).trim()
+    .replace('<g class="dt-look"', '<g class="dt-look" data-km-part="dog-head"')
+    .replace('<g class="dt-pupil">', '<g class="dt-pupil" data-km-part="dog-pupils">')
+    .replace('<g class="dt-held dt-if-held">', '<g class="dt-held dt-if-held" data-km-part="dog-ball">');
+  return { defs, style, group };
+})();
+
+function fieldDog(x, y) {
+  return FIELD_DOG.group.replace(/<g id="dt-dog"[^>]*>/, `<g id="km-dog" class="dt-dog" data-km-part="dog" transform="translate(${x} ${y})">`);
+}
+
 function placeKeeper(id, k, x, feetY) {
   // In the world: feet on the ground at (x, feetY), at the keepers' size.
   return `<g id="${id}" transform="translate(${f(x - k.cx * KS)} ${f(feetY - k.feet * KS)}) scale(${KS})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${k.body}</g>`;
@@ -803,43 +893,6 @@ function placeKeeper(id, k, x, feetY) {
 
 /* ------------------------------------------------------------------ the dog */
 const DOG = { ginger: '#C97C3D', gingerLight: '#E3A86A', earDark: '#8A5A3A', white: '#FFFFFF', shade: '#E9E4D4' };
-
-function heroDog(x, y) {
-  // The Field's own dog, drawn from the owner's dog: lean and long-legged, white, a ginger head with a white blaze down
-  // to a white muzzle, one ear up with its tip folded and one ear down, soft brown eyes, a ginger heart on the back, a
-  // curled white tail, a green bandana and a bone-shaped tag. Active in its own state (owner, 2026-10-07): a full
-  // gallop through the shallows, ears flying, the tennis ball in its mouth. Parts for a fetch game: km-dog (moved by
-  // its transform), km-dog-head, km-dog-pupils, km-dog-ball (centred on 0 0).
-  const { ginger, gingerLight, earDark, white, shade } = DOG;
-  let o = `<g id="km-dog" data-km-part="dog" transform="translate(${x} ${y})"><g class="km-gallop">`;
-  o += `<path d="M-30 26 h22 M-36 36 h26 M-26 46 h16" stroke="${white}" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>`;
-  o += `<g filter="url(#layer-sm)">`;
-  o += `<g class="km-wag"><path d="M18 28 C8 22 4 10 12 4 C18 0 22 8 16 12" stroke="${white}" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M18 28 C14 26 11 22 10 18" stroke="${ginger}" stroke-width="8" stroke-linecap="round" fill="none"/></g>`;
-  o += `<path d="M30 40 C20 48 8 52 -2 50" stroke="${shade}" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M36 42 C28 54 18 60 6 62" stroke="${white}" stroke-width="9" stroke-linecap="round" fill="none"/>`;
-  o += `<path d="M84 40 C96 46 106 46 118 42" stroke="${shade}" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M80 42 C90 52 100 56 114 58" stroke="${white}" stroke-width="9" stroke-linecap="round" fill="none"/>`;
-  o += `<ellipse cx="-3" cy="50" rx="5" ry="3.5" fill="${shade}"/><ellipse cx="5" cy="62" rx="6" ry="4" fill="${white}"/><ellipse cx="119" cy="42" rx="5" ry="3.5" fill="${shade}"/><ellipse cx="115" cy="58" rx="6" ry="4" fill="${white}"/>`;
-  o += `<path d="M18 30 C28 16 78 14 94 24 C102 32 98 44 86 46 C68 50 40 50 24 46 C12 42 10 36 18 30 Z" fill="${white}"/>`;
-  o += `<path d="M30 42 C44 46 70 46 86 42" stroke="${shade}" stroke-width="4" stroke-linecap="round" fill="none"/>`;
-  o += `<path d="M52 22 c-5 -7 -16 -4 -13 5 c2 5 8 9 13 12 c4 -3 11 -7 13 -12 c3 -9 -8 -12 -13 -5 Z" fill="${ginger}"/>`;
-  o += `<ellipse cx="24" cy="34" rx="9" ry="8" fill="${ginger}"/>`;
-  o += `<path d="M84 18 C90 24 96 28 100 30 L82 40 C78 32 74 28 68 26 Z" fill="#4E7F3A"/><path d="M84 18 C76 24 70 26 64 24 L68 30 Z" fill="#3B6230"/>`;
-  for (const [cx, cy] of [[80, 28], [86, 32], [76, 32], [90, 28]]) o += `<circle cx="${cx}" cy="${cy}" r="1.2" fill="${white}" opacity="0.9"/>`;
-  o += `<path d="M86 40 a2 2 0 1 1 2 -2 h4 a2 2 0 1 1 2 2 a2 2 0 1 1 -2 2 h-4 a2 2 0 1 1 -2 -2 Z" fill="#E5B07A"/>`;
-  o += `<g id="km-dog-head" data-km-part="dog-head" transform="rotate(8 104 14)">`;
-  o += `<path d="M96 6 C86 -2 74 -4 66 2 C76 4 86 8 94 12 Z" fill="${earDark}"/>`;
-  o += `<path d="M104 2 C100 -10 104 -20 112 -22 C116 -16 114 -8 110 0 Z" fill="${earDark}"/><path d="M112 -22 C116 -24 120 -20 118 -16 C116 -18 114 -20 112 -22 Z" fill="${ginger}"/>`;
-  o += `<ellipse cx="106" cy="12" rx="15" ry="14" fill="${ginger}"/>`;
-  o += `<path d="M108 -1 C111 -1 112 6 113 12 L110 14 L107 12 C107 6 106 -1 108 -1 Z" fill="${white}"/>`;
-  o += `<path d="M106 14 C112 12 122 14 130 16 C134 18 134 24 130 26 C122 28 112 26 106 22 Z" fill="${white}"/>`;
-  o += `<ellipse cx="98" cy="16" rx="5" ry="3.4" fill="${gingerLight}" opacity="0.8"/>`;
-  o += `<ellipse cx="131" cy="17" rx="3.8" ry="3" fill="#1A2433"/><circle cx="132" cy="16.2" r="1" fill="${white}" opacity="0.8"/>`;
-  o += `<ellipse cx="114" cy="8" rx="3.6" ry="4" fill="#5A3A22"/><g id="km-dog-pupils" data-km-part="dog-pupils"><circle cx="115" cy="7" r="2" fill="#1A2433"/><circle cx="115.8" cy="6.2" r="0.8" fill="${white}"/></g>`;
-  o += `<path d="M110 2 q4 -3 8 0" stroke="${earDark}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`;
-  o += `<g id="km-dog-ball" data-km-part="dog-ball" transform="translate(128 27)"><circle r="7.5" fill="#D8E04A"/><path d="M-6 -3 q6 4 12 0 M-6 3 q6 -4 12 0" stroke="${white}" stroke-width="1.4" fill="none"/></g>`;
-  o += `</g>`;
-  o += `</g></g></g>`;
-  return o;
-}
 
 function sleepingDog() {
   // After dark the dog is asleep in the door of its house: curled up, head on its paws, ears down, tail round its nose.
@@ -861,12 +914,9 @@ function sleepingDog() {
 }
 
 function dogs() {
-  // By day the dog gallops through the shallows of the bay with the tennis ball; by night it sleeps in its house.
-  const sy = 1404;
-  let day = heroDog(2648, 1334);
-  day += `<g class="km-bob"><path d="M2640 ${sy} q8 -12 14 -2 M2770 ${sy - 6} q8 -14 16 -2 M2790 ${sy - 12} q4 -8 10 -2" stroke="${C.mereLight}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
-  for (const [x, y, rr] of [[2636, sy - 14, 3], [2648, sy - 22, 2.4], [2780, sy - 22, 3], [2794, sy - 30, 2.2], [2762, sy - 28, 2]]) day += `<circle cx="${x}" cy="${y}" r="${rr}" fill="${C.paper}"/>`;
-  day += `<ellipse cx="2716" cy="${sy + 4}" rx="80" ry="7" fill="none" stroke="${C.mereLight}" stroke-width="2.5" opacity="0.7"/></g>`;
+  // By day the dog gallops through the shallows of the bay with the tennis ball (lane D's drawing, with its own
+  // splashes); by night it sleeps in its house.
+  const day = fieldDog(2648, 1334);
   const [kx, ky] = KENNEL;
   const door = [(kx + 30) * 2, (ky + 60) * 2]; // the middle of the door's sill, in the world
   const night = `<g transform="translate(${door[0] - 4} ${door[1] - 14})" filter="url(#layer-sm)">${sleepingDog()}</g>`;
@@ -900,6 +950,8 @@ function nightLights() {
   land += `<g transform="translate(800 ${760 + DOCK_DY}) scale(0.6)"><g class="km-bob"><circle cx="0" cy="-8" r="44" fill="${C.kindle}" opacity="0.3"/><circle cx="0" cy="-8" r="20" fill="#FFC08A" opacity="0.6"/></g></g>`;
   o += `<g transform="scale(2)">${land}</g>`;
   // The sleepers' z's: the avocado at the table, the ball and the dog by the house.
+  const sk = SIDEKICKS;
+  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 34, sk['nutrition-spud'].y - 122, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}</g>`;
   o += `<g class="km-night-only">${zees(KEEPERS.nutrition.x + 40, KEEPERS.nutrition.y - 170, C.cream)}${zees(KEEPERS['dog-training'].x + 44, KEEPERS['dog-training'].y - 160, C.cream)}${zees((KENNEL[0] + 52) * 2, (KENNEL[1] + 30) * 2, C.cream)}</g>`;
   return `<g id="km-glow" opacity="0" pointer-events="none">${o}</g>`;
 }
@@ -922,9 +974,18 @@ const KEEPERS = {
   'dog-training': { x: 2470, y: 1184, make: ballKeeper, id: 'km-keeper-dog-training' },
 };
 
+const SIDEKICKS = {
+  'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
+  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', cls: 'km-evening-only', title: 'Spud the potato, who brings dinner in the evenings' },
+  'fitness-puff': { x: 1108, y: 1182, lift: 64, make: cloudSidekick('puff'), id: 'km-sidekick-puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
+  'fitness-huff': { x: 1356, y: 1170, lift: 86, make: cloudSidekick('huff'), id: 'km-sidekick-huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
+};
+const FIGURES = Object.assign({}, KEEPERS, SIDEKICKS);
+
 /* ------------------------------------------------------------------ styles and defs */
 const STYLE = `
-  .km-night-only { display: none; }
+  .km-night-only, .km-evening-only { display: none; }
+  svg[data-km-evening="1"] .km-evening-only { display: inline; }
   svg[data-km-night="1"] .km-night-only { display: inline; }
   svg[data-km-night="1"] .km-day-only { display: none; }
   .km-screen { mix-blend-mode: screen; }
@@ -996,9 +1057,9 @@ function defs(view, ripples) {
 const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale, under one sky that follows the real time of day. ' +
   'On the left, the Orchard: a foresty picnic meadow on terraced ground, with a deep wood of round trees, poplars and pines behind it, stone walls, two avocado trees heavy with avocados, a straw beehive, ' +
   'a larder door dug into the hill with a lamp and jars, a ladder and a basket of avocados, a vegetable patch with a rabbit, a herb spiral, a watering can, a picnic blanket with a basket, and a long table with a gingham cloth, avocado toast, avocado halves, blueberries, honey and an apricot kettle under a string of paper lights. ' +
-  'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card. ' +
+  'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card, with Summer, a little peach holding a berry tart, beside her; in the evenings Spud, a potato in an apron, brings a pot of dinner to the table. ' +
   'In the middle rises Stepping Hill, a big grassy hill with granite outcrops and pines, stone steps up its face, a switchback trail with stacked stones and flags, a quiet pool on its shoulder with a spring running down to the lake, and a lookout on the top with a spyglass. ' +
-  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel. ' +
+  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust. ' +
   'On the right, Lakeside Field: open grass running down to a bay of the lake, a split-rail fence, a row of trees, the dog house, weave poles, a willow hoop, flags with paw prints and toys. ' +
   'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on. ' +
   'From the signpost a dock runs out into the lake, with a basket of folded lanterns, a stool with a notebook and a lantern post; orange paper lanterns drift away across the water toward Louise, the librarian, and a paper boat brings a book back. ' +
@@ -1014,6 +1075,7 @@ function build(view) {
   DETAIL = 1; DENS = 1;
   let keepers = '';
   for (const k of Object.values(KEEPERS)) keepers += placeKeeper(k.id, k.make('scene'), k.x, k.y);
+  for (const k of Object.values(SIDEKICKS)) keepers += placeSidekick(k.id, k.make('scene'), k.x, k.y, k.lift || 0, k.cls);
   const body = sky(view) +
     `<g id="km-land" filter="url(#km-light)">` +
     `<g transform="scale(2)">${land1}</g>` +
@@ -1027,9 +1089,9 @@ function build(view) {
 <title id="km-title">${view.title}</title>
 <desc id="km-desc">${DESC}</desc>
 <!-- Drawn by kit/art/make-kindlemere.js. Edit that file, not this one. Lit and timed by /kit/kindlemere.js. -->
-<style>${STYLE}
+<style>${STYLE}${FIELD_DOG.style}
 </style>
-${defs(view, true)}
+${defs(view, true).replace('</defs>', `${FIELD_DOG.defs}</defs>`)}
 ${body}
 </svg>
 `;
@@ -1037,14 +1099,14 @@ ${body}
 
 /** One keeper on its own in one mood, for the agents' pages: kit/art/keepers/<agent>-<mood>.svg. */
 function keeperFile(agent, mood) {
-  const k = KEEPERS[agent].make(mood);
+  const k = FIGURES[agent].make(mood);
   const pad = 26;
   const x0 = -36 - pad;
   const y0 = k.top - 34 - pad;
   const w = k.w + 60 + pad * 2;
   const h = k.feet + 10 - y0 + pad / 2;
   const sh = mood === 'oh' ? `<g transform="translate(${k.cx} ${k.feet}) scale(0.8) translate(${-k.cx} ${-k.feet})">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}</g>` : shadow(k.cx, k.feet, f(k.w * 0.36), 6);
-  const title = { nutrition: 'The nutrition keeper', fitness: 'The fitness keeper', 'dog-training': 'The dog-training keeper' }[agent];
+  const title = { nutrition: 'The nutrition keeper', fitness: 'The fitness keeper', 'dog-training': 'The dog-training keeper' }[agent] || FIGURES[agent].title;
   const feel = { happy: 'happy, with a big open smile', thinking: 'thinking, eyes up and to the side', oh: 'surprised, eyes wide and mouth round', worried: 'worried, brows up and mouth wobbling', sleepy: 'asleep, eyes closed and z\'s rising' }[mood];
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f(x0)} ${f(y0)} ${f(w)} ${f(h)}" role="img" aria-labelledby="km-title">
 <title id="km-title">${title}, ${feel}</title>
@@ -1078,13 +1140,13 @@ if (require.main === module) {
   }
   const dir = path.join(__dirname, 'keepers');
   fs.mkdirSync(dir, { recursive: true });
-  for (const agent of Object.keys(KEEPERS)) {
+  for (const agent of Object.keys(FIGURES)) {
     for (const mood of MOODS) {
       seed = 20261007;
       fs.writeFileSync(path.join(dir, `${agent}-${mood}.svg`), keeperFile(agent, mood), 'utf8');
     }
   }
-  process.stdout.write(`Drew ${Object.keys(KEEPERS).length * MOODS.length} keeper moods in ${path.relative(process.cwd(), dir)}\n`);
+  process.stdout.write(`Drew ${Object.keys(FIGURES).length * MOODS.length} keeper and sidekick moods in ${path.relative(process.cwd(), dir)}\n`);
 }
 
 module.exports = { VIEWS, MOODS, KEEPERS };
