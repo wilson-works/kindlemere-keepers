@@ -29,7 +29,7 @@ strength: strong (ACSM/AND/DC joint position; ISSN position stands)
 - Next session under 4 hours away: 1.2 g/kg an hour to restore glycogen fast. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:87
 - Or 0.6-1.0 g/kg in the first 30 minutes, then again every 2 hours for 4-6 hours. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:88
 - Below 1.2 g/kg an hour of carbohydrate, adding 0.2-0.4 g/kg an hour of protein helps glycogen recovery. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:89
-- The ISSN sports caffeine dose (3-8 mg/kg) can exceed the FDA's 400 mg a day for healthy adults: 8 mg/kg for an 80 kg athlete is 640 mg. Always name that conflict, and give no sports caffeine dose under 18. [^84] [^17] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:93
+- The ISSN sports caffeine dose (3-8 mg/kg) can exceed the FDA's 400 mg a day for healthy adults: 8 mg/kg for an 80 kg athlete is 640 mg. Always name that conflict, and give no sports caffeine dose under 18. [^84] [^17] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:93 @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:189
 
 ## Fluid and electrolytes
 - Everyday total water: 3.7 L a day for men, 2.7 L for women, counting food. [^6] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:101

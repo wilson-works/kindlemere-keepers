@@ -1,3 +1,2 @@
-# Tools are pinned by sha256 in tools/registry.json, so their bytes must be the same on every checkout.
-tools/*.js text eol=lf
-tools/registry.json text eol=lf
+# Tools are pinned by sha256 in tools/registry.json; keep every file LF on every checkout.
+* text=auto eol=lf

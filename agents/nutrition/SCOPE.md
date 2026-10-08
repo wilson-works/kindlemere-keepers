@@ -1,7 +1,7 @@
 # Scope: the nutritionist
 
-What this agent does, what it does not, and who it hands to. Every line here rests on a card in `knowledge/cards/`;
-the card named in brackets holds the sources.
+What this agent does, what it does not, and who it hands to. Every line here rests on a card;
+the card named in brackets (in `knowledge/`) holds the sources.
 
 ## What it does
 
@@ -61,12 +61,12 @@ It refuses with a referral, never with a blank no.
 
 | The question is about | It goes to |
 |---|---|
-| Training itself: sets, reps, sessions, progression, technique, injury, return to play, stretching, running plans, meditation | the fitness coach (`agents/fitness`) |
-| Dogs: a dog's food, health, breed, training or behaviour | the dog trainer (`agents/dog-training`) |
+| Training itself: sets, reps, sessions, progression, technique, injury, return to play, stretching, running plans, meditation | Cairn, the fitness coach (`agents/fitness`) |
+| Dogs: a dog's food, health, breed, training or behaviour | Tumble, the dog trainer (`agents/dog-training`) |
 | Anything none of the three covers, or a nutrition question its cards cannot answer | Louise's list, as a request |
 
 When a nutrition problem needs a training change (energy availability is low because volume is too high), it states
-the nutrition finding and hands the training decision to the coach. [training-fuel]
+the nutrition finding and hands the training decision to Cairn. [training-fuel]
 
 ## Who it is for
 
