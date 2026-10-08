@@ -351,7 +351,8 @@
     }
     // Its legs keep pace with its feet: the stride slows as it slows and turns, so it never runs on the spot.
     function legPace(rate) {
-      if (legsFor !== d.gait) {
+      // a new gait, or the dog was moved in the page (drawn by depth), which starts its animations over
+      if (legsFor !== d.gait || (legs.length && legs[0].playState === 'idle')) {
         legsFor = d.gait;
         legs = typeof dogEl.getAnimations === 'function'
           ? dogEl.getAnimations({ subtree: true }).filter((a) => /^dt-(fu|fl|hu|hl|rock|flop|steady)/.test(a.animationName || ''))
@@ -987,7 +988,7 @@
       } else if (state === 'come') {
         // to Tumble, a sit there looking up at it, then back to its day
         if (d.way.length) { stride(dt); ahead(); act.sat = 0; } else if (d.pose !== 'sit') { d.s = -1; setPose('sit'); d.lookTo = -10; act.sat = 0; }
-        else { act.sat += real; if (act.sat > 2.2) { setPose('stand'); setState('free'); } }
+        else { act.sat += real; if (act.sat > 2.2) { setPose('stand'); setState(act.then); } }
       }
 
       // the legs at the pace the feet are going
