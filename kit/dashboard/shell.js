@@ -43,6 +43,16 @@ function send(res, status, body, headers) {
   res.end(res.req.method === 'HEAD' ? undefined : buf);
 }
 const json = (res, status, obj) => send(res, status, JSON.stringify(obj), { 'Content-Type': 'application/json; charset=utf-8' });
+
+/** Where this computer is, for the realm's live sky: kit/realm.config.json, { "lat": 35.5, "lon": -97.5 }, or {}. */
+function realmPlace() {
+  let p = {};
+  try { p = common.readJson(path.join(KIT, 'realm.config.json'), null) || {}; } catch (_) { return {}; }
+  const lat = Number(p.lat);
+  const lon = Number(p.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return {};
+  return { lat, lon };
+}
 const fail = (res, status, message) => json(res, status, { error: message });
 
 const inside = (base, file) => { const r = path.relative(base, file); return r && !r.startsWith('..') && !path.isAbsolute(r); };
@@ -107,6 +117,7 @@ function createShell(opts) {
     },
     'GET /api/memory': () => engine.memory.recall(key),
     'GET /api/louise': () => ({ requests: engine.louise.requests(key), gaps: engine.louise.gaps(key) }),
+    'GET /api/realm': () => realmPlace(),
     'GET /api/tools': () => {
       const status = new Map(engine.toolsmith.list(key).map((t) => [t.name, t]));
       return { tools: engine.toolsmith.registry(key).tools.map((t) => Object.assign({}, t, { ok: Boolean(status.get(t.name) && status.get(t.name).ok) })) };

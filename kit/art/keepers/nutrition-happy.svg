@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-62 -92 248 241" role="img" aria-labelledby="km-title">
+<title id="km-title">The nutrition keeper, happy, with a big open smile</title>
+<!-- Drawn by kit/art/make-kindlemere.js (keeper nutrition, mood happy). Edit that file, not this one. -->
+<style>
+  .km-night-only { display: none; }
+  svg[data-km-night="1"] .km-night-only { display: inline; }
+  svg[data-km-night="1"] .km-day-only { display: none; }
+  .km-screen { mix-blend-mode: screen; }
+  .km-grain { mix-blend-mode: multiply; }
+  .km-bob { animation: km-bob 3.6s ease-in-out infinite alternate; }
+  .km-drift { animation: km-drift 40s ease-in-out infinite alternate; }
+  .km-turn { animation: km-turn 90s linear infinite; }
+  .km-twinkle { animation: km-twinkle 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .km-fall { animation: km-fall 1.4s linear infinite; }
+  .km-light { animation: km-light 7s linear infinite; }
+  .km-steam { animation: km-steam 3s ease-in-out infinite; }
+  .km-flag { animation: km-flag 2.4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: left center; }
+  .km-wag { animation: km-wag 0.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: left bottom; }
+  .km-gallop { animation: km-gallop 0.45s ease-in-out infinite alternate; }
+  .km-sway { animation: km-sway 6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: bottom; }
+  .km-buzz { animation: km-buzz 1.6s ease-in-out infinite alternate; }
+  .km-fish { animation: km-fish 7s ease-in-out infinite; }
+  .km-ff { animation: km-ff 10s ease-in-out infinite; }
+  .km-blink { animation: km-blink 2.6s ease-in-out infinite; }
+  .km-zz { animation: km-zz 3.2s ease-in-out infinite; }
+  .km-breathe { animation: km-breathe 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+  .km-ear-l, .km-ear-r { transform-box: fill-box; transform-origin: bottom center; animation: km-ear 4s ease-in-out infinite; }
+  .km-ear-r { animation-delay: -0.4s; }
+  .km-treat, .km-card-wave { animation: km-lift 2.6s ease-in-out infinite alternate; }
+  @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+  @keyframes km-gallop { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-5px) rotate(-2deg); } }
+  @keyframes km-drift { from { transform: translateX(0); } to { transform: translateX(36px); } }
+  @keyframes km-turn { to { transform: rotate(360deg); } }
+  @keyframes km-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.8); } }
+  @keyframes km-fall { to { stroke-dashoffset: -40; } }
+  @keyframes km-light { to { stroke-dashoffset: -280; } }
+  @keyframes km-steam { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-10px); } }
+  @keyframes km-flag { from { transform: skewY(0deg); } to { transform: skewY(6deg); } }
+  @keyframes km-wag { from { transform: rotate(-10deg); } to { transform: rotate(14deg); } }
+  @keyframes km-sway { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+  @keyframes km-buzz { from { transform: translate(0, 0); } to { transform: translate(3px, -2px); } }
+  @keyframes km-fish { 0%, 70%, 100% { transform: translateY(30px); opacity: 0; } 78% { opacity: 1; } 85% { transform: translateY(-8px); opacity: 1; } 92% { transform: translateY(20px); opacity: 0; } }
+  @keyframes km-ff { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(14px, -10px); } 50% { transform: translate(26px, 4px); } 75% { transform: translate(8px, 14px); } }
+  @keyframes km-blink { 0%, 100% { opacity: 1; } 45% { opacity: 0.25; } 60% { opacity: 1; } }
+  @keyframes km-zz { 0% { opacity: 0; transform: translate(0, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -14px); } }
+  @keyframes km-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 1.05); } }
+  @keyframes km-ear { 0%, 80%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-6deg); } 94% { transform: rotate(3deg); } }
+  @keyframes km-lift { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+  @media (prefers-reduced-motion: reduce) { svg * { animation: none !important; } }
+</style>
+<defs>
+    <filter id="layer" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="5" stdDeviation="0" flood-color="#1A2433" flood-opacity="0.18"/></filter>
+    <filter id="layer-sm" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="0" flood-color="#1A2433" flood-opacity="0.2"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0.1  0 0 0 0 0.14  0 0 0 0 0.2  0 0 0 0.55 -0.12"/></filter>
+    <filter id="km-light" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix id="km-light-m" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+    <linearGradient id="km-sky-g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="900"><stop id="km-sky-0" offset="0" stop-color="#7FB8D8"/><stop id="km-sky-1" offset="0.6" stop-color="#B4D8E6"/><stop id="km-sky-2" offset="1" stop-color="#EAF3EC"/></linearGradient>
+    <radialGradient id="km-glow-g"><stop offset="0" stop-color="#FFB46E" stop-opacity="0.9"/><stop offset="0.4" stop-color="#FFC98F" stop-opacity="0.4"/><stop offset="1" stop-color="#FFC98F" stop-opacity="0"/></radialGradient>
+    <linearGradient id="km-fade-orchard-1" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#525C12" stop-opacity="1"/><stop offset="1" stop-color="#525C12" stop-opacity="0"/></linearGradient>
+    <linearGradient id="km-fade-orchard-2" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#7D8A26" stop-opacity="1"/><stop offset="1" stop-color="#7D8A26" stop-opacity="0"/></linearGradient>
+    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#7E9A2E" stop-opacity="0"/><stop offset="1" stop-color="#7E9A2E" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#A9C24A" stop-opacity="0"/><stop offset="1" stop-color="#A9C24A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#7E9A2E"/><stop offset="1" stop-color="#7E9A2E"/></linearGradient>
+    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#A9C24A"/><stop offset="1" stop-color="#A9C24A"/></linearGradient>
+    <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
+    <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
+    
+    <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>
+  </defs>
+<g filter="url(#layer-sm)"><ellipse cx="60" cy="126" rx="49" ry="6" fill="#1A2433" opacity="0.16"/><path d="M58 20 C58 10 60 4 63 -4" stroke="#6B4A2A" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M62 0 C72 -12 90 -12 98 -6 C88 4 74 6 62 0 Z" fill="#7D8A26"/><path d="M64 -1 C74 -5 86 -7 96 -6 M74 -4 l4 -4 M84 -5 l4 -4" stroke="#525C12" stroke-width="1.4" fill="none" stroke-linecap="round"/><g class="km-ear-l"><path d="M42 32 C24 16 22 -10 30 -28 C46 -14 52 10 50 32 Z" fill="#6E7D1C"/><path d="M46 30 C40 12 36 -6 31 -24" stroke="#525C12" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M41 12 l-7 -2 M43 20 l-7 0 M38 2 l-6 -3 M36 -8 l-5 -4" stroke="#525C12" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.8"/></g><g class="km-ear-r"><path d="M72 32 C78 8 94 -8 110 -12 C108 10 96 26 80 36 Z" fill="#6E7D1C"/><path d="M76 32 C86 14 98 0 108 -9" stroke="#525C12" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M86 20 l2 -8 M93 12 l3 -7 M81 27 l1 -8" stroke="#525C12" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.8"/></g><path d="M60 18 C82 18 88 38 84 54 C106 66 114 90 106 108 C98 124 22 124 14 108 C6 90 14 66 36 54 C32 38 38 18 60 18 Z" fill="#3E4A14"/><path d="M40 30 C34 44 34 54 30 62 C18 72 12 88 16 104" stroke="#525C12" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.8"/><circle cx="94.6" cy="63.1" r="1.4" fill="#2B340C" opacity="0.7"/><circle cx="58.6" cy="51.4" r="1.5" fill="#2B340C" opacity="0.7"/><circle cx="94.9" cy="80.5" r="1.1" fill="#2B340C" opacity="0.7"/><circle cx="62.9" cy="114" r="1.3" fill="#2B340C" opacity="0.7"/><circle cx="63.2" cy="109.1" r="1.6" fill="#2B340C" opacity="0.7"/><circle cx="23.6" cy="90.3" r="1.3" fill="#2B340C" opacity="0.7"/><circle cx="40.1" cy="24.6" r="1.3" fill="#2B340C" opacity="0.7"/><circle cx="68.8" cy="45.2" r="1.3" fill="#2B340C" opacity="0.7"/><circle cx="73.1" cy="96.6" r="1.1" fill="#2B340C" opacity="0.7"/><circle cx="91.9" cy="90.3" r="1.4" fill="#2B340C" opacity="0.7"/><circle cx="78.8" cy="30.7" r="1.6" fill="#2B340C" opacity="0.7"/><circle cx="48.9" cy="57.4" r="1.6" fill="#2B340C" opacity="0.7"/><circle cx="21.1" cy="63.4" r="1.2" fill="#2B340C" opacity="0.7"/><circle cx="28.4" cy="98.2" r="0.9" fill="#2B340C" opacity="0.7"/><circle cx="70.5" cy="72" r="0.9" fill="#2B340C" opacity="0.7"/><circle cx="81.4" cy="87.5" r="1.6" fill="#2B340C" opacity="0.7"/><circle cx="70" cy="30.3" r="1.5" fill="#2B340C" opacity="0.7"/><circle cx="78.3" cy="65" r="1.3" fill="#2B340C" opacity="0.7"/><circle cx="101.6" cy="65.3" r="1" fill="#2B340C" opacity="0.7"/><circle cx="86.6" cy="59.9" r="1.1" fill="#2B340C" opacity="0.7"/><circle cx="52" cy="112" r="1.1" fill="#2B340C" opacity="0.7"/><circle cx="102.2" cy="95.2" r="1.1" fill="#2B340C" opacity="0.7"/><circle cx="21.4" cy="88.8" r="1.5" fill="#2B340C" opacity="0.7"/><circle cx="54.7" cy="84.9" r="1.4" fill="#2B340C" opacity="0.7"/><circle cx="68.6" cy="60.7" r="1.4" fill="#2B340C" opacity="0.7"/><circle cx="21.5" cy="72.5" r="1.6" fill="#2B340C" opacity="0.7"/><path d="M60 18 C82 18 88 38 84 54 C106 66 114 90 106 108 C98 124 22 124 14 108 C6 90 14 66 36 54 C32 38 38 18 60 18 Z" fill="#B9CC5A" transform="translate(60 76) scale(0.84 0.8568) translate(-60 -74)"/><path d="M60 18 C82 18 88 38 84 54 C106 66 114 90 106 108 C98 124 22 124 14 108 C6 90 14 66 36 54 C32 38 38 18 60 18 Z" fill="#D7E08A" transform="translate(60 76) scale(0.76 0.7752) translate(-60 -74)"/><path d="M60 18 C82 18 88 38 84 54 C106 66 114 90 106 108 C98 124 22 124 14 108 C6 90 14 66 36 54 C32 38 38 18 60 18 Z" fill="#ECEFB2" transform="translate(60 76) scale(0.56 0.5712) translate(-60 -74)"/><circle cx="60" cy="92" r="20" fill="#8A5530"/><path d="M44 86 C46 76 56 72 64 73" stroke="#A86A3E" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="52" cy="82" rx="4" ry="2.6" fill="#FFFFFF" opacity="0.55" transform="rotate(-30 52 82)"/><path d="M48 104 C54 110 68 110 74 102" stroke="#6E4222" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="50" cy="50" rx="6" ry="7" fill="#FFFFFF"/><circle cx="51.6" cy="48.6" r="3.5" fill="#1A2433"/><circle cx="53.1" cy="46.9" r="1.3" fill="#FFFFFF"/><ellipse cx="70" cy="50" rx="6" ry="7" fill="#FFFFFF"/><circle cx="71.6" cy="48.6" r="3.5" fill="#1A2433"/><circle cx="73.1" cy="46.9" r="1.3" fill="#FFFFFF"/><path d="M45 42 q5 -4 10 -1 M65 41 q5 -3 10 1" stroke="#525C12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M52 61 Q60 72 68 61 Q60 64 52 61 Z" fill="#3A2A12"/><path d="M56 66 q4 3 8 0 q-4 -2 -8 0 Z" fill="#E5944A"/><ellipse cx="40" cy="62" rx="5.6" ry="3.4" fill="#FFB36B" opacity="0.75"/><ellipse cx="80" cy="62" rx="5.6" ry="3.4" fill="#FFB36B" opacity="0.75"/><path d="M88 62 C70 80 40 96 20 104" stroke="#C98A5A" stroke-width="4" stroke-linecap="round" fill="none"/><rect x="4" y="96" width="26" height="20" rx="5" fill="#A86A3E"/><path d="M4 102 h26" stroke="#8A5530" stroke-width="2"/><rect x="4" y="96" width="26" height="9" rx="4" fill="#C98A5A"/><rect x="8" y="88" width="7" height="12" rx="1.5" fill="#FFFFFF" stroke="#C9C2AE"/><path d="M11.5 91 c-2 2 -2 5 0 6 c2 -1 2 -4 0 -6 Z" fill="#6E7D1C"/><rect x="17" y="86" width="7" height="13" rx="1.5" fill="#FFFFFF" stroke="#C9C2AE"/><circle cx="20.5" cy="91" r="2" fill="#FFB36B"/><circle cx="17" cy="110" r="2" fill="#FFB36B"/><ellipse cx="14" cy="80" rx="8" ry="7" fill="#3E4A14"/><g class="km-card-wave"><ellipse cx="108" cy="72" rx="8" ry="10" fill="#3E4A14" transform="rotate(-30 108 72)"/><g transform="rotate(8 120 52)"><rect x="106" y="34" width="30" height="22" rx="3" fill="#FFFFFF"/><path d="M110 40 h20 M110 45 h22 M110 50 h14" stroke="#C9C2AE" stroke-width="1.6" stroke-linecap="round"/><circle cx="131" cy="50" r="2" fill="#E5944A"/></g></g><ellipse cx="42" cy="122" rx="10" ry="6" fill="#2B340C"/><ellipse cx="78" cy="122" rx="10" ry="6" fill="#2B340C"/></g>
+</svg>

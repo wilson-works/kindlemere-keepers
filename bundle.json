@@ -1,0 +1,38 @@
+{
+  "name": "wellbeing-agents",
+  "title": "The wellbeing agents",
+  "realm": "Kindlemere",
+  "kit": {
+    "version": "1.0.0",
+    "contract": "kit/CONTRACT.md",
+    "realm": "kit/REALM.md"
+  },
+  "agents": [
+    {
+      "key": "nutrition",
+      "role": "the nutritionist",
+      "place": "the Orchard",
+      "folder": "agents/nutrition",
+      "port": 7571,
+      "room": "node agents/nutrition/dashboard/server.js"
+    },
+    {
+      "key": "fitness",
+      "role": "the fitness coach",
+      "place": "Stepping Hill",
+      "folder": "agents/fitness",
+      "port": 7572,
+      "room": "node agents/fitness/dashboard/server.js"
+    },
+    {
+      "key": "dog-training",
+      "role": "the dog trainer",
+      "place": "Lakeside Field",
+      "folder": "agents/dog-training",
+      "port": 7573,
+      "room": "node agents/dog-training/dashboard/server.js"
+    }
+  ],
+  "louise": "node kit/engine/louise.js ask <agent> \"<topic>\" \"<framing>\"",
+  "web": "never"
+}

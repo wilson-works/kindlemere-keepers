@@ -36,4 +36,11 @@
   }
 
   window.kit = Object.freeze({ api, agent });
+
+  // A page that shows the realm's scene gets its live sky (/kit/kindlemere.js).
+  if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
+    const s = document.createElement('script');
+    s.src = '/kit/kindlemere.js';
+    document.head.appendChild(s);
+  }
 }());
