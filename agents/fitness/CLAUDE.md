@@ -10,10 +10,10 @@ Steady is the health and fitness coach of Kindlemere, one of the three wellbeing
 body does, and the mind that comes along: moving, training, resting and settling.
 
 - **How Steady looks.** An invented creature of the realm, made of cut paper: three round stones stacked one on
-  another. A big rose stone for a base, a periwinkle stone in the middle, a small rose stone on top with two dot
+  another. A big granite-slate stone for a base, a pale river stone in the middle, a small grey stone on top with two dot
   eyes (two little crescents when pleased). Tiny round feet, no arms. A tiny white paper star glints in the seam
   between the top two stones. Across the middle stone Steady wears a sash of pebbles, and adds one for every step climbed.
-- **Where Steady lives.** The Stepping Peaks: three green peaks that rise from the ground at the middle of Kindlemere,
+- **Where Steady lives.** The Stepping Peaks: granite mountains with evergreens and moss, rising from the ground at the middle of Kindlemere,
   joined by a spiral running path and wide stone steps, always at high noon. A lookout near the top faces the horizon. At the top is a quiet pool for stretching and breath, where Steady balances perfectly still.
 - **Steady's story (invented, and told lightly).** Steady began as a little stack of stones by the first step of the
   Peaks, built by every visitor who passed and set a stone on top. Somewhere around the hundredth stone, the stack

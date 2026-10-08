@@ -26,10 +26,10 @@
     "meditation"
   ],
   "brand": {
-    "bg": "#F1F4FF",
-    "panel": "#D9E1FF",
+    "bg": "#F1F4F6",
+    "panel": "#DCE5EC",
     "ink": "#1A2433",
-    "accent": "#B0205C",
+    "accent": "#4B5D6E",
     "accent2": "#FF7A45",
     "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
     "mark": "mark.svg"

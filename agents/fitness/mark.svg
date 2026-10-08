@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="t">
-  <title id="t">Steady's mark: three stacked paper stones with a pebble sash and a small white star</title>
+  <title id="t">Steady's mark: three stacked granite paper stones with a pebble sash and a small white star</title>
   <!-- Cut paper (kit/REALM.md): flat shapes, each on a short hard shadow below it. Same stones as art.svg. -->
   <g fill="rgba(26,36,51,0.16)">
     <ellipse cx="32" cy="50" rx="22" ry="11"/>
@@ -7,28 +7,28 @@
     <ellipse cx="32" cy="21.5" rx="10.5" ry="7.5"/>
   </g>
   <!-- base -->
-  <ellipse cx="32" cy="47" rx="22" ry="11" fill="#B0205C"/>
-  <path d="M11 49 Q32 62 53 48 Q50 57 32 58 Q14 57 11 49 Z" fill="#8E1748"/>
-  <path d="M17 43 L23 38 L31 37 L24 41 L21 45 Z" fill="#C23A70"/>
-  <g stroke="#E8A3C1" stroke-width="1.4" stroke-linecap="round"><path d="M38 41.5 l-0.6 5"/><path d="M41 41.5 l-0.6 5"/><path d="M44 41.5 l-0.6 5"/><path d="M36.5 45 l9 -2.6"/></g>
+  <ellipse cx="32" cy="47" rx="22" ry="11" fill="#4B5D6E"/>
+  <path d="M11 49 Q32 62 53 48 Q50 57 32 58 Q14 57 11 49 Z" fill="#3A4856"/>
+  <path d="M17 43 L23 38 L31 37 L24 41 L21 45 Z" fill="#5E7284"/>
+  <g stroke="#C9D3DB" stroke-width="1.4" stroke-linecap="round"><path d="M38 41.5 l-0.6 5"/><path d="M41 41.5 l-0.6 5"/><path d="M44 41.5 l-0.6 5"/><path d="M36.5 45 l9 -2.6"/></g>
   <!-- middle and its sash -->
-  <ellipse cx="32" cy="31.5" rx="15.5" ry="8.5" fill="#8FA2FF"/>
-  <path d="M17 31 Q32 41 47 30.5 L47.5 34 Q32 45 17 34.5 Z" fill="#D4DBF8"/>
+  <ellipse cx="32" cy="31.5" rx="15.5" ry="8.5" fill="#A9B8C4"/>
+  <path d="M17 31 Q32 41 47 30.5 L47.5 34 Q32 45 17 34.5 Z" fill="#E6EBEF"/>
   <g>
     <circle cx="21" cy="34.6" r="2" fill="#FFFFFF"/>
-    <circle cx="26" cy="37.4" r="2.1" fill="#C8CDD8"/>
-    <circle cx="31.5" cy="38.4" r="2.1" fill="#E58AB0"/>
+    <circle cx="26" cy="37.4" r="2.1" fill="#D8C7A6"/>
+    <circle cx="31.5" cy="38.4" r="2.1" fill="#D8C7A6"/>
     <circle cx="37" cy="37.4" r="2.1" fill="#FFFFFF"/>
-    <circle cx="42.5" cy="34.6" r="2" fill="#B7C3FF"/>
+    <circle cx="42.5" cy="34.6" r="2" fill="#7E9B6A"/>
   </g>
   <path d="M44 23.5 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2z" fill="#FFFFFF"/>
   <!-- top, with eyes and cheeks -->
-  <ellipse cx="32" cy="19" rx="10.5" ry="7.5" fill="#B0205C"/>
-  <path d="M23 21 Q32 28 41 20.5 Q39 26 32 26.5 Q25 26 23 21 Z" fill="#8E1748"/>
-  <ellipse cx="25.6" cy="21.6" rx="2.2" ry="1.3" fill="#E8709F"/>
-  <ellipse cx="38.4" cy="21.6" rx="2.2" ry="1.3" fill="#E8709F"/>
+  <ellipse cx="32" cy="19" rx="10.5" ry="7.5" fill="#7E909F"/>
+  <path d="M23 21 Q32 28 41 20.5 Q39 26 32 26.5 Q25 26 23 21 Z" fill="#687A89"/>
+  <ellipse cx="25.6" cy="21.6" rx="2.2" ry="1.3" fill="#D8A58C"/>
+  <ellipse cx="38.4" cy="21.6" rx="2.2" ry="1.3" fill="#D8A58C"/>
   <ellipse cx="28.4" cy="18.6" rx="1.6" ry="1.9" fill="#1A2433"/>
   <ellipse cx="35.6" cy="18.6" rx="1.6" ry="1.9" fill="#1A2433"/>
   <circle cx="29" cy="17.8" r="0.6" fill="#FFFFFF"/><circle cx="36.2" cy="17.8" r="0.6" fill="#FFFFFF"/>
-  <ellipse cx="33.5" cy="11" rx="3.4" ry="2.2" fill="#C8CDD8"/>
+  <ellipse cx="33.5" cy="11" rx="3.4" ry="2.2" fill="#D8C7A6"/>
 </svg>
