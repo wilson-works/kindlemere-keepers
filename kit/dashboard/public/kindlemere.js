@@ -61,7 +61,7 @@
     const phi = Math.acos(Math.sin(s.dec) * Math.sin(m.dec) + Math.cos(s.dec) * Math.cos(m.dec) * Math.cos(s.ra - m.ra));
     const inc = Math.atan2(sdist * Math.sin(phi), m.dist - sdist * Math.cos(phi));
     const angle = Math.atan2(Math.cos(s.dec) * Math.sin(s.ra - m.ra), Math.sin(s.dec) * Math.cos(m.dec) - Math.cos(s.dec) * Math.sin(m.dec) * Math.cos(s.ra - m.ra));
-    return { lit: (1 + Math.cos(inc)) / 2, waxing: angle < 0 };
+    return { lit: (1 + Math.cos(inc)) / 2, waxing: angle < 0, phase: 0.5 + (0.5 * inc * (angle < 0 ? -1 : 1)) / Math.PI };
   }
 
   /* ---------------------------------------------------------------- where this computer is */
@@ -318,23 +318,85 @@
   const TALK_MS = 9000;
   // Each visit: who goes, where each one stops (feet, world units), and the path there.
   const VISITS = [
-    { who: ['nutrition', 'nutrition-summer'], to: [[1392, 1218], [1468, 1236]], via: [[1010, 1188], [1200, 1214]] },
-    { who: ['dog-training', 'dog'], to: [[1690, 1250], [1770, 1288]], via: [[2300, 1208], [1900, 1236]] },
-    { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[1064, 1226], [990, 1242], [1136, 1242]], via: [[1180, 1218]] },
-    { who: ['nutrition', 'nutrition-summer'], to: [[2290, 1214], [2226, 1224]], via: [[1010, 1188], [1600, 1248], [2080, 1216]] },
-    { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[2260, 1222], [2186, 1236], [2340, 1236]], via: [[1450, 1232], [1900, 1236]] },
-    { who: ['dog-training', 'dog'], to: [[1130, 1226], [1200, 1262]], via: [[2080, 1216], [1600, 1250], [1350, 1232]] },
+    { who: ['nutrition', 'nutrition-summer'], to: [[1404, 1018], [1474, 1032]], via: [[1010, 1188], [1200, 1214], [1296, 1104]] },
+    { who: ['dog-training', 'dog', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1690, 1250], [1770, 1288], [1626, 1262], [1752, 1236]], via: [[2300, 1208], [1900, 1236]] },
+    { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[1064, 1226], [990, 1242], [1136, 1242]], via: [[1296, 1104], [1180, 1218]] },
+    { who: ['nutrition', 'nutrition-summer'], to: [[2230, 1222], [2166, 1232]], via: [[1010, 1188], [1600, 1248], [2080, 1216]] },
+    { who: ['fitness', 'fitness-puff', 'fitness-huff'], to: [[2200, 1240], [2130, 1252], [2280, 1252]], via: [[1296, 1104], [1450, 1232], [1900, 1236]] },
+    { who: ['dog-training', 'dog', 'dog-training-barkley', 'dog-training-sizzle'], to: [[1130, 1226], [1200, 1262], [1064, 1234], [1262, 1238]], via: [[2080, 1216], [1600, 1250], [1350, 1232]] },
   ];
   const NEAR = 300;
   let lastInput = performance.now();
+  let herePlaceCache = { lat: 40, lon: 0 };
   const scenes = [];
+
+  const LINES = {
+    nutrition: 'Breakfast and lunch are mine. Shall we plan a week of meals?',
+    'nutrition-summer': 'Treats are my thing. Fruit first, then the fun.',
+    'nutrition-spud': 'Dinner is on. Pull up a chair.',
+    fitness: 'One step at a time. Shall we warm up?',
+    'fitness-puff': 'Home workouts and wet-weather runs. That is me.',
+    'fitness-huff': 'Gym days and hot runs. Bring water.',
+    'dog-training': 'Ready to train? Grab the treats.',
+    'dog-training-barkley': 'Out in the woods with your dog? Ask me.',
+    'dog-training-sizzle': 'Treats are my department. Small ones.',
+    dog: 'Woof.',
+  };
+
+  /** A short line in a paper bubble over a point of the stack (the kit's own answer when no room answers). */
+  function say(scene, el, text) {
+    const old = scene.root.querySelector('.km-say');
+    if (old) old.remove();
+    const r = scene.root.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    const p = document.createElement('div');
+    p.className = 'km-say';
+    p.setAttribute('role', 'status');
+    p.textContent = text;
+    const left = clamp(b.left + b.width / 2 - r.left, 90, r.width - 90);
+    p.style.cssText = `position:absolute;z-index:4;left:${left}px;top:${Math.max(6, b.top - r.top - 8)}px;transform:translate(-50%,-100%);max-width:220px;` +
+      'background:#FFFFFF;color:#1A2433;border-radius:14px;padding:8px 12px;font:600 14px/1.3 ui-rounded,Candara,"Gill Sans","Segoe UI",sans-serif;box-shadow:0 3px 0 rgba(26,36,51,0.18);pointer-events:none';
+    scene.root.appendChild(p);
+    setTimeout(() => p.remove(), 3600);
+  }
+
+  function wake(scene, key) {
+    const a = scene.cast[key];
+    if (!a) return;
+    const name = a.el.getAttribute('data-km-name') || key;
+    a.el.setAttribute('data-km-mood', 'oh');
+    a.el.setAttribute('data-km-talk', '1');
+    clearTimeout(a.wakeTimer);
+    a.wakeTimer = setTimeout(() => { a.el.removeAttribute('data-km-mood'); }, 900);
+    setTimeout(() => { a.el.removeAttribute('data-km-talk'); }, 2600);
+    const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root } });
+    if (window.dispatchEvent(ev)) say(scene, a.el, scene.night && !a.el.hasAttribute('data-km-awake') ? `${name === 'dog' ? 'The dog' : name} is asleep.` : LINES[key] || name);
+  }
 
   function makeCast(scene) {
     const cast = {};
     scene.layers.actors && scene.layers.actors.querySelectorAll('[data-km-actor]').forEach((el) => {
       const [hx, hy] = el.getAttribute('data-km-home').split(/\s+/).map(Number);
-      cast[el.getAttribute('data-km-actor')] = { el, hx, hy, x: hx, y: hy, walk: null };
+      const key = el.getAttribute('data-km-actor');
+      cast[key] = { el, hx, hy, x: hx, y: hy, walk: null };
+      const name = el.getAttribute('data-km-name') || key;
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', name === 'dog' ? 'The dog' : name);
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => wake(scene, key));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wake(scene, key); } });
     });
+    // The telescope on the lookout: at night it opens a lens on tonight's moon.
+    const scope = scene.root.querySelector('[data-km-part="telescope"]');
+    if (scope) {
+      scope.setAttribute('role', 'button');
+      scope.setAttribute('tabindex', '0');
+      scope.setAttribute('aria-label', 'The telescope on the lookout');
+      const use = () => { if (scene.night) lens(scene, scope); else say(scene, scope, 'Come back after dark to look at the moon.'); };
+      scope.addEventListener('click', use);
+      scope.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); use(); } });
+    }
     scene.cast = cast;
     scene.state = 'home';
     scene.visit = 0;
@@ -344,7 +406,7 @@
     a.x = x;
     a.y = y;
     if (!walking && Math.abs(x - a.hx) < 0.5 && Math.abs(y - a.hy) < 0.5) { a.el.removeAttribute('transform'); return; }
-    const k = clamp(1 + (y - a.hy) * 0.0016, 0.86, 1.16); // nearer the front is bigger
+    const k = clamp(1 + (y - a.hy) * 0.0016, 0.7, 1.2); // nearer the front is bigger
     const hop = walking ? -Math.abs(Math.sin(t / 95)) * 5 : 0;
     const tilt = walking ? Math.sin(t / 190) * 2.5 : 0;
     a.el.setAttribute('transform', `translate(${x.toFixed(1)} ${(y + hop).toFixed(1)}) rotate(${tilt.toFixed(2)}) scale(${k.toFixed(3)}) translate(${-a.hx} ${-a.hy})`);
@@ -397,6 +459,7 @@
     const dog = dogPart(scene);
     if (dog) dog.classList.remove('dt-sit');
     Object.entries(scene.cast).forEach(([key, a]) => {
+      if (a.el.hasAttribute('data-km-awake')) return;
       if (Math.abs(a.x - a.hx) < 0.5 && Math.abs(a.y - a.hy) < 0.5) { a.walk = null; return; }
       if (fast && key === 'dog') { a.walk = null; stand(a, a.hx, a.hy, 0, false); a.el.classList.remove('km-ashore'); return; }
       const back = !fast && scene.via ? [[a.x, a.y], ...scene.via.slice().reverse(), [a.hx, a.hy]] : [[a.x, a.y], [a.hx, a.hy]];
@@ -479,11 +542,104 @@
     for (const s of scenes) if (s.cast && s.state !== 'home') goHome(s, true);
   }
 
+  /* ---------------------------------------------------------------- the telescope, the watcher, the dog houses */
+  // Owner, 2026-10-08: "if clicking the telescope at night, it will open a circle port like view ... the moon in its
+  // current state of the cycle ... on full moons it would show the full bright moon with craters, and on new moon, it
+  // would just show a random conselation of stars". The phase is computed here from the date; nothing is looked up.
+  function phaseName(p) {
+    if (p < 0.03 || p > 0.97) return 'New moon';
+    if (p < 0.22) return 'Waxing crescent';
+    if (p < 0.28) return 'First quarter';
+    if (p < 0.47) return 'Waxing gibbous';
+    if (p < 0.53) return 'Full moon';
+    if (p < 0.72) return 'Waning gibbous';
+    if (p < 0.78) return 'Last quarter';
+    return 'Waning crescent';
+  }
+
+  function lens(scene, back) {
+    const t = now();
+    const m = moonPhase(days(t));
+    const size = Math.min(scene.root.clientWidth, scene.root.clientHeight) * 0.78;
+    const wrap = document.createElement('div');
+    wrap.setAttribute('role', 'dialog');
+    wrap.setAttribute('aria-label', "The telescope: tonight's moon");
+    wrap.tabIndex = -1;
+    wrap.style.cssText = 'position:absolute;inset:0;z-index:6;background:#020407;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer';
+    let stars = '';
+    for (let i = 0; i < 70; i += 1) { const a = Math.random() * Math.PI * 2; const d = Math.sqrt(Math.random()) * 92; stars += `<circle cx="${(Math.cos(a) * d).toFixed(1)}" cy="${(Math.sin(a) * d).toFixed(1)}" r="${(0.3 + Math.random() * 0.9).toFixed(2)}" fill="#FFFFFF" opacity="${(0.4 + Math.random() * 0.6).toFixed(2)}"/>`; }
+    let body = '';
+    if (m.lit < 0.03) {
+      // New moon: no moon to see, so a constellation instead, drawn fresh each look.
+      const pts = Array.from({ length: 7 }, (_, i) => [(-60 + i * 20 + (Math.random() * 16 - 8)).toFixed(1), (Math.random() * 90 - 45).toFixed(1)]);
+      body = `<polyline points="${pts.map((p) => p.join(',')).join(' ')}" fill="none" stroke="#CFE6EA" stroke-width="0.6" opacity="0.55"/>` + pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="#FFFFFF"/><circle cx="${x}" cy="${y}" r="5" fill="#FFFFFF" opacity="0.15"/>`).join('');
+    } else {
+      const ex = (Math.abs(1 - 2 * m.lit) * 62).toFixed(2);
+      const flip = m.waxing === (herePlaceCache.lat >= 0) ? '' : ' transform="scale(-1 1)"';
+      const lit = `M0 -62 A62 62 0 0 1 0 62 A${ex} 62 0 0 ${m.lit < 0.5 ? 0 : 1} 0 -62 Z`;
+      const id = `km-lens-${Date.now()}`;
+      body = `<defs><clipPath id="${id}"><path d="${lit}"${flip}/></clipPath></defs><circle r="62" fill="#1B2A3C"/><path d="${lit}"${flip} fill="#F2EEDC"/>` +
+        `<g clip-path="url(#${id})"><ellipse cx="-18" cy="-14" rx="20" ry="15" fill="#D8D2BC"/><ellipse cx="16" cy="10" rx="16" ry="12" fill="#D8D2BC"/><ellipse cx="-6" cy="28" rx="12" ry="8" fill="#DDD7C2"/>` +
+        `<circle cx="22" cy="-26" r="7" fill="#CFC8B0"/><circle cx="22" cy="-26" r="4.4" fill="#E6E1CF"/><circle cx="-30" cy="18" r="5" fill="#CFC8B0"/><circle cx="-30" cy="18" r="3" fill="#E6E1CF"/>` +
+        `<circle cx="4" cy="-40" r="4" fill="#CFC8B0"/><circle cx="36" cy="22" r="4.6" fill="#CFC8B0"/><circle cx="-40" cy="-30" r="3.4" fill="#CFC8B0"/><circle cx="10" cy="44" r="3.6" fill="#CFC8B0"/></g>`;
+    }
+    wrap.innerHTML = `<svg viewBox="-100 -100 200 200" width="${size.toFixed(0)}" height="${size.toFixed(0)}" aria-hidden="true" style="max-width:none"><circle r="96" fill="#060C16"/>${stars}${body}<circle r="96" fill="none" stroke="#1A2433" stroke-width="8"/></svg>` +
+      `<p style="margin:0;color:#CFE6EA;font:600 14px/1.3 ui-rounded,Candara,'Gill Sans','Segoe UI',sans-serif;text-align:center">${m.lit < 0.03 ? `New moon tonight (${Math.round(m.lit * 100)}% lit), so you see the stars. ` : `${m.lit > 0.97 ? 'Full moon' : phaseName(m.phase)}, ${Math.round(m.lit * 100)}% lit. `}${t.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.</p>` +
+      `<p style="margin:0;color:#8797A5;font:400 12px/1.3 system-ui,sans-serif">Tap or press Escape to step back.</p>`;
+    const close = () => { wrap.remove(); document.removeEventListener('keydown', esc); if (back && back.focus) back.focus(); };
+    const esc = (e) => { if (e.key === 'Escape') close(); };
+    wrap.addEventListener('click', close);
+    document.addEventListener('keydown', esc);
+    scene.root.appendChild(wrap);
+    wrap.focus();
+  }
+
+  // Owner: "at night, any random character might be spot at the telescope". One character, the same one all night,
+  // stands awake on the lookout platform by the telescope (world units of its feet), small with the distance.
+  const LOOKOUT = [1622, 322];
+  function watch(scene, t) {
+    if (!scene.cast) return;
+    const keys = Object.keys(scene.cast).filter((k) => k !== 'dog');
+    const pickKey = keys[Math.floor(days(t)) % keys.length];
+    for (const k of keys) {
+      const a = scene.cast[k];
+      const on = scene.night && k === pickKey;
+      if (on && !a.el.hasAttribute('data-km-awake')) {
+        a.el.setAttribute('data-km-awake', '1');
+        a.el.setAttribute('data-km-mood', 'oh');
+        a.x = LOOKOUT[0];
+        a.y = LOOKOUT[1];
+        a.el.setAttribute('transform', `translate(${LOOKOUT[0]} ${LOOKOUT[1]}) scale(0.34) translate(${-a.hx} ${-a.hy})`);
+      } else if (!on && a.el.hasAttribute('data-km-awake')) {
+        a.el.removeAttribute('data-km-awake');
+        a.el.removeAttribute('data-km-mood');
+        stand(a, a.hx, a.hy, 0, false);
+      }
+    }
+  }
+
+  // Owner: "if multiple dogs are created, then multiple houses should appear". Tumble's page fires 'kindlemere:dogs'
+  // { svg, names }; house n shows when there are n dogs (one house always), with the dog's name on its board.
+  function houses(scene, names) {
+    const count = Math.max(1, Math.min(6, names.length));
+    for (let n = 1; n <= 6; n += 1) {
+      const h = scene.root.querySelector(`[data-km-part="dog-house-${n}"]`);
+      if (h) h.setAttribute('display', n <= count ? 'inline' : 'none');
+      const plate = scene.root.querySelector(`[data-km-part="dog-house-name-${n}"]`);
+      if (plate) {
+        const name = String(names[n - 1] || '').slice(0, 24);
+        plate.textContent = name;
+        if (name.length > 9) { plate.setAttribute('textLength', '34'); plate.setAttribute('lengthAdjust', 'spacingAndGlyphs'); } else plate.removeAttribute('textLength');
+      }
+    }
+  }
+
   /* ---------------------------------------------------------------- start */
   async function start() {
     const imgs = Array.from(document.querySelectorAll('img[src^="/kit/art/kindlemere"]')).filter((i) => /\/kindlemere(-[a-z]+)?\.svg$/.test(i.getAttribute('src')));
     if (!imgs.length) return;
     const place = await herePlace();
+    herePlaceCache = place;
     for (const img of imgs) {
       let scene = null;
       try { scene = await inline(img); } catch (_) { scene = null; }
@@ -491,6 +647,7 @@
       crop(scene);
       draw(scene, place, now());
       makeCast(scene);
+      watch(scene, now());
       scenes.push(scene);
       if (!still) {
         scene.root.addEventListener('pointermove', (e) => {
@@ -503,7 +660,12 @@
       const part = (name) => scene.root.querySelector(`[data-km-part="${name}"]`);
       window.dispatchEvent(new CustomEvent('kindlemere:ready', { detail: { svg: scene.layers.actors || scene.root, scene: scene.root, part } }));
     }
-    const tick = () => scenes.forEach((s) => draw(s, place, now()));
+    const tick = () => scenes.forEach((s) => { draw(s, place, now()); watch(s, now()); });
+    window.addEventListener('kindlemere:dogs', (e) => {
+      const d = e.detail || {};
+      const names = Array.isArray(d.names) ? d.names.filter((n) => typeof n === 'string') : [];
+      scenes.filter((s) => !d.svg || s.root === d.svg || s.root.contains(d.svg)).forEach((s) => houses(s, names));
+    });
     setInterval(tick, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
     if (window.ResizeObserver) {

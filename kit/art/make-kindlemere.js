@@ -40,7 +40,7 @@ const C = {
   clay1: '#D49A68', clay2: '#C98A5A', clay3: '#A86A3E', clay4: '#8A5530', bark: '#6B4A2A',
   fBg: '#F1F4F6', fSky: '#DCE5EC', fLand: '#4B5D6E', fShade: '#3B4B59', fLight: '#7E909F', fLightShade: '#66798A', fPale: '#E4EAEF', fGlow: '#A9B8C4', fGlowDeep: '#8C9DAB', fDeep: '#34424F', fDeeper: '#2A3640', fStone: '#EEF1F3',
   pine: '#2F4A3A', pineMid: '#3E5E46', pineLight: '#4F7356', moss: '#8BA348', sand: '#D9C9A8',
-  dSky: '#DDEBA6', dLand: '#6E3A12', dGlow: '#E5B07A', dGrass: '#A9C24A', dGrassDeep: '#7E9A2E', dGrassDark: '#62801F', dPlume: '#9DB83A', dSeed: '#C3D66B', dRusset: '#8E5126', dTan: '#A8622E', dDark: '#4F2A0D',
+  dSky: '#DDEBA6', dLand: '#6E3A12', dGlow: '#E5B07A', dGrass: '#9CB54A', dGrassDeep: '#78963A', dGrassDark: '#5E7A2A', dPlume: '#9DB83A', dSeed: '#C3D66B', dRusset: '#8E5126', dTan: '#A8622E', dDark: '#4F2A0D',
   bulb: '#FFF1C9', bulbGlow: '#FFD58A', firefly: '#F4FFB0',
 };
 
@@ -307,6 +307,16 @@ function hillBody() {
   o += grassBlades(560, 1080, 430, 552, 90, ['#6F8A34', '#5E7A2A', '#7E9A3A'], 5, 10);
   o += grassBlades(660, 980, 320, 430, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 4, 8);
   o += flowers(26, 600, 1040, 420, 548, [C.paper, C.sand, C.dGlow], C.fLand, 0.6);
+  o += flowers(34, 620, 1060, 330, 548, [C.paper, C.sand, C.dGlow, '#F2D27A'], C.fLand, 0.55);
+  o += grassBlades(700, 960, 300, 420, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 3, 7);
+  for (let i = 0; i < N(26); i += 1) { const x = r(600, 1060); const y = r(360, 548); o += `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(r(2, 4))}" ry="${f(r(1.2, 2.4))}" fill="${pick([C.fStone, C.fGlow, C.fLight])}"/>`; }
+  // A bench part way up the steps, and a trail marker at their foot.
+  o += `<g filter="url(#layer-sm)"><rect x="652" y="446" width="24" height="4" rx="2" fill="${C.clay2}"/><rect x="654" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="671" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="652" y="440" width="24" height="3" rx="1.5" fill="${C.clay3}"/></g>`;
+  o += `<g filter="url(#layer-sm)"><rect x="636" y="522" width="3" height="22" rx="1.5" fill="${C.bark}"/><path d="M639 524 h14 l3 3 l-3 3 h-14 Z" fill="${C.fLand}"/><path d="M641 527 h9" stroke="${C.paper}" stroke-width="1"/></g>`;
+  // A few sheep grazing.
+  [[606, 528, 1], [628, 518, 0.9], [940, 520, 1], [1044, 512, 0.85]].forEach(([x, y, s]) => {
+    o += `<g transform="translate(${x} ${y}) scale(${s})">${shadow(0, 6, 8, 1.6)}<path d="M-5 4 v4 M3 4 v4" stroke="${C.ink}" stroke-width="1.6" stroke-linecap="round"/><circle cx="-5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="-2" r="4.6" fill="#F4F1E8"/><circle cx="5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="2" r="4" fill="#F4F1E8"/><ellipse cx="9" cy="-1" rx="2.6" ry="3.2" fill="#3A3A3A"/><circle cx="10" cy="-1.6" r="0.6" fill="${C.paper}"/></g>`;
+  });
   // Granite outcrops.
   o += `<g filter="url(#layer-sm)">${boulder(764, 474, 60, 32)}${boulder(812, 506, 36, 20)}${boulder(876, 340, 46, 26)}${boulder(990, 506, 54, 28)}${boulder(640, 518, 42, 22)}</g>`;
   // Pines on its sides.
@@ -328,19 +338,19 @@ function hillBody() {
   // post; the spring runs from it down the hill's face.
   o += `<g transform="translate(-70 30)">`;
   o += `<path d="M956 404 C962 396 1040 396 1046 404 L1042 410 C1020 416 980 416 960 410 Z" fill="#5E7A2A"/>`;
-  o += `<g filter="url(#layer-sm)"><ellipse cx="1000" cy="402" rx="42" ry="9" fill="${C.fLand}"/><ellipse cx="998" cy="398" rx="36" ry="7" fill="${C.mereLight}"/></g><path d="M980 398 h18 M1004 400 h10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round"/>`;
+  o += `<g filter="url(#layer-sm)"><ellipse cx="1000" cy="402" rx="42" ry="9" fill="${C.fLand}"/><ellipse cx="998" cy="398" rx="36" ry="7" fill="${C.mere}"/><ellipse cx="992" cy="397" rx="20" ry="2.6" fill="${C.mereShine}"/></g><path d="M980 398 h18 M1004 400 h10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round"/>`;
   o += `<path d="M990 396 c-3 -6 0 -9 3 -10 c3 1 6 4 3 10 Z M984 397 c-5 -3 -6 -7 -4 -9 c4 0 6 3 6 8 Z M1002 397 c5 -3 6 -7 4 -9 c-4 0 -6 3 -6 8 Z" fill="${C.paper}"/>`;
   o += `<rect x="950" y="398" width="22" height="6" rx="3" fill="${C.sand}"/>`;
   o += `<path d="M1034 402 V376 q0 -9 9 -9 h7" stroke="${C.bark}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1044 378 a5.5 6 0 0 1 11 0 Z" fill="${C.dGlow}"/>`;
   o += `</g>`;
-  o += `<path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.mereLight}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 14" fill="none" class="km-fall"/>`;
+  o += `<path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.mere}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 14" fill="none" class="km-fall"/>`;
   // The lookout on the top: a railed platform on a granite ledge, a flag, and a spyglass at the horizon.
   o += `<g filter="url(#layer-sm)">${boulder(820, 288, 92, 24)}</g>`;
   o += `<g transform="translate(820 252)" filter="url(#layer-sm)">`;
   o += `<rect x="-26" y="0" width="52" height="7" rx="3.5" fill="${C.clay3}"/><rect x="-22" y="7" width="5" height="22" fill="${C.clay4}"/><rect x="17" y="7" width="5" height="22" fill="${C.clay4}"/><path d="M-22 20 L22 10" stroke="${C.clay4}" stroke-width="3"/>`;
   o += `<path d="M-24 0 V-16 H24 V0" stroke="${C.clay3}" stroke-width="3" fill="none"/><path d="M-12 -16 V0 M0 -16 V0 M12 -16 V0" stroke="${C.clay3}" stroke-width="2"/>`;
   o += `<path d="M-24 -16 V-56" stroke="${C.ink}" stroke-width="2.5" stroke-linecap="round"/><path d="M-24 -56 h22 l-6 7 l6 7 h-22 Z" fill="${C.fGlow}" class="km-flag"/>`;
-  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)"><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
+  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)" data-km-part="telescope" pointer-events="visiblePainted"><rect x="-4" y="-34" width="52" height="34" fill="transparent"/><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
   o += `</g>`;
   return g('id="km-hill"', o);
 }
@@ -495,12 +505,16 @@ function field() {
   o += `</g>`;
   // A row of trees along the far side of the field.
   for (let i = 0; i < 9; i += 1) { const x = 1150 + i * 52 + r(-10, 10); o += `<g filter="url(#layer-sm)">${roundTree(x, 522 - (i % 2) * 4, 0.7 + r(0, 0.2), [C.pineMid, C.pineLight, '#5E8A52'])}</g>`; }
+  [[1176, 470], [1236, 466], [1296, 470], [1356, 464], [1416, 468]].forEach(([x, y], i) => {
+    const n = i + 2;
+    o += `<g data-km-part="dog-house-${n}" display="none" filter="url(#layer-sm)" transform="translate(${x} ${y}) scale(0.62)">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M18 60 V46 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/>${`<rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-${n}" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`}</g>`;
+  });
   for (let i = 0; i < 9; i += 1) o += `<rect x="${1060 + i * 60}" y="${f(500 - (i % 3) * 3)}" width="5" height="34" rx="2.5" fill="${C.dRusset}"/>`;
   o += `<path d="M1058 508 C1200 500 1360 492 1590 498 M1058 520 C1200 512 1360 504 1590 510" stroke="${C.dTan}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
   // The dog house: a pitched roof of shingles, a name board, a round door, a water bowl.
-  o += `<g filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+  o += `<g data-km-part="dog-house-1" filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
   for (let i = 0; i < 4; i += 1) o += `<path d="M${4 + i * 8} ${20 - i * 5} l8 6 M${56 - i * 8} ${20 - i * 5} l-8 6" stroke="${C.dRusset}" stroke-width="2"/>`;
-  o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="22" y="28" width="16" height="6" rx="3" fill="${C.paper}"/><path d="M26 31 h8" stroke="${C.dTan}" stroke-width="1.5"/>`;
+  o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`;
   o += `<ellipse cx="76" cy="60" rx="8" ry="3.2" fill="${C.fGlow}"/><ellipse cx="76" cy="58.6" rx="5.6" ry="2" fill="${C.mereLight}"/><path d="M-4 60 h8 l-1 -3 h-6 Z" fill="${C.dTan}"/></g>`;
   for (let i = 0; i < 6; i += 1) {
     const x = 1392 + i * 14;
@@ -517,6 +531,12 @@ function field() {
   o += `<g filter="url(#layer-sm)"><ellipse cx="1316" cy="578" rx="9" ry="3.2" fill="${C.fGlow}"/><ellipse cx="1316" cy="577.4" rx="6" ry="2" fill="none" stroke="${C.paper}" stroke-width="1"/>` +
     `<path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dGlow}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dLand}" stroke-width="3" stroke-dasharray="2 3" fill="none"/><circle cx="1167" cy="588.6" r="3" fill="${C.dLand}"/><circle cx="1202" cy="587" r="3" fill="${C.dLand}"/>` +
     `<circle cx="1372" cy="566" r="3.4" fill="#D8E04A"/><path d="M1369.6 564.8 q2.4 1.8 4.8 0" stroke="${C.paper}" stroke-width="0.8" fill="none"/></g>`;
+  // Bushes with berries, like the Orchard's, along the Field.
+  [[1272, 552, 1], [1336, 560, 0.8], [1504, 566, 1.1], [1586, 592, 0.9], [1060, 560, 0.8]].forEach(([x, y, s]) => {
+    o += `<g filter="url(#layer-sm)">${shadow(x, y + 2, f(16 * s), 2)}<circle cx="${x}" cy="${f(y - 9 * s)}" r="${f(10 * s)}" fill="#5F7A3A"/><circle cx="${f(x - 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7 * s)}" fill="#6E8A42"/><circle cx="${f(x + 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7.5 * s)}" fill="#748F48"/>` +
+      `<circle cx="${f(x - 3 * s)}" cy="${f(y - 12 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 4 * s)}" cy="${f(y - 8 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 1 * s)}" cy="${f(y - 14 * s)}" r="${f(1.2 * s)}" fill="#C8433A"/></g>`;
+  });
+  o += flowers(20, 1040, 1590, 548, 600, [C.paper, C.nGlow, '#F2D27A'], C.nGlowDeep, 0.8);
   o += grassBlades(1030, 1600, 540, 600, 150, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 18);
   o += flowers(30, 1040, 1590, 540, 596, [C.paper, C.dGlow, C.paper, '#F2D27A'], C.dGlow, 0.8);
   o += grassBlades(1030, 1600, 598, 660, 90, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 16);
@@ -868,9 +888,50 @@ function cloudSidekick(kind) {
   };
 }
 
-function placeSidekick(id, k, x, groundY, lift, cls) {
+function barkleySidekick(mood) {
+  // Barkley, Tumble's sidekick for outdoor play and dogs in the woods: a big stick off a tree standing on end, with bark,
+  // knots, a sprig of leaves on top and two twigs for arms.
+  const bark = '#8A5A34';
+  const barkDark = '#6E4426';
+  let o = `<path d="M22 8 C22 0 26 -6 30 -10" stroke="${barkDark}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M29 -9 c4 -6 11 -7 14 -4 c-4 4 -9 5 -14 4 Z M27 -6 c-5 -4 -10 -3 -12 0 c3 3 8 3 12 0 Z" fill="${C.nLeafLight}"/>`;
+  o += `<path d="M13 106 C9 80 11 40 15 10 C16 2 28 2 29 10 C33 40 35 80 31 106 Z" fill="${bark}"/>`;
+  o += `<path d="M25 8 C31 40 33 80 31 106 L25 106 C27 80 27 40 23 10 Z" fill="${barkDark}"/>`;
+  o += `<path d="M17 60 q2 6 0 12 M28 70 q-2 6 0 10 M18 84 q3 5 1 10 M27 16 q-2 4 0 8" stroke="#5A3820" stroke-width="1.4" stroke-linecap="round" fill="none"/>`;
+  o += `<ellipse cx="21" cy="78" rx="3" ry="2.2" fill="#5A3820"/><ellipse cx="21" cy="77.4" rx="1.6" ry="1" fill="#A87A50"/>`;
+  o += faces({ x1: 17, x2: 28, y: 30, rx: 3.6, ry: 4.2, dx: 0.8, dy: -0.8, mx: 22.5, my: 39, k: 0.6, mouth: '#3A2410', tongue: '#D96A4A', cheek: C.nGlow, cheekY: 38, cheekDx: 3, brow: '#5A3820' }, mood, { mood: 'sleepy' });
+  const wave = `<path d="M15 54 C8 50 2 44 -2 36" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none" class="km-treat"/><path d="M-2 36 c-4 -4 -3 -9 1 -10 c2 3 2 7 -1 10 Z" fill="${C.nLeafLight}"/>`;
+  const rest = `<path d="M15 58 C10 62 8 68 8 74" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+  if (mood === 'scene') o += `<g class="km-day-only">${wave}</g><g class="km-night-only">${rest}</g>`;
+  else o += (mood === 'worried' || mood === 'sleepy') ? rest : wave;
+  o += `<path d="M30 60 C36 58 42 54 44 48" stroke="${bark}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+  o += `<path d="M13 106 c-3 1 -6 1 -8 0 M31 106 c3 1 6 1 8 0" stroke="#5A3820" stroke-width="3" stroke-linecap="round"/>`;
+  return { body: o, cx: 22, feet: 108, head: [42, 6], w: 62, top: -14 };
+}
+
+function sizzleSidekick(mood) {
+  // Sizzle, Tumble's sidekick for food and treats: an oversized strip of bacon standing on end, wavy, with stripes of
+  // fat and a crisp edge.
+  const left = [[6, 106], [0, 88], [10, 70], [0, 52], [10, 34], [2, 16], [8, 4]];
+  const edge = (pts) => { let d = ''; for (let i = 1; i < pts.length; i += 1) { const [x0, y0] = pts[i - 1]; const [x1, y1] = pts[i]; d += ` C${x0} ${f((y0 + y1) / 2)} ${x1} ${f((y0 + y1) / 2)} ${x1} ${y1}`; } return d; };
+  const right = left.map(([x, y]) => [x + 34, y]);
+  const strip = `M${left[0][0]} ${left[0][1]}${edge(left)} L${right[right.length - 1][0]} ${right[right.length - 1][1]}${edge(right.slice().reverse())} Z`;
+  const along = (dx) => `M${left[0][0] + dx} ${left[0][1] - 2}${edge(left.map(([x, y]) => [x + dx, y]))}`;
+  let o = `<path d="${strip}" fill="#B5482E"/>`;
+  o += `<path d="${along(9)}" stroke="#F2D9B8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="${along(24)}" stroke="#F2D9B8" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  o += `<path d="${along(31)}" stroke="#8E3420" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.8"/>`;
+  o += faces({ x1: 11, x2: 25, y: 46, rx: 4, ry: 4.6, dx: 0.8, dy: -0.8, mx: 18, my: 56, k: 0.7, mouth: '#4A1A10', tongue: '#E07A5F', cheek: C.nGlow, cheekY: 55, cheekDx: 4, brow: '#6E2A18' }, mood, { mood: 'sleepy' });
+  const wave = `<ellipse cx="-2" cy="58" rx="5" ry="4.4" fill="#B5482E" class="km-treat"/>`;
+  const rest = `<ellipse cx="2" cy="66" rx="5" ry="4.4" fill="#B5482E"/>`;
+  if (mood === 'scene') o += `<g class="km-day-only">${wave}</g><g class="km-night-only">${rest}</g>`;
+  else o += (mood === 'worried' || mood === 'sleepy') ? rest : wave;
+  o += `<ellipse cx="40" cy="64" rx="5" ry="4.4" fill="#B5482E"/>`;
+  o += `<ellipse cx="12" cy="107" rx="6" ry="3.4" fill="#8E3420"/><ellipse cx="32" cy="107" rx="6" ry="3.4" fill="#8E3420"/>`;
+  return { body: o, cx: 22, feet: 109, head: [44, 4], w: 62, top: -6 };
+}
+
+function placeSidekick(id, k, x, groundY, lift, cls, sc) {
   // A sidekick on the ground beside its keeper, or (a cloud) hovering `lift` above it with its shadow on the grass.
-  const s = KS;
+  const s = KS * (sc || 1);
   const y = groundY - lift;
   return `<g class="${cls || ''}"><ellipse cx="${x}" cy="${groundY}" rx="${f(k.w * 0.3 * s)}" ry="${f(5 * s)}" fill="${C.ink}" opacity="${lift ? 0.08 : 0.16}"/>` +
     `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}>${k.body}${talkBubble(k)}</g></g></g>`;
@@ -899,9 +960,10 @@ function talkBubble(k) {
   return `<g class="km-talk" transform="translate(${k.head[0]} ${k.head[1]})"><path d="M-12 -30 h24 a8 8 0 0 1 8 8 v6 a8 8 0 0 1 -8 8 h-14 l-9 7 l2 -7 h-3 a8 8 0 0 1 -8 -8 v-6 a8 8 0 0 1 8 -8 Z" fill="${C.paper}"/><g class="km-dots" fill="${C.inkSoft}"><circle cx="-8" cy="-19" r="2.6"/><circle cx="0" cy="-19" r="2.6"/><circle cx="8" cy="-19" r="2.6"/></g></g>`;
 }
 
-function placeKeeper(id, k, x, feetY) {
-  // In the world: feet on the ground at (x, feetY), at the keepers' size.
-  return `<g id="${id}" transform="translate(${f(x - k.cx * KS)} ${f(feetY - k.feet * KS)}) scale(${KS})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${k.body}${talkBubble(k)}</g>`;
+function placeKeeper(id, k, x, feetY, sc) {
+  // In the world: feet on the ground at (x, feetY), at the keepers' size (smaller further off).
+  const s = KS * (sc || 1);
+  return `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(feetY - k.feet * s)}) scale(${s})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${k.body}${talkBubble(k)}</g>`;
 }
 
 /* ------------------------------------------------------------------ the dog */
@@ -981,17 +1043,19 @@ function glitter() {
 
 /* ------------------------------------------------------------------ where the keepers stand (world units) */
 const KEEPERS = {
-  nutrition: { x: 600, y: 1166, make: avocadoKeeper, id: 'km-keeper-nutrition' },
-  fitness: { x: 1236, y: 1176, make: stonesKeeper, id: 'km-keeper-fitness' },
-  'dog-training': { x: 2470, y: 1184, make: ballKeeper, id: 'km-keeper-dog-training' },
+  nutrition: { x: 600, y: 1166, make: avocadoKeeper, id: 'km-keeper-nutrition', name: 'Avo' },
+  fitness: { x: 1330, y: 1004, sc: 0.8, make: stonesKeeper, id: 'km-keeper-fitness', name: 'Steady' },
+  'dog-training': { x: 2470, y: 1184, make: ballKeeper, id: 'km-keeper-dog-training', name: 'Tumble' },
 };
 
 const SIDEKICKS = {
-  'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
-  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', cls: 'km-evening-only', title: 'Spud the potato, who brings dinner in the evenings' },
-  'fitness-puff': { x: 1108, y: 1182, lift: 64, make: cloudSidekick('puff'), id: 'km-sidekick-puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
-  'fitness-huff': { x: 1356, y: 1170, lift: 86, make: cloudSidekick('huff'), id: 'km-sidekick-huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
+  'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', name: 'Summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
+  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', cls: 'km-evening-only', name: 'Spud', title: 'Spud the potato, who brings dinner in the evenings' },
+  'fitness-puff': { x: 1232, y: 1012, lift: 50, sc: 0.8, make: cloudSidekick('puff'), id: 'km-sidekick-puff', name: 'Puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
+  'fitness-huff': { x: 1430, y: 998, lift: 66, sc: 0.8, make: cloudSidekick('huff'), id: 'km-sidekick-huff', name: 'Huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
 };
+SIDEKICKS['dog-training-barkley'] = { x: 2346, y: 1190, make: barkleySidekick, id: 'km-sidekick-barkley', name: 'Barkley', title: 'Barkley the stick, Tumble\'s sidekick for outdoor play and dogs in the woods' };
+SIDEKICKS['dog-training-sizzle'] = { x: 2604, y: 1198, make: sizzleSidekick, id: 'km-sidekick-sizzle', name: 'Sizzle', title: 'Sizzle the bacon strip, Tumble\'s sidekick for food and treats' };
 const FIGURES = Object.assign({}, KEEPERS, SIDEKICKS);
 
 /* ------------------------------------------------------------------ styles and defs */
@@ -1029,6 +1093,9 @@ const STYLE = `
   .km-dots circle:nth-child(2) { animation-delay: -0.8s; }
   .km-dots circle:nth-child(3) { animation-delay: -0.4s; }
   .km-ashore .dt-splash { display: none; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-day-only { display: inline; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-night-only { display: none; }
+  [data-km-part="telescope"] { cursor: pointer; }
   svg:not([data-km-night="1"]) :is(.km-twinkle, .km-ff, .km-blink, .km-zz, .km-breathe) { animation: none; }
   @keyframes km-dots { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
@@ -1063,10 +1130,10 @@ function defs(view, ripples) {
     <radialGradient id="km-glow-g"><stop offset="0" stop-color="#FFB46E" stop-opacity="0.9"/><stop offset="0.4" stop-color="#FFC98F" stop-opacity="0.4"/><stop offset="1" stop-color="#FFC98F" stop-opacity="0"/></radialGradient>
     <linearGradient id="km-fade-orchard-1" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#525C12" stop-opacity="1"/><stop offset="1" stop-color="#525C12" stop-opacity="0"/></linearGradient>
     <linearGradient id="km-fade-orchard-2" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#7D8A26" stop-opacity="1"/><stop offset="1" stop-color="#7D8A26" stop-opacity="0"/></linearGradient>
-    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#7E9A2E" stop-opacity="0"/><stop offset="1" stop-color="#7E9A2E" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#A9C24A" stop-opacity="0"/><stop offset="1" stop-color="#A9C24A" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#7E9A2E"/><stop offset="1" stop-color="#7E9A2E"/></linearGradient>
-    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#A9C24A"/><stop offset="1" stop-color="#A9C24A"/></linearGradient>
+    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#78963A" stop-opacity="0"/><stop offset="1" stop-color="#78963A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#9CB54A" stop-opacity="0"/><stop offset="1" stop-color="#9CB54A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#78963A"/><stop offset="1" stop-color="#78963A"/></linearGradient>
+    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#9CB54A"/><stop offset="1" stop-color="#9CB54A"/></linearGradient>
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
     <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
     ${ripples ? `<mask id="km-ripples"><rect y="724" width="1600" height="176" fill="#fff"/>${Array.from({ length: 16 }, (_, i) => `<rect y="${736 + i * 9}" width="1600" height="${3 + (i % 3)}" fill="#000"/>`).join('')}</mask>` : ''}
@@ -1080,9 +1147,9 @@ const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale,
   'a larder door dug into the hill with a lamp and jars, a ladder and a basket of avocados, a vegetable patch with a rabbit, a herb spiral, a watering can, a picnic blanket with a basket, and a long table with a gingham cloth, avocado toast, avocado halves, blueberries, honey and an apricot kettle under a string of paper lights. ' +
   'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card, with Summer, a little peach holding a berry tart, beside her; in the evenings Spud, a potato in an apron, brings a pot of dinner to the table. ' +
   'In the middle rises Stepping Hill, a big grassy hill with granite outcrops and pines, stone steps up its face, a switchback trail with stacked stones and flags, a quiet pool on its shoulder with a spring running down to the lake, and a lookout on the top with a spyglass. ' +
-  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust. ' +
+  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust, a little way up the hill, where a bench waits part way up the steps and a few sheep graze. ' +
   'On the right, Lakeside Field: open grass running down to a bay of the lake, a split-rail fence, a row of trees, the dog house, weave poles, a willow hoop, flags with paw prints and toys. ' +
-  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on. ' +
+  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
   'From the signpost a dock runs out into the lake, with a basket of folded lanterns, a stool with a notebook and a lantern post; orange paper lanterns drift away across the water toward Louise, the librarian, and a paper boat brings a book back. ' +
   'After dark the sky fills with stars and the moon in its real phase, fireflies rise over the meadows, the string lights and lanterns glow, the keepers doze, and the dog sleeps curled in the door of its house.';
 
@@ -1095,11 +1162,11 @@ function build(view) {
   LIFE = '';
   const land2 = hillFoot() + orchard() + field() + bank() + paths() + signpost() + lake() + shore() + lanterns();
   DETAIL = 1; DENS = 1;
-  const actor = (key, x, y, inner) => `<g data-km-actor="${key}" data-km-home="${x} ${y}" pointer-events="visiblePainted"><g filter="url(#km-light)">${inner}</g></g>`;
+  const actor = (key, x, y, inner, name) => `<g data-km-actor="${key}" data-km-name="${name}" data-km-home="${x} ${y}" pointer-events="visiblePainted"><g filter="url(#km-light)">${inner}</g></g>`;
   let actors = '';
-  for (const [key, k] of Object.entries(KEEPERS)) actors += actor(key, k.x, k.y, placeKeeper(k.id, k.make('scene'), k.x, k.y));
-  for (const [key, k] of Object.entries(SIDEKICKS)) actors += actor(key, k.x, k.y, placeSidekick(k.id, k.make('scene'), k.x, k.y, k.lift || 0, k.cls));
-  actors += actor('dog', DOG_AT[0] + 60, DOG_AT[1] + 64, `<g class="km-day-only">${fieldDog(DOG_AT[0], DOG_AT[1])}</g>`);
+  for (const [key, k] of Object.entries(KEEPERS)) actors += actor(key, k.x, k.y, placeKeeper(k.id, k.make('scene'), k.x, k.y, k.sc), k.name);
+  for (const [key, k] of Object.entries(SIDEKICKS)) actors += actor(key, k.x, k.y, placeSidekick(k.id, k.make('scene'), k.x, k.y, k.lift || 0, k.cls, k.sc), k.name);
+  actors += actor('dog', DOG_AT[0] + 60, DOG_AT[1] + 64, `<g class="km-day-only">${fieldDog(DOG_AT[0], DOG_AT[1])}</g>`, 'dog');
   const body =
     `<g data-km-layer="sky">${sky(view)}</g>` +
     `<g data-km-layer="far" filter="url(#km-light)"><g transform="scale(2)">${land1}</g></g>` +
