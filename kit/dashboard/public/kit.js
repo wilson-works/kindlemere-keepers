@@ -37,6 +37,9 @@
 
   window.kit = Object.freeze({ api, agent });
 
+  // A busy room keeps the realm's keepers at home: window.kindlemere.hold(true) while its work runs, then hold(false).
+  window.kindlemere = { held: false, hold(on) { this.held = Boolean(on); window.dispatchEvent(new Event('kindlemere:hold')); } };
+
   // A page that shows the realm's scene gets its live sky (/kit/kindlemere.js).
   if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
     const s = document.createElement('script');
