@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 0 384 440" role="img" aria-labelledby="t d">
+  <title id="t">Clem, keeper of the Orchard Isle</title>
+  <desc id="d">A round cut-paper creature shaped like a pear, in orchard olive, with two long leaf ears. She wears a white apron with seed packets in its pockets, holds a steaming apricot kettle in one paw and a wooden spoon in the other, and stands on a tuft of orchard grass with herbs and a fallen apricot.</desc>
+  <defs>
+    <!-- Cut paper: a short, hard shadow straight below each layer. No blur. -->
+    <filter id="layer" x="-10%" y="-10%" width="120%" height="130%">
+      <feOffset in="SourceAlpha" dy="4" result="drop"/>
+      <feFlood flood-color="#1A2433" flood-opacity="0.16"/>
+      <feComposite in2="drop" operator="in" result="shade"/>
+      <feMerge><feMergeNode in="shade"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="layer-sm" x="-10%" y="-10%" width="120%" height="130%">
+      <feOffset in="SourceAlpha" dy="2" result="drop"/>
+      <feFlood flood-color="#1A2433" flood-opacity="0.18"/>
+      <feComposite in2="drop" operator="in" result="shade"/>
+      <feMerge><feMergeNode in="shade"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- The footing: a tuft of orchard grass with herbs, a fallen apricot and a dropped seed packet. -->
+  <g filter="url(#layer)">
+    <path d="M38 398 C40 378 92 368 180 368 C268 368 322 378 324 398 C322 418 268 428 180 428 C92 428 38 418 38 398 Z" fill="#6E7A1E"/>
+    <path d="M52 392 C60 380 110 374 180 374 C250 374 300 380 308 392 C292 386 250 382 180 382 C110 382 68 386 52 392 Z" fill="#8E9E2E"/>
+    <path d="M48 404 C70 420 290 420 314 404 C300 424 250 430 180 430 C110 430 62 424 48 404 Z" fill="#525C12"/>
+  </g>
+  <g fill="#8E9E2E">
+    <path d="M50 396 L56 374 L62 396 Z"/><path d="M62 394 L72 368 L76 394 Z"/><path d="M290 394 L298 366 L304 394 Z"/>
+    <path d="M304 396 L314 376 L314 398 Z"/><path d="M120 384 L126 368 L132 384 Z"/><path d="M236 384 L244 370 L248 386 Z"/>
+  </g>
+  <g fill="#6E7A1E">
+    <path d="M58 398 L64 380 L68 398 Z"/><path d="M296 398 L306 380 L308 400 Z"/><path d="M130 386 L134 374 L140 386 Z"/>
+  </g>
+  <!-- Rosemary sprig, right. -->
+  <g filter="url(#layer-sm)">
+    <path d="M276 392 C282 370 290 352 300 338 L303 340 C294 354 286 372 280 394 Z" fill="#5A4A2A"/>
+    <g fill="#4E6B3A">
+      <path d="M284 376 C276 372 272 366 272 362 C278 364 283 369 286 374 Z"/><path d="M287 368 C294 364 300 362 304 363 C300 368 294 370 288 371 Z"/>
+      <path d="M289 360 C282 356 279 350 279 346 C285 348 289 353 291 358 Z"/><path d="M293 352 C299 347 305 345 309 346 C305 351 299 353 294 354 Z"/>
+      <path d="M296 346 C291 341 289 336 290 332 C295 335 297 339 298 344 Z"/>
+    </g>
+  </g>
+  <!-- Basil, left of centre. -->
+  <g filter="url(#layer-sm)">
+    <path d="M98 392 C98 380 100 372 104 366 L106 367 C103 374 101 382 101 393 Z" fill="#5A4A2A"/>
+    <path d="M103 372 C92 370 86 362 88 354 C98 356 104 364 103 372 Z" fill="#7FA046"/>
+    <path d="M105 368 C114 362 122 362 126 366 C120 374 112 374 105 368 Z" fill="#6F9238"/>
+    <path d="M102 382 C92 384 84 380 82 374 C90 372 98 376 102 382 Z" fill="#6F9238"/>
+  </g>
+  <!-- A fallen apricot with its leaf. -->
+  <g filter="url(#layer-sm)">
+    <circle cx="258" cy="396" r="13" fill="#FFB36B"/>
+    <path d="M258 384 C257 388 257 392 258 396" stroke="#E08A45" stroke-width="2" fill="none"/>
+    <path d="M259 384 C266 376 276 376 280 380 C274 387 266 388 259 384 Z" fill="#6E7A1E"/>
+    <ellipse cx="252" cy="391" rx="4" ry="2.6" fill="#FFFFFF" fill-opacity="0.45" transform="rotate(-30 252 391)"/>
+  </g>
+  <!-- A seed packet dropped in the grass. -->
+  <g filter="url(#layer-sm)" transform="rotate(-14 136 398)">
+    <rect x="124" y="386" width="24" height="30" rx="2" fill="#FFE1C2"/>
+    <rect x="124" y="386" width="24" height="7" rx="2" fill="#525C12"/>
+    <circle cx="136" cy="404" r="5" fill="#FFB36B"/>
+    <path d="M136 399 C138 395 142 394 144 396 C142 399 139 400 136 399 Z" fill="#6E7A1E"/>
+  </g>
+
+  <!-- Feet. -->
+  <g filter="url(#layer-sm)">
+    <ellipse cx="158" cy="384" rx="18" ry="9" fill="#3E4510"/>
+    <ellipse cx="204" cy="384" rx="18" ry="9" fill="#3E4510"/>
+    <path d="M148 383 C152 380 156 380 160 383" stroke="#525C12" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M194 383 C198 380 202 380 206 383" stroke="#525C12" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Ears: two long leaves, the right one tipped forward, listening. -->
+  <g filter="url(#layer)">
+    <path d="M164 140 C140 112 104 70 108 18 C138 34 172 84 174 136 Z" fill="#FFB36B"/>
+    <path d="M168 134 C152 104 128 66 112 24" stroke="#E08A45" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <g stroke="#E08A45" stroke-width="1.8" fill="none" stroke-linecap="round">
+      <path d="M156 112 C148 110 142 104 140 98"/><path d="M146 94 C138 92 132 86 130 80"/><path d="M134 74 C128 72 124 66 122 60"/>
+      <path d="M160 102 C164 96 166 90 165 84"/><path d="M150 84 C154 78 156 72 155 66"/><path d="M138 62 C142 56 143 50 142 44"/>
+    </g>
+  </g>
+  <g filter="url(#layer)">
+    <path d="M192 138 C200 92 232 50 272 40 C268 62 258 78 246 92 C234 108 216 124 198 142 Z" fill="#FFB36B"/>
+    <path d="M196 136 C214 100 238 66 268 44" stroke="#E08A45" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <g stroke="#E08A45" stroke-width="1.8" fill="none" stroke-linecap="round">
+      <path d="M208 116 C214 116 220 114 224 110"/><path d="M222 96 C228 96 234 94 238 90"/><path d="M238 76 C244 76 250 74 254 70"/>
+      <path d="M206 112 C204 104 204 98 206 92"/><path d="M220 92 C218 86 218 80 220 74"/><path d="M236 72 C234 66 235 60 238 56"/>
+    </g>
+  </g>
+
+  <!-- The pear stem with its leaf. -->
+  <g filter="url(#layer-sm)">
+    <path d="M176 126 C174 112 178 100 186 92 L191 96 C185 104 182 114 184 126 Z" fill="#6B4A26"/>
+    <path d="M188 100 C200 86 216 86 224 92 C214 102 200 106 188 100 Z" fill="#7A8A22"/>
+    <path d="M190 99 C200 96 210 94 220 93" stroke="#525C12" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Body: a big round pear of orchard paper. -->
+  <g filter="url(#layer)">
+    <path d="M180 124 C150 124 140 154 146 182 C110 202 96 250 100 300 C104 352 140 382 180 382 C220 382 256 352 260 300 C264 250 250 202 214 182 C220 154 210 124 180 124 Z" fill="#525C12"/>
+    <path d="M148 186 C118 206 108 250 112 296 C114 330 132 358 156 370 C128 352 118 320 120 286 C122 248 132 214 148 186 Z" fill="#FFFFFF" fill-opacity="0.08"/>
+    <path d="M214 186 C236 202 250 236 250 280 C250 330 230 360 204 372 C236 356 254 324 254 288 C254 246 240 206 214 186 Z" fill="#1A2433" fill-opacity="0.12"/>
+    <g fill="#6B7720">
+      <circle cx="130" cy="252" r="2.4"/><circle cx="122" cy="276" r="1.8"/><circle cx="238" cy="256" r="2.2"/><circle cx="244" cy="290" r="1.8"/>
+      <circle cx="164" cy="150" r="1.8"/><circle cx="198" cy="146" r="2"/><circle cx="232" cy="232" r="1.6"/><circle cx="118" cy="314" r="2"/>
+    </g>
+    <g fill="#3E4510">
+      <circle cx="140" cy="232" r="1.6"/><circle cx="226" cy="318" r="2"/><circle cx="208" cy="160" r="1.4"/><circle cx="128" cy="300" r="1.4"/>
+    </g>
+  </g>
+
+  <!-- Her arm with the kettle (left). -->
+  <g filter="url(#layer)">
+    <path d="M126 250 C106 258 92 274 90 292 C94 300 104 300 108 292 C110 278 118 266 132 260 Z" fill="#525C12"/>
+  </g>
+  <g filter="url(#layer)">
+    <path d="M44 322 C42 284 100 278 100 322" stroke="#7A4A22" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M42 330 C26 328 18 316 12 304 C7 300 3 304 6 310 C12 328 24 340 40 344 Z" fill="#F09A55"/>
+    <ellipse cx="70" cy="340" rx="40" ry="31" fill="#FFB36B"/>
+    <path d="M31 346 C40 366 100 366 109 346 C106 362 92 372 70 372 C48 372 34 362 31 346 Z" fill="#E08A45"/>
+    <path d="M32 336 C50 344 90 344 108 336" stroke="#E08A45" stroke-width="3" fill="none"/>
+    <ellipse cx="70" cy="311" rx="24" ry="7" fill="#F09A55"/>
+    <circle cx="70" cy="302" r="6" fill="#525C12"/>
+    <ellipse cx="52" cy="326" rx="9" ry="5" fill="#FFFFFF" fill-opacity="0.5" transform="rotate(-30 52 326)"/>
+    <circle cx="96" cy="290" r="9" fill="#525C12"/>
+  </g>
+  <!-- Two curls of paper steam from the spout. -->
+  <g fill="#FFFFFF">
+    <path d="M2 294 C-8 284 8 274 -2 260 C12 266 18 280 8 292 Z"/>
+    <path d="M-10 272 C-16 264 -6 258 -12 248 C-2 254 2 264 -5 272 Z" fill-opacity="0.8"/>
+  </g>
+
+  <!-- Face. -->
+  <ellipse cx="162" cy="192" rx="8" ry="10" fill="#1A2433"/>
+  <ellipse cx="200" cy="192" rx="8" ry="10" fill="#1A2433"/>
+  <circle cx="165" cy="188" r="3" fill="#FFFFFF"/><circle cx="160" cy="196" r="1.3" fill="#FFFFFF"/>
+  <circle cx="203" cy="188" r="3" fill="#FFFFFF"/><circle cx="198" cy="196" r="1.3" fill="#FFFFFF"/>
+  <ellipse cx="148" cy="212" rx="11" ry="6.5" fill="#F2A78E" fill-opacity="0.9"/>
+  <ellipse cx="214" cy="212" rx="11" ry="6.5" fill="#F2A78E" fill-opacity="0.9"/>
+  <path d="M173 214 Q181 222 189 214" stroke="#1A2433" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <!-- A dusting of flour on one ear's base, from the kitchen. -->
+  <g fill="#FFFFFF" fill-opacity="0.75"><circle cx="168" cy="136" r="1.6"/><circle cx="172" cy="141" r="1.1"/><circle cx="163" cy="142" r="1.2"/></g>
+
+  <!-- Apron: strap, bib, ties, pockets and the seed packets in them. -->
+  <path d="M150 238 C146 230 150 226 160 226" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M210 238 C214 230 210 226 200 226" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <g filter="url(#layer)">
+    <path d="M138 242 C150 232 210 232 222 242 L228 330 C230 354 210 370 180 370 C150 370 130 354 132 330 Z" fill="#FFFFFF"/>
+    <path d="M132 336 C140 362 220 362 228 336 C228 356 210 370 180 370 C150 370 132 356 132 336 Z" fill="#F3E6D3"/>
+    <path d="M228 262 C244 254 254 258 252 266 C248 272 238 270 228 266 Z" fill="#FFFFFF"/>
+    <path d="M228 266 C238 272 246 284 240 290 C234 290 230 280 228 270 Z" fill="#F3E6D3"/>
+  </g>
+  <!-- Seed packets behind the pocket fronts. -->
+  <g filter="url(#layer-sm)">
+    <g transform="rotate(-9 154 286)">
+      <rect x="146" y="268" width="16" height="30" rx="2" fill="#FFE1C2"/>
+      <rect x="146" y="268" width="16" height="6" rx="2" fill="#525C12"/>
+      <path d="M154 290 C150 284 150 280 154 278 C158 280 158 284 154 290 Z" fill="#E08A45"/>
+      <path d="M154 278 C153 275 154 273 156 272" stroke="#6E7A1E" stroke-width="1.6" fill="none"/>
+    </g>
+    <g transform="rotate(7 170 284)">
+      <rect x="163" y="264" width="15" height="32" rx="2" fill="#E9EFC8"/>
+      <rect x="163" y="264" width="15" height="6" rx="2" fill="#FFB36B"/>
+      <circle cx="170.5" cy="284" r="4.5" fill="#6E7A1E"/>
+      <path d="M170.5 280 L170.5 276" stroke="#6B4A26" stroke-width="1.5"/>
+    </g>
+    <g transform="rotate(-5 202 286)">
+      <rect x="194" y="270" width="16" height="28" rx="2" fill="#FFF3E6"/>
+      <rect x="194" y="270" width="16" height="6" rx="2" fill="#7A8A22"/>
+      <path d="M198 290 C200 282 206 282 208 290 Z" fill="#7FA046"/>
+    </g>
+  </g>
+  <g filter="url(#layer-sm)">
+    <path d="M142 288 L178 288 L176 322 C176 328 172 330 166 330 L154 330 C148 330 144 328 144 322 Z" fill="#FFF3E6"/>
+    <path d="M142 288 L178 288 L178 293 L142 293 Z" fill="#F3E6D3"/>
+    <path d="M184 288 L220 288 L218 322 C218 328 214 330 208 330 L196 330 C190 330 186 328 186 322 Z" fill="#FFF3E6"/>
+    <path d="M184 288 L220 288 L220 293 L184 293 Z" fill="#F3E6D3"/>
+  </g>
+  <!-- A small leaf embroidered on the bib. -->
+  <path d="M180 266 C174 258 176 250 182 246 C188 252 188 260 180 266 Z" fill="#7A8A22"/>
+  <path d="M180 266 L182 248" stroke="#525C12" stroke-width="1.2"/>
+
+  <!-- Her other arm, raising a wooden spoon. -->
+  <g filter="url(#layer)">
+    <path d="M232 250 C250 238 262 222 266 206 C272 200 282 204 280 212 C276 230 264 248 244 262 Z" fill="#525C12"/>
+  </g>
+  <g filter="url(#layer-sm)">
+    <path d="M266 216 L300 120 L307 122 L274 218 Z" fill="#C98B4E"/>
+    <ellipse cx="306" cy="108" rx="12" ry="17" fill="#D99B5C" transform="rotate(20 306 108)"/>
+    <ellipse cx="307" cy="106" rx="7" ry="11" fill="#C07F42" transform="rotate(20 307 106)"/>
+    <path d="M286 162 L290 150" stroke="#B07438" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="274" cy="208" r="9" fill="#525C12"/>
+  </g>
+</svg>

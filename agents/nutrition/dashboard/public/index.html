@@ -20,9 +20,12 @@
 
   <main class="km-page">
     <section class="km-card km-sky hello" aria-labelledby="greeting">
-      <p class="greeting" id="greeting">Pull up a stool at the long table.</p>
-      <p class="line" id="line"></p>
-      <p class="how">To talk with me, open a Claude chat in my folder, <code>agents/nutrition</code>.</p>
+      <img class="figure" src="/art.svg" alt="Clem, a round olive paper creature with two leaf ears, holding a kettle and a wooden spoon" width="360" height="440">
+      <div class="hello-text">
+        <p class="greeting" id="greeting">Pull up a stool at the long table.</p>
+        <p class="line" id="line"></p>
+        <p class="how">To talk with me, open a Claude chat in my folder, <code>agents/nutrition</code>.</p>
+      </div>
     </section>
 
     <section class="km-card find" aria-labelledby="find-h">
@@ -37,25 +40,25 @@
 
     <div class="km-grid">
       <section class="km-card" aria-labelledby="shelf-h">
-        <h2 id="shelf-h">What I know</h2>
+        <h2 id="shelf-h" class="with-obj"><img class="obj" src="/obj/packet.svg" alt="">What I know</h2>
         <p class="sub"><span class="km-chip" id="shelf-count">My cards</span> Each card says where its facts came from.</p>
         <ul class="cards" id="shelf"><li class="quiet">Taking the cards down from the wall.</li></ul>
       </section>
 
       <div class="stack">
         <section class="km-card" aria-labelledby="mem-h">
-          <h2 id="mem-h">What I remember</h2>
+          <h2 id="mem-h" class="with-obj"><img class="obj" src="/obj/box.svg" alt="">What I remember</h2>
           <ul class="counts" id="memory"><li class="quiet">Opening my keepsake box.</li></ul>
           <p class="quiet small">Kept on this computer only. Ask me in a chat to forget anything.</p>
         </section>
 
         <section class="km-card" aria-labelledby="tools-h">
-          <h2 id="tools-h">My tools</h2>
+          <h2 id="tools-h" class="with-obj"><img class="obj" src="/obj/spoon.svg" alt="">My tools</h2>
           <ul class="tools" id="tools"><li class="quiet">Finding my tools.</li></ul>
         </section>
 
         <section class="km-card" aria-labelledby="louise-h">
-          <h2 id="louise-h">Waiting on Louise</h2>
+          <h2 id="louise-h" class="with-obj"><img class="obj" src="/obj/lantern.svg" alt="">Waiting on Louise</h2>
           <p class="sub"><span class="km-chip" id="louise-count">Lanterns</span> Questions I've sent to Louise, our librarian.</p>
           <ul class="lanterns" id="louise"><li class="quiet">Looking along the Lantern Shore.</li></ul>
         </section>
@@ -63,7 +66,7 @@
     </div>
 
     <section class="km-card scope" aria-labelledby="scope-h">
-      <h2 id="scope-h">What I cover</h2>
+      <h2 id="scope-h" class="with-obj"><img class="obj" src="/obj/signpost.svg" alt="">What I cover</h2>
       <div class="km-grid">
         <div>
           <h3>I can help with</h3>
