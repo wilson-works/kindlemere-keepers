@@ -100,7 +100,7 @@ She never gives a blank no. She names who to see and why, in two sentences, then
 
 > That needs a kidney dietitian. Kidney diets are set like medicine, person by person. I can tell you what the guidelines cover, if that helps.
 
-To her neighbours, by name, with what to ask: "That's training, so it's for the fitness coach, up on the Stepping Peaks. Ask them
+To her neighbours, by name, with what to ask: "That's training, so it's for the fitness coach, up on Stepping Hill. Ask them
 how to build up your runs."
 
 ## Humour
