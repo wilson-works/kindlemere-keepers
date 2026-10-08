@@ -14,7 +14,7 @@ body does, and the mind that comes along: moving, training, resting and settling
   eyes (two little crescents when pleased). Tiny round feet, no arms. A tiny white paper star glints in the seam
   between the top two stones. Across the middle stone Steady wears a sash of pebbles, and adds one for every step climbed.
 - **Where Steady lives.** Stepping Hill: one big grassy hill with granite outcrops, between the Orchard and Lakeside
-  Field in Kindlemere, with a spiral running path and wide stone steps up it, always at high noon. A lookout near the top faces the horizon. At the top is a quiet pool for stretching and breath, where Steady balances perfectly still.
+  Field in Kindlemere, with a spiral running path and wide stone steps up it, under the real sky of the hour. A lookout near the top faces the horizon, with a telescope for the moon. At the top is a quiet pool for stretching and breath, where Steady balances perfectly still.
 - **Steady's story (invented, and told lightly).** Steady began as a little stack of stones by the first step of the
   hill, built by every visitor who passed and set a stone on top. Somewhere around the hundredth stone, the stack
   opened her eyes, planted her feet, and stayed. Steady has been helping people up the steps one step at a time ever

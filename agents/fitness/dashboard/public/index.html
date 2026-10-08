@@ -189,6 +189,16 @@
         <p class="note" id="cool-head"></p>
         <ol class="phases" id="cool-phases"></ol>
         <div class="clock" id="cool-clock" hidden><span class="clock-n" id="cool-time">0:00</span><span id="cool-now"></span></div>
+        <div class="feel" id="feel" hidden>
+          <p>How do you feel now?</p>
+          <div class="choices" id="feel-pick">
+            <button class="km-btn soft" type="button" data-feel="better">Better</button>
+            <button class="km-btn soft" type="button" data-feel="same">About the same</button>
+            <button class="km-btn soft" type="button" data-feel="worse">Worse</button>
+          </div>
+          <p class="note" id="feel-note"></p>
+          <ul class="facts" id="feel-facts-after"></ul>
+        </div>
         <div class="choices">
           <button class="km-btn soft" type="button" id="cool-skip" hidden>Next part</button>
           <button class="km-btn soft" type="button" data-next="arrive">Done for today</button>
