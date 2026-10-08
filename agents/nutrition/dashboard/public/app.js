@@ -1,7 +1,7 @@
 'use strict';
 
 // Avo's table in the Orchard: today's meals, this week, planning with her, and the weeks she has kept.
-// The weeks come from her meal-week tool through /api/table; her larder (shelf, memory, tools, Louise) from the kit.
+// The weeks come from her meal-week tool through /api/table; her cookbook (shelf, memory, tools, Louise) from the kit.
 // Nothing here states a fact of its own.
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -21,14 +21,40 @@
     return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   };
   const fail = (box, e) => box.replaceChildren(el('li', 'quiet', e && e.message ? e.message : 'That did not load. Try again in a moment.'));
-  const SLOT = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+  const SLOT = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Treat' };
+  // Who keeps each meal (owner, 2026-10-08): Avo breakfast and lunch, Summer the peach the treats, Spud the potato dinner.
+  const KEEPER = { breakfast: 'Avo', lunch: 'Avo', snack: 'Summer', dinner: 'Spud' };
   const KIND = { prep: 'from prep day', quick: 'quick cook', simple: '' };
   const NEIGHBOURS = {
     fitness: ['Steady', 'Stepping Hill'],
     'dog-training': ['Tumble', 'Lakeside Field'],
     louise: ['Louise', 'the Librarian\'s house'],
   };
-  const say = (text) => { $('say').textContent = text; };
+  // The speaker's face beside the words, in the mood the kit drew (kit/art/keepers/<figure>-<mood>.svg): Avo, Summer
+  // or Spud. A drawing the kit doesn't have yet leaves the words on their own.
+  const FIGURE = { Avo: 'nutrition', Summer: 'nutrition-summer', Spud: 'nutrition-spud' };
+  const MOODS = { happy: 'smiling', thinking: 'thinking', oh: 'surprised', worried: 'worried', sleepy: 'sleepy' };
+  const face = $('face');
+  const missing = new Set();
+  face.addEventListener('error', () => { missing.add(face.getAttribute('src')); face.hidden = true; });
+  face.addEventListener('load', () => { face.hidden = false; });
+  function mood(name, who) {
+    const speaker = who || 'Avo';
+    const src = FIGURE[speaker] && MOODS[name] ? `/kit/art/keepers/${FIGURE[speaker]}-${name}.svg` : '';
+    if (!src || missing.has(src)) { face.hidden = true; return; }
+    face.alt = `${speaker}, ${MOODS[name]}`;
+    if (face.getAttribute('src') !== src) { face.hidden = true; face.src = src; return; }
+    face.hidden = !face.complete || !face.naturalWidth;
+  }
+  // Whoever is talking is named in the bubble; Avo's own lines carry no name.
+  const say = (text, who, feel) => {
+    const box = $('say');
+    box.parentElement.dataset.who = who || 'Avo';
+    box.replaceChildren();
+    if (who && who !== 'Avo') box.append(el('span', 'speaker', who));
+    box.append(document.createTextNode(text));
+    mood(feel || 'happy', who);
+  };
   let jokes = [];
   let table = null;
 
@@ -69,8 +95,49 @@
       box.replaceChildren(li);
       return;
     }
-    if (!table.todayMeals.length) { box.replaceChildren(el('li', 'quiet', 'Nothing planned for today. A free day.')); return; }
-    box.replaceChildren(...table.todayMeals.map((s) => plate(s)));
+    const items = table.prep ? [prepDay(table.prep)] : [];
+    if (!table.todayMeals.length) items.push(el('li', 'quiet', 'Nothing planned for today. A free day.'));
+    else items.push(...table.todayMeals.map((s) => plate(s)));
+    box.replaceChildren(...items);
+  }
+
+  // How to make a dish: its ingredients for one batch and its steps, folded until asked for.
+  function howTo(r, label) {
+    const d = el('details', 'how');
+    d.append(el('summary', null, label || 'How to make it'));
+    if (r.serves) {
+      const meta = [`Serves ${r.serves}`];
+      if (r.minutes) meta.push(`about ${r.minutes} minutes`);
+      d.append(el('p', 'quiet small', `${meta.join(', ')}. ${r.source && r.source.card ? 'From one of my recipe cards.' : 'From your own recipe box.'}`));
+    }
+    if (r.ingredients && r.ingredients.length) {
+      const ul = el('ul', 'ingredients');
+      ul.append(...r.ingredients.map((i) => el('li', null, [i.qty == null ? '' : i.qty, i.unit, i.item].filter((x) => x !== '' && x != null).join(' '))));
+      d.append(ul);
+    }
+    if (r.steps && r.steps.length) {
+      const ol = el('ol', 'steps');
+      ol.append(...r.steps.map((s) => el('li', null, s)));
+      d.append(ol);
+    }
+    return d;
+  }
+
+  // A prep day: what to batch-cook now for the days ahead, and how long it keeps.
+  function prepDay(p) {
+    const li = el('li', 'prep-day');
+    li.append(el('h3', null, 'Prep day'));
+    li.append(el('p', null, `Cook these today for the meals through ${p.through}.`));
+    const ul = el('ul', 'cook');
+    ul.append(...p.cook.map((c) => {
+      const row = el('li');
+      row.append(el('span', 'dish', c.name), el('span', 'kind', `${c.portions} portions: ${c.batches} ${c.batches === 1 ? 'batch' : 'batches'}`));
+      row.append(howTo({ ingredients: c.ingredients, steps: c.steps }, 'One batch, step by step'));
+      return row;
+    }));
+    li.append(ul);
+    if (p.keep) li.append(el('p', 'quiet small', plain(p.keep)));
+    return li;
   }
 
   function mark(s) {
@@ -83,7 +150,9 @@
     const now = mark(s);
     if (now) li.classList.add(now);
     const what = el('div', 'plate-what');
-    what.append(el('span', 'slot', SLOT[s.slot] || s.slot), el('span', 'dish', s.name));
+    const slot = el('span', 'slot', SLOT[s.slot] || s.slot);
+    if (KEEPER[s.slot]) slot.append(el('span', 'keeper', ` with ${KEEPER[s.slot]}`));
+    what.append(slot, el('span', 'dish', s.name));
     if (KIND[s.kind]) what.append(el('span', 'kind', KIND[s.kind]));
     const acts = el('div', 'plate-acts');
     [['eaten', 'Ate it'], ['swapped', 'Swapped it']].forEach(([m, label]) => {
@@ -95,6 +164,8 @@
       acts.append(b);
     });
     li.append(what, acts);
+    const r = s.recipe && table.todayRecipes && table.todayRecipes[s.recipe];
+    if (r) li.append(howTo(r));
     return li;
   }
 
@@ -102,10 +173,9 @@
     try {
       await kit.api('/api/meal-check', { body: { week: table.thisWeek.id, day: table.dayKey, slot: s.slot, mark: m } });
       await load();
-      const left = table.todayMeals.filter((x) => !mark(x));
-      if (m === 'eaten') say(left.length ? `Good. Next up, ${SLOT[left[0].slot].toLowerCase()}: ${left[0].name}.` : 'That\'s everything for today. Nicely done.');
+      if (m === 'eaten') nextUp('Good. ');
       else if (m === 'swapped') say('Swapped is fine. I\'ll count it as a swap when you ask how the week is going.');
-    } catch (e) { say(e.message); }
+    } catch (e) { say(e.message, null, 'worried'); }
   }
 
   /* ---------------------------------------------------------------- this week */
@@ -154,7 +224,7 @@
         const { k } = await kit.api('/api/week-link', { body: { week: w.id } });
         window.open(`/week.html?k=${encodeURIComponent(k)}`, '_blank', 'noopener');
         await load();
-      } catch (e) { say(e.message); }
+      } catch (e) { say(e.message, null, 'worried'); }
     });
     return b;
   }
@@ -183,14 +253,26 @@
   /* ---------------------------------------------------------------- what Avo says first */
   function greet() {
     const joke = jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Pull up a stool at the long table.';
-    if (!table || !table.thisWeek) { say(`${joke} Nothing's planned this week yet. Shall we plan one?`); return; }
-    const left = table.todayMeals.filter((s) => !mark(s));
+    if (!table || !table.thisWeek) { say(`${joke} Nothing's planned this week yet. Shall we plan one?`, null, 'thinking'); return; }
     if (!table.todayMeals.length) say(`${joke} Nothing's planned for today.`);
-    else if (!left.length) say('That\'s everything for today. Nicely done.');
-    else say(`${longDay(table.today)}. Next up, ${SLOT[left[0].slot].toLowerCase()}: ${left[0].name}.`);
+    else nextUp(`${longDay(table.today)}. `);
   }
 
-  /* ---------------------------------------------------------------- the larder */
+  // The next meal, said by whoever keeps it. Spud comes round in the evening, so before then Avo says he's coming.
+  function nextUp(lead) {
+    const left = table.todayMeals.filter((s) => !mark(s));
+    if (!left.length) { say('That\'s everything for today. Nicely done.'); return; }
+    const evening = new Date().getHours() >= 17;
+    const dinner = left.find((s) => s.slot === 'dinner');
+    const s = evening && dinner ? dinner : left[0];
+    const who = KEEPER[s.slot] || 'Avo';
+    if (who === 'Spud' && evening) say(`Evening! Dinner tonight is ${s.name}.`, 'Spud');
+    else if (who === 'Spud') say(`${lead}Spud comes round this evening with dinner: ${s.name}.`);
+    else if (who === 'Summer') say(`Treat time: ${s.name}.`, 'Summer');
+    else say(`${lead}Next up, ${SLOT[s.slot].toLowerCase()}: ${s.name}.`);
+  }
+
+  /* ---------------------------------------------------------------- the cookbook */
   async function hello() {
     const a = await kit.agent();
     $('name').textContent = a.name;
@@ -213,22 +295,54 @@
     head.type = 'button';
     head.setAttribute('aria-expanded', String(Boolean(open)));
     head.append(el('span', 'card-title', c.title), el('span', 'card-meta', plural((c.facts || []).length, 'fact', 'facts')));
+    // Sources the way a book gives them: a small number after each fact, the titles listed underneath, and the
+    // chapter of Louise's book said once.
+    const body = el('div', 'card-body');
     const facts = el('ul', 'facts');
+    const order = [];
+    const chapters = new Set();
     facts.append(...(c.facts || []).map((f) => {
       const li = el('li', null, plain(f.text));
-      const where = (f.sources || []).map((s) => `${s.page}${s.line ? `:${s.line}` : ''}`).join(', ');
-      if (where) li.append(el('span', 'km-source', `Louise's page ${where}`));
+      const page = ((f.sources || [])[0] || {}).page || '';
+      const book = page.split('/')[0];
+      if (page) chapters.add(chapter(page));
+      const nums = [];
+      for (const [, id] of String(f.text).matchAll(/\[\^(\d+)\]/g)) {
+        const title = books[book] && books[book][id];
+        if (!title) continue;
+        let k = order.indexOf(title);
+        if (k < 0) { order.push(title); k = order.length - 1; }
+        if (!nums.includes(k + 1)) nums.push(k + 1);
+      }
+      if (nums.length) li.append(el('sup', 'ref', nums.sort((a, b) => a - b).join(', ')));
       return li;
     }));
-    facts.hidden = !open;
+    body.append(facts);
+    if (order.length) {
+      const src = el('div', 'sources');
+      const ch = [...chapters].filter(Boolean);
+      const h = el('p', 'sources-h', 'Sources');
+      if (ch.length) h.append(el('span', 'book', `, from Louise's book: ${ch.join('; ')}`));
+      const ol = el('ol');
+      ol.append(...order.map((t) => el('li', null, t)));
+      src.append(h, ol);
+      body.append(src);
+    }
+    body.hidden = !open;
     head.addEventListener('click', () => {
       const now = head.getAttribute('aria-expanded') !== 'true';
       head.setAttribute('aria-expanded', String(now));
-      facts.hidden = !now;
+      body.hidden = !now;
     });
-    item.append(head, facts);
+    item.append(head, body);
     return item;
   }
+
+  let books = {};
+  const chapter = (page) => {
+    const n = String(page).replace(/^.*\//, '').replace(/\.md$/, '').replace(/^\d+-/, '').replace(/-/g, ' ');
+    return n ? n[0].toUpperCase() + n.slice(1) : '';
+  };
 
   async function shelf() {
     const box = $('shelf');
@@ -311,18 +425,18 @@
     } catch (e) { fail(box, e); }
   }
 
-  const larder = $('larder');
-  let larderLoaded = false;
-  $('larder-open').addEventListener('click', () => {
-    larder.showModal();
-    if (larderLoaded) return;
-    larderLoaded = true;
-    shelf();
+  const cookbook = $('cookbook');
+  let cookbookLoaded = false;
+  $('cookbook-open').addEventListener('click', () => {
+    cookbook.showModal();
+    if (cookbookLoaded) return;
+    cookbookLoaded = true;
+    kit.api('/api/sources').then((s) => { books = s.books || {}; }).catch(() => {}).then(shelf);
     memory();
     tools();
     louise();
   });
-  $('larder-close').addEventListener('click', () => larder.close());
+  $('cookbook-close').addEventListener('click', () => cookbook.close());
   $('ask').addEventListener('submit', search);
 
   // Until the kit's close view loads, the table stands on its own.
@@ -332,7 +446,7 @@
   if (scene.complete && !scene.naturalWidth) drop();
 
   hello().catch(() => {}).then(() => load()).then(greet).catch((e) => {
-    say('My table did not load. Try again in a moment.');
+    say('My table did not load. Try again in a moment.', null, 'worried');
     fail($('plates'), e);
   });
 }());

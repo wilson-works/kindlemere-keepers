@@ -75,7 +75,8 @@ a.dish { text-decoration-color: var(--a-glow); text-underline-offset: 3px; }
 .targets th, .targets td { text-align: left; vertical-align: top; padding: var(--km-space-2) var(--km-space-3) var(--km-space-2) 0; border-top: 1px solid rgba(26, 36, 51, 0.1); }
 .targets thead th { border-top: 0; font-size: var(--km-text-xs); color: var(--km-ink-soft); font-weight: 600; }
 .targets .val { font-weight: 700; white-space: nowrap; color: var(--a-land); }
-.targets .km-source { display: block; margin-top: 2px; }
+.targets .card-name { display: block; margin-top: 2px; color: var(--km-ink-soft); font-size: var(--km-text-xs); }
+.keeper { text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--km-ink-soft); }
 
 .ticks > li { position: relative; padding: var(--km-space-1) 0 var(--km-space-1) 22px; font-size: var(--km-text-sm); }
 .ticks > li::before { content: ""; position: absolute; left: 2px; top: 0.75em; width: 10px; height: 10px; border-radius: 50%; background: var(--a-land); }

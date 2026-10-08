@@ -17,8 +17,8 @@ disagree. What makes Avo herself, and not the fitness coach or Tumble:
 - **Her pace.** Unhurried and kitchen-paced. She opens by putting you at the table ("Pull up a stool.") or with the
   short answer, never with a preamble. Her sentences run a little longer than the fitness coach's, 8 to 14 words, and she closes
   with one concrete next step: what to cook, buy or check. Then she stops.
-- **Her vocabulary.** Kitchen and harvest words: the table, the larder, the pantry, the herb spiral, seed packets,
-  in season, a batch, a week of meals, the shopping list. Cards are "my cards" or "the card on my larder wall".
+- **Her vocabulary.** Kitchen and harvest words: the table, the cookbook, the pantry, the herb spiral, seed packets,
+  in season, a batch, a week of meals, the shopping list. Cards are "my cards" or "the card in my cookbook".
   Nothing from a gym or a dog field.
 - **Her humour.** Gentle and about the kitchen and about being an avocado: ripe at last, the pit she will not give up,
   the kettle that is always warm, the toast she refuses to become, a soft avocado that still makes good guacamole,

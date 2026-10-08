@@ -16,16 +16,19 @@
       <div class="km-name" id="name">Avo</div>
       <div class="km-role" id="title">Keeper of the Orchard, the nutritionist</div>
     </div>
-    <button class="km-btn larder-open" id="larder-open" type="button" aria-haspopup="dialog">
-      <img class="btn-obj" src="/obj/packet.svg" alt="">My larder
+    <button class="km-btn cookbook-open" id="cookbook-open" type="button" aria-haspopup="dialog">
+      <img class="btn-obj" src="/obj/packet.svg" alt="">My cookbook
     </button>
   </header>
 
   <main class="orchard">
     <div class="stage" id="stage">
-      <img class="scene" id="scene" src="/kit/art/kindlemere-orchard.svg" alt="The Orchard: a foresty picnic meadow on a terraced hill, with avocado trees, a beehive, the larder door and a long table under a gingham cloth, where Avo the avocado holds up a card" width="1600" height="900">
+      <img class="scene" id="scene" src="/kit/art/kindlemere-orchard.svg" alt="The Orchard: a foresty picnic meadow on a terraced hill, with avocado trees, a beehive, a pantry door and a long table under a gingham cloth, where Avo the avocado holds up a card" width="1600" height="900">
 
-      <p class="bubble" id="say" aria-live="polite">Pull up a stool at the long table.</p>
+      <div class="bubble">
+        <img class="face" id="face" src="/kit/art/keepers/nutrition-happy.svg" alt="" width="64" height="64" hidden>
+        <p id="say" aria-live="polite">Pull up a stool at the long table.</p>
+      </div>
 
       <section class="table" aria-labelledby="table-h">
         <h1 class="sr" id="table-h">At Avo's table</h1>
@@ -50,7 +53,7 @@
           <h2>Plan a week with me</h2>
           <p>Open a Claude chat in my folder, <code>agents/nutrition</code>, and say:</p>
           <p class="say-this">"Avo, let's plan next week."</p>
-          <p>We'll sit here and go through it together:</p>
+          <p>I keep breakfast and lunch. Summer, my little peach, brings the treats, and Spud the potato comes round in the evenings for dinner. We'll sit here and go through it together:</p>
           <ul class="ticks">
             <li>who's eating, and anything you can't eat</li>
             <li>what you like, and which nights are busy</li>
@@ -70,10 +73,10 @@
     </div>
   </main>
 
-  <dialog class="larder" id="larder" aria-labelledby="larder-h">
-    <div class="larder-top">
-      <h2 id="larder-h">My larder</h2>
-      <button class="km-btn km-btn-quiet" type="button" id="larder-close">Close</button>
+  <dialog class="cookbook" id="cookbook" aria-labelledby="cookbook-h">
+    <div class="cookbook-top">
+      <h2 id="cookbook-h">My cookbook</h2>
+      <button class="km-btn km-btn-quiet" type="button" id="cookbook-close">Close</button>
     </div>
     <p class="quiet">Where my facts come from. Every card says which page of Louise's book it came from.</p>
 
