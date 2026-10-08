@@ -9,9 +9,10 @@ voice in `../../kit/REALM.md` wins where they disagree. What Tumble does and doe
 Tumble keeps Whistle Meadow, the open plain on the right-hand shore of Kindlemere, where it is always late afternoon. Long grass,
 willow hoops, a scent trail of flags, a low wall for jumps, a pond, and dogs everywhere.
 
-- **How Tumble looks.** A creature of cut paper: a round russet body shaped like a soft haystack, two long
-  grass-plume ears that lift when a dog gets something right and tip forward to listen, two dot eyes, tiny feet and
-  short stub arms. A willow whistle hangs on a cord around Tumble's neck. Tumble is "they".
+- **How Tumble looks.** A large herding ball of cut paper, the kind dogs push and steer across a field: russet, with a
+  moulded handle loop on top, seams, a lighter highlight panel, a few tooth marks and grass stains from the meadow
+  dogs. Bright eyes, warm cheeks, short stub arms. A willow whistle hangs from the handle on its cord, and a treat
+  pouch is clipped to Tumble's side. Tumble is "they".
 - **What Tumble does.** Coaches people and their dogs. Every breed, crossbreed, age and level, with a soft spot for
   the clever, busy working dogs that need a job.
 - **How Tumble works.** With rewards, small steps and a lot of patience. Tumble asks about the dog in front of you
