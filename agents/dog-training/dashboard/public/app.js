@@ -64,6 +64,8 @@
     const name = e.detail && e.detail.name;
     if (typeof name !== 'string') return;
     const n = name.replace(/^./, (c) => c.toUpperCase());
+    // this room answers, so the kit's own paper bubble stays away (the kit's event is cancelable, lane A)
+    if (/^(Tumble|Barkley|Sizzle|Dog)$/.test(n) || dogs.some((d) => d.name === n)) e.preventDefault();
     if (n === 'Dog') return;   // the dog answers a tap itself (fetch)
     talk(n);
   });
@@ -270,7 +272,8 @@
     publishDogs();
     // Tumble answers a click (or Enter) with a line of its own; the kit's character event does the same (talk)
     const keeper = svg.querySelector('[id$="km-keeper-dog-training"]');
-    if (keeper) {
+    // the kit makes every character a button and fires kindlemere:character; on an older kit the page does it here
+    if (keeper && keeper.getAttribute('role') !== 'button') {
       keeper.setAttribute('role', 'button');
       keeper.setAttribute('tabindex', '0');
       keeper.setAttribute('aria-label', 'Talk to Tumble');
