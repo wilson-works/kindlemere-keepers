@@ -196,7 +196,8 @@
 
   /* ---------- the scene ---------- */
   let svg = null, game = null, extras = [];
-  const PLACES = [[-150, -34], [-290, -22]];   // where a second and third dog sit, from the first dog's spot
+  // where the person's second to sixth dogs sit, from the first dog's spot: along the bank, then on the grass
+  const PLACES = [[-150, -34], [-290, -22], [-20, -150], [130, -110], [270, -84]];
   function paintScene() {
     if (!svg) return;
     const main = svg.querySelector('#dt-dog');
