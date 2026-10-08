@@ -1,0 +1,6 @@
+# Every text file checks out with LF on every machine, so a tool's sha256 in its registry matches a fresh clone.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.woff2 binary

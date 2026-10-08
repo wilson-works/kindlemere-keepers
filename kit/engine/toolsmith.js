@@ -19,6 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const vm = require('vm');
 const { spawnSync } = require('child_process');
 const common = require('./common');
 
@@ -32,7 +33,8 @@ function toolName(tool) {
 }
 const toolsDir = (key) => path.join(common.agentDir(key), 'tools');
 const toolFile = (key, tool) => path.join(toolsDir(key), `${toolName(tool)}.js`);
-const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+// Line endings do not count: a tool checked out with CRLF hashes the same as the LF file that was checked.
+const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
 const listOf = (v) => (v && v !== true ? String(v).split(',').map((s) => s.trim()).filter(Boolean) : []);
 
 function newTool(key, tool, opts) {
@@ -148,6 +150,11 @@ function check(key, tool) {
   if (!fs.existsSync(file)) throw common.refuse(`There is no tool at agents/${key}/tools/${tool}.js. Make it with toolsmith.js new.`, 1);
   const text = fs.readFileSync(file, 'utf8');
   const problems = checkSource(text);
+  // Compiled, never run: a tool with a syntax error is refused here, not when someone tries to use it.
+  try { new vm.Script(text, { filename: file }); } catch (e) {
+    const at = /:(\d+)\s*$/m.exec(String(e.stack).split('\n')[0]);
+    problems.push({ line: at ? Number(at[1]) : 1, why: `It does not parse: ${e.message}` });
+  }
   const h = header(text);
   if (!h.purpose) problems.push({ line: 1, why: 'Its header has no "Purpose:" line.' });
   const shelf = require('./shelf');
