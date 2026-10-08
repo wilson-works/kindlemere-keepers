@@ -18,17 +18,17 @@
   --km-shadow: rgba(26, 36, 51, 0.14);
   --km-shadow-deep: rgba(26, 36, 51, 0.24);
 
-  /* Palette slot: nutrition. The Orchard Isle, morning. */
+  /* Palette slot: nutrition. The Orchard, mid-morning. */
   --nutrition-bg: #FFF3E6;
   --nutrition-sky: #FFE1C2;
   --nutrition-land: #525C12;
   --nutrition-glow: #FFB36B;
 
-  /* Palette slot: fitness. The Stepping Peaks, high noon. */
-  --fitness-bg: #F1F4FF;
-  --fitness-sky: #D9E1FF;
-  --fitness-land: #B0205C;
-  --fitness-glow: #8FA2FF;
+  /* Palette slot: fitness. The Stepping Peaks, high noon: granite and river stone. */
+  --fitness-bg: #F1F4F6;
+  --fitness-sky: #DCE5EC;
+  --fitness-land: #4B5D6E;
+  --fitness-glow: #A9B8C4;
 
   /* Palette slot: dog-training. Whistle Meadow, late afternoon. */
   --dog-training-bg: #F3F8DF;
