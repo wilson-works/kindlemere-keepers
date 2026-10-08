@@ -2,7 +2,8 @@
 <title id="km-title">The nutrition keeper, asleep, eyes closed and z's rising</title>
 <!-- Drawn by kit/art/make-kindlemere.js (keeper nutrition, mood sleepy). Edit that file, not this one. -->
 <style>
-  .km-night-only { display: none; }
+  .km-night-only, .km-evening-only { display: none; }
+  svg[data-km-evening="1"] .km-evening-only { display: inline; }
   svg[data-km-night="1"] .km-night-only { display: inline; }
   svg[data-km-night="1"] .km-day-only { display: none; }
   .km-screen { mix-blend-mode: screen; }
