@@ -254,8 +254,23 @@
   function greet() {
     const joke = jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Pull up a stool at the long table.';
     if (!table || !table.thisWeek) { say(`${joke} Nothing's planned this week yet. Shall we plan one?`, null, 'thinking'); return; }
+    if (asleep()) { sleepy(); return; }
     if (!table.todayMeals.length) say(`${joke} Nothing's planned for today.`);
     else nextUp(`${longDay(table.today)}. `);
+  }
+
+  // After dark the Orchard sleeps (the kit's live sky marks the scene); Avo answers drowsily, with tomorrow's breakfast.
+  const asleep = () => {
+    const marked = document.querySelector('[data-km-night]');
+    if (marked) return marked.getAttribute('data-km-night') === '1';
+    const h = new Date().getHours();
+    return h >= 22 || h < 5;
+  };
+  function sleepy() {
+    const breakfast = table && table.todayMeals.find((s) => s.slot === 'breakfast');
+    say(breakfast && new Date().getHours() < 5
+      ? `Mm, it's late. Breakfast is ${breakfast.name}. Wake me if you need me.`
+      : 'Mm, it\'s late, the Orchard is asleep. Wake me if you need me.', null, 'sleepy');
   }
 
   // The next meal, said by whoever keeps it. Spud comes round in the evening, so before then Avo says he's coming.
@@ -271,6 +286,119 @@
     else if (who === 'Summer') say(`Treat time: ${s.name}.`, 'Summer');
     else say(`${lead}Next up, ${SLOT[s.slot].toLowerCase()}: ${s.name}.`);
   }
+
+  /* ---------------------------------------------------------------- talking at the table */
+  // Her reply as she writes it: paragraphs, lists and **bold**, built from text nodes (never as HTML).
+  function prose(text) {
+    const box = el('div', 'said');
+    const inline = (node, line) => {
+      String(line).split(/(\*\*[^*]+\*\*)/).forEach((part) => {
+        if (/^\*\*[^*]+\*\*$/.test(part)) node.append(el('strong', null, part.slice(2, -2)));
+        else if (part) node.append(document.createTextNode(part.replace(/`/g, '')));
+      });
+    };
+    let list = null;
+    for (const raw of String(text).split(/\r?\n/)) {
+      const line = raw.trim();
+      const bullet = /^[-*] /.test(line);
+      const numbered = /^\d+\. /.test(line);
+      if (!line || /^-{3,}$/.test(line)) { list = null; continue; }
+      if (bullet || numbered) {
+        const kind = numbered ? 'OL' : 'UL';
+        if (!list || list.tagName !== kind) { list = el(kind.toLowerCase()); box.append(list); }
+        const li = el('li');
+        inline(li, line.replace(/^([-*]|\d+\.) /, ''));
+        list.append(li);
+      } else {
+        list = null;
+        const p = el('p');
+        inline(p, line.replace(/^#+\s*/, ''));
+        box.append(p);
+      }
+    }
+    return box;
+  }
+  const firstLine = (text) => {
+    const t = String(text).replace(/\*\*/g, '').replace(/^#+\s*/gm, '').split(/\r?\n/).map((x) => x.trim()).find(Boolean) || '';
+    const m = /^(.{20,160}?[.!?])(\s|$)/.exec(t);
+    return m ? m[1] : t.slice(0, 160);
+  };
+
+  let talking = false;
+  let freshNext = false;
+  let shown = -1;
+  function renderTalk(st) {
+    const log = $('talk-log');
+    const messages = freshNext ? [] : st.messages;
+    if (messages.length !== shown) {
+      shown = messages.length;
+      log.replaceChildren(...messages.map((m) => {
+        const li = el('li', m.who === 'you' ? 'you' : 'avo');
+        li.append(el('span', 'who', m.who === 'you' ? 'You' : 'Avo'));
+        li.append(m.who === 'you' ? el('p', null, m.text) : prose(m.text));
+        if (m.link) {
+          const a = el('a', 'km-btn', 'Open the week');
+          a.href = `/week.html?k=${encodeURIComponent(m.link.k)}`;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          li.append(a);
+        }
+        return li;
+      }));
+      if (log.lastElementChild) log.lastElementChild.scrollIntoView({ block: 'nearest' });
+    }
+    $('starters').hidden = messages.length > 0 || st.busy;
+    $('talk-fresh').hidden = !messages.length || st.busy;
+    $('talk-send').disabled = st.busy;
+    $('talk-stop').hidden = !st.busy;
+    const now = $('talk-now');
+    now.hidden = !st.busy;
+    if (st.busy) {
+      now.textContent = `${st.activity || 'Thinking'}...`;
+      const who = st.activity === 'Asking Summer' ? 'Summer' : st.activity === 'Asking Spud' ? 'Spud' : null;
+      say(who ? `${who} is helping me with this.` : `${st.activity || 'Thinking'}...`, null, 'thinking');
+    }
+  }
+
+  async function poll() {
+    try {
+      const st = await kit.api('/api/talk');
+      renderTalk(st);
+      if (st.busy) { talking = true; setTimeout(poll, 1500); return; }
+      if (talking) {
+        talking = false;
+        const last = st.messages[st.messages.length - 1];
+        if (last && last.who === 'avo') say(firstLine(last.text), null, 'happy');
+        load().catch(() => {}); // a week she just published shows on the table
+      }
+    } catch (e) { say(e.message, null, 'worried'); }
+  }
+
+  async function send(text) {
+    const t = String(text || '').trim();
+    if (!t) return;
+    try {
+      await kit.api('/api/talk', { body: { text: t, fresh: freshNext } });
+      freshNext = false;
+      $('talk-text').value = '';
+      talking = true;
+      shown = -1;
+      poll();
+    } catch (e) { say(e.message, null, 'worried'); }
+  }
+
+  $('talk-form').addEventListener('submit', (ev) => { ev.preventDefault(); send($('talk-text').value); });
+  $('talk-text').addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); send($('talk-text').value); }
+  });
+  document.querySelectorAll('.starter').forEach((b) => b.addEventListener('click', () => send(b.textContent)));
+  $('talk-stop').addEventListener('click', () => kit.api('/api/talk-stop', { body: {} }).catch(() => {}));
+  $('talk-fresh').addEventListener('click', () => {
+    freshNext = true;
+    shown = -1;
+    renderTalk({ busy: false, messages: [] });
+    $('talk-text').focus();
+  });
 
   /* ---------------------------------------------------------------- the cookbook */
   async function hello() {
@@ -445,6 +573,7 @@
   scene.addEventListener('error', drop);
   if (scene.complete && !scene.naturalWidth) drop();
 
+  poll();
   hello().catch(() => {}).then(() => load()).then(greet).catch((e) => {
     say('My table did not load. Try again in a moment.', null, 'worried');
     fail($('plates'), e);

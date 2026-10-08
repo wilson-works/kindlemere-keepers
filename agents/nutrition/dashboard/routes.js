@@ -9,6 +9,9 @@
  *   GET  /api/week?k=<link>           one week's full plan, while its link is open
  *   POST /api/meal-check {week, day, slot, mark}   mark is eaten, swapped or clear
  *   POST /api/week-link {week}        a new link for a kept week (open 7 days)
+ *   POST /api/talk {text, fresh}      say something to Avo at her table (one turn of Claude Code in her folder; talk.js)
+ *   GET  /api/talk                    the conversation, and what she is doing while she answers
+ *   POST /api/talk-stop               stop the answer she is working on
  *   GET  /api/sources                 the titles behind each footnote number, from the sources.md of each of
  *                                     Louise's books in knowledge/books (read only)
  */
@@ -29,6 +32,7 @@ const mondayOf = (d) => addDays(d, -((d.getDay() + 6) % 7));
 const bad = (message, status) => Object.assign(new Error(message), { status: status || 400 });
 
 module.exports = function routes(agentDir) {
+  const talk = require('./talk')(agentDir);
   const dir = path.join(agentDir, 'state', 'tools', 'meal-week');
   const read = (name, dflt) => {
     try { return JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')); } catch (_) { return dflt; }
@@ -112,6 +116,10 @@ module.exports = function routes(agentDir) {
         }),
       };
     },
+
+    'POST /api/talk': (ctx) => talk.start((ctx.body || {}).text, (ctx.body || {}).fresh === true),
+    'GET /api/talk': () => talk.status(),
+    'POST /api/talk-stop': () => talk.stop(),
 
     'GET /api/sources': () => {
       const root = path.join(agentDir, 'knowledge', 'books');

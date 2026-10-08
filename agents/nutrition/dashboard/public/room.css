@@ -200,3 +200,27 @@ body { background: var(--a-sky); }
   .counts { grid-template-columns: 1fr; }
   .cookbook { padding: var(--km-space-4); }
 }
+
+/* Talking at the table: a few starters, the conversation, and a box to write in. */
+.starters { display: flex; flex-wrap: wrap; gap: var(--km-space-2); margin: 0 0 var(--km-space-3); }
+.starter {
+  min-height: 44px; border: 0; border-radius: var(--km-radius-pill); cursor: pointer; padding: var(--km-space-2) var(--km-space-4);
+  background: var(--a-sky); color: var(--km-ink); font: 600 var(--km-text-sm)/1.2 var(--km-font-body); text-align: left;
+}
+.talk-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--km-space-3); }
+.talk-log > li { max-width: 92%; border-radius: var(--km-radius); padding: var(--km-space-3) var(--km-space-4); font-size: var(--km-text-sm); }
+.talk-log > li.you { align-self: flex-end; background: var(--a-land); color: #FFFFFF; }
+.talk-log > li.avo { align-self: flex-start; background: var(--km-paper); box-shadow: var(--km-layer); }
+.talk-log .who { display: block; font-size: var(--km-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+.talk-log p { margin: var(--km-space-1) 0 0; white-space: pre-wrap; }
+.said ul, .said ol { margin: var(--km-space-1) 0 0; padding-left: var(--km-space-5); }
+.said li + li { margin-top: 2px; }
+.talk-log .km-btn { margin-top: var(--km-space-3); }
+.talk-now { margin: var(--km-space-3) 0 0; color: var(--a-land); font-weight: 600; font-size: var(--km-text-sm); }
+.talk-form { margin: var(--km-space-3) 0 0; display: flex; flex-direction: column; gap: var(--km-space-2); }
+.talk-form textarea { width: 100%; resize: vertical; min-height: 56px; font: inherit; }
+.talk-acts { display: flex; gap: var(--km-space-2); justify-content: flex-end; }
+.talk-acts .km-btn { min-height: 44px; }
+.talk-acts .km-btn:disabled { opacity: 0.55; cursor: wait; }
+/* While you talk with her, the table card takes the room it needs; on the other place cards it stops above Spud. */
+.table:has(#place-plan:not([hidden])) { max-height: 92%; }

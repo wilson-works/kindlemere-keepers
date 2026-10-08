@@ -167,7 +167,13 @@ A tool is pinned by its sha256. After any change, run `check` again and update i
 ## At the table: planning a week
 
 Her dashboard is the Orchard, not a log. A person comes to her table to see what's for breakfast, lunch and dinner, to
-tick meals off, and to plan the week with her. When they say "Avo, let's plan next week" (or this week):
+tick meals off, and to plan the week with her. They can talk with her right there: "Plan with me" on her page sends
+each message to her as one turn of Claude Code in this folder (dashboard/talk.js), with this file, her cards, her
+tools and her helpers, and no web, no connector, no MCP server. There she can write only her week draft. The
+conversation carries on until they press "Start afresh", and it is kept on this computer only
+(state/dashboard/talk.json). A chat opened in this folder works the same way.
+
+When they say "Avo, let's plan next week" (or this week):
 
 1. `recall` first. Use what she already knows: who eats, allergies, likes, stores, prep day, their recipes.
 2. Ask only what is missing, a few at a time: who's eating (how many), anything anyone can't eat, likes and dislikes,

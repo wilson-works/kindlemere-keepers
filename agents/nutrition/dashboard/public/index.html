@@ -49,18 +49,26 @@
           <ol class="days" id="days"></ol>
         </div>
 
-        <div class="place" role="tabpanel" id="place-plan" aria-labelledby="tab-plan" tabindex="0" hidden>
-          <h2>Plan a week with me</h2>
-          <p>Open a Claude chat in my folder, <code>agents/nutrition</code>, and say:</p>
-          <p class="say-this">"Avo, let's plan next week."</p>
-          <p>I keep breakfast and lunch. Summer, my little peach, brings the treats, and Spud the potato comes round in the evenings for dinner. We'll sit here and go through it together:</p>
-          <ul class="ticks">
-            <li>who's eating, and anything you can't eat</li>
-            <li>what you like, and which nights are busy</li>
-            <li>your prep day, and your own recipes if you have them</li>
-            <li>which things you get at Walmart, Sam's Club or Sprouts</li>
-          </ul>
-          <p>When we're done I lay the week out at its own link, like a letter on the table: the meals, prep and quick-cook recipes, your shopping by store, and your targets. I keep every week so I can tell you what's for dinner and how you're doing.</p>
+        <div class="place talk" role="tabpanel" id="place-plan" aria-labelledby="tab-plan" tabindex="0" hidden>
+          <div class="head-row"><h2>At the table with me</h2><button class="km-btn km-btn-quiet" type="button" id="talk-fresh" hidden>Start afresh</button></div>
+          <p class="quiet small" id="talk-intro">I keep breakfast and lunch. Summer, my little peach, brings the treats, and Spud the potato comes round in the evenings for dinner. Tell me what you'd like, or pick one:</p>
+          <div class="starters" id="starters">
+            <button type="button" class="starter">Avo, let's plan next week.</button>
+            <button type="button" class="starter">What's for dinner tonight?</button>
+            <button type="button" class="starter">Am I on track this week?</button>
+            <button type="button" class="starter">I want something sweet. Any ideas?</button>
+          </div>
+          <ol class="talk-log" id="talk-log" aria-live="polite"></ol>
+          <p class="talk-now" id="talk-now" hidden></p>
+          <form class="talk-form" id="talk-form">
+            <label class="sr" for="talk-text">Say something to Avo</label>
+            <textarea class="km-field" id="talk-text" rows="2" maxlength="2000" placeholder="Say something to Avo"></textarea>
+            <div class="talk-acts">
+              <button class="km-btn" type="submit" id="talk-send">Send</button>
+              <button class="km-btn km-btn-quiet" type="button" id="talk-stop" hidden>Stop</button>
+            </div>
+          </form>
+          <p class="quiet small">When we've planned a week I put it at its own link: the meals, prep and quick-cook recipes, your shopping by store and your targets, to print for the fridge or download. What we say here stays on this computer.</p>
           <p class="quiet small" id="next-week"></p>
         </div>
 
