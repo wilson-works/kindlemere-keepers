@@ -24,7 +24,12 @@
     "meal plan",
     "recipe",
     "allergy",
-    "cooking"
+    "cooking",
+    "summer",
+    "spud",
+    "treat",
+    "dessert",
+    "dinner"
   ],
   "brand": {
     "bg": "#FFF3E6",
@@ -38,7 +43,7 @@
   "art": "mark.svg",
   "jokes": [
     "Kettle's warm. It always is. Come in and tell me what you're cooking.",
-    "Every card on my larder wall says where it came from. Ask me to turn one over.",
+    "Every card in my cookbook says where it came from. Ask me to turn one over.",
     "I'm an avocado. I'm ripe right now, which is rarer than you'd think.",
     "I don't do good food and bad food. I do food, and where the numbers came from.",
     "Not on my shelf? I'll send a lantern to Louise, our librarian, and learn it when her book comes back.",
