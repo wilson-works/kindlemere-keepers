@@ -19,10 +19,10 @@ strength: strong (ACSM/AND/DC joint position; ISSN position stands)
 - When fixing a nutrition problem needs a change to the training, state the nutrition finding and hand the training decision to the coach. [^87] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:27
 
 ## Carbohydrate per day by training load
-- Moderate exercise, about 1 hour a day: 5-7 g/kg/day. [^81] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:74
-- Moderate-to-high intensity, 1-3 hours a day: 6-10 g/kg/day. [^81] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:75
-- General athlete range (ISSN): 5-12 g/kg/day. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:76
-- Heavy weekly volume, to fill glycogen: about 8-12 g/kg/day. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:78
+- Carbohydrate for moderate exercise, about 1 hour a day: 5-7 g/kg/day. [^81] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:74
+- Carbohydrate for moderate-to-high intensity, 1-3 hours a day: 6-10 g/kg/day. [^81] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:75
+- Carbohydrate, general athlete range (ISSN): 5-12 g/kg/day. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:76
+- Carbohydrate for heavy weekly volume, to fill glycogen: about 8-12 g/kg/day. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:78
 
 ## During and after
 - Sessions longer than 60-90 minutes: about 30-60 g carbohydrate an hour in a 6-8% drink, 6-12 fl oz every 10-15 minutes. [^84] @2026-10-07-nutritionist-agent/05-nutrition-exercise-interface.md:82
