@@ -308,7 +308,11 @@
       $(`panel-${b.dataset.panel}`).hidden = !on;
     }
     if (name === 'play') say('Sniff first, walk second. Pick what you\'d like to play.', 'Barkley');
-    if (name === 'treats') say('Treats are training money. Spend them well.', 'Sizzle');
+    if (name === 'treats') {
+      const d = dogNow();
+      const begs = Boolean(game && game.beg && $('panel-treats') && !$('panel-treats').hidden && game.beg());
+      say(begs ? `${d ? d.name : 'Someone'} heard the treat pouch. Look at those eyes! Treats are training money. Spend them well.` : 'Treats are training money. Spend them well.', 'Sizzle');
+    }
   }
   for (const b of document.querySelectorAll('.tm-act')) b.addEventListener('click', () => openPanel(b.dataset.panel));
 

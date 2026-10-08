@@ -183,6 +183,7 @@
       if (next === 'out') d.s = b.x < home[0] + d.dx + CX ? -1 : 1;
       if (next === 'back') d.s = d.dx > 0 ? -1 : 1;
       if (!['dragging', 'pose', 'come'].includes(next) && pose !== 'stand') setPose('stand');
+      if (next !== 'pose') dog.classList.remove('dt-beg');
       state = next;
       timer = 0;
       // while the dog is busy, the kit's characters stay home (window.kindlemere.hold, lane A's mingle plan)
@@ -311,6 +312,22 @@
       return true;
     }
 
+    // The look a dog gives you when it wants something (owner, 00:3x CDT: "the eyes the owner gets when the dog wants
+    // something"): it sits, tips its head up to you, its eyes go big and its brows lift. Shown when the treats come out.
+    function beg() {
+      if (!['home', 'ready', 'pose'].includes(state)) return false;
+      wake();
+      act.then = dog.classList.contains('dt-empty') ? 'ready' : 'home';
+      for (const p of pupils) p.setAttribute('transform', '');
+      setPose('sit');
+      act.hold = 4;
+      setState('pose');
+      dog.classList.add('dt-beg');
+      d.look = -16;
+      drawDog();
+      return true;
+    }
+
     // Tap or Enter on the dog.
     function onDog(fromKeyboard) {
       if (!awake()) return;
@@ -374,6 +391,26 @@
     ball.addEventListener('pointerup', release);
     ball.addEventListener('pointercancel', release);
 
+    // The dog looks at you: at home, its eyes (and Tumble's) follow a pointer that comes near, and its head turns to
+    // it when the pointer is in front of it. Once a frame at most.
+    let gaze = 0, looking = false;
+    const stage = svg.parentNode || svg;
+    const unlook = () => { if (!looking) return; looking = false; lookAhead(); for (const k of keeperEyes) k.g.setAttribute('transform', ''); };
+    stage.addEventListener('pointermove', (e) => {
+      if (state !== 'home' || paused || !awake() || gaze) return;
+      gaze = requestAnimationFrame(() => {
+        gaze = 0;
+        if (state !== 'home') return;
+        const p = toScene(e);
+        const neck = toWorld(body, pivot[0], pivot[1]);
+        if (Math.hypot(p.x - neck.x, p.y - neck.y) > 320) { unlook(); return; }
+        looking = true;
+        watch(p.x, p.y, false);
+        if ((p.x - neck.x) * d.s < 0) { d.look = 0; drawDog(); }   // behind it: the eyes only
+      });
+    });
+    stage.addEventListener('pointerleave', () => { if (state === 'home') unlook(); });
+
     // The loop: the ball in the air; the dog posing, jumping, out to the ball, down for it, and home with it.
     let last = performance.now();
     function frame(now) {
@@ -382,6 +419,8 @@
       last = now;
       if (!paused) {
         timer += real;
+        // the kit's walk home takes dt-sit off the dog (its mingle); a pose of ours keeps its classes
+        for (const c of POSES[pose].cls) if (!dog.classList.contains(c)) dog.classList.add(c);
         // settle into a pose, or up out of one
         if (tween.t < 1 && !['pick', 'leap'].includes(state)) {
           tween.t = Math.min(1, tween.t + real / 0.25);
@@ -471,6 +510,7 @@
       setPaused(on) { paused = !!on; },
       state: () => state,
       show,
+      beg,
       wake,
       asleep: () => !awake(),
     };
