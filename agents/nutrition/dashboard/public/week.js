@@ -16,7 +16,8 @@
   const local = (iso) => { const [y, m, d] = String(iso).split('-').map(Number); return new Date(y, m - 1, d); };
   const short = (iso) => local(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   const long = (iso) => local(iso).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const SLOT = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+  const SLOT = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Treat' };
+  const KEEPER = { breakfast: 'Avo', lunch: 'Avo', snack: 'Summer', dinner: 'Spud' };
   const amount = (x) => [x.qty == null ? '' : String(x.qty), x.unit || ''].filter(Boolean).join(' ');
   const store = {
     get(k) { try { return window.localStorage.getItem(k); } catch (_) { return null; } },
@@ -51,7 +52,9 @@
     const now = checks.done[k] ? 'eaten' : checks.swapped[k] ? 'swapped' : '';
     const li = el('li', now || null);
     const what = el('div', 'meal-what');
-    what.append(el('span', 'slot', SLOT[s.slot] || s.slot));
+    const slot = el('span', 'slot', SLOT[s.slot] || s.slot);
+    if (KEEPER[s.slot]) slot.append(el('span', 'keeper', ` with ${KEEPER[s.slot]}`));
+    what.append(slot);
     if (s.recipe) {
       const a = el('a', 'dish', s.name);
       a.href = `#r-${s.recipe}`;
@@ -165,7 +168,7 @@
         const th = el('th', null, l.what);
         th.scope = 'row';
         const how = el('td');
-        how.append(el('span', null, plain(l.note)), el('span', 'km-source', `My card "${titles[l.card] || l.card.replace(/\.md$/, '')}"`));
+        how.append(el('span', null, plain(l.note)), el('span', 'card-name', `My card "${titles[l.card] || l.card.replace(/\.md$/, '')}"`));
         tr.append(th, el('td', 'val', l.value), how);
         return tr;
       }));
@@ -208,6 +211,8 @@
         el('li', 'km-chip', `${plural(w.grocery.length, 'store', 'stores')}`),
         el('li', 'km-chip', `Link open until ${short(answer.expires)}`),
       );
+      if (w.diet && w.diet.length) $('facts-row').append(el('li', 'km-chip', `For: ${w.diet.join(', ')}`));
+      if (w.avoid && w.avoid.length) $('facts-row').append(el('li', 'km-chip', `Leaves out: ${w.avoid.join(', ')}`));
       days();
       recipes();
       shopping();

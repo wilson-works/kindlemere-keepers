@@ -161,6 +161,12 @@ run(__filename, (ctx) => {
     const stores = Array.isArray(d.stores) && d.stores.length ? d.stores.map(String) : STORES;
     const problems = [];
     const recipes = {};
+    // Any diet: the person's own words for how they eat, and the foods they leave out (allergies, intolerances, dislikes).
+    // Every ingredient, staple and plain meal is checked against what they leave out; a match stops the week.
+    const diet = (Array.isArray(d.diet) ? d.diet : []).map((x) => String(x).trim()).filter(Boolean);
+    const avoid = (Array.isArray(d.avoid) ? d.avoid : []).map((x) => String(x).trim().toLowerCase()).filter(Boolean);
+    const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const leftOut = (text) => avoid.find((a) => new RegExp(`\\b${esc(a)}(e?s)?\\b`, 'i').test(String(text)));
     for (const r of Array.isArray(d.recipes) ? d.recipes : []) {
       if (!r || !r.id || !r.name) { problems.push('A recipe has no id or name.'); continue; }
       const src = r.source || {};
@@ -176,6 +182,8 @@ run(__filename, (ctx) => {
       for (const i of Array.isArray(r.ingredients) ? r.ingredients : []) {
         if (!i || !i.item) { problems.push(`${r.name}: an ingredient has no name.`); continue; }
         if (i.store && !stores.includes(i.store)) problems.push(`${r.name}: ${i.item} is set to ${i.store}, which is not one of your stores (${stores.join(', ')}).`);
+        const out = leftOut(i.item);
+        if (out) problems.push(`${r.name}: ${i.item} has ${out} in it, and you leave ${out} out.`);
         ingredients.push({ item: String(i.item), qty: i.qty == null ? null : Number(i.qty), unit: i.unit ? String(i.unit) : '', store: i.store || '' });
       }
       recipes[r.id] = {
@@ -197,6 +205,8 @@ run(__filename, (ctx) => {
           uses[rid] = (uses[rid] || 0) + 1;
           slots.push({ slot: s, recipe: rid, name: recipes[rid].name, kind: recipes[rid].kind });
         } else if (typeof v === 'string') {
+          const out = leftOut(v);
+          if (out) problems.push(`${DAY_NAMES[key]} ${s}: ${v} has ${out} in it, and you leave ${out} out.`);
           slots.push({ slot: s, name: v, kind: 'simple' });
         } else {
           problems.push(`${DAY_NAMES[key]} ${s}: ${JSON.stringify(v)} is not a recipe on this plan.`);
@@ -204,6 +214,10 @@ run(__filename, (ctx) => {
       }
       return { key, date: iso(date), name: DAY_NAMES[key], slots };
     });
+    for (const x of Array.isArray(d.extras) ? d.extras : []) {
+      const out = x && x.item && leftOut(x.item);
+      if (out) problems.push(`Staples: ${x.item} has ${out} in it, and you leave ${out} out.`);
+    }
     if (problems.length) throw new Error(`I did not put this week on the table yet:\n- ${problems.join('\n- ')}`);
 
     // Grocery list, by store, made from the plan (never separately).
@@ -249,7 +263,7 @@ run(__filename, (ctx) => {
 
     const t = targets(d.person);
     const record = {
-      id, week_of: id, created: new Date().toISOString(), household, stores,
+      id, week_of: id, created: new Date().toISOString(), household, stores, diet, avoid,
       prep_days: prepDays.map((k) => (k === 'sun' ? 'Sunday before' : DAY_NAMES[k])),
       days, recipes: Object.values(recipes).filter((r) => uses[r.id]), grocery,
       targets: t, flags, notes: (Array.isArray(d.notes) ? d.notes : []).map(String),
@@ -268,6 +282,8 @@ run(__filename, (ctx) => {
       '',
       `${meals} meals over 7 days for ${household}. Recipes: ${record.recipes.filter((r) => r.kind === 'prep').length} for meal prep, ${record.recipes.filter((r) => r.kind === 'quick').length} quick-cook.`,
       `Shopping: ${grocery.map((g) => `${g.store} (${g.items.length})`).join(', ') || 'nothing to buy'}. No prices: I keep none.`,
+      ...(diet.length ? [`For: ${diet.join(', ')}.`] : []),
+      ...(avoid.length ? [`Leaves out: ${avoid.join(', ')}. I checked every ingredient, staple and meal against it.`] : []),
       t.lines ? `Targets: ${t.lines.map((l) => `${l.what} ${l.value}`).join('; ')}.` : (t.refused ? `Targets: none. ${t.refused}` : `Targets: none yet. ${t.missing}`),
       ...flags.map((f) => `Keep it safe: ${f}`),
       '',
