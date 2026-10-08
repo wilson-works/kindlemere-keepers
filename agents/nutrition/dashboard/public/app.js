@@ -1,6 +1,6 @@
 'use strict';
 
-// Clem's room: what she knows, what she remembers (counts only), her tools, and what waits on Louise.
+// Avo's room: what she knows, what she remembers (counts only), her tools, and what waits on Louise.
 // Everything comes from the kit's API. Nothing here states a fact of its own.
 (function () {
   const $ = (id) => document.getElementById(id);
