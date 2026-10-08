@@ -523,6 +523,8 @@
       return true;
     }
     function setState(next) {
+      // out of Sizzle's treat, however it ends: no biscuit left in the air, feet on the ground
+      if (state === 'treat' && next !== 'treat') { if (biscuit) biscuit.style.display = 'none'; d.hop = 0; }
       state = next;
       timer = 0;
       if (next !== 'pose') dogEl.classList.remove('dt-beg');
@@ -756,7 +758,7 @@
       return ground.snap(p.x, p.y);
     }
     ballEl.addEventListener('pointerdown', (e) => {
-      if (b.mode === 'mouth' || ['pick', 'leap'].includes(state) || paused || !awake()) return;
+      if (b.mode === 'mouth' || ['pick', 'leap', 'treat'].includes(state) || paused || !awake()) return;
       e.preventDefault();
       e.stopPropagation();
       try { ballEl.setPointerCapture(e.pointerId); } catch (_) { /* a pointer the browser no longer tracks */ }
