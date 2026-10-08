@@ -26,6 +26,12 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
 
 ## Opening an agent
 
+- **All of Kindlemere** (owner, 2026-10-08: one park, three doors): run `node kit/dashboard/park.js` from this folder.
+  One process opens all three rooms, each on its own port, and prints the park's address,
+  `/kit/kindlemere.html` on any of them. That page is the whole realm, live. Click Avo, Steady or Tumble, or anyone
+  with them, to step into their room; each place also has its own button under the realm. The office's three doors
+  all start the park this way and open this page, so any door wakes the whole park and Sleep on any door puts it to
+  sleep.
 - **Its room** (the dashboard): run `node agents/<agent>/dashboard/server.js` from this folder, then open the address
   it prints. The room is a step into the keeper's place, made for doing: Avo plans meals with you, Steady takes you
   through a run, a workout or a stretch, Tumble trains with you and your dog. What the keeper knows, what it
@@ -62,7 +68,6 @@ them on her list, once each.
 
 These wait for your word:
 
-- The three are not in the office, and have no phone doors.
 - Louise has not researched their questions. The build used a test copy of her list. At the close of the build run,
   each agent's gaps (`knowledge/GAPS.md`) go on her real list once; she researches them when you tell her to.
 - The package is private, installed only on HQ, and deployed nowhere.
@@ -79,7 +84,12 @@ The repo is at `D:\Hub\20-Coding\Projects\wellbeing-agents`. It needs Node and n
    example `{ "lat": 35.5, "lon": -97.5 }`. Without it the sky follows the middle of this computer's time zone.
 4. Check each agent: `node kit/engine/noweb.js check`, then for each agent
    `node kit/engine/shelf.js check <agent> --strict` and `node kit/engine/toolsmith.js list <agent>`.
-5. Start a room: `node agents/<agent>/dashboard/server.js`, and open the address it prints.
+5. Start the park, `node kit/dashboard/park.js`, or one room, `node agents/<agent>/dashboard/server.js`, and open
+   the address it prints.
+6. Optional, for the phone: publish each room on the tailnet (`tailscale serve --bg --https=<port>
+   http://127.0.0.1:<room port>`) and name that address in the room's `agent.config.json`, for example
+   `{ "port": 7574, "phone": "https://<machine>.<tailnet>.ts.net:8448" }`. The room then answers that host too, and the
+   Kindlemere page opened from the phone links to the rooms' phone addresses.
 
 What an agent learns about you stays on this computer: `agents/*/memory/`, `agents/*/state/` and every
 `*.config.json` are never committed.
