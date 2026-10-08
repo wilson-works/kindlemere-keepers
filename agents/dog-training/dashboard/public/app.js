@@ -612,6 +612,34 @@
     $('chat').append(li);
     li.scrollIntoView({ block: 'nearest' });
   }
+  // While Tumble works (a first answer can take two minutes), he thinks where you can see it: a waiting turn in the
+  // chat, his figure in the field thinking with the talk dots, and a line in the bubble that moves on as he goes.
+  const WAIT_LINES = ['Let me look in my books…', 'Checking what I remember about your dogs…', 'Finding the right card…', 'Reading it through…', 'Still reading. The first question takes me longest.'];
+  function thinking() {
+    const wait = el('li', 'tm-turn');
+    wait.append(el('span', 'tm-who', 'Tumble'));
+    const dots = el('span', 'tm-dots');
+    dots.setAttribute('aria-label', 'Tumble is thinking');
+    dots.append(el('span'), el('span'), el('span'));
+    wait.append(dots);
+    $('chat').append(wait);
+    wait.scrollIntoView({ block: 'nearest' });
+    let n = 0;
+    const figure = () => {
+      const me = document.querySelector('[data-km-actor="dog-training"]');
+      if (me) { me.setAttribute('data-km-mood', 'thinking'); me.setAttribute('data-km-talk', '1'); }
+      return me;
+    };
+    const tick = () => { say(WAIT_LINES[Math.min(n, WAIT_LINES.length - 1)], 'Tumble', 'thinking'); n += 1; figure(); };
+    tick();
+    const timer = setInterval(tick, 12000);
+    return () => {
+      clearInterval(timer);
+      wait.remove();
+      const me = figure();
+      if (me) { me.removeAttribute('data-km-mood'); me.removeAttribute('data-km-talk'); }
+    };
+  }
   $('talk-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const box = $('talk-text');
@@ -620,9 +648,9 @@
     turn('You', text);
     box.value = '';
     $('talk-send').disabled = true;
-    say('Let me look in my books…', 'Tumble', 'thinking');
+    const done = thinking();
     try {
-      const r = await api('/api/talk', talkSession ? { text, session: talkSession } : { text });
+      const r = await api('/api/talk', talkSession ? { text, session: talkSession } : { text }).finally(done);
       if (r.session) talkSession = r.session;
       turn('Tumble', r.text);
       const first = String(r.text).split(/(?<=[.!?])\s/)[0].replace(/\*\*/g, '');
