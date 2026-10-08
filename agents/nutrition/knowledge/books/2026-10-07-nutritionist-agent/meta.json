@@ -1,0 +1,19 @@
+{
+  "slug": "2026-10-07-nutritionist-agent",
+  "title": "Building a nutritionist agent",
+  "askedAs": "I need to research everything we need to build a nutrionist specialized agent.",
+  "status": "complete",
+  "startedAt": "2026-10-07T05:45:00.000Z",
+  "completedAt": "2026-10-07T06:15:00.000Z",
+  "files": [
+    "00-brief.md",
+    "01-overview.md",
+    "02-medical-diets-allergies.md",
+    "03-life-stage-demographics.md",
+    "04-cooking-meal-prep-budget.md",
+    "05-nutrition-exercise-interface.md",
+    "sources.md"
+  ],
+  "totalLines": 1228,
+  "sourceCount": 90
+}
