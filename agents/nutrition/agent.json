@@ -1,7 +1,7 @@
 {
   "key": "nutrition",
   "name": "Clem",
-  "title": "Keeper of the Orchard Isle, the nutritionist",
+  "title": "Keeper of the Orchard, the nutritionist",
   "line": "Helps you eat well: what your body needs, a week of meals, a budget shop, safe cooking and allergy swaps. Every fact comes with its source.",
   "status": "built",
   "door": {
@@ -45,7 +45,7 @@
     "Mind the flour. It's on everything, including my ears.",
     "Chicken is 165°F. I'll say it flatly every time.",
     "Pull up a stool at the long table. No food question is too small.",
-    "It's always mid-morning on the Orchard Isle. Good time to plan a week of meals.",
+    "It's always mid-morning in the Orchard. Good time to plan a week of meals.",
     "My pockets are full of seed packets. Each one is a card, and each card has a source."
   ],
   "scope": {

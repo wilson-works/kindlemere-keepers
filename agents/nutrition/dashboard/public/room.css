@@ -1,4 +1,4 @@
-/* Clem's room on the Orchard Isle. The frame, colours and parts come from /kit/design/tokens.css and /kit/kit.css. */
+/* Clem's room in the Orchard. The frame, colours and parts come from /kit/design/tokens.css and /kit/kit.css. */
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .quiet { color: var(--km-ink-soft); }

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 0 384 440" role="img" aria-labelledby="t d">
-  <title id="t">Clem, keeper of the Orchard Isle</title>
-  <desc id="d">A round cut-paper creature shaped like a pear, in orchard olive, with two long leaf ears. She wears a white apron with seed packets in its pockets, holds a steaming apricot kettle in one paw and a wooden spoon in the other, and stands on a tuft of orchard grass with herbs and a fallen apricot.</desc>
+  <title id="t">Clem, keeper of the Orchard</title>
+  <desc id="d">A round cut-paper creature shaped like a pear, in orchard olive, with two long leaf ears. She wears a white apron with seed packets in its pockets, holds a steaming apricot kettle in one paw and a wooden spoon in the other, and stands with her feet planted on the Orchard's grass, over a bank of soil and roots, with herbs and a fallen apricot.</desc>
   <defs>
     <!-- Cut paper: a short, hard shadow straight below each layer. No blur. -->
     <filter id="layer" x="-10%" y="-10%" width="120%" height="130%">
@@ -17,12 +17,23 @@
     </filter>
   </defs>
 
-  <!-- The footing: a tuft of orchard grass with herbs, a fallen apricot and a dropped seed packet. -->
+  <!-- The ground: orchard grass running off both edges, over a cut bank of soil and roots. Rooted, never floating. -->
   <g filter="url(#layer)">
-    <path d="M38 398 C40 378 92 368 180 368 C268 368 322 378 324 398 C322 418 268 428 180 428 C92 428 38 418 38 398 Z" fill="#6E7A1E"/>
-    <path d="M52 392 C60 380 110 374 180 374 C250 374 300 380 308 392 C292 386 250 382 180 382 C110 382 68 386 52 392 Z" fill="#8E9E2E"/>
-    <path d="M48 404 C70 420 290 420 314 404 C300 424 250 430 180 430 C110 430 62 424 48 404 Z" fill="#525C12"/>
+    <path d="M-24 404 L360 404 L360 440 L-24 440 Z" fill="#8A5A30"/>
+    <path d="M-24 418 C30 412 80 422 140 416 C200 410 260 422 360 414 L360 440 L-24 440 Z" fill="#6E4424"/>
+    <g stroke="#4E2F17" stroke-width="2.2" fill="none" stroke-linecap="round">
+      <path d="M40 404 C42 414 36 422 40 432"/><path d="M40 414 C46 418 50 418 54 424"/>
+      <path d="M150 404 C148 416 156 424 152 436"/><path d="M151 418 C144 422 140 428 138 434"/>
+      <path d="M268 404 C270 412 264 420 270 430"/><path d="M269 414 C276 416 280 422 284 426"/>
+    </g>
+    <g fill="#B88A5E"><ellipse cx="90" cy="426" rx="6" ry="4"/><ellipse cx="220" cy="430" rx="7" ry="4.5"/><ellipse cx="318" cy="424" rx="5" ry="3.5"/><ellipse cx="8" cy="430" rx="5" ry="3"/></g>
+    <path d="M-24 378 C40 370 120 368 180 370 C250 372 320 368 360 376 L360 406 L-24 406 Z" fill="#6E7A1E"/>
+    <path d="M-24 378 C40 370 120 368 180 370 C250 372 320 368 360 376 L360 384 C320 378 250 380 180 378 C120 376 40 378 -24 386 Z" fill="#8E9E2E"/>
   </g>
+  <!-- Contact shadows: her weight on the ground. -->
+  <ellipse cx="158" cy="391" rx="24" ry="5" fill="#1A2433" fill-opacity="0.22"/>
+  <ellipse cx="204" cy="391" rx="24" ry="5" fill="#1A2433" fill-opacity="0.22"/>
+  <ellipse cx="70" cy="374" rx="38" ry="5" fill="#1A2433" fill-opacity="0.18"/>
   <g fill="#8E9E2E">
     <path d="M50 396 L56 374 L62 396 Z"/><path d="M62 394 L72 368 L76 394 Z"/><path d="M290 394 L298 366 L304 394 Z"/>
     <path d="M304 396 L314 376 L314 398 Z"/><path d="M120 384 L126 368 L132 384 Z"/><path d="M236 384 L244 370 L248 386 Z"/>

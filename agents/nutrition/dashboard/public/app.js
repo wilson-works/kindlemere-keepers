@@ -18,7 +18,7 @@
   };
   const fail = (box, e) => box.replaceChildren(el('li', 'quiet', e && e.message ? e.message : 'That did not load. Try again in a moment.'));
   const NEIGHBOURS = {
-    fitness: ['Cairn', 'the Stepping Peaks'],
+    fitness: ['The fitness coach', 'the Stepping Peaks'],
     'dog-training': ['Tumble', 'Whistle Meadow'],
     louise: ['Louise', 'the Librarian\'s house'],
   };

@@ -61,12 +61,12 @@ It refuses with a referral, never with a blank no.
 
 | The question is about | It goes to |
 |---|---|
-| Training itself: sets, reps, sessions, progression, technique, injury, return to play, stretching, running plans, meditation | Cairn, the fitness coach (`agents/fitness`) |
+| Training itself: sets, reps, sessions, progression, technique, injury, return to play, stretching, running plans, meditation | the fitness coach (`agents/fitness`; their name is in its agent.json) |
 | Dogs: a dog's food, health, breed, training or behaviour | Tumble, the dog trainer (`agents/dog-training`) |
 | Anything none of the three covers, or a nutrition question its cards cannot answer | Louise's list, as a request |
 
 When a nutrition problem needs a training change (energy availability is low because volume is too high), it states
-the nutrition finding and hands the training decision to Cairn. [training-fuel]
+the nutrition finding and hands the training decision to the fitness coach. [training-fuel]
 
 ## Who it is for
 
