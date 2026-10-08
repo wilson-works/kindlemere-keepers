@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t">
+  <title id="t">Avo's mark: half an avocado, cut from paper</title>
+  <circle cx="32" cy="34" r="29" fill="#1A2433" fill-opacity="0.14"/>
+  <circle cx="32" cy="31" r="29" fill="#FFE1C2"/>
+  <path d="M32 10 C24 10 21 18 22 24 C14 29 11 37 12 44 C14 53 22 58 32 58 C42 58 50 53 52 44 C53 37 50 29 42 24 C43 18 40 10 32 10 Z" fill="#1A2433" fill-opacity="0.14" transform="translate(0 2)"/>
+  <path d="M32 10 C24 10 21 18 22 24 C14 29 11 37 12 44 C14 53 22 58 32 58 C42 58 50 53 52 44 C53 37 50 29 42 24 C43 18 40 10 32 10 Z" fill="#3E4A14"/>
+  <path d="M32 14 C26 14 24.5 20 25.5 25.5 C18 30 15.5 37 16.5 43.5 C18 51 24.5 54.5 32 54.5 C39.5 54.5 46 51 47.5 43.5 C48.5 37 46 30 38.5 25.5 C39.5 20 38 14 32 14 Z" fill="#E8EDB0"/>
+  <path d="M32 16.5 C27.5 16.5 26.5 21.5 27.5 26.5 C20.5 31 18.5 37.5 19.5 43 C21 49.5 26 52.5 32 52.5 C38 52.5 43 49.5 44.5 43 C45.5 37.5 43.5 31 36.5 26.5 C37.5 21.5 36.5 16.5 32 16.5 Z" fill="#D7E08A"/>
+  <circle cx="32" cy="42" r="8" fill="#1A2433" fill-opacity="0.16" transform="translate(0 1.5)"/>
+  <circle cx="32" cy="42" r="8" fill="#8A5530"/>
+  <ellipse cx="29" cy="39" rx="2.4" ry="1.5" fill="#FFFFFF" fill-opacity="0.35" transform="rotate(-30 29 39)"/>
+</svg>

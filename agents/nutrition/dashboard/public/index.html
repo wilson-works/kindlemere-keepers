@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avo, the Orchard</title>
+  <link rel="stylesheet" href="/kit/design/tokens.css">
+  <link rel="stylesheet" href="/kit/kit.css">
+  <link rel="stylesheet" href="/room.css">
+  <link rel="icon" href="/mark.svg">
+</head>
+<body data-agent="nutrition">
+  <header class="km-top">
+    <img class="km-mark" src="/mark.svg" alt="" width="40" height="40">
+    <div class="who">
+      <div class="km-name" id="name">Avo</div>
+      <div class="km-role" id="title">Keeper of the Orchard, the nutritionist</div>
+    </div>
+    <button class="km-btn larder-open" id="larder-open" type="button" aria-haspopup="dialog">
+      <img class="btn-obj" src="/obj/packet.svg" alt="">My larder
+    </button>
+  </header>
+
+  <main class="orchard">
+    <div class="stage" id="stage">
+      <img class="scene" id="scene" src="/kit/art/kindlemere-orchard.svg" alt="The Orchard: a foresty picnic meadow on a terraced hill, with avocado trees, a beehive, the larder door and a long table under a gingham cloth, where Avo the avocado holds up a card" width="1600" height="900">
+
+      <p class="bubble" id="say" aria-live="polite">Pull up a stool at the long table.</p>
+
+      <section class="table" aria-labelledby="table-h">
+        <h1 class="sr" id="table-h">At Avo's table</h1>
+        <div class="places" role="tablist" aria-label="At the table">
+          <button type="button" role="tab" id="tab-today" aria-controls="place-today" aria-selected="true">Today</button>
+          <button type="button" role="tab" id="tab-week" aria-controls="place-week" aria-selected="false" tabindex="-1">This week</button>
+          <button type="button" role="tab" id="tab-plan" aria-controls="place-plan" aria-selected="false" tabindex="-1">Plan with me</button>
+          <button type="button" role="tab" id="tab-kept" aria-controls="place-kept" aria-selected="false" tabindex="-1">Kept weeks</button>
+        </div>
+
+        <div class="place" role="tabpanel" id="place-today" aria-labelledby="tab-today" tabindex="0">
+          <h2><span id="today-name">Today</span> <span class="when" id="today-date"></span></h2>
+          <ul class="plates" id="plates"><li class="quiet">Setting the table.</li></ul>
+        </div>
+
+        <div class="place" role="tabpanel" id="place-week" aria-labelledby="tab-week" tabindex="0" hidden>
+          <div class="head-row"><h2>This week</h2><div class="week-links" id="week-links"></div></div>
+          <ol class="days" id="days"></ol>
+        </div>
+
+        <div class="place" role="tabpanel" id="place-plan" aria-labelledby="tab-plan" tabindex="0" hidden>
+          <h2>Plan a week with me</h2>
+          <p>Open a Claude chat in my folder, <code>agents/nutrition</code>, and say:</p>
+          <p class="say-this">"Avo, let's plan next week."</p>
+          <p>We'll sit here and go through it together:</p>
+          <ul class="ticks">
+            <li>who's eating, and anything you can't eat</li>
+            <li>what you like, and which nights are busy</li>
+            <li>your prep day, and your own recipes if you have them</li>
+            <li>which things you get at Walmart, Sam's Club or Sprouts</li>
+          </ul>
+          <p>When we're done I lay the week out at its own link, like a letter on the table: the meals, prep and quick-cook recipes, your shopping by store, and your targets. I keep every week so I can tell you what's for dinner and how you're doing.</p>
+          <p class="quiet small" id="next-week"></p>
+        </div>
+
+        <div class="place" role="tabpanel" id="place-kept" aria-labelledby="tab-kept" tabindex="0" hidden>
+          <h2>Weeks I've kept</h2>
+          <ul class="weeks" id="weeks"><li class="quiet">Opening my keepsake box.</li></ul>
+          <p class="quiet small">A week's link stays open a while, then closes. I keep the week itself, so I can open a new link any time.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="larder" id="larder" aria-labelledby="larder-h">
+    <div class="larder-top">
+      <h2 id="larder-h">My larder</h2>
+      <button class="km-btn km-btn-quiet" type="button" id="larder-close">Close</button>
+    </div>
+    <p class="quiet">Where my facts come from. Every card says which page of Louise's book it came from.</p>
+
+    <section class="km-card" aria-labelledby="find-h">
+      <h3 id="find-h">Find it on my shelf</h3>
+      <form id="ask" class="ask" role="search">
+        <label class="sr" for="q">What are you looking for?</label>
+        <input class="km-field" id="q" name="q" type="search" placeholder="Try: leftovers, protein, sesame" autocomplete="off">
+        <button class="km-btn" type="submit">Find it</button>
+      </form>
+      <div id="found" class="found" aria-live="polite"></div>
+    </section>
+
+    <div class="km-grid">
+      <section class="km-card" aria-labelledby="shelf-h">
+        <h3 id="shelf-h">My cards <span class="km-chip" id="shelf-count"></span></h3>
+        <ul class="cards" id="shelf"><li class="quiet">Taking the cards down from the wall.</li></ul>
+      </section>
+      <div class="stack">
+        <section class="km-card" aria-labelledby="mem-h">
+          <h3 id="mem-h">What I remember</h3>
+          <ul class="counts" id="memory"></ul>
+          <p class="quiet small">Kept on this computer only. Ask me in a chat to forget anything.</p>
+        </section>
+        <section class="km-card" aria-labelledby="tools-h">
+          <h3 id="tools-h">My tools</h3>
+          <ul class="tools" id="tools"></ul>
+        </section>
+        <section class="km-card" aria-labelledby="louise-h">
+          <h3 id="louise-h">Waiting on Louise <span class="km-chip" id="louise-count"></span></h3>
+          <ul class="lanterns" id="louise"></ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="km-card" aria-labelledby="scope-h">
+      <h3 id="scope-h">What I cover</h3>
+      <div class="km-grid">
+        <div><h4>I can help with</h4><ul class="ticks" id="scope-does"></ul></div>
+        <div><h4>What I won't do</h4><ul class="ticks not" id="scope-not"></ul></div>
+      </div>
+      <hr class="km-thread">
+      <ul class="weave" id="weave"></ul>
+    </section>
+  </dialog>
+
+  <footer class="km-foot">
+    <p>I answer only from my cards and what you've told me. Never the web. If I don't know, I ask Louise.</p>
+  </footer>
+
+  <script src="/kit/kit.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

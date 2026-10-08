@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A week at Avo's table</title>
+  <link rel="stylesheet" href="/kit/design/tokens.css">
+  <link rel="stylesheet" href="/kit/kit.css">
+  <link rel="stylesheet" href="/week.css">
+  <link rel="icon" href="/mark.svg">
+</head>
+<body data-agent="nutrition">
+  <header class="km-top">
+    <img class="km-mark" src="/mark.svg" alt="" width="40" height="40">
+    <div class="who">
+      <div class="km-name">Avo</div>
+      <div class="km-role">Keeper of the Orchard, the nutritionist</div>
+    </div>
+    <button class="km-btn km-btn-quiet print" type="button" id="print">Print</button>
+  </header>
+
+  <main class="km-page letter" id="letter" aria-busy="true">
+    <section class="km-card km-sky open-letter">
+      <h1 id="week-h">Your week</h1>
+      <p class="lead" id="lead">Laying the week out on the table.</p>
+      <ul class="facts-row" id="facts-row"></ul>
+    </section>
+
+    <div id="body" hidden>
+      <nav class="jump" aria-label="On this page">
+        <a href="#plan">The week</a><a href="#prep">Meal prep</a><a href="#quick">Quick cooks</a><a href="#shop">Shopping</a><a href="#targets">Targets</a>
+      </nav>
+
+      <section class="km-card" id="plan" aria-labelledby="plan-h">
+        <h2 id="plan-h" class="with-obj"><img class="obj" src="/obj/spoon.svg" alt="">The week</h2>
+        <p class="quiet small" id="plan-note">Tick each meal as you go. I read the ticks when you ask how the week is going.</p>
+        <ol class="week-days" id="days"></ol>
+        <ul class="flags" id="flags"></ul>
+      </section>
+
+      <section class="km-card" id="prep" aria-labelledby="prep-h">
+        <h2 id="prep-h" class="with-obj"><img class="obj" src="/obj/box.svg" alt="">Meal prep</h2>
+        <p class="quiet small" id="prep-days"></p>
+        <div class="recipes" id="prep-list"></div>
+      </section>
+
+      <section class="km-card" id="quick" aria-labelledby="quick-h">
+        <h2 id="quick-h" class="with-obj"><img class="obj" src="/obj/spoon.svg" alt="">Quick cooks</h2>
+        <div class="recipes" id="quick-list"></div>
+      </section>
+
+      <section class="km-card" id="shop" aria-labelledby="shop-h">
+        <h2 id="shop-h" class="with-obj"><img class="obj" src="/obj/packet.svg" alt="">Shopping</h2>
+        <p class="quiet small">Made from the plan, scaled to how many are eating, by the store you told me. Tick things off as they go in the basket. No prices: I keep none.</p>
+        <div class="stores" id="stores"></div>
+      </section>
+
+      <section class="km-card" id="targets" aria-labelledby="targets-h">
+        <h2 id="targets-h" class="with-obj"><img class="obj" src="/obj/signpost.svg" alt="">Your targets</h2>
+        <p class="quiet small">Estimates, every number from one of my cards. They're a guide for the week, not a prescription.</p>
+        <div id="target-body"></div>
+      </section>
+
+      <section class="km-card rests" aria-labelledby="rests-h">
+        <h2 id="rests-h" class="with-obj"><img class="obj" src="/obj/lantern.svg" alt="">Where this comes from</h2>
+        <ul class="ticks" id="rests"></ul>
+        <ul class="ticks" id="notes"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="km-foot">
+    <p>This link is just for you, on this computer. I keep the week itself, so ask me for it again any time.</p>
+  </footer>
+
+  <script src="/kit/kit.js"></script>
+  <script src="/week.js"></script>
+</body>
+</html>

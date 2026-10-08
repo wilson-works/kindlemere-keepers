@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steady, Stepping Hill</title>
+<link rel="icon" href="/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/kit/design/tokens.css">
+<link rel="stylesheet" href="/kit/kit.css">
+<link rel="stylesheet" href="/steady.css">
+</head>
+<body data-agent="fitness">
+<header class="km-top">
+  <img class="km-mark" src="/mark.svg" alt="" width="40" height="40">
+  <div>
+    <div class="km-name">Steady</div>
+    <div class="km-role">Keeper of Stepping Hill</div>
+  </div>
+  <button class="km-btn pack-open" id="pack-open" type="button" aria-haspopup="dialog">
+    <svg class="btn-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-cards"/></svg>Her pack
+  </button>
+</header>
+
+<main class="hill">
+  <div class="stage">
+    <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="The foot of Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady waiting at the bottom of the steps" width="1600" height="900">
+
+    <p class="bubble" id="say" aria-live="polite">Come on up. The steps are wide and nobody's timing you.</p>
+
+    <section class="trail" aria-labelledby="trail-h">
+      <ol class="stones" aria-label="Getting ready to run">
+        <li data-for="check">Check in</li>
+        <li data-for="warm">Warm up</li>
+        <li data-for="run">Run</li>
+        <li data-for="cool">Cool down</li>
+      </ol>
+
+      <div class="step" id="step-arrive">
+        <h1 id="trail-h" tabindex="-1">Stepping Hill</h1>
+        <p class="lead">Getting ready to go run? I'll be right here, one step at a time. A quick check in, a warm-up, then your run. After, we cool down and write it in your log.</p>
+        <button class="km-btn go" type="button" data-next="check">Let's get ready</button>
+        <p class="law">Everything I tell you comes from my cards, with its source. What I don't know, I send to Louise.</p>
+      </div>
+
+      <div class="step" id="step-check" hidden>
+        <h2 tabindex="-1">Before we go</h2>
+        <p>Do you have any of these today? They're from my safety card.</p>
+        <div class="choices">
+          <button class="km-btn go" type="button" data-next="warm">None of these. I'm good.</button>
+          <button class="km-btn soft" type="button" id="sore">Just sore from last time</button>
+          <button class="km-btn soft" type="button" id="flag-yes">Yes, one of these</button>
+        </div>
+        <div id="check-more" hidden>
+          <ul class="facts said" id="check-facts"></ul>
+          <button class="km-btn go" type="button" id="check-on" data-next="warm">Go on to the warm-up</button>
+        </div>
+        <ul class="facts flags" id="flags"></ul>
+      </div>
+
+      <div class="step" id="step-warm" hidden>
+        <h2 tabindex="-1">Warm up</h2>
+        <p class="note" id="warm-head">Getting your warm-up from my tool.</p>
+        <ol class="phases" id="warm-phases"></ol>
+        <div class="clock" id="warm-clock" hidden><span class="clock-n" id="warm-time">0:00</span><span id="warm-now"></span></div>
+        <div class="choices">
+          <button class="km-btn go" type="button" id="warm-start">Start the warm-up</button>
+          <button class="km-btn soft" type="button" id="warm-skip" hidden>Next part</button>
+          <button class="km-btn soft" type="button" data-next="run">I'm warm. Let's run.</button>
+        </div>
+        <details class="rests"><summary>What this rests on</summary><ul class="facts" id="warm-rests"></ul></details>
+      </div>
+
+      <div class="step" id="step-run" hidden>
+        <h2 tabindex="-1">Your run</h2>
+        <ul class="facts" id="run-facts"></ul>
+        <div class="run-clock" id="run-clock" hidden><span class="clock-n" id="run-time">0:00</span><span class="note">Easy enough to talk. That's the pace.</span></div>
+        <div class="choices">
+          <button class="km-btn go" type="button" id="run-start">Start my run</button>
+          <button class="km-btn soft" type="button" id="run-pause" hidden>Pause</button>
+          <button class="km-btn go" type="button" id="run-back" hidden>I'm back</button>
+        </div>
+        <form class="log-by-hand" id="log-hand">
+          <label for="run-min">Ran without the clock? Minutes:</label>
+          <input class="km-field" id="run-min" type="number" min="1" max="300" step="1" inputmode="numeric">
+          <button class="km-btn soft" type="submit">Log it</button>
+        </form>
+      </div>
+
+      <div class="step" id="step-cool" hidden>
+        <h2 tabindex="-1">Cool down</h2>
+        <pre class="log-out" id="log-out"></pre>
+        <details class="rests" id="log-rests-box" hidden><summary>Why that number</summary><ul class="facts" id="log-rests"></ul></details>
+        <p>Stretch or breathe now that you're warm:</p>
+        <div class="choices">
+          <button class="km-btn go" type="button" data-session="stretch">Stretch with me</button>
+          <button class="km-btn soft" type="button" data-session="breathe">Three slow minutes of breath</button>
+        </div>
+        <p class="note" id="cool-head"></p>
+        <ol class="phases" id="cool-phases"></ol>
+        <div class="clock" id="cool-clock" hidden><span class="clock-n" id="cool-time">0:00</span><span id="cool-now"></span></div>
+        <div class="choices">
+          <button class="km-btn soft" type="button" id="cool-skip" hidden>Next part</button>
+          <button class="km-btn soft" type="button" data-next="arrive">Done for today</button>
+        </div>
+        <details class="rests" id="cool-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="cool-rests"></ul></details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<dialog class="pack" id="pack" aria-labelledby="pack-h">
+  <div class="pack-top">
+    <h2 id="pack-h">Steady's pack</h2>
+    <button class="km-btn soft" type="button" id="pack-close">Close</button>
+  </div>
+
+  <div class="km-grid counts" aria-label="At a glance">
+    <div class="km-card count"><span class="count-n" id="n-cards">0</span><span class="count-l" id="l-cards">cards on my shelf</span></div>
+    <div class="km-card count"><span class="count-n" id="n-facts">0</span><span class="count-l">facts, each with its source</span></div>
+    <div class="km-card count"><span class="count-n" id="n-remember">0</span><span class="count-l" id="l-remember">things I remember about you</span></div>
+    <div class="km-card count"><span class="count-n" id="n-louise">0</span><span class="count-l" id="l-louise">questions for Louise</span></div>
+  </div>
+
+  <section class="km-card" aria-labelledby="know-h">
+    <h3 id="know-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-cards"/></svg>What I know</h3>
+    <p>Every card is copied from Louise's book on health and fitness. Open one to see each fact and where it came from.</p>
+    <form class="find" id="find" role="search">
+      <label class="visually-hidden" for="q">Find on my shelf</label>
+      <input class="km-field" id="q" name="q" type="search" placeholder="Try: running, stretching, sleep" autocomplete="off">
+      <button class="km-btn" type="submit">Find</button>
+    </form>
+    <p class="note" id="know-note" role="status"></p>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <section class="km-card" aria-labelledby="mem-h">
+    <h3 id="mem-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-keepsake"/></svg>What I remember</h3>
+    <p>I keep what you tell me in my keepsake box, on this computer only. Here I show how much, never what.</p>
+    <ul class="tally">
+      <li><span class="km-chip" id="m-facts">0</span> <span id="lm-facts">things you told me</span></li>
+      <li><span class="km-chip" id="m-worked">0</span> <span id="lm-worked">notes on what worked</span></li>
+      <li><span class="km-chip" id="m-lessons">0</span> <span id="lm-lessons">lessons I learned</span></li>
+    </ul>
+    <p class="note">Ask me to forget anything, any time, and it's gone.</p>
+  </section>
+
+  <section class="km-card" aria-labelledby="tools-h">
+    <h3 id="tools-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-chisel"/></svg>My tools</h3>
+    <p>Small tools I made with the toolsmith. Each reads only my cards and my memory.</p>
+    <ul class="tools" id="tools"></ul>
+  </section>
+
+  <section class="km-card" aria-labelledby="louise-h">
+    <h3 id="louise-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-lantern"/></svg>Questions for Louise</h3>
+    <p>What my cards don't cover goes to Louise as a lantern. When her book comes back, I learn it.</p>
+    <h4 class="sub">Waiting on her book</h4>
+    <ul class="lanterns" id="pending"></ul>
+    <h4 class="sub">Gaps I've noted</h4>
+    <ul class="lanterns" id="gaps"></ul>
+  </section>
+</dialog>
+
+<footer class="km-foot">
+  <div class="foot-in">
+    <span>Kindlemere, Stepping Hill.</span>
+    <span>Food goes to the Orchard. Dogs go to Lakeside Field.</span>
+  </div>
+</footer>
+<script src="/kit/kit.js"></script>
+<script src="/steady.js"></script>
+</body>
+</html>
