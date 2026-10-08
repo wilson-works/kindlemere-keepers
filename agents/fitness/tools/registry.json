@@ -1,0 +1,65 @@
+{
+  "tools": [
+    {
+      "name": "week-plan",
+      "file": "week-plan.js",
+      "purpose": "Builds one week of training from what the person told the coach (level, goal, days, age), after the screening checks.",
+      "inputs": [
+        "days",
+        "goal",
+        "level",
+        "age"
+      ],
+      "cards": [
+        "refusal-checklist.md",
+        "crisis-line.md",
+        "activity-dose.md",
+        "fitt-vp.md",
+        "strength.md",
+        "flexibility-warmup.md",
+        "running.md",
+        "special-populations.md",
+        "exercise-for-mood.md"
+      ],
+      "sha256": "9c4ed616f312326e3d10fdbc9f4e392b071371cf447deb84b23f8d6939ffff4f",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "progress-log",
+      "file": "progress-log.js",
+      "purpose": "Logs lifts and runs and says what the next step can be, using the 2 to 10 percent load rule and the 110 percent single-run rule.",
+      "inputs": [
+        "kind",
+        "exercise",
+        "load",
+        "reps",
+        "target",
+        "minutes",
+        "date"
+      ],
+      "cards": [
+        "progression.md",
+        "running.md"
+      ],
+      "sha256": "4aef122c094f3a31be075f3ebe63cb570beaf431d45b5757040a50a45b165d18",
+      "checked": "2026-10-07"
+    },
+    {
+      "name": "calm-session",
+      "file": "calm-session.js",
+      "purpose": "Builds a short warm-up, stretching or slow-breathing session, with the safety lines its cards require.",
+      "inputs": [
+        "kind",
+        "minutes"
+      ],
+      "cards": [
+        "flexibility-warmup.md",
+        "strength.md",
+        "meditation-breathwork.md",
+        "crisis-line.md"
+      ],
+      "sha256": "4edbb80edf0326b861a3c53355e1be64d427d8104ba3b91fb8c035702dbaa1b9",
+      "checked": "2026-10-07"
+    }
+  ]
+}
