@@ -36,6 +36,7 @@
     <div class="tm-dogs" id="dogs" aria-label="Your dogs"></div>
 
     <nav class="tm-actions" aria-label="What we can do">
+      <button class="tm-act" type="button" data-panel="talk" aria-pressed="false">Talk</button>
       <button class="tm-act" type="button" data-panel="train" aria-pressed="false">Train</button>
       <button class="tm-act" type="button" data-panel="show" aria-pressed="false">Show me</button>
       <button class="tm-act" type="button" data-panel="play" aria-pressed="false">Play</button>
@@ -45,6 +46,16 @@
     </nav>
 
     <div class="tm-panels">
+      <section class="tm-panel" id="panel-talk" hidden aria-labelledby="talk-h">
+        <h2 class="tm-h" id="talk-h">Talk with Tumble</h2>
+        <p class="tm-note">I answer from my books and what I remember about your dogs, and say so when my books don't cover it. Barkley and Sizzle join in when it's theirs.</p>
+        <ol class="tm-chat" id="chat" aria-live="polite"></ol>
+        <form class="tm-row" id="talk-form">
+          <label class="tm-field tm-grow">You <textarea id="talk-text" name="talk-text" rows="2" maxlength="1200" placeholder="Ask about training, play, treats or your dog's health"></textarea></label>
+          <button class="km-btn" type="submit" id="talk-send">Send</button>
+        </form>
+      </section>
+
       <section class="tm-panel" id="panel-train" hidden aria-labelledby="train-h">
         <h2 class="tm-h" id="train-h">Train</h2>
         <p class="tm-note" id="train-who"></p>
@@ -146,7 +157,7 @@
     <h2 class="tm-h" id="books-h">Tumble's books</h2>
     <button class="km-btn-quiet" type="button" id="books-close">Close</button>
   </div>
-  <p class="tm-note">To talk anything through with me, open a Claude chat in my folder, <code>agents/dog-training</code>. Barkley (outdoor play and the woods) and Sizzle (food and treats) answer there with me.</p>
+  <p class="tm-note">Talk with me under Talk, or in a Claude chat opened in my folder, <code>agents/dog-training</code>. Barkley (outdoor play and the woods) and Sizzle (food and treats) answer with me in both.</p>
   <div class="km-grid tm-rooms">
     <section class="km-card" aria-labelledby="know-h">
       <h3 class="tm-h3" id="know-h">What I know</h3>

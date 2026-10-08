@@ -51,6 +51,11 @@
     const now = performance.now();
     if (lastTalk.name === name && now - lastTalk.at < 250) return;   // the kit's event and the page's own click, once
     lastTalk = { name, at: now };
+    // after dark the keepers doze in the scene: a click on one, or the kit's event, gets the same quiet answer
+    if (/^(Tumble|Barkley|Sizzle)$/.test(name) && svg && svg.getAttribute('data-km-night') === '1') {
+      say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy');
+      return;
+    }
     if (name === 'Tumble') say(jokes.length ? pick(jokes) : 'Small steps, lots of wins.', 'Tumble', 'happy');
     else if (LINES[name]) say(pick(LINES[name]), name, 'happy');
     else if (dogs.some((d) => d.name === name)) chooseDog(name);
@@ -60,7 +65,6 @@
     if (typeof name !== 'string') return;
     const n = name.replace(/^./, (c) => c.toUpperCase());
     if (n === 'Dog') return;   // the dog answers a tap itself (fetch)
-    if (game && game.asleep() && /^(Tumble|Barkley|Sizzle)$/.test(n)) { say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy'); return; }
     talk(n);
   });
 
@@ -192,7 +196,8 @@
 
   /* ---------- the scene ---------- */
   let svg = null, game = null, extras = [];
-  const PLACES = [[-150, -34], [-290, -22]];   // where a second and third dog sit, from the first dog's spot
+  // where the person's second to sixth dogs sit, from the first dog's spot: along the bank, then on the grass
+  const PLACES = [[-150, -34], [-290, -22], [-20, -150], [130, -110], [270, -84]];
   function paintScene() {
     if (!svg) return;
     const main = svg.querySelector('#dt-dog');
@@ -582,6 +587,50 @@
       await loadDogs();
       say(`Forgotten: ${plural(r.forgot, 'thing', 'things')} about ${d.name}, gone from this computer.`);
     } catch (err) { say(err.message, 'Tumble', 'worried'); }
+  });
+
+  /* ---------- Talk: a conversation with Tumble (Claude Code, headless, under Tumble's law; routes.js) ---------- */
+  let talkSession = null;
+  // An answer as short paragraphs and lists, drawn with textContent: '**' marks dropped, '- ' lines as a list.
+  function turn(who, text) {
+    const li = el('li', `tm-turn ${who === 'You' ? 'is-you' : ''}`);
+    li.append(el('span', 'tm-who', who));
+    for (const block of String(text).split(/\n\s*\n/)) {
+      const lines = block.split('\n').map((l) => l.replace(/\*\*/g, '').trim()).filter(Boolean);
+      if (!lines.length) continue;
+      if (lines.every((l) => /^[-*] /.test(l))) {
+        const ul = el('ul');
+        for (const l of lines) ul.append(el('li', null, l.slice(2)));
+        li.append(ul);
+      } else {
+        li.append(el('p', null, lines.join(' ')));
+      }
+    }
+    $('chat').append(li);
+    li.scrollIntoView({ block: 'nearest' });
+  }
+  $('talk-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const box = $('talk-text');
+    const text = box.value.trim();
+    if (!text) return;
+    turn('You', text);
+    box.value = '';
+    $('talk-send').disabled = true;
+    say('Let me look in my books…', 'Tumble', 'thinking');
+    try {
+      const r = await api('/api/talk', talkSession ? { text, session: talkSession } : { text });
+      if (r.session) talkSession = r.session;
+      turn('Tumble', r.text);
+      const first = String(r.text).split(/(?<=[.!?])\s/)[0].replace(/\*\*/g, '');
+      const who = /\bBarkley\b/.test(first) ? 'Barkley' : /\bSizzle\b/.test(first) ? 'Sizzle' : 'Tumble';
+      say(r.ok ? first : r.text, who, r.ok ? 'happy' : 'oh');
+    } catch (err) {
+      say(err.message, 'Tumble', 'worried');
+    } finally {
+      $('talk-send').disabled = false;
+      box.focus();
+    }
   });
 
   /* ---------- the drawer: Tumble's books ---------- */

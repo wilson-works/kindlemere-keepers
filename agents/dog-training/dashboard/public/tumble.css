@@ -120,3 +120,12 @@ svg.tm-awake .tm-night-dogs { display: none !important; }
 }
 [id$="km-keeper-dog-training"]:focus { outline: none; }
 .tm-view:has([id$="km-keeper-dog-training"]:focus-visible) { outline: 3px solid var(--km-ink); outline-offset: -3px; }
+
+/* Talk: the conversation, newest at the foot. */
+.tm-chat { list-style: none; margin: 0 0 var(--km-space-3); padding: 0; display: grid; gap: var(--km-space-2); max-height: 420px; overflow-y: auto; }
+.tm-chat:empty { display: none; }
+.tm-turn { border-radius: var(--km-radius); padding: var(--km-space-2) var(--km-space-3); background: var(--a-bg); }
+.tm-turn.is-you { background: var(--a-sky); justify-self: end; max-width: 85%; }
+.tm-turn p { margin: 0 0 var(--km-space-1); }
+.tm-turn ul { margin: 0 0 var(--km-space-1); padding-left: 1.2em; }
+.tm-turn .tm-who { display: block; }

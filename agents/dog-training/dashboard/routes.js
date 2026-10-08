@@ -15,11 +15,14 @@
  *   POST /api/plan {dog}                       the training-plan tool, for a remembered dog
  *   POST /api/log {dog, skill, reps, hits, minutes}   the session-log tool
  *   GET  /api/faces                            which of the kit's faces exist for Tumble, Barkley and Sizzle (file names)
+ *   POST /api/talk {text, session?}            a turn of conversation with Tumble: Claude Code, headless, in this folder,
+ *                                              under Tumble's law (CLAUDE.md), restricted, no web, no MCP, the kit's
+ *                                              node commands and Tumble's registered tools only; the words go on stdin
  */
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const memory = require('../../../kit/engine/memory');
 
 const KEY = 'dog-training';
@@ -35,6 +38,19 @@ const LOOK = {
 const PLAY_ID = /^[a-z0-9-]{1,40}$/;
 
 const bad = (message) => Object.assign(new Error(message), { status: 400 });
+
+// Talking with Tumble. The CLI is found where npm puts it on Windows, or on the PATH; TUMBLE_CLAUDE names another.
+// TUMBLE_CHAT_MODEL picks the model when the installed CLI's default cannot run.
+const CLAUDE = process.env.TUMBLE_CLAUDE
+  || (process.platform === 'win32' && process.env.APPDATA
+    ? path.join(process.env.APPDATA, 'npm', 'node_modules', '@anthropic-ai', 'claude-code', 'bin', 'claude.exe') : 'claude');
+const TALK_TOOLS = ['Read', 'Grep', 'Glob', 'Bash', 'Task'];
+const TALK_ALLOWED = ['Read', 'Grep', 'Glob', 'Task',
+  'Bash(node ../../kit/engine/shelf.js:*)', 'Bash(node ../../kit/engine/memory.js:*)', 'Bash(node ../../kit/engine/louise.js:*)',
+  'Bash(node ../../kit/engine/learn.js:*)', 'Bash(node tools/training-plan.js:*)', 'Bash(node tools/session-log.js:*)',
+  'Bash(node tools/trust-ladder.js:*)'];
+const SESSION_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+let talking = false;
 const clean = (v, max) => String(v === undefined || v === null ? '' : v).replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 const nameOf = (v) => {
   const n = clean(v, 24);
@@ -96,6 +112,49 @@ module.exports = function routes(agentDir) {
       { cwd: agentDir, encoding: 'utf8', timeout: 15000, windowsHide: true });
     return { ok: r.status === 0, text: String(r.stdout || '').trim() || 'The tool said nothing.' };
   }
+  // One turn: the person's words on stdin (never in the command line), the answer read from the CLI's JSON.
+  // Restricted mode reads no project files on its own, so Tumble's law (CLAUDE.md) goes in as the system prompt's
+  // addition and Barkley and Sizzle go in from their own files in .claude/agents.
+  const sidekicks = {};
+  for (const f of ['barkley.md', 'sizzle.md']) {
+    let src = '';
+    try { src = fs.readFileSync(path.join(agentDir, '.claude', 'agents', f), 'utf8'); } catch (_) { continue; }
+    const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(src);
+    if (!m) continue;
+    const field = (k) => { const x = new RegExp(`^${k}:\\s*(.*)$`, 'm').exec(m[1]); return x ? x[1].trim() : ''; };
+    if (!field('name') || !field('description')) continue;
+    sidekicks[field('name')] = { description: field('description'), prompt: m[2].trim(), tools: field('tools').split(/\s*,\s*/).filter(Boolean) };
+  }
+  function converse(text, session) {
+    const args = ['-p', '--restricted', '--strict-mcp-config',
+      '--settings', path.join(agentDir, '.claude', 'settings.json'), '--add-dir', path.join(agentDir, '..', '..', 'kit'),
+      '--append-system-prompt-file', path.join(agentDir, 'CLAUDE.md'),
+      '--tools', TALK_TOOLS.join(','), '--allowedTools', ...TALK_ALLOWED, '--disallowedTools', 'WebSearch', 'WebFetch',
+      '--output-format', 'json'];
+    if (Object.keys(sidekicks).length) args.push('--agents', JSON.stringify(sidekicks));
+    if (process.env.TUMBLE_CHAT_MODEL) args.push('--model', process.env.TUMBLE_CHAT_MODEL);
+    if (session) args.push('--resume', session);
+    return new Promise((resolve) => {
+      let out = '';
+      let child;
+      try { child = spawn(CLAUDE, args, { cwd: agentDir, windowsHide: true, stdio: ['pipe', 'pipe', 'ignore'] }); } catch (_) {
+        resolve({ ok: false, text: 'I can\'t start a conversation on this computer. Open a Claude chat in my folder instead.' });
+        return;
+      }
+      const timer = setTimeout(() => child.kill(), 180000);
+      child.on('error', () => { clearTimeout(timer); resolve({ ok: false, text: 'I can\'t start a conversation on this computer. Open a Claude chat in my folder instead.' }); });
+      child.stdout.on('data', (d) => { out += d; });
+      child.on('close', () => {
+        clearTimeout(timer);
+        let r = null;
+        try { r = JSON.parse(out); } catch (_) { r = null; }
+        if (!r || typeof r.result !== 'string' || r.is_error) resolve({ ok: false, text: 'I lost my words just then. Try me again.' });
+        else resolve({ ok: true, text: r.result.trim(), session: SESSION_RE.test(String(r.session_id || '')) ? r.session_id : null });
+      });
+      child.stdin.end(text);
+    });
+  }
+
   const known = (v) => {
     const d = find(nameOf(v));
     if (!d) throw bad('I don\'t remember that dog yet. Add it under My dog first.');
@@ -171,6 +230,16 @@ module.exports = function routes(agentDir) {
         if ((e.about || '').toLowerCase().startsWith(`dog:${d.name.toLowerCase()}:`) && memory.forget(KEY, e.id)) n += 1;
       }
       return { forgot: n };
+    },
+
+    'POST /api/talk': async ({ body }) => {
+      const text = String(body.text || '').replace(/[\u0000-\u0008\u000b-\u001f\u007f]+/g, ' ').trim().slice(0, 1200);
+      if (!text) throw bad('Say something to me first.');
+      const session = body.session ? String(body.session) : null;
+      if (session && !SESSION_RE.test(session)) throw bad('That conversation is not one I know.');
+      if (talking) throw Object.assign(new Error('I\'m still answering the last one. One moment.'), { status: 429 });
+      talking = true;
+      try { return await converse(text, session); } finally { talking = false; }
     },
 
     'POST /api/plan': ({ body }) => tool('training-plan', ['--dog', known(body.dog).name]),
