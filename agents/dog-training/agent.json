@@ -2,7 +2,7 @@
   "key": "dog-training",
   "name": "Tumble",
   "title": "The Dog Trainer",
-  "line": "Keeper of Whistle Meadow. Coaches you and your dog with rewards, from first puppy steps to the city test, and says plainly when it's a job for a vet.",
+  "line": "Keeper of Lakeside Field. Coaches you and your dog with rewards, from first puppy steps to the city test, and says plainly when it's a job for a vet.",
   "status": "built",
   "door": {
     "local": "http://127.0.0.1:7573/",
@@ -20,7 +20,7 @@
     "dog training",
     "dogs",
     "puppy",
-    "whistle meadow"
+    "lakeside field"
   ],
   "brand": {
     "bg": "#F3F8DF",
@@ -31,11 +31,11 @@
     "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
     "mark": "mark.svg"
   },
-  "art": "art.svg",
+  "art": "mark.svg",
   "jokes": [
     "Come in. Mind the hoops. The dogs set them up themselves.",
     "Treats in one pocket, sources in the other. What's your dog's name?",
-    "My whistle plays one note. The dogs say that's plenty.",
+    "My pouch holds one kind of treat. The dogs say that's plenty.",
     "Tell me about the dog in front of you, not the breed on the paper.",
     "It's always late afternoon here. Best light for a walk.",
     "Sit. Stay. Good. Now, how can I help?",
