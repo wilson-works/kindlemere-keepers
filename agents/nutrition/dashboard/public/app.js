@@ -30,18 +30,20 @@
     'dog-training': ['Tumble', 'Lakeside Field'],
     louise: ['Louise', 'the Librarian\'s house'],
   };
-  // Avo's face beside her words, in the mood the kit drew (kit/art/keepers/nutrition-<mood>.svg). Summer and Spud
-  // speak in words only until the kit draws them.
-  const MOODS = { happy: 'Avo, smiling', thinking: 'Avo, thinking', oh: 'Avo, surprised', worried: 'Avo, worried', sleepy: 'Avo, sleepy' };
+  // The speaker's face beside the words, in the mood the kit drew (kit/art/keepers/<figure>-<mood>.svg): Avo, Summer
+  // or Spud. A drawing the kit doesn't have yet leaves the words on their own.
+  const FIGURE = { Avo: 'nutrition', Summer: 'nutrition-summer', Spud: 'nutrition-spud' };
+  const MOODS = { happy: 'smiling', thinking: 'thinking', oh: 'surprised', worried: 'worried', sleepy: 'sleepy' };
   const face = $('face');
-  face.addEventListener('error', () => { face.hidden = true; face.dataset.broken = '1'; });
-  face.addEventListener('load', () => { if (!face.dataset.who) face.hidden = false; });
+  const missing = new Set();
+  face.addEventListener('error', () => { missing.add(face.getAttribute('src')); face.hidden = true; });
+  face.addEventListener('load', () => { face.hidden = false; });
   function mood(name, who) {
-    face.dataset.who = who && who !== 'Avo' ? who : '';
-    if (face.dataset.who || face.dataset.broken || !MOODS[name]) { face.hidden = true; return; }
-    const src = `/kit/art/keepers/nutrition-${name}.svg`;
-    if (!face.src.endsWith(src)) face.src = src;
-    face.alt = MOODS[name];
+    const speaker = who || 'Avo';
+    const src = FIGURE[speaker] && MOODS[name] ? `/kit/art/keepers/${FIGURE[speaker]}-${name}.svg` : '';
+    if (!src || missing.has(src)) { face.hidden = true; return; }
+    face.alt = `${speaker}, ${MOODS[name]}`;
+    if (face.getAttribute('src') !== src) { face.hidden = true; face.src = src; return; }
     face.hidden = !face.complete || !face.naturalWidth;
   }
   // Whoever is talking is named in the bubble; Avo's own lines carry no name.
