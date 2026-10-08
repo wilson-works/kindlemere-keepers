@@ -9,6 +9,8 @@
  *   GET  /api/week?k=<link>           one week's full plan, while its link is open
  *   POST /api/meal-check {week, day, slot, mark}   mark is eaten, swapped or clear
  *   POST /api/week-link {week}        a new link for a kept week (open 7 days)
+ *   GET  /api/sources                 the titles behind each footnote number, from the sources.md of each of
+ *                                     Louise's books in knowledge/books (read only)
  */
 
 const fs = require('fs');
@@ -44,6 +46,30 @@ module.exports = function routes(agentDir) {
   };
   const openLink = (links, id, today) => links.filter((l) => l.week === id && l.expires >= today).pop() || null;
 
+  // A prep day's cooking: every prep meal from this prep day up to the next one, as portions and batches.
+  // The week keeps its prep days as words ("Sunday before", "Wednesday"); "Sunday before" is index -1.
+  const prepIndex = (w) => (w.prep_days || []).map((n) => (n === 'Sunday before' ? -1 : DAYS.findIndex((k) => (w.days.find((d) => d.key === k) || {}).name === n)))
+    .filter((i) => i >= -1).sort((a, b) => a - b);
+  function prepFor(w, idx) {
+    const at = prepIndex(w);
+    if (!at.includes(idx)) return null;
+    const next = at.find((i) => i > idx);
+    const until = next == null ? 7 : next;
+    const count = {};
+    w.days.forEach((d, i) => {
+      if (i < Math.max(idx, 0) || i >= until) return;
+      for (const s of d.slots) if (s.kind === 'prep' && s.recipe) count[s.recipe] = (count[s.recipe] || 0) + 1;
+    });
+    const cook = Object.entries(count).map(([id, meals]) => {
+      const r = w.recipes.find((x) => x.id === id) || {};
+      const portions = meals * (w.household || 1);
+      return { id, name: r.name, portions, batches: Math.ceil(portions / (r.serves || 1)), ingredients: r.ingredients || [], steps: r.steps || [] };
+    });
+    if (!cook.length) return null;
+    const lastDay = w.days[until - 1];
+    return { week: w.id, through: lastDay ? lastDay.name : '', cook, keep: w.safety ? w.safety.keep : '', flags: w.flags || [] };
+  }
+
   return {
     'GET /api/table': () => {
       const now = new Date();
@@ -65,9 +91,17 @@ module.exports = function routes(agentDir) {
           days: w.days.map((d) => ({ key: d.key, name: d.name, date: d.date, slots: d.slots })),
         };
       };
+      const todayMeals = current ? (current.days.find((d) => d.key === dayKey) || { slots: [] }).slots : [];
+      const todayRecipes = {};
+      for (const s of todayMeals) {
+        const r = s.recipe && current.recipes.find((x) => x.id === s.recipe);
+        if (r) todayRecipes[r.id] = { name: r.name, serves: r.serves, minutes: r.minutes, ingredients: r.ingredients, steps: r.steps, source: r.source };
+      }
+      // Today's prep: this week's prep day, or on a Sunday the prep for the week that starts tomorrow.
+      const next = week(nextId);
+      const prep = (current && prepFor(current, DAYS.indexOf(dayKey))) || (dayKey === 'sun' && next ? prepFor(next, -1) : null);
       return {
-        today, dayKey,
-        todayMeals: current ? (current.days.find((d) => d.key === dayKey) || { slots: [] }).slots : [],
+        today, dayKey, todayMeals, todayRecipes, prep,
         checks: current ? checks(thisId) : { done: {}, swapped: {} },
         thisWeek: summary(thisId),
         nextWeek: summary(nextId),
@@ -77,6 +111,24 @@ module.exports = function routes(agentDir) {
           return { id, link: l ? l.k : null, expires: l ? l.expires : null, meals: w ? w.days.reduce((n, d) => n + d.slots.length, 0) : 0 };
         }),
       };
+    },
+
+    'GET /api/sources': () => {
+      const root = path.join(agentDir, 'knowledge', 'books');
+      const books = {};
+      let names = [];
+      try { names = fs.readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name); } catch (_) { names = []; }
+      for (const b of names) {
+        let text = '';
+        try { text = fs.readFileSync(path.join(root, b, 'sources.md'), 'utf8'); } catch (_) { continue; }
+        const notes = {};
+        for (const line of text.split(/\r?\n/)) {
+          const m = /^\[\^(\d+)\]:\s*\[(.*?)\]\(/.exec(line);
+          if (m) notes[m[1]] = m[2].trim();
+        }
+        books[b] = notes;
+      }
+      return { books };
     },
 
     'GET /api/week': (ctx) => {

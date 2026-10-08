@@ -25,20 +25,26 @@
   <div class="stage">
     <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="The foot of Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady waiting at the bottom of the steps" width="1600" height="900">
 
-    <p class="bubble" id="say" aria-live="polite">Come on up. The steps are wide and nobody's timing you.</p>
+    <div class="bubble" id="bubble">
+      <span class="face" id="face" aria-hidden="true"><img id="face-img" src="/kit/art/keepers/fitness-happy.svg" alt="" width="244" height="217"></span>
+      <div class="said">
+        <span class="who" id="who">Steady</span>
+        <p id="say" aria-live="polite">Come on up. The steps are wide and nobody's timing you.</p>
+      </div>
+    </div>
 
     <section class="trail" aria-labelledby="trail-h">
-      <ol class="stones" aria-label="Getting ready to run">
-        <li data-for="check">Check in</li>
-        <li data-for="warm">Warm up</li>
-        <li data-for="run">Run</li>
-        <li data-for="cool">Cool down</li>
-      </ol>
+      <ol class="stones" id="stones" aria-label="Today's steps" hidden></ol>
 
       <div class="step" id="step-arrive">
         <h1 id="trail-h" tabindex="-1">Stepping Hill</h1>
-        <p class="lead">Getting ready to go run? I'll be right here, one step at a time. A quick check in, a warm-up, then your run. After, we cool down and write it in your log.</p>
-        <button class="km-btn go" type="button" data-next="check">Let's get ready</button>
+        <p class="lead">What are we doing today? Pick one and I'll be right here, one step at a time.</p>
+        <div class="paths">
+          <button class="km-btn go" type="button" data-path="run">Go for a run</button>
+          <button class="km-btn go" type="button" data-path="workout">A quick workout</button>
+          <button class="km-btn soft" type="button" data-path="calm">Stretch or breathe</button>
+          <button class="km-btn soft" type="button" data-path="plan">Plan my week</button>
+        </div>
         <p class="law">Everything I tell you comes from my cards, with its source. What I don't know, I send to Louise.</p>
       </div>
 
@@ -46,13 +52,13 @@
         <h2 tabindex="-1">Before we go</h2>
         <p>Do you have any of these today? They're from my safety card.</p>
         <div class="choices">
-          <button class="km-btn go" type="button" data-next="warm">None of these. I'm good.</button>
+          <button class="km-btn go" type="button" data-next="next">None of these. I'm good.</button>
           <button class="km-btn soft" type="button" id="sore">Just sore from last time</button>
           <button class="km-btn soft" type="button" id="flag-yes">Yes, one of these</button>
         </div>
         <div id="check-more" hidden>
           <ul class="facts said" id="check-facts"></ul>
-          <button class="km-btn go" type="button" id="check-on" data-next="warm">Go on to the warm-up</button>
+          <button class="km-btn go" type="button" id="check-on" data-next="next">Go on</button>
         </div>
         <ul class="facts flags" id="flags"></ul>
       </div>
@@ -72,6 +78,13 @@
 
       <div class="step" id="step-run" hidden>
         <h2 tabindex="-1">Your run</h2>
+        <p>What's it like out?</p>
+        <div class="choices" id="sky">
+          <button class="km-btn soft" type="button" data-sky="fine" aria-pressed="false">Fine</button>
+          <button class="km-btn soft" type="button" data-sky="hot" aria-pressed="false">Hot</button>
+          <button class="km-btn soft" type="button" data-sky="weather" aria-pressed="false">Cold, wet or windy</button>
+        </div>
+        <p class="note" id="sky-note"></p>
         <ul class="facts" id="run-facts"></ul>
         <div class="run-clock" id="run-clock" hidden><span class="clock-n" id="run-time">0:00</span><span class="note">Easy enough to talk. That's the pace.</span></div>
         <div class="choices">
@@ -86,8 +99,57 @@
         </form>
       </div>
 
+      <div class="step" id="step-workout" hidden>
+        <h2 tabindex="-1">Quick workout</h2>
+        <p>What do you have with you?</p>
+        <div class="choices" id="gear">
+          <button class="km-btn soft" type="button" data-gear="bodyweight" aria-pressed="false">Just me</button>
+          <button class="km-btn soft" type="button" data-gear="bands" aria-pressed="false">Bands</button>
+          <button class="km-btn soft" type="button" data-gear="dumbbells" aria-pressed="false">Dumbbells</button>
+          <button class="km-btn soft" type="button" data-gear="machines" aria-pressed="false">Gym machines</button>
+        </div>
+        <p class="note" id="workout-head"></p>
+        <div class="clock" id="workout-clock" hidden><span class="clock-n" id="workout-time">0:00</span><span id="workout-now"></span></div>
+        <div class="choices" id="workout-go" hidden>
+          <button class="km-btn go" type="button" id="workout-start">Start the warm-up</button>
+          <button class="km-btn soft" type="button" id="workout-skip" hidden>Next part</button>
+          <button class="km-btn soft" type="button" data-next="next">Done. Cool me down.</button>
+        </div>
+        <ol class="phases" id="workout-phases"></ol>
+        <details class="rests" id="workout-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="workout-rests"></ul></details>
+      </div>
+
+      <div class="step" id="step-plan" hidden>
+        <h2 tabindex="-1">Plan my week</h2>
+        <form class="plan-form" id="plan-form">
+          <label>Days a week
+            <select class="km-field" id="p-days"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+          </label>
+          <label>What it's for
+            <select class="km-field" id="p-goal">
+              <option value="general fitness">Feeling fitter all round</option>
+              <option value="run a 5k">Running further</option>
+              <option value="build muscle">Getting stronger</option>
+              <option value="calmer mind">A calmer mind</option>
+            </select>
+          </label>
+          <label>Where you're starting
+            <select class="km-field" id="p-level">
+              <option value="new or coming back">New or returning</option>
+              <option value="already active">Already active</option>
+            </select>
+          </label>
+          <label>Age, if you like
+            <input class="km-field" id="p-age" type="number" min="1" max="120" step="1" inputmode="numeric">
+          </label>
+          <button class="km-btn go" type="submit">Lay out my week</button>
+        </form>
+        <div class="plan-out" id="plan-out"></div>
+        <details class="rests" id="plan-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="plan-rests"></ul></details>
+      </div>
+
       <div class="step" id="step-cool" hidden>
-        <h2 tabindex="-1">Cool down</h2>
+        <h2 tabindex="-1" id="cool-h">Cool down</h2>
         <pre class="log-out" id="log-out"></pre>
         <details class="rests" id="log-rests-box" hidden><summary>Why that number</summary><ul class="facts" id="log-rests"></ul></details>
         <p>Stretch or breathe now that you're warm:</p>
@@ -104,6 +166,8 @@
         </div>
         <details class="rests" id="cool-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="cool-rests"></ul></details>
       </div>
+
+      <button class="km-btn-quiet start-over" id="start-over" type="button" data-next="arrive" hidden>Back to the foot of the hill</button>
     </section>
   </div>
 </main>

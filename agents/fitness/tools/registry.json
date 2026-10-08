@@ -60,6 +60,22 @@
       ],
       "sha256": "4edbb80edf0326b861a3c53355e1be64d427d8104ba3b91fb8c035702dbaa1b9",
       "checked": "2026-10-07"
+    },
+    {
+      "name": "quick-workout",
+      "file": "quick-workout.js",
+      "purpose": "Builds a whole-body strength workout for right now from the six-pattern template, with any equipment, warm-up and cool-down included.",
+      "inputs": [
+        "equipment"
+      ],
+      "cards": [
+        "strength.md",
+        "flexibility-warmup.md",
+        "refusal-checklist.md",
+        "crisis-line.md"
+      ],
+      "sha256": "e8132e390ca646f666e55bd4fd1cfc3044827b843841a71a7fc6beb76510ce5c",
+      "checked": "2026-10-07"
     }
   ]
 }

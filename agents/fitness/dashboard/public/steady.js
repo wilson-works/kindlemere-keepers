@@ -13,21 +13,27 @@
   };
   const plain = (t) => String(t || '').replace(/\s*@\S+/g, '').replace(/\s*\[\^\d+\]/g, '').trim();
   const say = (id, n, one, many) => { $(id).textContent = n === 1 ? one : many; };
-  const speak = (text) => { $('say').textContent = text; };
-  const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  // Steady's mood shows in the face and the pose. The figures come from the kit (kit/art/keepers/fitness-<mood>.svg);
-  // until the kit has exported them the page carries no figure (the owner: "do not ship a figure of your own"), so mood() does nothing.
-  const MOODS = {
-    happy: "Steady, smiling: three stacked granite stones with bright eyes and a pebble sash, on the grass of Stepping Hill",
-    thinking: "Steady, thinking: head tilted, eyes up, little pebbles of thought rising",
-    oh: "Steady, surprised: a little hop, eyes wide, mouth round in an oh",
-    worried: "Steady, worried: leaning back, brows tipped up, a wobbly mouth",
+  // Who is speaking, with their face in the bubble from the kit's figures (kit/art/keepers/<figure>-<mood>.svg):
+  // Steady in her mood, or one of her clouds. The tail points at whoever is talking: the kit puts Puff on her left
+  // and Huff on her right in the hill view.
+  const FIGURES = { Steady: 'fitness', Puff: 'fitness-puff', Huff: 'fitness-huff' };
+  const MOODS = ['happy', 'thinking', 'oh', 'worried', 'sleepy'];
+  let feeling = 'happy';
+  const speak = (text, who = 'Steady', how = 'happy') => {
+    const steady = who === 'Steady';
+    $('who').textContent = who;
+    $('say').textContent = text;
+    $('face').classList.toggle('cloud', !steady);
+    $('bubble').classList.toggle('puff', who === 'Puff');
+    $('bubble').classList.toggle('huff', who === 'Huff');
+    $('face-img').src = `/kit/art/keepers/${FIGURES[who]}-${steady ? feeling : how}.svg`;
   };
+  const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  // Steady's mood shows in her face whenever she is the one speaking.
   function mood(name) {
-    const img = $("figure");
-    if (!img || !MOODS[name]) return;
-    img.src = "/kit/art/keepers/fitness-" + name + ".svg";
-    img.alt = MOODS[name];
+    if (!MOODS.includes(name)) return;
+    feeling = name;
+    if ($('who').textContent === 'Steady') $('face-img').src = `/kit/art/keepers/fitness-${name}.svg`;
   }
   const day = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-CA'); };
 
@@ -114,40 +120,72 @@
   const RUN = [['intensity.md', 'Talk test (CDC)'],
     ['running.md', 'Progression rule: lengthen run segments']];
 
-  const ORDER = ['check', 'warm', 'run', 'cool'];
+  // What the person came to do today, and the steps up the hill for each.
+  const PATHS = {
+    run: [['check', 'Check in'], ['warm', 'Warm up'], ['run', 'Run'], ['cool', 'Cool down']],
+    workout: [['check', 'Check in'], ['workout', 'Workout'], ['cool', 'Cool down']],
+    calm: [['cool', 'Stretch or breathe']],
+    plan: [['plan', 'Plan my week']],
+  };
   const LINES = {
     check: "Before we go, a quick check in. Honest answers keep you steady.",
     warm: "Let's wake everything up. Easy first, then a little more.",
     run: "How long today? Easy enough to talk the whole way. I'll keep the time.",
-    cool: "Welcome back. That's in your log. Now let's bring you down gently.",
+    workout: "Strength today. Tell me what you've got and I'll set it out move by move.",
+    plan: "Let's plan your week. Four answers and I'll lay it out day by day.",
+  };
+  const COOL = {
+    run: ["Welcome back. That's in your log. Now let's bring you down gently.", 'Cool down'],
+    workout: ["Nice work. Now let's bring you down gently.", 'Cool down'],
+    calm: ["Stretch or breathe. Pick one and I'll keep the time.", 'Stretch or breathe'],
   };
   let jokes = [];
+  let path = 'run';
+  let current = 'arrive';
+  const ids = () => PATHS[path].map((x) => x[0]);
+  const after = (step) => ids()[ids().indexOf(step) + 1] || 'arrive';
 
   function go(step, focus = true) {
+    current = step;
     for (const s of document.querySelectorAll('.step')) s.hidden = s.id !== `step-${step}`;
-    const at = ORDER.indexOf(step);
-    for (const li of document.querySelectorAll('.stones li')) {
-      const i = ORDER.indexOf(li.dataset.for);
-      li.classList.toggle('now', i === at);
-      li.classList.toggle('done', at > -1 && i < at);
-      if (i === at) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
-    }
+    const ol = $('stones');
+    ol.textContent = '';
+    ol.hidden = step === 'arrive' || PATHS[path].length < 2;
+    const at = ids().indexOf(step);
+    PATHS[path].forEach(([id, name], i) => {
+      const li = el('li', null, name);
+      if (i === at) { li.className = 'now'; li.setAttribute('aria-current', 'step'); } else if (i < at) li.className = 'done';
+      ol.append(li);
+    });
+    $('start-over').hidden = step === 'arrive';
+    mood('happy');
     if (step === 'arrive') speak(jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Come on up.');
+    else if (step === 'cool') { speak(COOL[path][0]); $('cool-h').textContent = COOL[path][1]; }
     else speak(LINES[step]);
     if (step === 'check') { facts('flags', FLAGS).catch((err) => speak(err.message)); showFlags(true); $('check-more').hidden = true; }
     if (step === 'warm') loadSession('warmup', 'warm').catch((err) => speak(err.message));
-    if (step === 'run') facts('run-facts', RUN).catch((err) => speak(err.message));
+    if (step === 'run') {
+      facts('run-facts', RUN).catch((err) => speak(err.message));
+      $('sky-note').textContent = '';
+      for (const x of $('sky').querySelectorAll('[data-sky]')) x.setAttribute('aria-pressed', 'false');
+    }
     const h = document.querySelector(`#step-${step} [tabindex="-1"]`);
     if (h && focus) h.focus();
   }
 
+  for (const b of document.querySelectorAll('[data-path]')) {
+    b.addEventListener('click', () => { path = b.dataset.path; go(ids()[0]); });
+  }
+
   $('sore').addEventListener('click', () => {
+    mood('thinking');
     speak("Sore from last time? Here's what my cards say, and the one kind of sore that isn't mine to judge.");
     facts('check-facts', SORE).catch((err) => speak(err.message));
     $('check-on').hidden = false;
     answered();
   });
   $('flag-yes').addEventListener('click', () => {
+    mood('worried');
     speak("Then we don't run today. That one's for a clinician, not me. I'll be here when you're cleared.");
     facts('check-facts', [['screening-red-flags.md', 'The coach cannot do clinical screening']]).catch((err) => speak(err.message));
     $('check-on').hidden = true;
@@ -167,7 +205,7 @@
   /* A session from Steady's calm-session tool, read into parts. Timed parts run on the clock; the rest are notes. */
   function parse(text) {
     const lines = text.split(/\r?\n/);
-    const cut = lines.indexOf('It rests on these cards:');
+    const cut = lines.findIndex((l) => /^(It rests on these cards|What my cards say):$/.test(l));
     const body = cut < 0 ? lines : lines.slice(0, cut);
     const parts = body.map((l) => /^\d+\.\s+(.*)$/.exec(l)).filter(Boolean).map((m) => {
       const t = m[1];
@@ -175,14 +213,22 @@
       const sec = /about (\d+) seconds/.exec(t);
       const secs = min ? Number(min[1] || min[2]) * 60 : sec ? Number(sec[1]) : 0;
       const colon = t.indexOf(': ');
-      return { label: colon > 0 && colon < 40 ? t.slice(0, colon).replace(/\s*\(\d+ min\)/, '') : '', text: colon > 0 && colon < 40 ? t.slice(colon + 2) : t, secs };
+      const named = colon > 0 && colon < 50;
+      return { label: named ? t.slice(0, colon).replace(/\s*\(\d+ min\)/, '') : '', text: named ? t.slice(colon + 2) : t, secs };
     });
     const rests = cut < 0 ? [] : lines.slice(cut + 1).map((l) => /^- (.*?)\s+\(([^;()]+);\s*([^()]+)\)$/.exec(l)).filter(Boolean)
       .map((m) => ({ text: m[1], file: m[2].trim() }));
-    return { head: body[0] || '', parts, rests };
+    return { head: body[0] || '', lines: body, parts, rests };
   }
 
   const timers = {};
+  // While a clock runs (a warm-up, a workout, a run), Steady stays home: the kit's mingling waits
+  // (window.kindlemere.hold, kit/kindlemere.js).
+  let running = false;
+  function busy() {
+    const on = running || Object.values(timers).some(Boolean);
+    if (window.kindlemere && typeof window.kindlemere.hold === 'function') window.kindlemere.hold(on);
+  }
   function render(prefix, s) {
     $(`${prefix}-head`).textContent = s.head;
     const ol = $(`${prefix}-phases`);
@@ -197,7 +243,7 @@
   }
 
   // Runs the timed parts one after another; Steady says each part as it starts.
-  function runParts(prefix, s, done) {
+  function runParts(prefix, s, done, who = 'Steady') {
     stop(prefix);
     const items = [...$(`${prefix}-phases`).children];
     const queue = s.parts.map((p, i) => ({ p, li: items[i] })).filter((x) => x.p.secs);
@@ -213,7 +259,7 @@
       left = p.secs;
       $(`${prefix}-now`).textContent = p.label || 'Now';
       $(`${prefix}-time`).textContent = clock(left);
-      speak(p.label ? `${p.label}: ${p.text}` : p.text);
+      speak(p.label ? `${p.label}: ${p.text}` : p.text, who);
     };
     $(`${prefix}-clock`).hidden = false;
     $(`${prefix}-skip`).hidden = false;
@@ -224,10 +270,12 @@
       $(`${prefix}-time`).textContent = clock(Math.max(left, 0));
       if (left <= 0) next();
     }, 1000);
+    busy();
   }
   function stop(prefix) {
     clearInterval(timers[prefix]);
     timers[prefix] = null;
+    busy();
     const skip = $(`${prefix}-skip`);
     if (skip) skip.hidden = true;
   }
@@ -235,11 +283,13 @@
   const sessions = {};
   async function loadSession(kind, prefix) {
     $(`${prefix}-head`).textContent = 'Getting your session from my tool.';
+    mood('thinking');
     await ready;
     const r = await kit.api('/api/session', { method: 'POST', body: { kind, minutes: kind === 'breathe' ? 3 : undefined } });
     if (!r.ok) { $(`${prefix}-head`).textContent = r.text; return null; }
     sessions[prefix] = parse(r.text);
     render(prefix, sessions[prefix]);
+    mood('happy');
     return sessions[prefix];
   }
 
@@ -247,6 +297,21 @@
     if (!sessions.warm) return;
     $('warm-start').hidden = true;
     runParts('warm', sessions.warm, () => speak("That's you warm. Ready when you are."));
+  });
+
+  /* What it's like out. Running in the heat is Huff's and running in the weather is Puff's. The shelf has nothing on
+     either yet: it is a gap for Louise, so the cloud says so and the run goes on the talk test. */
+  $('sky').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-sky]');
+    if (!b) return;
+    for (const x of $('sky').querySelectorAll('[data-sky]')) x.setAttribute('aria-pressed', String(x === b));
+    if (b.dataset.sky === 'fine') { $('sky-note').textContent = ''; speak("Good day for it. Easy enough to talk, and I'll keep the time."); return; }
+    const hot = b.dataset.sky === 'hot';
+    const { gaps } = await kit.api('/api/louise').catch(() => ({ gaps: [] }));
+    const gap = gaps.find((g) => /heat|cold|wind/i.test(g.topic));
+    $('sky-note').textContent = gap ? `On Steady's list for Louise: ${gap.topic}.` : '';
+    if (hot) speak("Heat's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Huff', 'thinking');
+    else speak("Weather's my patch, but our shelf has nothing on it yet. Louise has the question.", 'Puff', 'thinking');
   });
 
   /* The run clock counts up. Steady logs the whole minutes with her progress-log tool. */
@@ -262,6 +327,8 @@
     $('run-back').hidden = false;
     speak("Off you go. You can talk but not sing: that's the pace. I've got the time.");
     runTimer = setInterval(tick, 1000);
+    running = true;
+    busy();
   });
   $('run-pause').addEventListener('click', () => {
     if (runTimer) { clearInterval(runTimer); runTimer = null; $('run-pause').textContent = 'Keep going'; speak("Paused. Catch your breath. I'll wait."); }
@@ -270,11 +337,12 @@
   async function logRun(minutes) {
     clearInterval(runTimer);
     runTimer = null;
+    running = false;
+    busy();
     const r = await kit.api('/api/log-run', { method: 'POST', body: { minutes } });
     if (!r.ok) { speak(r.text); return; }
     const s = parse(r.text);
-    const cut = r.text.indexOf('It rests on these cards:');
-    $('log-out').textContent = (cut < 0 ? r.text : r.text.slice(0, cut)).trim();
+    $('log-out').textContent = s.lines.join('\n').trim();
     cite($('log-rests'), s.rests.map((x) => factByText(x.file, x.text)));
     $('log-rests-box').hidden = !s.rests.length;
     for (const b of ['run-start', 'run-pause', 'run-back']) $(b).hidden = b !== 'run-start';
@@ -289,6 +357,100 @@
     const n = Number($('run-min').value);
     if (!Number.isInteger(n) || n < 1 || n > 300) { speak('Tell me the whole minutes you ran, from 1 to 300.'); return; }
     logRun(n).catch((err) => speak(err.message));
+  });
+
+  /* A quick workout from her quick-workout tool: the warm-up runs on the clock, each move is ticked off.
+     Home workouts are Puff's and gym workouts are Huff's, so the cloud talks you through it. */
+  let gearCloud = 'Puff';
+  function renderWorkout(s) {
+    $('workout-head').textContent = s.head;
+    const ol = $('workout-phases');
+    ol.textContent = '';
+    for (const p of s.parts) {
+      const li = el('li', p.secs ? 'timed' : p.label && !/^cool down/i.test(p.label) ? 'move' : 'aside');
+      if (li.className === 'move') {
+        const lab = el('label');
+        const box = el('input');
+        box.type = 'checkbox';
+        const words = el('span');
+        words.append(el('strong', null, `${p.label}: `), document.createTextNode(p.text));
+        lab.append(box, words);
+        li.append(lab);
+      } else {
+        if (p.label) li.append(el('strong', null, `${p.label}: `));
+        li.append(document.createTextNode(p.text));
+      }
+      ol.append(li);
+    }
+    cite($('workout-rests'), s.rests.map((r) => factByText(r.file, r.text)));
+    $('workout-rests-box').hidden = !s.rests.length;
+    $('workout-go').hidden = !s.parts.length;
+    $('workout-start').hidden = !s.parts.some((p) => p.secs);
+    const cloud = gearCloud;
+    if (!s.parts.length) speak(s.head);
+    else if (cloud === 'Puff') speak("Home workout? That's me. Warm up with me, then tick each move off.", 'Puff');
+    else speak("Gym day? That's me. Warm up with me, then tick each move off.", 'Huff');
+  }
+  $('gear').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-gear]');
+    if (!b) return;
+    for (const x of $('gear').querySelectorAll('[data-gear]')) x.setAttribute('aria-pressed', String(x === b));
+    gearCloud = ['bodyweight', 'bands'].includes(b.dataset.gear) ? 'Puff' : 'Huff';
+    stop('workout');
+    $('workout-clock').hidden = true;
+    $('workout-head').textContent = 'Getting your workout from my tool.';
+    try {
+      await ready;
+      const r = await kit.api('/api/workout', { method: 'POST', body: { equipment: b.dataset.gear } });
+      if (!r.ok) { $('workout-head').textContent = r.text; return; }
+      sessions.workout = parse(r.text);
+      // Only the warm-up runs on the clock here. The cool-down comes after the moves, on its own step.
+      for (const p of sessions.workout.parts) if (!/^warm up/i.test(p.label)) p.secs = 0;
+      renderWorkout(sessions.workout);
+    } catch (err) { speak(err.message); }
+  });
+  $('workout-start').addEventListener('click', () => {
+    if (!sessions.workout) return;
+    $('workout-start').hidden = true;
+    runParts('workout', sessions.workout, () => speak("You're warm. Now the moves, one at a time. Tick each one off.", gearCloud), gearCloud);
+  });
+  $('workout-phases').addEventListener('change', () => {
+    const boxes = [...$('workout-phases').querySelectorAll('input[type=checkbox]')];
+    if (boxes.length && boxes.every((x) => x.checked)) speak("That's every move. Ready to cool down?", gearCloud);
+  });
+
+  /* Plan my week: her week-plan tool, laid out day by day. */
+  $('plan-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const age = $('p-age').value.trim();
+    const body = { days: Number($('p-days').value), goal: $('p-goal').value, level: $('p-level').value, age: age ? Number(age) : null };
+    speak('Laying out your week.');
+    try {
+      await ready;
+      const r = await kit.api('/api/plan', { method: 'POST', body });
+      if (!r.ok) { speak(r.text); return; }
+      const s = parse(r.text);
+      const out = $('plan-out');
+      out.textContent = '';
+      const days = el('ul', 'days');
+      for (const line of s.lines.slice(1)) {
+        const d = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun): (.*)$/.exec(line);
+        if (d) {
+          const li = el('li');
+          li.append(el('strong', 'day', d[1]));
+          const ul = el('ul');
+          for (const bit of d[2].split(/(?<=\.)\s+(?=[A-Z0-9])/)) ul.append(el('li', null, bit));
+          li.append(ul);
+          days.append(li);
+        } else if (line.trim()) out.append(el('p', 'plan-note', line.trim()));
+      }
+      out.prepend(el('p', 'plan-head', s.head));
+      if (days.childElementCount) out.insertBefore(days, out.children[1] || null);
+      cite($('plan-rests'), s.rests.map((x) => factByText(x.file, x.text)));
+      $('plan-rests-box').hidden = !s.rests.length;
+      speak(days.childElementCount ? "Here's your week, day by day. Change an answer and I'll lay it out again." : s.head);
+      out.scrollIntoView({ block: 'nearest' });
+    } catch (err) { speak(err.message); }
   });
 
   for (const b of document.querySelectorAll('[data-session]')) {
@@ -306,13 +468,19 @@
     b.addEventListener('click', () => {
       stop('warm');
       stop('cool');
+      stop('workout');
       if (b.dataset.next === 'arrive') {
-        $('warm-start').hidden = false;
-        for (const id of ['warm-clock', 'cool-clock', 'cool-rests-box']) $(id).hidden = true;
-        $('cool-head').textContent = '';
-        $('cool-phases').textContent = '';
+        clearInterval(runTimer);
+        runTimer = null;
+        running = false;
+        busy();
+        for (const id of ['run-start', 'warm-start']) $(id).hidden = false;
+        for (const id of ['run-pause', 'run-back', 'run-clock', 'warm-clock', 'cool-clock', 'cool-rests-box', 'log-rests-box',
+          'workout-clock', 'workout-go', 'workout-rests-box', 'plan-rests-box']) $(id).hidden = true;
+        for (const id of ['cool-head', 'cool-phases', 'log-out', 'workout-head', 'workout-phases', 'plan-out']) $(id).textContent = '';
+        for (const x of $('gear').querySelectorAll('[data-gear]')) x.setAttribute('aria-pressed', 'false');
       }
-      go(b.dataset.next);
+      go(b.dataset.next === 'next' ? after(current) : b.dataset.next);
     });
   }
 

@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-28 -56 204 128" width="816" height="512" role="img" aria-labelledby="dt-dog-title">
+<title id="dt-dog-title">The dog of Lakeside Field at a gallop through the shallows: lean and long-legged, mostly white, a ginger head with a white blaze, one ear up with its tip folded and one flopped, a ginger heart on the back, a green bandana with a bone tag, and a tennis ball in its mouth.</title>
+<!--
+  The dog of Lakeside Field, for the kit's close view (kit/art/kindlemere-field.svg). Drawn in the realm's cut-paper style:
+  flat shapes, one shade tone, small highlights, a soft paper shadow under each layer; the scene's grain lies over it.
+  Its own frame: facing right, paws on y = 64. In the field view it stands at translate(1346 590) (data-home).
+
+  Named parts, for anything that moves it:
+    #dt-dog      the whole dog            .dt-look   the head, turned about the neck (100 6): data-pivot
+    .dt-held     the ball in its mouth    .dt-pupil  each pupil and its catchlight
+    .dt-splash   the water at its paws    .dt-body   the body, for a lean, a sit or a jump (not the water)
+    classes on #dt-dog: dt-empty (the ball is out of its mouth: an open pant), dt-sit (it sits and waits)
+
+  Motion contract: CSS only, transform and opacity only. One stride is 0.5 s: the legs reach out together (the flying
+  moment) and gather under together, each leg bending at its joint; the body rides up and down, the head stays level,
+  the flopped ear and the tail swing, drops lift off the paws. Reduced motion stops all of it on the flying moment.
+-->
+<defs>
+<filter id="dt-layer" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="0" flood-color="#1A2433" flood-opacity="0.2"/></filter>
+<clipPath id="dt-body-clip"><path d="M86 5 C72 1 46 3 32 6 C20 8 14 15 15 25 C16 32 24 35 34 34 C46 33 56 29 66 32 C76 35 84 41 92 40 C100 39 104 31 103 21 C102 13 96 7 86 5 Z"/></clipPath>
+<clipPath id="dt-thigh-clip"><path d="M18 13 C10 25 18 39 32 39 C40 39 44 31 42 21 C40 11 26 7 18 13 Z"/></clipPath>
+<style>
+#dt-dog .dt-r { animation: dt-rock 0.5s ease-in-out infinite; }
+#dt-dog .dt-fu { animation: dt-fu 0.5s ease-in-out infinite; }
+#dt-dog .dt-fl { animation: dt-fl 0.5s linear infinite; }
+#dt-dog .dt-hu { animation: dt-hu 0.5s ease-in-out infinite; }
+#dt-dog .dt-hl { animation: dt-hl 0.5s linear infinite; }
+#dt-dog .dt-far { animation-delay: -0.09s; }
+#dt-dog .dt-steady { animation: dt-steady 0.5s ease-in-out infinite; }
+#dt-dog .dt-flop { animation: dt-flop 0.5s ease-in-out infinite; animation-delay: -0.12s; }
+#dt-dog .dt-tail { animation: dt-tail 0.5s ease-in-out infinite; animation-delay: -0.08s; }
+#dt-dog .dt-drop { animation: dt-drop 0.5s ease-out infinite; }
+#dt-dog .dt-drop.dt-d2 { animation-delay: -0.17s; }
+#dt-dog .dt-drop.dt-d3 { animation-delay: -0.33s; }
+#dt-dog .dt-ripple { animation: dt-ripple 1s ease-in-out infinite alternate; }
+@keyframes dt-rock { 0%, 100% { transform: translateY(-3px) rotate(0deg); } 50% { transform: translateY(1.5px) rotate(-2deg); } }
+@keyframes dt-steady { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(2deg); } }
+@keyframes dt-fu { 0%, 100% { transform: rotate(-48deg); } 50% { transform: rotate(26deg); } }
+@keyframes dt-fl { 0%, 100% { transform: rotate(-4deg); } 40% { transform: rotate(6deg); } 62% { transform: rotate(84deg); } 82% { transform: rotate(30deg); } }
+@keyframes dt-hu { 0%, 100% { transform: rotate(38deg); } 50% { transform: rotate(-30deg); } }
+@keyframes dt-hl { 0%, 100% { transform: rotate(4deg); } 35% { transform: rotate(-6deg); } 55% { transform: rotate(18deg); } 80% { transform: rotate(6deg); } }
+@keyframes dt-flop { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(10deg); } }
+@keyframes dt-tail { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(10deg); } }
+@keyframes dt-drop { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.95; } 100% { transform: translate(-10px, -14px); opacity: 0; } }
+@keyframes dt-ripple { from { transform: scale(0.96, 1); } to { transform: scale(1.04, 1); } }
+/* Sitting (the class dt-sit): legs still and folded, the body tipped back onto its haunches by whatever moves .dt-body. */
+#dt-dog .dt-fu, #dt-dog .dt-fl, #dt-dog .dt-hu, #dt-dog .dt-hl { transition: transform 0.25s ease-out; }
+#dt-dog.dt-sit .dt-r, #dt-dog.dt-sit .dt-steady, #dt-dog.dt-sit .dt-ripple { animation: none; }
+#dt-dog.dt-sit .dt-fu { animation: none; transform: rotate(32deg); }
+#dt-dog.dt-sit .dt-fl { animation: none; transform: rotate(0deg); }
+#dt-dog.dt-sit .dt-hu { animation: none; transform: rotate(-6deg); }
+#dt-dog.dt-sit .dt-hl { animation: none; transform: rotate(-70deg); }
+#dt-dog.dt-sit .dt-tail { animation-duration: 0.3s; }
+#dt-dog.dt-sit .dt-speed, #dt-dog.dt-sit .dt-drop { display: none; }
+#dt-dog.dt-empty .dt-if-held { display: none; }
+#dt-dog.dt-empty .dt-if-empty { display: inline; }
+@media (prefers-reduced-motion: reduce) { #dt-dog * { animation: none !important; } }
+</style>
+</defs>
+
+<g id="dt-dog" data-home="1346 590">
+  <!-- the shallows at its paws -->
+  <g class="dt-splash">
+    <g transform="translate(60 64)"><g class="dt-ripple"><ellipse cx="0" cy="0" rx="66" ry="5.5" fill="none" stroke="#CFE6EA" stroke-width="2.5" opacity="0.8"/><ellipse cx="4" cy="0.5" rx="40" ry="3" fill="#FFFFFF" opacity="0.3"/></g></g>
+    <path class="dt-speed" d="M-12 18 h16 M-20 28 h20 M-10 38 h12" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" opacity="0.85"/>
+    <circle class="dt-drop" cx="98" cy="60" r="2.4" fill="#FFFFFF"/>
+    <circle class="dt-drop dt-d2" cx="24" cy="60" r="2.8" fill="#FFFFFF"/>
+    <circle class="dt-drop dt-d3" cx="62" cy="62" r="2" fill="#FFFFFF"/>
+  </g>
+
+  <g transform="translate(60 26)"><g class="dt-r"><g class="dt-body" transform="translate(-60 -26)" filter="url(#dt-layer)">
+
+    <!-- far legs, in shade -->
+    <g transform="translate(40 21)"><g class="dt-hu dt-far"><g transform="translate(-40 -21)">
+      <path d="M28 13 C20 25 28 38 41 38 C49 38 52 30 50 21 C48 12 35 8 28 13 Z" fill="#DCD4C0"/>
+      <g transform="translate(45 36)"><g class="dt-hl dt-far"><g transform="translate(-45 -36)">
+        <path d="M45 36 L37 49 L39 59" fill="none" stroke="#DCD4C0" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="42" cy="60.5" rx="5" ry="2.8" fill="#CFC6AF"/>
+      </g></g></g>
+    </g></g></g>
+    <g transform="translate(83 24)"><g class="dt-fu dt-far"><g transform="translate(-83 -24)">
+      <path d="M83 24 L82 38" stroke="#DCD4C0" stroke-width="10" stroke-linecap="round"/>
+      <g transform="translate(82 38)"><g class="dt-fl dt-far"><g transform="translate(-82 -38)">
+        <path d="M82 38 L82 53 L84 59" fill="none" stroke="#DCD4C0" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="86.5" cy="60.5" rx="5" ry="2.8" fill="#CFC6AF"/>
+      </g></g></g>
+    </g></g></g>
+
+    <!-- the curled tail: ginger at the root, a white curl -->
+    <g transform="translate(20 10)"><g class="dt-tail"><g transform="translate(-20 -10)">
+      <path d="M22 10 C12 6 6 -4 10 -13 C13 -20 22 -20 23 -13 C24 -8 19 -6 17 -9" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+      <path d="M23 -13 C24 -8 19 -6 17 -9" fill="none" stroke="#E9E4D4" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M24 11 C17 9 12 5 10 0" fill="none" stroke="#C97C3D" stroke-width="7.5" stroke-linecap="round"/>
+    </g></g></g>
+
+    <!-- the body: lean, a deep chest, a tucked belly -->
+    <path d="M86 5 C72 1 46 3 32 6 C20 8 14 15 15 25 C16 32 24 35 34 34 C46 33 56 29 66 32 C76 35 84 41 92 40 C100 39 104 31 103 21 C102 13 96 7 86 5 Z" fill="#FFFFFF"/>
+    <g clip-path="url(#dt-body-clip)">
+      <path d="M10 28 C26 38 46 30 62 33 C74 36 86 46 106 32 L106 50 L10 50 Z" fill="#E9E4D4"/>
+      <path d="M56 27 C47 21 40 15 42 8 C44 2 52 2 56 8 C60 2 68 2 70 8 C72 15 65 21 56 27 Z" fill="#C97C3D" transform="rotate(-5 56 14)"/>
+      <path d="M46 7 C48 4 52 4 54 7" fill="none" stroke="#E3A86A" stroke-width="1.6" stroke-linecap="round" transform="rotate(-5 56 14)"/>
+      <path d="M34 4.5 C50 1 74 1 88 5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    </g>
+    <!-- the neck, rising into the head -->
+    <path d="M82 8 C86 -4 98 -12 110 -10 L118 2 C112 12 104 22 100 30 L88 28 Z" fill="#FFFFFF"/>
+
+    <!-- near hind leg, the ginger patch on the hip -->
+    <g transform="translate(30 21)"><g class="dt-hu"><g transform="translate(-30 -21)">
+      <path d="M18 13 C10 25 18 39 32 39 C40 39 44 31 42 21 C40 11 26 7 18 13 Z" fill="#FFFFFF"/>
+      <g clip-path="url(#dt-thigh-clip)">
+        <ellipse cx="25" cy="16" rx="13" ry="9" fill="#C97C3D" transform="rotate(-18 25 16)"/>
+        <path d="M12 32 C20 41 34 42 44 35 L44 46 L12 46 Z" fill="#E9E4D4"/>
+      </g>
+      <g transform="translate(36 36)"><g class="dt-hl"><g transform="translate(-36 -36)">
+        <path d="M36 36 L28 49 L30 59" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="33" cy="60.5" rx="5.4" ry="3" fill="#FFFFFF"/>
+        <path d="M31 59.5 v2.2 M34.5 59.5 v2.2" stroke="#E9E4D4" stroke-width="1.1" stroke-linecap="round"/>
+      </g></g></g>
+    </g></g></g>
+
+    <!-- near front leg -->
+    <g transform="translate(91 24)"><g class="dt-fu"><g transform="translate(-91 -24)">
+      <path d="M91 22 L90 38" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round"/>
+      <path d="M86 32 C87 36 89 39 91 40" fill="none" stroke="#E9E4D4" stroke-width="1.8" stroke-linecap="round"/>
+      <g transform="translate(90 38)"><g class="dt-fl"><g transform="translate(-90 -38)">
+        <path d="M90 38 L90 53 L92 59" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="94.5" cy="60.5" rx="5.4" ry="3" fill="#FFFFFF"/>
+        <path d="M93 59.5 v2.2 M96.5 59.5 v2.2" stroke="#E9E4D4" stroke-width="1.1" stroke-linecap="round"/>
+      </g></g></g>
+    </g></g></g>
+
+    <!-- the green bandana and its bone tag -->
+    <path d="M86 0 C94 6 106 8 116 4 L118 10 C108 15 94 13 84 6 Z" fill="#3B6230"/>
+    <path d="M92 9 C100 13 110 13 117 9 L102 33 Z" fill="#4E7F3A"/>
+    <path d="M100 15 c-3 0 -4 4 -1 5 c2 1 3 -2 2 -3 M109 13.5 c-2 1 -2 4 0 4 M102 25 c-2 0 -2 3 0 3" fill="none" stroke="#9CC46B" stroke-width="1.3" stroke-linecap="round"/>
+    <circle cx="96" cy="12.5" r="1.1" fill="#FFFFFF" opacity="0.9"/><circle cx="107" cy="19.5" r="1.1" fill="#FFFFFF" opacity="0.9"/><circle cx="112" cy="12.5" r="1" fill="#FFFFFF" opacity="0.9"/><circle cx="101" cy="29" r="1" fill="#FFFFFF" opacity="0.9"/>
+    <path d="M102 33 v2.6" stroke="#A8B0BC" stroke-width="1.2"/>
+    <path d="M97.5 37.6 a1.9 1.9 0 1 1 1.9 -1.9 h5.2 a1.9 1.9 0 1 1 1.9 1.9 a1.9 1.9 0 1 1 -1.9 1.9 h-5.2 a1.9 1.9 0 1 1 -1.9 -1.9 Z" fill="#E5B07A"/>
+    <path d="M99.4 37.6 h5.2" stroke="#C98F55" stroke-width="0.9" stroke-linecap="round"/>
+
+    <!-- the head, turned about the neck; three-quarter view, two eyes -->
+    <g class="dt-look" data-pivot="100 6" transform="rotate(0 100 6)">
+      <g transform="translate(100 6)"><g class="dt-steady"><g transform="translate(-100 -6)">
+        <!-- far ear: up, its tip folding over -->
+        <path d="M116 -22 C114 -34 118 -45 126 -50 C132 -43 134 -32 130 -22 Z" fill="#8A5A3A"/>
+        <path d="M126 -50 C133 -52 139 -47 137 -40 C133 -43 129 -46 126 -50 Z" fill="#6B4128"/>
+        <path d="M120 -24 C119 -32 121 -39 125 -44" fill="none" stroke="#B07A55" stroke-width="2" stroke-linecap="round"/>
+        <!-- skull -->
+        <ellipse cx="114" cy="-12" rx="17.5" ry="16" fill="#C97C3D"/>
+        <path d="M98 -6 C100 4 110 8 118 6 L112 -4 Z" fill="#A86330" opacity="0.45"/>
+        <!-- the white blaze, from the forehead down between the eyes into the muzzle -->
+        <path d="M116 -28 C119 -28.5 122 -26 122 -22 C122 -17 124 -12 128 -9 L113 -6 C115 -11 115 -16 114 -21 C113.5 -25 114 -27.6 116 -28 Z" fill="#FFFFFF"/>
+        <!-- the mouth, two ways: gripping the ball (.dt-if-held), or open and panting with the tongue out when the ball is
+             out of it (.dt-if-empty, shown when #dt-dog has the class dt-empty) -->
+        <!-- holding: the lower jaw under the ball, the dark of the mouth behind it, the ball, then the muzzle over its top -->
+        <g class="dt-if-held">
+          <path d="M115 1 C116 9 121 15.5 129 18.8 C133.5 20.6 139 21 142 19.4 C144.6 18 144.8 15 143 13 L131 9 Z" fill="#FFFFFF"/>
+          <path d="M129 18.8 C133.5 20.6 139 21 142 19.4 C140 19.6 136.5 19.4 133 18.2 Z" fill="#E9E4D4"/>
+          <path d="M115 0.5 C118 7 124 11 131 11.5 L131 4 Z" fill="#7A2E2E"/>
+        </g>
+        <!-- empty: open and panting, the lower jaw dropped, the tongue over its lip -->
+        <g class="dt-if-empty" display="none">
+          <path d="M116 2 C117 10 123 16.5 131.5 17.6 C137 18.2 141.6 16.6 143 13 C143.6 11 143.2 9 142.5 7 L130 7 Z" fill="#FFFFFF"/>
+          <path d="M131.5 17.6 C137 18.2 141.6 16.6 143 13 C141 15.4 137.5 16.6 134 16.8 Z" fill="#E9E4D4"/>
+          <path d="M116 2 C119 8.5 125.5 12.5 133 12.5 C138 12.5 141.5 10.5 142.5 7 C134 6.5 124.5 5 116 2 Z" fill="#7A2E2E"/>
+          <path d="M126.5 9.5 C128 8 133.5 8 135.2 9.5 C136.4 12 137 15 136.8 17.6 C136.6 21 133.6 22.6 130.8 21.6 C127.6 20.4 126.2 16 126.5 9.5 Z" fill="#E8737A"/>
+          <path d="M131.2 11 C131.2 14 131.4 17 131.8 19.6" fill="none" stroke="#C9555E" stroke-width="1.1" stroke-linecap="round"/>
+          <path d="M128.3 12.5 C128.1 15 128.5 17 129.5 18.6" fill="none" stroke="#F4A9AE" stroke-width="0.8" stroke-linecap="round"/>
+        </g>
+        <g class="dt-held dt-if-held">
+          <circle cx="137" cy="9" r="7.5" fill="#D8E04A"/>
+          <path d="M134 3 C132 7 132 12 135 16" fill="none" stroke="#B9C23A" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M130.5 6.5 q6 4 13 0 M130.5 12.5 q6 -4 13 0" fill="none" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+        </g>
+        <!-- the muzzle, white, over the top of the mouth -->
+        <path d="M110 -4 C114 -12 124 -13 133 -11 C141 -9.5 146 -5 145 0 C144 4 139 5 133 4.5 C126 4 119 4 114 2 C110 0.5 109 -2 110 -4 Z" fill="#FFFFFF"/>
+        <ellipse cx="144" cy="-5.5" rx="4.6" ry="3.6" fill="#1A2433"/>
+        <ellipse cx="145.2" cy="-7" rx="1.5" ry="0.9" fill="#FFFFFF" opacity="0.8"/>
+        <!-- cheeks -->
+        <ellipse cx="104" cy="-3" rx="4.6" ry="2.8" fill="#E3A86A" opacity="0.85"/>
+        <!-- eyes: soft brown, a catchlight each, brows raised -->
+        <ellipse cx="107" cy="-14" rx="5.2" ry="5.8" fill="#FFFFFF"/>
+        <circle cx="108" cy="-13.5" r="4" fill="#6B4128"/>
+        <g class="dt-pupil"><circle cx="108.4" cy="-13.4" r="2.2" fill="#1A2433"/><circle cx="109.8" cy="-15.2" r="1.3" fill="#FFFFFF"/></g>
+        <ellipse cx="129" cy="-15" rx="3.8" ry="5.2" fill="#FFFFFF"/>
+        <circle cx="129.6" cy="-14.5" r="3" fill="#6B4128"/>
+        <g class="dt-pupil"><circle cx="130" cy="-14.4" r="1.7" fill="#1A2433"/><circle cx="131" cy="-15.9" r="1" fill="#FFFFFF"/></g>
+        <path d="M101 -22 C104 -25 109 -25 112 -22.5" fill="none" stroke="#8A5A3A" stroke-width="2" stroke-linecap="round"/>
+        <path d="M126 -23 C128 -25 131 -25 133 -23" fill="none" stroke="#8A5A3A" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- near ear: flopped, swinging with the stride -->
+        <g transform="translate(104 -24)"><g class="dt-flop"><g transform="translate(-104 24)">
+          <path d="M108 -27 C99 -28 91 -21 92 -9 C93 -2 99 -1 101 -6 C103 -12 106 -18 110 -24 Z" fill="#8A5A3A"/>
+          <path d="M92 -9 C93 -2 99 -1 101 -6 C97 -4 94 -6 92 -9 Z" fill="#6B4128"/>
+        </g></g></g>
+      </g></g></g>
+    </g>
+
+  </g></g></g>
+</g>
+</svg>
