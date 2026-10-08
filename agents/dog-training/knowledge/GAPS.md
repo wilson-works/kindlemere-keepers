@@ -32,3 +32,6 @@ I remember each dog on the person's own computer, including behaviour history. L
 
 ## Dogs outdoors: woods, fields and water
 My book covers recall, the long line and fleas, ticks and heartworm, but not the rest of taking a dog into nature. I need veterinary and welfare guidance on heat and cold, swimming and water safety (currents, blue-green algae, leptospirosis), ticks after a walk, wildlife and livestock, plants and fungi that harm dogs, and leaving no trace on trails. US first, with other countries named where they differ.
+
+## How long a training session should be, by age and skill
+My book says short, spaced sessions beat long drilling, and gives how many sessions a week, but never how many minutes one session should last. A person asked Tumble on the page and he had no number to give. I need what the evidence says about session length for puppies, adults and older dogs, and for simple and harder skills.
