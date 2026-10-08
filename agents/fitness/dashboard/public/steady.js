@@ -34,22 +34,77 @@
   /* ---------- the trail ---------- */
 
   let shelf = [];
+  const notes = {}; // card file -> footnote number -> the source's title, read from the card itself
+  async function loadNotes() {
+    await Promise.all(shelf.map(async (c) => {
+      const { body } = await kit.api(`/api/card/${encodeURIComponent(c.file)}`);
+      const m = new Map();
+      for (const line of String(body).split(/\r?\n/)) {
+        const x = /^\[\^(\d+)\]:\s*\[(.*?)\]\(/.exec(line);
+        if (x) m.set(x[1], x[2].trim());
+      }
+      notes[c.file] = m;
+    }));
+  }
+  const chapter = (page) => {
+    const n = String(page || '').replace(/^.*\//, '').replace(/\.md$/, '').replace(/^\d+-/, '').replace(/-/g, ' ');
+    return n ? n[0].toUpperCase() + n.slice(1) : '';
+  };
+  // A fact as it is shown: its words, its card, its footnote numbers on that card, and its chapter of Louise's book.
+  const shown = (file, f) => ({ text: plain(f.text), file, ids: [...String(f.text).matchAll(/\[\^(\d+)\]/g)].map((m) => m[1]),
+    chapter: chapter((f.sources || [])[0] && f.sources[0].page) });
   // A fact from a card, found by words it contains. A card that no longer says it shows nothing, never a guess.
   function fact(file, needle) {
     const c = shelf.find((x) => x.file === file);
     const f = c && c.facts.find((x) => x.text.includes(needle));
-    return f ? { text: plain(f.text), where: (f.sources || []).map((s) => `${s.page.replace(/^.*\//, '')}${s.line ? `:${s.line}` : ''}`).join('  ') } : null;
+    return f ? shown(file, f) : null;
   }
-  function facts(id, picks) {
-    const ul = $(id);
+  // A fact a tool printed, found again on its card so it can carry its source.
+  function factByText(file, text) {
+    const c = shelf.find((x) => x.file === file);
+    const f = c && c.facts.find((x) => plain(x.text).startsWith(text.slice(0, 40)));
+    return f ? shown(file, f) : { text, file, ids: [], chapter: '' };
+  }
+
+  // Sources the way a book gives them: a small number after each fact, and the titles listed underneath.
+  function cite(ul, items) {
     ul.textContent = '';
-    for (const [file, needle] of picks) {
-      const f = fact(file, needle);
-      if (!f) continue;
-      const li = el('li', null, f.text);
-      if (f.where) li.append(el('span', 'km-source', f.where));
+    const order = [];
+    for (const it of items) {
+      const li = el('li', null, it.text);
+      const nums = [];
+      for (const id of it.ids) {
+        const title = notes[it.file] && notes[it.file].get(id);
+        if (!title) continue;
+        let k = order.findIndex((o) => o.title === title);
+        if (k < 0) { order.push({ title, chapter: it.chapter }); k = order.length - 1; }
+        if (!nums.includes(k + 1)) nums.push(k + 1);
+      }
+      if (nums.length) li.append(el('sup', 'ref', nums.sort((a, b) => a - b).join(', ')));
       ul.append(li);
     }
+    let box = ul.nextElementSibling;
+    if (!box || !box.classList.contains('sources')) { box = el('div', 'sources'); ul.after(box); }
+    box.textContent = '';
+    box.hidden = !order.length;
+    if (!order.length) return;
+    // One chapter for all of them is said once, in the heading.
+    const one = order.every((o) => o.chapter === order[0].chapter) ? order[0].chapter : '';
+    const h = el('p', 'sources-h', 'Sources');
+    if (one) h.append(el('span', 'book', `, from Louise's book: ${one}`));
+    box.append(h);
+    const ol = el('ol');
+    for (const o of order) {
+      const li = el('li', null, o.title);
+      if (o.chapter && !one) li.append(el('span', 'book', ` In Louise's book: ${o.chapter}.`));
+      ol.append(li);
+    }
+    box.append(ol);
+  }
+  const ready = loadShelf().then(loadNotes);
+  async function facts(id, picks) {
+    await ready;
+    cite($(id), picks.map(([file, needle]) => fact(file, needle)).filter(Boolean));
   }
 
   const FLAGS = ['Chest pain', 'Fainting or near-fainting', 'Unusual or severe shortness', 'Palpitations', 'Acute infection',
@@ -79,27 +134,32 @@
     }
     if (step === 'arrive') speak(jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Come on up.');
     else speak(LINES[step]);
-    if (step === 'check') { facts('flags', FLAGS); $('flags').hidden = false; $('check-more').hidden = true; }
+    if (step === 'check') { facts('flags', FLAGS).catch((err) => speak(err.message)); showFlags(true); $('check-more').hidden = true; }
     if (step === 'warm') loadSession('warmup', 'warm').catch((err) => speak(err.message));
-    if (step === 'run') facts('run-facts', RUN);
+    if (step === 'run') facts('run-facts', RUN).catch((err) => speak(err.message));
     const h = document.querySelector(`#step-${step} [tabindex="-1"]`);
     if (h && focus) h.focus();
   }
 
   $('sore').addEventListener('click', () => {
     speak("Sore from last time? Here's what my cards say, and the one kind of sore that isn't mine to judge.");
-    facts('check-facts', SORE);
+    facts('check-facts', SORE).catch((err) => speak(err.message));
     $('check-on').hidden = false;
     answered();
   });
   $('flag-yes').addEventListener('click', () => {
     speak("Then we don't run today. That one's for a clinician, not me. I'll be here when you're cleared.");
-    facts('check-facts', [['screening-red-flags.md', 'The coach cannot do clinical screening']]);
+    facts('check-facts', [['screening-red-flags.md', 'The coach cannot do clinical screening']]).catch((err) => speak(err.message));
     $('check-on').hidden = true;
     answered();
   });
+  function showFlags(on) {
+    $('flags').hidden = !on;
+    const box = $('flags').nextElementSibling;
+    if (box && box.classList.contains('sources')) box.hidden = !on || !box.childElementCount;
+  }
   function answered() {
-    $('flags').hidden = true;
+    showFlags(false);
     $('check-more').hidden = false;
     $('check-more').scrollIntoView({ block: 'nearest' });
   }
@@ -118,7 +178,7 @@
       return { label: colon > 0 && colon < 40 ? t.slice(0, colon).replace(/\s*\(\d+ min\)/, '') : '', text: colon > 0 && colon < 40 ? t.slice(colon + 2) : t, secs };
     });
     const rests = cut < 0 ? [] : lines.slice(cut + 1).map((l) => /^- (.*?)\s+\(([^;()]+);\s*([^()]+)\)$/.exec(l)).filter(Boolean)
-      .map((m) => ({ text: m[1], where: `${m[2]}  ${m[3]}` }));
+      .map((m) => ({ text: m[1], file: m[2].trim() }));
     return { head: body[0] || '', parts, rests };
   }
 
@@ -133,9 +193,7 @@
       li.append(document.createTextNode(p.text));
       ol.append(li);
     });
-    const rests = $(`${prefix}-rests`);
-    rests.textContent = '';
-    for (const r of s.rests) { const li = el('li', null, r.text); li.append(el('span', 'km-source', r.where)); rests.append(li); }
+    cite($(`${prefix}-rests`), s.rests.map((r) => factByText(r.file, r.text)));
   }
 
   // Runs the timed parts one after another; Steady says each part as it starts.
@@ -177,6 +235,7 @@
   const sessions = {};
   async function loadSession(kind, prefix) {
     $(`${prefix}-head`).textContent = 'Getting your session from my tool.';
+    await ready;
     const r = await kit.api('/api/session', { method: 'POST', body: { kind, minutes: kind === 'breathe' ? 3 : undefined } });
     if (!r.ok) { $(`${prefix}-head`).textContent = r.text; return null; }
     sessions[prefix] = parse(r.text);
@@ -216,9 +275,7 @@
     const s = parse(r.text);
     const cut = r.text.indexOf('It rests on these cards:');
     $('log-out').textContent = (cut < 0 ? r.text : r.text.slice(0, cut)).trim();
-    const ul = $('log-rests');
-    ul.textContent = '';
-    for (const x of s.rests) { const li = el('li', null, x.text); li.append(el('span', 'km-source', x.where)); ul.append(li); }
+    cite($('log-rests'), s.rests.map((x) => factByText(x.file, x.text)));
     $('log-rests-box').hidden = !s.rests.length;
     for (const b of ['run-start', 'run-pause', 'run-back']) $(b).hidden = b !== 'run-start';
     $('run-pause').textContent = 'Pause';
@@ -272,13 +329,8 @@
       s.append(el('span', 'card-title', c.title), el('span', 'card-n', `${c.facts.length} facts`));
       d.append(s);
       const ul = el('ul', 'facts');
-      for (const f of c.facts) {
-        const li = el('li', null, plain(f.text));
-        const where = (f.sources || []).map((x) => `${x.page}${x.line ? `:${x.line}` : ''}`).join('  ');
-        if (where) li.append(el('span', 'km-source', where));
-        ul.append(li);
-      }
       d.append(ul);
+      cite(ul, c.facts.map((f) => shown(c.file, f)));
       box.append(d);
     }
   }
@@ -289,7 +341,6 @@
     $('n-cards').textContent = cards.length;
     say('l-cards', cards.length, 'card on my shelf', 'cards on my shelf');
     $('n-facts').textContent = cards.reduce((n, c) => n + c.facts.length, 0);
-    renderCards(cards, 'My shelf is empty.');
   }
 
   async function find(q) {
@@ -357,6 +408,6 @@
   $('pack-close').addEventListener('click', () => $('pack').close());
 
   kit.agent().then((a) => { jokes = Array.isArray(a.jokes) ? a.jokes : []; go('arrive', false); }).catch((err) => speak(err.message));
-  Promise.all([loadShelf(), loadMemory(), loadTools(), loadLouise()])
+  Promise.all([ready.then(() => renderCards(shelf, 'My shelf is empty.')), loadMemory(), loadTools(), loadLouise()])
     .catch((err) => { speak(err.message); mood('worried'); });
 }());
