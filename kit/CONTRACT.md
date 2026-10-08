@@ -266,7 +266,7 @@ What the shell does:
   | `/<file>` | `agents/<agent>/dashboard/public/<file>` |
   | `/art/<file>`, `/brand/<file>` | `agents/<agent>/art/`, `agents/<agent>/brand/` |
   | `/art.svg`, `/mark.svg` | the agent's figure and mark, from its folder |
-  | `/kit/kit.js`, `/kit/kit.css` | `kit/dashboard/public/` (the shared script and page frame) |
+  | `/kit/kit.js`, `/kit/kit.css`, `/kit/kindlemere.js` | `kit/dashboard/public/` (the shared script, the page frame, the live sky) |
   | `/kit/design/<file>` | `kit/design/` (`tokens.css`) |
   | `/kit/art/<file>` | `kit/art/` |
 
@@ -280,9 +280,16 @@ What the shell does:
   | `/api/memory` | `{ lessons, facts, worked }`, as `recall` |
   | `/api/louise` | `{ requests: [...] }` from `state/asked-louise.json`, and `{ gaps: [...] }` from `GAPS.md` |
   | `/api/tools` | `registry.json`, each tool with `ok` (it still matches its entry) |
+  | `/api/realm` | `{ lat, lon }` from `kit/realm.config.json` (this computer's place, never committed), else `{}` |
   | `POST /api/ask-louise` `{ topic, framing }` | `louise.js ask`: `{ queued, message }` |
 
 - `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`.
+  When the page shows an `<img src="/kit/art/kindlemere*.svg">`, `kit.js` also loads `/kit/kindlemere.js`, which
+  draws that picture inline (keeping the image's class, id, size, alt, `object-fit: cover` and `object-position`)
+  and runs its sky by the real clock (`kit/REALM.md`, "Day and night"). Then it fires `kindlemere:ready` on
+  `window` with `{ svg, part }`: `part(name)` returns the element marked `data-km-part="<name>"` (`dog`, `dog-head`,
+  `dog-pupils`, `dog-ball`), and `svg` has `data-km-night="1"` after dark. The scene's own ids are prefixed per
+  scene; find parts with `part()`, never by id.
 - An agent may pass `routes` to `start`: `{ 'GET /api/<name>': (ctx) => object }`, where `ctx` is
   `{ agentDir, query, body }`. A route may not replace a kit route.
 
@@ -290,4 +297,6 @@ What the shell does:
 
 `kit/REALM.md` (the universe, its art style, each agent's place, the shared voice rules) and `kit/design/tokens.css`
 (type, spacing, the shared ground, one palette slot per agent: `--nutrition-*`, `--fitness-*`, `--dog-training-*`).
-An agent's page links `/kit/design/tokens.css` and `/kit/kit.css`, then its own css.
+An agent's page links `/kit/design/tokens.css` and `/kit/kit.css`, then its own css. The realm's art is in
+`kit/art/` and drawn by `kit/art/make-kindlemere.js`: the scene and its close views, and each keeper in five moods,
+`kit/art/keepers/<agent>-<mood>.svg` (`happy`, `thinking`, `oh`, `worried`, `sleepy`).
