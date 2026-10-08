@@ -39,9 +39,14 @@ body { background: var(--a-sky); }
   background: #FFFFFF; transform: rotate(45deg); border-radius: 0 0 4px 0;
 }
 
-/* The table card: four place cards along the top, one open at a time. */
+/* The tail points at whoever speaks: Summer stands down and to Avo's left, Spud at the table to her right. */
+.bubble[data-who="Summer"]::after { left: 14%; }
+.bubble[data-who="Spud"]::after { left: auto; right: -9px; bottom: 18px; border-radius: 0 4px 0 0; }
+
+/* The table card: four place cards along the top, one open at a time. It stops above the table itself, where Spud
+   stands in the evenings (about 66% down), and scrolls inside. */
 .table {
-  position: absolute; right: 2%; top: 4%; max-height: 92%; width: 42%; overflow: auto; z-index: 1;
+  position: absolute; right: 2%; top: 4%; max-height: 58%; width: 42%; overflow: auto; z-index: 1;
   background: var(--a-bg); border-radius: var(--km-radius-lg); box-shadow: var(--km-layer-lift);
   padding: var(--km-space-4) var(--km-space-5) var(--km-space-5);
 }
@@ -183,7 +188,9 @@ body { background: var(--a-sky); }
   .stage { width: 100%; min-width: 0; aspect-ratio: auto; }
   .scene { position: static; width: 100%; aspect-ratio: 16 / 9; height: auto; }
   .bubble { position: relative; left: auto; top: auto; bottom: auto; width: auto; margin: var(--km-space-4) var(--km-gutter) 0; }
-  .bubble::after { left: 30%; top: -9px; bottom: auto; border-radius: 4px 0 0 0; }
+  .bubble::after, .bubble[data-who]::after { left: 30%; right: auto; top: -9px; bottom: auto; border-radius: 4px 0 0 0; }
+  .bubble[data-who="Summer"]::after { left: 18%; }
+  .bubble[data-who="Spud"]::after { left: 62%; }
   .table { position: static; width: auto; max-height: none; overflow: visible; margin: var(--km-space-4) var(--km-gutter) 0; }
 }
 @media (max-width: 520px) {

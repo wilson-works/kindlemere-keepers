@@ -49,6 +49,7 @@
   // Whoever is talking is named in the bubble; Avo's own lines carry no name.
   const say = (text, who, feel) => {
     const box = $('say');
+    box.parentElement.dataset.who = who || 'Avo';
     box.replaceChildren();
     if (who && who !== 'Avo') box.append(el('span', 'speaker', who));
     box.append(document.createTextNode(text));
