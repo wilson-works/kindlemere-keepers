@@ -16,7 +16,11 @@
       <div class="km-name">Avo</div>
       <div class="km-role">Keeper of the Orchard, the nutritionist</div>
     </div>
-    <button class="km-btn km-btn-quiet print" type="button" id="print">Print</button>
+    <div class="take" id="take" hidden>
+      <button class="km-btn" type="button" id="print-fridge">Fridge calendar</button>
+      <button class="km-btn km-btn-quiet" type="button" id="print-all">Print it all</button>
+      <button class="km-btn km-btn-quiet" type="button" id="download">Download</button>
+    </div>
   </header>
 
   <main class="km-page letter" id="letter" aria-busy="true">
@@ -27,6 +31,7 @@
     </section>
 
     <div id="body" hidden>
+      <section class="fridge" id="fridge" aria-label="Fridge calendar"></section>
       <nav class="jump" aria-label="On this page">
         <a href="#plan">The week</a><a href="#prep">Meal prep</a><a href="#quick">Quick cooks</a><a href="#shop">Shopping</a><a href="#targets">Targets</a>
       </nav>

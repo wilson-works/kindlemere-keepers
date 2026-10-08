@@ -29,7 +29,6 @@
 
   function closed(text) {
     $('week-h').textContent = 'This link is closed';
-    $('print').hidden = true;
     $('lead').textContent = text;
     $('letter').setAttribute('aria-busy', 'false');
   }
@@ -185,8 +184,108 @@
     $('notes').replaceChildren(...(w.notes || []).map((n) => el('li', null, n)));
   }
 
-  const link = new URLSearchParams(window.location.search).get('k') || '';
-  $('print').addEventListener('click', () => window.print());
+  /* ---------------------------------------------------------------- the fridge calendar */
+  // One US Letter page, landscape: the 7 days across, the meals down, a box to tick each. Printed on its own.
+  function fridge() {
+    const box = $('fridge');
+    const head = el('div', 'cal-head');
+    head.append(el('h2', null, `Avo's table: the week of ${long(w.id)}`));
+    const meta = [`For ${plural(w.household, 'person', 'people')}`];
+    if (w.prep_days.length && w.recipes.some((r) => r.kind === 'prep')) meta.push(`Prep: ${w.prep_days.join(' and ')}`);
+    if (w.diet && w.diet.length) meta.push(w.diet.join(', '));
+    if (w.avoid && w.avoid.length) meta.push(`Leaves out: ${w.avoid.join(', ')}`);
+    head.append(el('p', null, meta.join('  ·  ')));
+    const table = el('table', 'cal');
+    const top = el('tr');
+    top.append(el('th', 'corner', ''));
+    for (const d of w.days) {
+      const th = el('th');
+      th.scope = 'col';
+      th.append(el('span', 'cal-day', d.name), el('span', 'cal-date', short(d.date)));
+      top.append(th);
+    }
+    const thead = el('thead');
+    thead.append(top);
+    const body = el('tbody');
+    for (const slot of ['breakfast', 'lunch', 'dinner', 'snack']) {
+      if (!w.days.some((d) => d.slots.some((s) => s.slot === slot))) continue;
+      const tr = el('tr');
+      const th = el('th');
+      th.scope = 'row';
+      th.append(el('span', 'cal-slot', SLOT[slot]), el('span', 'cal-who', KEEPER[slot]));
+      tr.append(th);
+      for (const d of w.days) {
+        const s = d.slots.find((x) => x.slot === slot);
+        const td = el('td');
+        if (s) {
+          td.append(el('span', 'cal-box', ''), el('span', 'cal-dish', s.name));
+          if (s.kind === 'prep') td.append(el('span', 'cal-kind', 'from prep'));
+          if (s.kind === 'quick') td.append(el('span', 'cal-kind', 'quick cook'));
+        }
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+    table.append(thead, body);
+    const prep = w.recipes.filter((r) => r.kind === 'prep' && r.batches);
+    const foot = el('p', 'cal-foot');
+    if (prep.length) foot.append(el('strong', null, 'Prep day: '), document.createTextNode(prep.map((r) => `${r.name}, ${plural(r.batches, 'batch', 'batches')}`).join('; ') + '. '));
+    foot.append(document.createTextNode('Recipes and shopping are on the full plan.'));
+    box.replaceChildren(head, table, foot);
+  }
+
+  // Print just the fridge calendar, or everything. The page class picks what prints; it is cleared afterwards.
+  function printOnly(fridgeOnly) {
+    document.body.classList.toggle('print-fridge', fridgeOnly);
+    window.print();
+  }
+  window.addEventListener('afterprint', () => { if (params.get('print') !== 'fridge') document.body.classList.remove('print-fridge'); });
+
+  // Download the week as one file that opens anywhere, with nothing to fetch: the fridge calendar, recipes,
+  // shopping and targets, copied from this page with its buttons left out.
+  function download() {
+    const parts = ['fridge', 'prep', 'quick', 'shop', 'targets'].map((id) => {
+      const c = $(id).cloneNode(true);
+      c.removeAttribute('hidden');
+      c.querySelectorAll('.acts, img, .jump').forEach((x) => x.remove());
+      c.querySelectorAll('[id]').forEach((x) => x.removeAttribute('id'));
+      c.removeAttribute('id');
+      return c.outerHTML;
+    });
+    const css = [
+      '@page{size:letter;margin:.5in}@page cal{size:letter landscape;margin:.4in}',
+      'body{font:14px/1.45 "Segoe UI",system-ui,sans-serif;color:#1A2433;max-width:960px;margin:24px auto;padding:0 16px}',
+      'h1,h2,h3{font-family:Candara,"Gill Sans","Trebuchet MS",sans-serif;color:#525C12}',
+      '.fridge{page:cal}.cal{width:100%;border-collapse:collapse;table-layout:fixed}',
+      '.cal th,.cal td{border:1px solid #bbb;padding:6px;vertical-align:top;text-align:left;font-size:12px}',
+      '.cal-day,.cal-slot{display:block;font-weight:700}.cal-date,.cal-who,.cal-kind{display:block;color:#555;font-size:11px}',
+      '.cal-box{display:inline-block;width:10px;height:10px;border:1.5px solid #555;border-radius:2px;margin-right:4px}',
+      '.km-card,.store,.recipe{border:1px solid #ddd;border-radius:12px;padding:12px 16px;margin:16px 0;break-inside:avoid}',
+      'ul,ol{padding-left:20px}.basket,.ingredients,.ticks{list-style:none;padding-left:0}',
+      '.where,.for,.card-name,.quiet,.small{color:#555;font-size:12px}.targets{width:100%;border-collapse:collapse}',
+      '.targets th,.targets td{text-align:left;vertical-align:top;padding:4px 8px 4px 0;border-top:1px solid #ddd}',
+      '.recipes,.stores{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}',
+      '.fridge>.cal-head p{color:#555}.cal-foot{font-size:12px}',
+    ].join('');
+    const title = `Avo's table: the week of ${long(w.id)}`;
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><style>${css}</style></head><body><h1>${esc(title)}</h1>${parts.join('')}<p class="quiet">Planned with Avo at the Orchard. Every recipe came from a recipe card or your own recipe box; every target from one of her cards. No prices.</p></body></html>`;
+    const a = el('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = `avo-week-${w.id}.html`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const link = params.get('k') || '';
+  // A link ending in &print=fridge opens ready to print the fridge calendar alone.
+  if (params.get('print') === 'fridge') document.body.classList.add('print-fridge');
+  $('print-fridge').addEventListener('click', () => printOnly(true));
+  $('print-all').addEventListener('click', () => printOnly(false));
+  $('download').addEventListener('click', download);
 
   (async function open() {
     try {
@@ -213,12 +312,14 @@
       );
       if (w.diet && w.diet.length) $('facts-row').append(el('li', 'km-chip', `For: ${w.diet.join(', ')}`));
       if (w.avoid && w.avoid.length) $('facts-row').append(el('li', 'km-chip', `Leaves out: ${w.avoid.join(', ')}`));
+      fridge();
       days();
       recipes();
       shopping();
       targets();
       rests();
       $('body').hidden = false;
+      $('take').hidden = false;
       $('letter').setAttribute('aria-busy', 'false');
     } catch (e) {
       closed(e.status === 404 ? 'That link is not one of mine. Ask me for the week in a chat, or open it from Kept weeks at my table.' : e.message);

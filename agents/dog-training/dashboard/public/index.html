@@ -14,84 +14,185 @@
   <img class="km-mark" src="/mark.svg" alt="">
   <div>
     <div class="km-name" id="name">Tumble</div>
-    <div class="km-role" id="title">The Dog Trainer, keeper of Whistle Meadow</div>
+    <div class="km-role" id="title">The Dog Trainer, keeper of Lakeside Field</div>
   </div>
-  <span class="km-chip tm-hour">Late afternoon</span>
+  <button class="km-btn-quiet tm-books-open" id="books-open" type="button">Tumble's books</button>
 </header>
 
 <main class="km-page">
-  <section class="tm-hero" aria-labelledby="greeting">
-    <img class="tm-figure" src="/art.svg" alt="Tumble, a large russet herding ball with a handle and a smiling face, waving, with a white and ginger dog in a green bandana sitting beside them.">
-    <div class="tm-hello">
-      <p class="tm-greeting" id="greeting">Come in. Mind the hoops.</p>
-      <p class="tm-line" id="line">Coaches you and your dog with rewards, and says plainly when it's a job for a vet.</p>
-      <div class="tm-chips">
-        <span class="km-chip">Dogs</span><span class="km-chip">Training</span><span class="km-chip">Trust</span><span class="km-chip">The dog's own food</span>
+  <section class="km-card km-sky tm-room" aria-label="Lakeside Field">
+    <div class="tm-view" id="scene-box">
+      <img class="tm-scene" src="/kit/art/kindlemere-field.svg" width="1600" height="900" alt="Lakeside Field in Kindlemere: open grass down to a bay of the lake, a kennel, weave poles and a willow hoop, Tumble the herding ball with a treat pouch, and the dog in the shallows with a tennis ball.">
+    </div>
+
+    <div class="tm-talk">
+      <div class="tm-bubble" id="bubble">
+        <img class="tm-mood" id="mood" src="/kit/art/keepers/dog-training-happy.svg" alt="" width="64" height="64">
+        <p class="tm-say"><span class="tm-who" id="who">Tumble</span> <span id="say" role="status" aria-live="polite">Come in. Mind the hoops.</span></p>
       </div>
-      <p class="tm-how">To talk with me, open a Claude chat in my folder: <code>agents/dog-training</code>.</p>
+      <button class="km-btn-quiet tm-pause" id="pause" type="button" aria-pressed="false" hidden>Pause Lakeside Field</button>
+    </div>
+
+    <div class="tm-dogs" id="dogs" aria-label="Your dogs"></div>
+
+    <nav class="tm-actions" aria-label="What we can do">
+      <button class="tm-act" type="button" data-panel="talk" aria-pressed="false">Talk</button>
+      <button class="tm-act" type="button" data-panel="train" aria-pressed="false">Train</button>
+      <button class="tm-act" type="button" data-panel="show" aria-pressed="false">Show me</button>
+      <button class="tm-act" type="button" data-panel="play" aria-pressed="false">Play</button>
+      <button class="tm-act" type="button" data-panel="treats" aria-pressed="false">Treats</button>
+      <button class="tm-act" type="button" data-panel="health" aria-pressed="false">Health and safety</button>
+      <button class="tm-act" type="button" data-panel="dog" aria-pressed="false">My dog</button>
+    </nav>
+
+    <div class="tm-panels">
+      <section class="tm-panel" id="panel-talk" hidden aria-labelledby="talk-h">
+        <h2 class="tm-h" id="talk-h">Talk with Tumble</h2>
+        <p class="tm-note">I answer from my books and what I remember about your dogs, and say so when my books don't cover it. Barkley and Sizzle join in when it's theirs.</p>
+        <ol class="tm-chat" id="chat" aria-live="polite"></ol>
+        <form class="tm-row" id="talk-form">
+          <label class="tm-field tm-grow">You <textarea id="talk-text" name="talk-text" rows="2" maxlength="1200" placeholder="Ask about training, play, treats or your dog's health"></textarea></label>
+          <button class="km-btn" type="submit" id="talk-send">Send</button>
+        </form>
+      </section>
+
+      <section class="tm-panel" id="panel-train" hidden aria-labelledby="train-h">
+        <h2 class="tm-h" id="train-h">Train</h2>
+        <p class="tm-note" id="train-who"></p>
+        <div class="tm-row">
+          <button class="km-btn" type="button" id="plan-go">Make a training plan</button>
+        </div>
+        <div class="tm-out" id="plan-out" hidden></div>
+        <h3 class="tm-h3">A session, one skill</h3>
+        <div class="tm-row">
+          <label class="tm-field">Skill <select id="sess-skill"></select></label>
+          <button class="km-btn" type="button" id="sess-start">Start</button>
+        </div>
+        <div class="tm-session" id="sess" hidden>
+          <p class="tm-count"><span id="sess-hits">0</span> right of <span id="sess-reps">0</span> tries · <span id="sess-time">0:00</span></p>
+          <div class="tm-row">
+            <button class="km-btn" type="button" id="sess-hit">Got it</button>
+            <button class="km-btn-quiet" type="button" id="sess-miss">Not yet</button>
+            <button class="km-btn-quiet" type="button" id="sess-end">End and log it</button>
+          </div>
+        </div>
+        <div class="tm-out" id="sess-out" hidden></div>
+        <h3 class="tm-h3">The rules every session keeps</h3>
+        <ul class="tm-facts" id="sess-rules"></ul>
+      </section>
+
+      <section class="tm-panel" id="panel-show" hidden aria-labelledby="show-h">
+        <h2 class="tm-h" id="show-h">Show me</h2>
+        <p class="tm-note">Pick a command and the dog shows it in the field, with your word for it when you've told me.</p>
+        <div class="tm-grid" id="show-grid"></div>
+        <ul class="tm-facts" id="show-facts"></ul>
+      </section>
+
+      <section class="tm-panel" id="panel-play" hidden aria-labelledby="play-h">
+        <h2 class="tm-h" id="play-h">Play, with Barkley</h2>
+        <p class="tm-note" id="play-list-now"></p>
+        <ul class="tm-picks" id="play-picks"></ul>
+        <div class="tm-row"><button class="km-btn" type="button" id="play-save">Keep as the play list</button></div>
+      </section>
+
+      <section class="tm-panel" id="panel-treats" hidden aria-labelledby="treats-h">
+        <h2 class="tm-h" id="treats-h">Treats, with Sizzle</h2>
+        <div class="tm-row">
+          <label class="tm-field">Daily calories, from your vet or the food's feeding guide <input id="kcal" type="number" min="50" max="6000" step="10" inputmode="numeric"></label>
+        </div>
+        <p class="tm-big" id="kcal-out" aria-live="polite"></p>
+        <div class="tm-row">
+          <label class="tm-field">Ideal weight, kg <input id="kg" type="number" min="1" max="100" step="0.5" inputmode="decimal"></label>
+        </div>
+        <p class="tm-note" id="kg-out" aria-live="polite"></p>
+        <ul class="tm-facts" id="treat-facts"></ul>
+      </section>
+
+      <section class="tm-panel" id="panel-health" hidden aria-labelledby="health-h">
+        <h2 class="tm-h" id="health-h">Health and safety</h2>
+        <p class="tm-urgent">A dog that ate something poisonous, can't breathe, collapsed, was hit or is badly hurt: call your vet or an emergency vet now.</p>
+        <form class="tm-row" id="ask-form">
+          <label class="tm-field tm-grow">Ask my books <input id="ask-q" type="search" maxlength="120" autocomplete="off" placeholder="ticks, heartworm, a sudden change"></label>
+          <button class="km-btn" type="submit">Look</button>
+        </form>
+        <div id="ask-out" aria-live="polite"></div>
+        <h3 class="tm-h3">What my books say for every dog</h3>
+        <ul class="tm-facts" id="health-facts"></ul>
+      </section>
+
+      <section class="tm-panel" id="panel-dog" hidden aria-labelledby="dog-h">
+        <h2 class="tm-h" id="dog-h">My dog</h2>
+        <form class="tm-form" id="dog-form">
+          <div class="tm-row">
+            <label class="tm-field">Name <input id="dog-name" maxlength="24" required autocomplete="off"></label>
+            <label class="tm-field">Breed or mix <input id="dog-breed" maxlength="80" autocomplete="off"></label>
+            <label class="tm-field">Age <input id="dog-age" maxlength="80" autocomplete="off" placeholder="3 years"></label>
+          </div>
+          <div class="tm-row">
+            <label class="tm-field tm-grow">Temperament <input id="dog-temperament" maxlength="80" autocomplete="off" placeholder="friendly, a bit shy with men"></label>
+            <label class="tm-field">Level <input id="dog-level" maxlength="80" autocomplete="off" placeholder="working toward CGC"></label>
+          </div>
+          <fieldset class="tm-look" id="dog-look"><legend>Looks like</legend></fieldset>
+          <div class="tm-row"><button class="km-btn" type="submit" id="dog-save">Keep this dog</button></div>
+        </form>
+        <form class="tm-form" id="ways-form" hidden>
+          <h3 class="tm-h3" id="ways-h">How you train</h3>
+          <p class="tm-note">Your word for each one. I'll use it whenever I show it.</p>
+          <div class="tm-cues" id="cues"></div>
+          <label class="tm-field tm-grow">Trouble spots <textarea id="trouble" maxlength="300" rows="2"></textarea></label>
+          <label class="tm-field tm-grow">Opportunities <textarea id="opportunity" maxlength="300" rows="2"></textarea></label>
+          <div class="tm-row">
+            <button class="km-btn" type="submit">Keep how we train</button>
+            <button class="km-btn-quiet" type="button" id="dog-forget">Forget this dog</button>
+          </div>
+        </form>
+        <p class="tm-note">What you tell me stays on this computer, in my memory, and I'll forget anything you ask me to.</p>
+      </section>
     </div>
   </section>
+</main>
 
-  <hr class="km-thread" aria-hidden="true">
-
+<dialog class="tm-drawer" id="books" aria-labelledby="books-h">
+  <div class="tm-drawer-head">
+    <h2 class="tm-h" id="books-h">Tumble's books</h2>
+    <button class="km-btn-quiet" type="button" id="books-close">Close</button>
+  </div>
+  <p class="tm-note">Talk with me under Talk, or in a Claude chat opened in my folder, <code>agents/dog-training</code>. Barkley (outdoor play and the woods) and Sizzle (food and treats) answer with me in both.</p>
   <div class="km-grid tm-rooms">
     <section class="km-card" aria-labelledby="know-h">
-      <h2 class="tm-h" id="know-h">
-        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="9" width="7" height="19" rx="2" fill="#6E3A12"/><rect x="12" y="6" width="7" height="22" rx="2" fill="#C2D77A"/><rect x="20" y="10" width="7" height="18" rx="2" fill="#1F5C6E" transform="rotate(8 23 19)"/><rect x="13" y="11" width="5" height="2" fill="#FFFFFF"/><rect x="2" y="28" width="28" height="3" rx="1.5" fill="#B06A2F"/></svg>
-        What I know
-      </h2>
+      <h3 class="tm-h3" id="know-h">What I know</h3>
       <p class="tm-big" id="know-count">My cards</p>
-      <p id="know-facts">Every fact has its page in Louise's book beside it.</p>
+      <p id="know-facts">Every fact has its chapter of Louise's book beside it.</p>
       <p id="know-learned" class="tm-note"></p>
       <ul class="tm-list" id="know-list"></ul>
     </section>
-
     <section class="km-card" aria-labelledby="mem-h">
-      <h2 class="tm-h" id="mem-h">
-        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="13" width="24" height="15" rx="3" fill="#B06A2F"/><path d="M3 11 h26 v5 h-26 Z" fill="#6E3A12"/><rect x="13" y="16" width="6" height="5" rx="1.5" fill="#E5B07A"/><circle cx="16" cy="7" r="3" fill="#C2D77A"/><circle cx="12" cy="5" r="2" fill="#C2D77A"/><circle cx="20" cy="5" r="2" fill="#C2D77A"/></svg>
-        What I remember
-      </h2>
+      <h3 class="tm-h3" id="mem-h">What I remember</h3>
       <p id="mem-dogs" class="tm-big">Dogs I know</p>
       <ul class="tm-tiles">
         <li><span class="tm-n" id="mem-facts-n">0</span><span id="mem-facts">things I've been told</span></li>
         <li><span class="tm-n" id="mem-worked-n">0</span><span id="mem-worked">notes on what helped</span></li>
         <li><span class="tm-n" id="mem-lessons-n">0</span><span id="mem-lessons">lessons I've learned</span></li>
       </ul>
-      <p class="tm-note">Counts only. What you tell me stays on this computer, and I'll forget anything you ask me to.</p>
     </section>
-
     <section class="km-card" aria-labelledby="tools-h">
-      <h2 class="tm-h" id="tools-h">
-        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6 Q16 18 26 6" fill="none" stroke="#CFE6EA" stroke-width="2.5"/><rect x="6" y="15" width="20" height="9" rx="4.5" fill="#FFFFFF" stroke="#DDEBA6" stroke-width="1"/><rect x="3" y="17" width="5" height="5" rx="2" fill="#DDEBA6"/><rect x="13" y="15" width="3" height="9" fill="#1F5C6E"/><rect x="19" y="17" width="1.6" height="5" rx="0.8" fill="#1A2433"/><rect x="22" y="17" width="1.6" height="5" rx="0.8" fill="#1A2433"/></svg>
-        My tools
-      </h2>
+      <h3 class="tm-h3" id="tools-h">My tools</h3>
       <p class="tm-big" id="tools-count">Tools</p>
       <ul class="tm-list" id="tools-list"></ul>
-      <p class="tm-note">I make new tools with the realm's toolsmith. Each one reads only my cards and my memory.</p>
     </section>
-
     <section class="km-card" aria-labelledby="louise-h">
-      <h2 class="tm-h" id="louise-h">
-        <svg class="tm-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="14" y="2" width="4" height="4" rx="1" fill="#1A2433"/><path d="M9 8 h14 l2 3 v12 l-2 3 h-14 l-2 -3 v-12 Z" fill="#FF7A45"/><rect x="11" y="12" width="10" height="10" rx="3" fill="#FFD0B8"/><rect x="8" y="27" width="16" height="3" rx="1.5" fill="#1F5C6E"/></svg>
-        Waiting on Louise
-      </h2>
+      <h3 class="tm-h3" id="louise-h">Waiting on Louise</h3>
       <p class="tm-big" id="louise-count">Lanterns on the water</p>
       <ul class="tm-lanterns" id="louise-list"></ul>
       <p id="gaps-count"></p>
       <ul class="tm-list tm-gaps" id="gaps-list"></ul>
     </section>
   </div>
+</dialog>
 
-  <hr class="km-thread" aria-hidden="true">
-
-  <section class="km-card km-sky tm-weave" aria-labelledby="weave-h">
-    <h2 class="tm-h" id="weave-h">Along the Weave</h2>
-    <p>Your own food goes to the nutritionist in the Orchard, up the terraced hill. Your own running, stretching or breathing goes to the fitness coach on the Stepping Peaks. Your dog stays here with me.</p>
-  </section>
-</main>
-
-<footer class="km-foot"><p>Whistle Meadow, on the mere of Kindlemere. A dog that ate something poisonous, can't breathe or collapsed: call your vet or an emergency vet now.</p></footer>
+<footer class="km-foot"><p>Lakeside Field, on the shore of Kindlemere. Your own food goes to the nutritionist in the Orchard; your own running, stretching or breathing to the fitness coach on Stepping Hill.</p></footer>
 <script src="/kit/kit.js"></script>
+<script src="/fetch.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>
