@@ -18,8 +18,8 @@
   };
   const fail = (box, e) => box.replaceChildren(el('li', 'quiet', e && e.message ? e.message : 'That did not load. Try again in a moment.'));
   const NEIGHBOURS = {
-    fitness: ['The fitness coach', 'the Stepping Peaks'],
-    'dog-training': ['Tumble', 'Whistle Meadow'],
+    fitness: ['The fitness coach', 'Stepping Hill'],
+    'dog-training': ['Tumble', 'Lakeside Field'],
     louise: ['Louise', 'the Librarian\'s house'],
   };
 
@@ -144,6 +144,14 @@
       ];
       box.replaceChildren(...(items.length ? items : [el('li', 'quiet', 'Nothing waiting on Louise.')]));
     } catch (e) { fail(box, e); }
+  }
+
+  // The hero is the kit's close view of the Orchard. Until it lands, the card stands on its words alone.
+  const hero = $('hero-art');
+  if (hero) {
+    const drop = () => hero.closest('.hello').classList.add('no-art');
+    hero.addEventListener('error', drop);
+    if (hero.complete && !hero.naturalWidth) drop();
   }
 
   $('ask').addEventListener('submit', search);

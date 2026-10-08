@@ -68,14 +68,11 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: 0.92em; backgr
   .km-card { padding: var(--km-space-4); }
 }
 
-/* The room's paper: her figure in the sky card, and a small cut-paper object beside each section. */
-.hello { display: grid; grid-template-columns: minmax(140px, 260px) 1fr; gap: var(--km-space-5); align-items: center; }
-.hello .figure { width: 100%; height: auto; display: block; }
-.hello-text { min-width: 0; }
+/* The room's paper: the kit's close view of the Orchard as the hero, and a small cut-paper object by each section. */
+.hello { padding: 0; overflow: hidden; }
+.hello .hero-art { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.hello.no-art .hero-art { display: none; }
+.hello-text { min-width: 0; padding: var(--km-space-5); }
 .with-obj { display: flex; align-items: center; gap: var(--km-space-2); }
 .with-obj .obj { width: 36px; height: 36px; flex: none; }
 
-@media (max-width: 520px) {
-  .hello { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-  .hello .figure { max-width: 200px; }
-}
