@@ -58,7 +58,14 @@ body { background: var(--a-sky); }
 
 .facts { margin: 0; padding: 0 0 0 var(--km-space-5); }
 .facts li { margin: 0 0 var(--km-space-3); }
-.facts .km-source { display: block; margin-top: 2px; }
+/* Sources the way a book gives them: a small number after the fact, the titles underneath, in the page's own type. */
+.ref { font-size: 0.7em; font-weight: 700; color: var(--a-land); margin-left: 3px; line-height: 0; }
+.sources { margin: var(--km-space-2) 0 var(--km-space-3); padding-top: var(--km-space-2); box-shadow: inset 0 1px 0 var(--km-shadow); }
+.sources-h { margin: 0 0 var(--km-space-1); font-size: var(--km-text-xs); font-weight: 700; color: var(--km-ink-soft); }
+.sources-h .book { font-weight: 400; }
+.sources ol { margin: 0; padding: 0 0 0 var(--km-space-5); font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+.sources li { margin: 0 0 var(--km-space-1); }
+.sources .book { font-style: italic; }
 .trail .facts { font-size: var(--km-text-sm); }
 .trail .flags { margin-top: var(--km-space-4); }
 .trail .said { margin-top: var(--km-space-4); font-size: var(--km-text-md); }
