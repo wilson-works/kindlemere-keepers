@@ -1,0 +1,2 @@
+# Tools are pinned by sha256 in tools/registry.json; keep every file LF on every checkout.
+* text=auto eol=lf
