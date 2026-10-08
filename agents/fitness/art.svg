@@ -1,38 +1,133 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" width="240" height="280" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 58 304 310" width="304" height="310" role="img" aria-labelledby="t d">
   <title id="t">Cairn, keeper of the Stepping Peaks</title>
-  <desc id="d">An invented creature of cut paper: three stacked round stones, rose, periwinkle and rose, with two
-    crescent eyes on the top stone, a sash of white pebbles across the middle one, a tiny white star in the seam,
-    and two small round feet. No background: the scene is the realm's own.</desc>
-  <!-- Cut paper (kit/REALM.md): flat shapes, no outlines or gradients; depth only from a short hard shadow below. -->
-  <g fill="rgba(26,36,51,0.14)">
-    <ellipse cx="96" cy="262" rx="20" ry="9"/>
-    <ellipse cx="144" cy="262" rx="20" ry="9"/>
-    <ellipse cx="120" cy="214" rx="78" ry="44"/>
-    <ellipse cx="120" cy="146" rx="56" ry="32"/>
-    <ellipse cx="120" cy="92" rx="38" ry="27"/>
+  <desc id="d">An invented creature of cut paper standing on a wide stone step: three stacked round stones, rose,
+    periwinkle and rose, speckled and layered. The top stone tilts a little, with bright eyes, round cheeks and a
+    small pebble balanced on it. Across the middle stone runs a stitched sash of mismatched pebbles with a mountain
+    flower tucked in it. Five scratched tally marks on the base count the steps climbed. A tiny white star glints
+    in the seam. A tuft of peak grass grows at the foot of the step. No sky or scene behind: that is the realm's own.</desc>
+  <!-- Cut paper (kit/REALM.md): flat pieces, no outlines or gradients; depth from layering and short hard shadows. -->
+
+  <!-- The stone step -->
+  <g>
+    <path d="M24 322 Q24 306 44 304 L276 300 Q298 300 298 318 L298 344 Q298 358 280 358 L42 360 Q24 360 24 346 Z" fill="rgba(26,36,51,0.16)" transform="translate(0 4)"/>
+    <path d="M24 322 Q24 306 44 304 L276 300 Q298 300 298 318 L298 344 Q298 358 280 358 L42 360 Q24 360 24 346 Z" fill="#C3CCF0"/>
+    <path d="M24 322 Q24 306 44 304 L276 300 Q298 300 298 318 L298 326 Q160 334 24 330 Z" fill="#DCE2FA"/>
+    <path d="M60 340 l14 -2 M118 346 l22 -1 M214 342 l18 1 M252 350 l12 -2" stroke="#A9B4E2" stroke-width="3" stroke-linecap="round"/>
+    <path d="M30 330 q8 -2 10 6" stroke="#A9B4E2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <text x="150" y="352" font-family="Candara, Trebuchet MS, sans-serif" font-size="18" font-weight="700" fill="#8E9AD0">7</text>
+    <circle cx="88" cy="350" r="2.2" fill="#A9B4E2"/><circle cx="182" cy="352" r="1.8" fill="#A9B4E2"/><circle cx="240" cy="338" r="2" fill="#A9B4E2"/>
   </g>
-  <!-- feet -->
-  <ellipse cx="96" cy="258" rx="20" ry="9" fill="#1A2433"/>
-  <ellipse cx="144" cy="258" rx="20" ry="9" fill="#1A2433"/>
-  <!-- base stone -->
-  <ellipse cx="120" cy="210" rx="78" ry="44" fill="#B0205C"/>
-  <ellipse cx="92" cy="196" rx="22" ry="7" fill="#C64479"/>
-  <!-- middle stone and its pebble sash -->
-  <ellipse cx="120" cy="142" rx="56" ry="32" fill="#8FA2FF"/>
-  <path d="M70 136 Q120 176 170 132 L170 142 Q120 186 70 146 Z" fill="#D9E1FF"/>
-  <g fill="#FFFFFF">
-    <circle cx="80" cy="146" r="5.5"/>
-    <circle cx="95" cy="155" r="5.5"/>
-    <circle cx="111" cy="160" r="5.5"/>
-    <circle cx="127" cy="160" r="5.5"/>
-    <circle cx="143" cy="156" r="5.5"/>
-    <circle cx="158" cy="147" r="5.5"/>
+  <!-- A tuft of peak grass and two loose pebbles -->
+  <g>
+    <path d="M262 304 q-6 -22 2 -34 q2 16 6 30 q4 -20 16 -28 q-6 18 -6 32 q8 -12 18 -14 q-10 10 -12 16 z" fill="#4E8A5A"/>
+    <path d="M268 302 q0 -14 6 -22 q-2 12 0 22 z" fill="#6FAF78"/>
+    <rect x="283" y="236" width="4" height="66" rx="2" fill="#8A6A4E"/>
+    <path d="M287 240 L312 248 L287 258 Z" fill="rgba(26,36,51,0.16)" transform="translate(0 3)"/>
+    <path d="M287 240 L312 248 L287 258 Z" fill="#8FA2FF"/>
+    <circle cx="295" cy="249" r="2.4" fill="#FFFFFF"/>
+    <ellipse cx="48" cy="312" rx="9" ry="5.5" fill="#B9C2E8"/><ellipse cx="46" cy="310" rx="3" ry="1.4" fill="#FFFFFF" opacity="0.8"/>
+    <ellipse cx="66" cy="316" rx="6" ry="4" fill="#E58AB0"/>
   </g>
-  <!-- the star in the seam -->
-  <path d="M152 108 l4 8.5 8.5 4 -8.5 4 -4 8.5 -4 -8.5 -8.5 -4 8.5 -4z" fill="#FFFFFF"/>
-  <!-- top stone with crescent eyes (pleased) -->
-  <ellipse cx="120" cy="88" rx="38" ry="27" fill="#B0205C"/>
-  <ellipse cx="104" cy="78" rx="11" ry="4.5" fill="#C64479"/>
-  <path d="M100 92 q8 -9 16 0" fill="none" stroke="#1A2433" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M124 92 q8 -9 16 0" fill="none" stroke="#1A2433" stroke-width="4.5" stroke-linecap="round"/>
-</svg>
+
+  <!-- Shadow under Cairn -->
+  <ellipse cx="160" cy="318" rx="92" ry="12" fill="rgba(26,36,51,0.16)"/>
+
+  <!-- Feet -->
+  <g>
+    <ellipse cx="124" cy="312" rx="24" ry="11" fill="#1A2433"/>
+    <ellipse cx="196" cy="312" rx="24" ry="11" fill="#1A2433"/>
+    <path d="M112 316 v-5 M122 318 v-6 M132 317 v-5 M186 317 v-5 M196 318 v-6 M206 316 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="118" cy="307" rx="8" ry="3" fill="#4A5568"/><ellipse cx="190" cy="307" rx="8" ry="3" fill="#4A5568"/>
+  </g>
+
+  <!-- Base stone -->
+  <g>
+    <ellipse cx="160" cy="258" rx="96" ry="54" fill="rgba(26,36,51,0.16)" transform="translate(0 5)"/>
+    <ellipse cx="160" cy="258" rx="96" ry="54" fill="#B0205C"/>
+    <path d="M70 270 Q160 318 252 266 Q246 300 160 312 Q76 302 70 270 Z" fill="#8E1748"/>
+    <path d="M92 226 Q118 206 160 204 Q132 214 116 232 Q100 244 92 226 Z" fill="#C9497F"/>
+    <path d="M78 252 Q112 262 150 256" stroke="#8E1748" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M168 280 Q206 282 238 268" stroke="#8E1748" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- five scratched tally marks: steps climbed -->
+    <g stroke="#E8A3C1" stroke-width="3.2" stroke-linecap="round">
+      <path d="M188 232 l-2 18"/><path d="M196 232 l-2 18"/><path d="M204 232 l-2 18"/><path d="M212 232 l-2 18"/>
+      <path d="M182 246 l36 -10"/>
+    </g>
+    <g fill="#D9578C"><circle cx="110" cy="276" r="2.4"/><circle cx="132" cy="288" r="1.8"/><circle cx="226" cy="252" r="2.2"/><circle cx="96" cy="250" r="1.6"/><circle cx="150" cy="232" r="1.6"/></g>
+    <g fill="#7A1240"><circle cx="122" cy="262" r="1.8"/><circle cx="238" cy="262" r="1.6"/><circle cx="172" cy="292" r="2"/></g>
+    <!-- lichen at the foot -->
+    <path d="M86 284 q6 -6 12 -2 q6 -6 12 0 q-2 8 -12 8 q-10 2 -12 -6 z" fill="#6FAF78"/>
+    <circle cx="94" cy="282" r="1.6" fill="#A7D3A0"/><circle cx="104" cy="280" r="1.4" fill="#A7D3A0"/>
+  </g>
+
+  <!-- Middle stone -->
+  <g>
+    <ellipse cx="160" cy="178" rx="70" ry="40" fill="rgba(26,36,51,0.16)" transform="translate(0 5)"/>
+    <ellipse cx="160" cy="178" rx="70" ry="40" fill="#8FA2FF"/>
+    <path d="M94 188 Q160 228 228 186 Q220 214 160 218 Q100 214 94 188 Z" fill="#6F84E6"/>
+    <path d="M112 152 Q136 140 166 140 Q140 148 128 162 Q114 170 112 152 Z" fill="#B7C3FF"/>
+    <g fill="#6F84E6"><circle cx="208" cy="160" r="1.8"/><circle cx="118" cy="174" r="1.6"/><circle cx="196" cy="150" r="1.4"/></g>
+  </g>
+
+  <!-- The pebble sash, stitched with the Weave's dotted thread -->
+  <g>
+    <path d="M92 168 Q160 214 230 166 L232 182 Q160 232 92 184 Z" fill="rgba(26,36,51,0.16)" transform="translate(0 3)"/>
+    <path d="M92 168 Q160 214 230 166 L232 182 Q160 232 92 184 Z" fill="#D4DBF8"/>
+    <path d="M96 176 Q160 220 228 174" fill="none" stroke="#8FA2FF" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>
+    <!-- pebbles, no two alike -->
+    <g fill="rgba(26,36,51,0.18)"><ellipse cx="106" cy="187" rx="8" ry="6.5"/><ellipse cx="124" cy="199" rx="9" ry="7"/><ellipse cx="143" cy="206" rx="8" ry="7.5"/><ellipse cx="162" cy="208" rx="9.5" ry="7"/><ellipse cx="181" cy="205" rx="8" ry="7"/><ellipse cx="199" cy="198" rx="8.5" ry="6.5"/><ellipse cx="216" cy="187" rx="7.5" ry="6"/></g>
+    <g>
+      <ellipse cx="106" cy="184" rx="8" ry="6.5" fill="#FFFFFF"/>
+      <ellipse cx="124" cy="196" rx="9" ry="7" fill="#C8CDD8"/>
+      <ellipse cx="143" cy="203" rx="8" ry="7.5" fill="#E58AB0"/>
+      <ellipse cx="162" cy="205" rx="9.5" ry="7" fill="#FFFFFF"/>
+      <ellipse cx="181" cy="202" rx="8" ry="7" fill="#B7C3FF"/>
+      <ellipse cx="199" cy="195" rx="8.5" ry="6.5" fill="#C8CDD8"/>
+      <ellipse cx="216" cy="184" rx="7.5" ry="6" fill="#FFFFFF"/>
+      <g fill="#FFFFFF" opacity="0.85">
+        <ellipse cx="121" cy="193" rx="3" ry="1.5"/><ellipse cx="140" cy="200" rx="3" ry="1.5"/><ellipse cx="178" cy="199" rx="3" ry="1.5"/><ellipse cx="196" cy="192" rx="3" ry="1.5"/>
+      </g>
+      <g fill="#A9B1C2"><circle cx="160" cy="207" r="1.2"/><circle cx="104" cy="186" r="1"/><circle cx="218" cy="186" r="1"/></g>
+    </g>
+    <!-- a mountain flower tucked into the sash -->
+    <g>
+      <path d="M228 178 q16 -16 22 -36" stroke="#4E8A5A" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M240 160 q12 -2 14 8 q-10 0 -14 -8 z" fill="#6FAF78"/>
+      <g fill="#F4B6CF"><circle cx="252" cy="126" r="6.5"/><circle cx="263" cy="133" r="6.5"/><circle cx="260" cy="145" r="6.5"/><circle cx="247" cy="146" r="6.5"/><circle cx="243" cy="134" r="6.5"/></g>
+      <circle cx="253" cy="137" r="5" fill="#FFFFFF"/><circle cx="253" cy="137" r="2.2" fill="#B0205C"/>
+    </g>
+    <!-- the sash knot and its two tails -->
+    <path d="M92 170 q-14 6 -18 26 q10 -4 14 -12 q2 12 10 18 q-2 -16 2 -26 z" fill="#DCE2FA"/>
+    <ellipse cx="94" cy="176" rx="7" ry="8" fill="#EEF1FF"/>
+  </g>
+
+  <!-- Top stone, tilted a little: pleased -->
+  <g transform="rotate(-6 160 112)">
+    <ellipse cx="160" cy="112" rx="48" ry="34" fill="rgba(26,36,51,0.16)" transform="translate(0 5)"/>
+    <ellipse cx="160" cy="112" rx="48" ry="34" fill="#B0205C"/>
+    <path d="M114 120 Q160 152 206 118 Q200 142 160 146 Q120 142 114 120 Z" fill="#8E1748"/>
+    <path d="M126 90 Q144 80 166 80 Q146 86 136 98 Q124 104 126 90 Z" fill="#C9497F"/>
+    <!-- cheeks -->
+    <ellipse cx="133" cy="122" rx="9" ry="5.5" fill="#E8709F"/>
+    <ellipse cx="187" cy="122" rx="9" ry="5.5" fill="#E8709F"/>
+    <!-- eyes with highlights -->
+    <ellipse cx="143" cy="110" rx="6.5" ry="8" fill="#1A2433"/>
+    <ellipse cx="177" cy="110" rx="6.5" ry="8" fill="#1A2433"/>
+    <circle cx="145.5" cy="106.5" r="2.6" fill="#FFFFFF"/><circle cx="179.5" cy="106.5" r="2.6" fill="#FFFFFF"/>
+    <circle cx="141" cy="113" r="1.1" fill="#FFFFFF"/><circle cx="175" cy="113" r="1.1" fill="#FFFFFF"/>
+    <!-- a small smile, because a balanced day is a good day -->
+    <path d="M154 126 q6 6 12 0" stroke="#1A2433" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <g fill="#D9578C"><circle cx="196" cy="100" r="1.6"/><circle cx="122" cy="108" r="1.4"/></g>
+    <!-- the pebble balanced on top -->
+    <ellipse cx="166" cy="76" rx="12" ry="8" fill="rgba(26,36,51,0.16)" transform="translate(0 3)"/>
+    <ellipse cx="166" cy="76" rx="12" ry="8" fill="#C8CDD8"/>
+    <ellipse cx="162" cy="73" rx="4" ry="2" fill="#FFFFFF" opacity="0.9"/>
+  </g>
+<!-- The star in the seam -->
+  <g>
+    <path d="M204 142 l4.5 9.5 9.5 4.5 -9.5 4.5 -4.5 9.5 -4.5 -9.5 -9.5 -4.5 9.5 -4.5z" fill="#FFFFFF"/>
+    <circle cx="220" cy="138" r="2" fill="#FFFFFF"/><circle cx="192" cy="166" r="1.5" fill="#FFFFFF"/>
+  </g>
+
+  </svg>

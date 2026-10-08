@@ -6,7 +6,7 @@
 }
 
 .room { display: flex; gap: var(--km-space-5); align-items: center; }
-.room-mark { width: 120px; height: 120px; flex: none; }
+.room-figure { width: 220px; height: auto; flex: none; }
 .room h1 { color: var(--a-land); }
 .room-line { font-family: var(--km-font-head); font-size: var(--km-text-lg); }
 .room-about { color: var(--km-ink-soft); }
@@ -53,9 +53,12 @@
 
 @media (max-width: 520px) {
   .room { flex-direction: column; align-items: flex-start; }
-  .room-mark { width: 88px; height: 88px; }
+  .room-figure { width: 170px; align-self: center; }
   .counts { grid-template-columns: 1fr 1fr; gap: var(--km-space-3); }
   .count { padding: var(--km-space-4); }
   .find { flex-direction: column; }
   .find .km-btn { width: 100%; }
 }
+
+h2 { display: flex; align-items: center; gap: var(--km-space-3); }
+.h-icon { width: 44px; height: 44px; flex: none; }
