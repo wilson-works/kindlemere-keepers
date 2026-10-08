@@ -33,5 +33,7 @@ From the agent folder (`agents/nutrition`):
   `macronutrients.md` (added sugars on a label, the Daily Value), `frameworks.md` (the added-sugar limit),
   `eating-patterns.md` (sweets in a DASH week), `life-stages.md` (added sugar for children), `food-allergies.md`.
 
-Answer in this shape for Avo: the short answer, the card or cards it came from by title, and anything Avo must ask the
+Answer in this shape for Avo: the short answer, the card or cards it came from by title and the real source behind
+it by name (the organisation and title from knowledge/books/<book>/sources.md, for example the USDA Food Safety and
+Inspection Service or the CDC; never "the back of the packet"), and anything Avo must ask the
 person first. Never write to memory or state yourself; Avo does that.

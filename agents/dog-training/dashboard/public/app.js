@@ -64,6 +64,8 @@
     const name = e.detail && e.detail.name;
     if (typeof name !== 'string') return;
     const n = name.replace(/^./, (c) => c.toUpperCase());
+    // this room answers, so the kit's own paper bubble stays away (the kit's event is cancelable, lane A)
+    if (/^(Tumble|Barkley|Sizzle|Dog)$/.test(n) || dogs.some((d) => d.name === n)) e.preventDefault();
     if (n === 'Dog') return;   // the dog answers a tap itself (fetch)
     talk(n);
   });
@@ -270,7 +272,12 @@
     publishDogs();
     // Tumble answers a click (or Enter) with a line of its own; the kit's character event does the same (talk)
     const keeper = svg.querySelector('[id$="km-keeper-dog-training"]');
-    if (keeper) {
+    // the kit makes every character a button and fires kindlemere:character; on an older kit the page does it here
+    // The dog already has its own button here (fetch.js: "Play fetch with ..."), so the kit's wrapper for it leaves the
+    // tab order: one stop per character.
+    const dogActor = svg.querySelector('[data-km-actor="dog"][role="button"]');
+    if (dogActor && game) dogActor.setAttribute('tabindex', '-1');
+    if (keeper && !keeper.closest('[role="button"]')) {
       keeper.setAttribute('role', 'button');
       keeper.setAttribute('tabindex', '0');
       keeper.setAttribute('aria-label', 'Talk to Tumble');
@@ -377,7 +384,37 @@
     say(`${$('sess-skill').value}, then. ${short ? short.text : ''} Tap Got it or Not yet after each try.`);
   });
   const mark = (hit) => { if (!sess.on) return; sess.reps += 1; if (hit) sess.hits += 1; put('sess-hits', sess.hits); put('sess-reps', sess.reps); };
-  $('sess-hit').addEventListener('click', () => mark(true));
+  // A win feels like a win (owner, 00:3x CDT: "as rewarding as the eyes the owner gets when the dog wants
+  // something"): on Got it the field dog does the skill and Tumble hops. The words come from the log itself, and there
+  // is no daily streak to keep up, because the cards prefer short, spaced sessions.
+  const SHOWN = ['sit', 'down', 'stay', 'paw', 'spin', 'come'];
+  function hop() {
+    const me = document.querySelector('[data-km-actor="dog-training"]');
+    if (!me) return;
+    me.setAttribute('data-km-mood', 'oh');
+    setTimeout(() => me.removeAttribute('data-km-mood'), 900);
+  }
+  function celebrate(d, text) {
+    let o = null;
+    try { o = JSON.parse(text); } catch (_) { o = null; }
+    const skill = $('sess-skill').value;
+    const k = o && Array.isArray(o.skills) ? o.skills.find((s) => s.skill === skill.toLowerCase()) : null;
+    const last = k ? parseInt(k.last, 10) : NaN;
+    const before = k && k.earlier_average ? parseInt(k.earlier_average, 10) : NaN;
+    const all = sess.hits === sess.reps;
+    let line = all ? `${sess.hits} of ${sess.reps}, every one!` : `${sess.hits} of ${sess.reps}.`;
+    if (last > before) line += ` ${skill[0].toUpperCase()}${skill.slice(1)} is up to ${last}% from ${before}%.`;
+    if (o && o.sessions_logged) line += ` That's session ${o.sessions_logged} for ${d.name}.`;
+    if (last < before) { say(`${line} Have a look at what my books say about that, below.`, 'Tumble', 'thinking'); return; }
+    say(`${line} Good work, both of you.`, 'Tumble', 'happy');
+    if (all || last > before || !Number.isFinite(before)) { hop(); if (game) game.show('spin'); }
+  }
+  $('sess-hit').addEventListener('click', () => {
+    mark(true);
+    const s = $('sess-skill').value;
+    if (game && SHOWN.includes(s)) game.show(s);
+    hop();
+  });
   $('sess-miss').addEventListener('click', () => mark(false));
   $('sess-end').addEventListener('click', async () => {
     const d = dogNow();
@@ -389,7 +426,7 @@
     try {
       const r = await api('/api/log', { dog: d.name, skill: $('sess-skill').value, reps: sess.reps, hits: sess.hits, minutes: Math.max(1, Math.round((Date.now() - sess.start) / 60000)) });
       toolOut($('sess-out'), r.text);
-      say(`Logged: ${sess.hits} right of ${sess.reps}. Good work, both of you.`);
+      if (r.ok) celebrate(d, r.text); else say(r.text, 'Tumble', 'oh');
     } catch (e) { say(`I couldn't log that: ${e.message}`, 'Tumble', 'worried'); }
   });
 
@@ -609,6 +646,34 @@
     $('chat').append(li);
     li.scrollIntoView({ block: 'nearest' });
   }
+  // While Tumble works (a first answer can take two minutes), he thinks where you can see it: a waiting turn in the
+  // chat, his figure in the field thinking with the talk dots, and a line in the bubble that moves on as he goes.
+  const WAIT_LINES = ['Let me look in my books…', 'Checking what I remember about your dogs…', 'Finding the right card…', 'Reading it through…', 'Still reading. The first question takes me longest.'];
+  function thinking() {
+    const wait = el('li', 'tm-turn');
+    wait.append(el('span', 'tm-who', 'Tumble'));
+    const dots = el('span', 'tm-dots');
+    dots.setAttribute('aria-label', 'Tumble is thinking');
+    dots.append(el('span'), el('span'), el('span'));
+    wait.append(dots);
+    $('chat').append(wait);
+    wait.scrollIntoView({ block: 'nearest' });
+    let n = 0;
+    const figure = () => {
+      const me = document.querySelector('[data-km-actor="dog-training"]');
+      if (me) { me.setAttribute('data-km-mood', 'thinking'); me.setAttribute('data-km-talk', '1'); }
+      return me;
+    };
+    const tick = () => { say(WAIT_LINES[Math.min(n, WAIT_LINES.length - 1)], 'Tumble', 'thinking'); n += 1; figure(); };
+    tick();
+    const timer = setInterval(tick, 12000);
+    return () => {
+      clearInterval(timer);
+      wait.remove();
+      const me = figure();
+      if (me) { me.removeAttribute('data-km-mood'); me.removeAttribute('data-km-talk'); }
+    };
+  }
   $('talk-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const box = $('talk-text');
@@ -617,9 +682,9 @@
     turn('You', text);
     box.value = '';
     $('talk-send').disabled = true;
-    say('Let me look in my books…', 'Tumble', 'thinking');
+    const done = thinking();
     try {
-      const r = await api('/api/talk', talkSession ? { text, session: talkSession } : { text });
+      const r = await api('/api/talk', talkSession ? { text, session: talkSession } : { text }).finally(done);
       if (r.session) talkSession = r.session;
       turn('Tumble', r.text);
       const first = String(r.text).split(/(?<=[.!?])\s/)[0].replace(/\*\*/g, '');

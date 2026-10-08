@@ -40,7 +40,7 @@ const C = {
   clay1: '#D49A68', clay2: '#C98A5A', clay3: '#A86A3E', clay4: '#8A5530', bark: '#6B4A2A',
   fBg: '#F1F4F6', fSky: '#DCE5EC', fLand: '#4B5D6E', fShade: '#3B4B59', fLight: '#7E909F', fLightShade: '#66798A', fPale: '#E4EAEF', fGlow: '#A9B8C4', fGlowDeep: '#8C9DAB', fDeep: '#34424F', fDeeper: '#2A3640', fStone: '#EEF1F3',
   pine: '#2F4A3A', pineMid: '#3E5E46', pineLight: '#4F7356', moss: '#8BA348', sand: '#D9C9A8',
-  dSky: '#DDEBA6', dLand: '#6E3A12', dGlow: '#E5B07A', dGrass: '#A9C24A', dGrassDeep: '#7E9A2E', dGrassDark: '#62801F', dPlume: '#9DB83A', dSeed: '#C3D66B', dRusset: '#8E5126', dTan: '#A8622E', dDark: '#4F2A0D',
+  dSky: '#DDEBA6', dLand: '#6E3A12', dGlow: '#E5B07A', dGrass: '#9CB54A', dGrassDeep: '#78963A', dGrassDark: '#5E7A2A', dPlume: '#9DB83A', dSeed: '#C3D66B', dRusset: '#8E5126', dTan: '#A8622E', dDark: '#4F2A0D',
   bulb: '#FFF1C9', bulbGlow: '#FFD58A', firefly: '#F4FFB0',
 };
 
@@ -63,6 +63,9 @@ const shadow = (x, y, rx, ry) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${
  * detail by the same amount, so a blade of grass is the same size next to a keeper wherever it grows, and DENS adds
  * more of it to fill the bigger ground.
  */
+/* Things that move on the land, gathered while the land is drawn (land units), and drawn in the life layer. */
+let LIFE = '';
+
 let DETAIL = 1;
 let DENS = 1;
 const N = (n) => Math.round(n * DENS);
@@ -116,6 +119,9 @@ function flowers(n, x0, x1, y0, y1, petals, centre, s) {
   for (let i = 0; i < N(n); i += 1) o += flower(r(x0, x1), r(y0, y1), pick(petals), centre, s);
   return o;
 }
+
+/** Send a moving part to the life layer; the land draws nothing in its place. */
+const live = (s) => { LIFE += s; return ''; };
 
 /** Pebbles in a row along y. */
 function stones(x0, x1, y, h, cols) {
@@ -301,6 +307,16 @@ function hillBody() {
   o += grassBlades(560, 1080, 430, 552, 90, ['#6F8A34', '#5E7A2A', '#7E9A3A'], 5, 10);
   o += grassBlades(660, 980, 320, 430, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 4, 8);
   o += flowers(26, 600, 1040, 420, 548, [C.paper, C.sand, C.dGlow], C.fLand, 0.6);
+  o += flowers(34, 620, 1060, 330, 548, [C.paper, C.sand, C.dGlow, '#F2D27A'], C.fLand, 0.55);
+  o += grassBlades(700, 960, 300, 420, 40, ['#7E9A3A', '#8BA348', '#6F8A34'], 3, 7);
+  for (let i = 0; i < N(26); i += 1) { const x = r(600, 1060); const y = r(360, 548); o += `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(r(2, 4))}" ry="${f(r(1.2, 2.4))}" fill="${pick([C.fStone, C.fGlow, C.fLight])}"/>`; }
+  // A bench part way up the steps, and a trail marker at their foot.
+  o += `<g filter="url(#layer-sm)"><rect x="652" y="446" width="24" height="4" rx="2" fill="${C.clay2}"/><rect x="654" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="671" y="449" width="3" height="6" fill="${C.clay4}"/><rect x="652" y="440" width="24" height="3" rx="1.5" fill="${C.clay3}"/></g>`;
+  o += `<g filter="url(#layer-sm)"><rect x="636" y="522" width="3" height="22" rx="1.5" fill="${C.bark}"/><path d="M639 524 h14 l3 3 l-3 3 h-14 Z" fill="${C.fLand}"/><path d="M641 527 h9" stroke="${C.paper}" stroke-width="1"/></g>`;
+  // A few sheep grazing.
+  [[606, 528, 1], [628, 518, 0.9], [940, 520, 1], [1044, 512, 0.85]].forEach(([x, y, s]) => {
+    o += `<g transform="translate(${x} ${y}) scale(${s})">${shadow(0, 6, 8, 1.6)}<path d="M-5 4 v4 M3 4 v4" stroke="${C.ink}" stroke-width="1.6" stroke-linecap="round"/><circle cx="-5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="-2" r="4.6" fill="#F4F1E8"/><circle cx="5" cy="0" r="4" fill="#F4F1E8"/><circle cx="0" cy="2" r="4" fill="#F4F1E8"/><ellipse cx="9" cy="-1" rx="2.6" ry="3.2" fill="#3A3A3A"/><circle cx="10" cy="-1.6" r="0.6" fill="${C.paper}"/></g>`;
+  });
   // Granite outcrops.
   o += `<g filter="url(#layer-sm)">${boulder(764, 474, 60, 32)}${boulder(812, 506, 36, 20)}${boulder(876, 340, 46, 26)}${boulder(990, 506, 54, 28)}${boulder(640, 518, 42, 22)}</g>`;
   // Pines on its sides.
@@ -322,19 +338,19 @@ function hillBody() {
   // post; the spring runs from it down the hill's face.
   o += `<g transform="translate(-70 30)">`;
   o += `<path d="M956 404 C962 396 1040 396 1046 404 L1042 410 C1020 416 980 416 960 410 Z" fill="#5E7A2A"/>`;
-  o += `<g filter="url(#layer-sm)"><ellipse cx="1000" cy="402" rx="42" ry="9" fill="${C.fLand}"/><ellipse cx="998" cy="398" rx="36" ry="7" fill="${C.mereLight}"/></g><path d="M980 398 h18 M1004 400 h10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round"/>`;
+  o += `<g filter="url(#layer-sm)"><ellipse cx="1000" cy="402" rx="42" ry="9" fill="${C.fLand}"/><ellipse cx="998" cy="398" rx="36" ry="7" fill="${C.mere}"/><ellipse cx="992" cy="397" rx="20" ry="2.6" fill="${C.mereShine}"/></g><path d="M980 398 h18 M1004 400 h10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round"/>`;
   o += `<path d="M990 396 c-3 -6 0 -9 3 -10 c3 1 6 4 3 10 Z M984 397 c-5 -3 -6 -7 -4 -9 c4 0 6 3 6 8 Z M1002 397 c5 -3 6 -7 4 -9 c-4 0 -6 3 -6 8 Z" fill="${C.paper}"/>`;
   o += `<rect x="950" y="398" width="22" height="6" rx="3" fill="${C.sand}"/>`;
   o += `<path d="M1034 402 V376 q0 -9 9 -9 h7" stroke="${C.bark}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1044 378 a5.5 6 0 0 1 11 0 Z" fill="${C.dGlow}"/>`;
   o += `</g>`;
-  o += `<path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.mereLight}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 14" fill="none" class="km-fall"/>`;
+  o += `<path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.mere}" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M962 434 C990 454 1024 470 1036 492 C1048 514 1052 534 1058 552" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 14" fill="none" class="km-fall"/>`;
   // The lookout on the top: a railed platform on a granite ledge, a flag, and a spyglass at the horizon.
   o += `<g filter="url(#layer-sm)">${boulder(820, 288, 92, 24)}</g>`;
   o += `<g transform="translate(820 252)" filter="url(#layer-sm)">`;
   o += `<rect x="-26" y="0" width="52" height="7" rx="3.5" fill="${C.clay3}"/><rect x="-22" y="7" width="5" height="22" fill="${C.clay4}"/><rect x="17" y="7" width="5" height="22" fill="${C.clay4}"/><path d="M-22 20 L22 10" stroke="${C.clay4}" stroke-width="3"/>`;
   o += `<path d="M-24 0 V-16 H24 V0" stroke="${C.clay3}" stroke-width="3" fill="none"/><path d="M-12 -16 V0 M0 -16 V0 M12 -16 V0" stroke="${C.clay3}" stroke-width="2"/>`;
   o += `<path d="M-24 -16 V-56" stroke="${C.ink}" stroke-width="2.5" stroke-linecap="round"/><path d="M-24 -56 h22 l-6 7 l6 7 h-22 Z" fill="${C.fGlow}" class="km-flag"/>`;
-  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)"><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
+  o += `<path d="M8 0 L14 -14 L20 0" stroke="${C.ink}" stroke-width="2" fill="none"/><g transform="rotate(-16 14 -16)" data-km-part="telescope" pointer-events="visiblePainted"><rect x="-4" y="-34" width="52" height="34" fill="transparent"/><rect x="4" y="-21" width="30" height="9" rx="4.5" fill="${C.clay2}"/><rect x="28" y="-23" width="9" height="13" rx="3" fill="${C.clay4}"/><rect x="0" y="-19" width="6" height="5" rx="2" fill="${C.clay4}"/></g>`;
   o += `</g>`;
   return g('id="km-hill"', o);
 }
@@ -351,7 +367,7 @@ function hillFoot() {
   o += flowers(12, 570, 1060, 632, 684, [C.paper, C.sand, C.fPale], C.fLand, 0.7);
   o += `<ellipse cx="840" cy="566" rx="110" ry="11" fill="none" stroke="${C.paper}" stroke-width="2" stroke-dasharray="8 7" opacity="0.75"/>`;
   o += `<g transform="translate(900 572)" filter="url(#layer-sm)"><rect x="-8" y="-6" width="16" height="10" rx="2" fill="${C.fStone}"/><ellipse cx="0" cy="-8" rx="15" ry="5" fill="${C.paper}"/><path d="M0 -8 l9 -10 v10 Z" fill="${C.fDeep}"/><path d="M-12 -8 h4 M8 -8 h4" stroke="${C.inkSoft}" stroke-width="1.4"/></g>`;
-  o += `<g transform="translate(960 566)"><path d="M0 0 V-46" stroke="${C.bark}" stroke-width="3.5" stroke-linecap="round"/><circle cx="0" cy="-48" r="3.5" fill="${C.fGlow}"/><path d="M0 -44 c10 4 16 12 24 10 c-6 -4 -8 -8 -12 -12" fill="${C.fGlow}" class="km-flag"/><path d="M0 -38 c8 6 12 14 20 14 c-6 -4 -6 -10 -10 -14" fill="${C.paper}" class="km-flag" style="animation-delay:-1s"/></g>`;
+  LIFE += `<g transform="translate(960 566)"><path d="M0 0 V-46" stroke="${C.bark}" stroke-width="3.5" stroke-linecap="round"/><circle cx="0" cy="-48" r="3.5" fill="${C.fGlow}"/><path d="M0 -44 c10 4 16 12 24 10 c-6 -4 -8 -8 -12 -12" fill="${C.fGlow}" class="km-flag"/><path d="M0 -38 c8 6 12 14 20 14 c-6 -4 -6 -10 -10 -14" fill="${C.paper}" class="km-flag" style="animation-delay:-1s"/></g>`;
   o += `<g filter="url(#layer-sm)">${shadow(790, 556, 34, 3)}<rect x="758" y="536" width="64" height="9" rx="4.5" fill="${C.clay2}"/><path d="M762 540 h56" stroke="${C.clay3}" stroke-width="1.5"/><circle cx="760" cy="540.5" r="3.5" fill="${C.clay1}"/><circle cx="820" cy="540.5" r="3.5" fill="${C.clay1}"/><rect x="764" y="544" width="8" height="12" rx="3" fill="${C.clay3}"/><rect x="808" y="544" width="8" height="12" rx="3" fill="${C.clay3}"/>` +
     `<ellipse cx="782" cy="532" rx="9" ry="4" fill="none" stroke="${C.sand}" stroke-width="3"/><ellipse cx="782" cy="530" rx="5" ry="2.4" fill="none" stroke="${C.sand}" stroke-width="2.5"/><path d="M791 532 c6 0 8 4 4 8" stroke="${C.sand}" stroke-width="2.5" fill="none"/>` +
     `<path d="M832 554 h22 l-3 -14 h-16 Z" fill="${C.clay2}"/><path d="M834 548 h18" stroke="${C.clay3}" stroke-width="1.5"/><ellipse cx="838" cy="538" rx="5" ry="3.6" fill="${C.fGlow}"/><ellipse cx="847" cy="537" rx="5" ry="3.6" fill="${C.fLight}"/><ellipse cx="842" cy="534" rx="4" ry="3" fill="${C.fStone}"/></g>`;
@@ -411,7 +427,7 @@ function orchard() {
   o += `<g filter="url(#layer-sm)" transform="translate(212 452)">${shadow(0, 18, 18, 3)}<path d="M-16 18 C-18 0 -8 -14 0 -14 C8 -14 18 0 16 18 Z" fill="${C.dGlow}"/>`;
   for (let i = 0; i < 4; i += 1) o += `<path d="M${-16 + i * 1.5} ${f(14 - i * 7)} H${16 - i * 1.5}" stroke="${C.nGlowDeep}" stroke-width="2"/>`;
   o += `<path d="M-4 18 a4 5 0 0 1 8 0" fill="${C.clay4}"/><rect x="-20" y="18" width="40" height="5" rx="2.5" fill="${C.clay3}"/></g>`;
-  [[236, 424], [248, 436], [226, 414]].forEach(([x, y], i) => { o += `<g class="km-buzz km-day-only" style="animation-delay:-${i}s"><ellipse cx="${x}" cy="${y}" rx="2.4" ry="1.8" fill="#E9C24A"/><path d="M${x - 0.6} ${y - 1.8} v3.6 M${x + 0.9} ${y - 1.8} v3.6" stroke="${C.ink}" stroke-width="0.8"/><ellipse cx="${x}" cy="${y - 2.4}" rx="1.8" ry="1.2" fill="${C.paper}" opacity="0.85"/></g>`; });
+  [[236, 424], [248, 436], [226, 414]].forEach(([x, y], i) => { LIFE += `<g class="km-buzz km-day-only" style="animation-delay:-${i}s"><ellipse cx="${x}" cy="${y}" rx="2.4" ry="1.8" fill="#E9C24A"/><path d="M${x - 0.6} ${y - 1.8} v3.6 M${x + 0.9} ${y - 1.8} v3.6" stroke="${C.ink}" stroke-width="0.8"/><ellipse cx="${x}" cy="${y - 2.4}" rx="1.8" ry="1.2" fill="${C.paper}" opacity="0.85"/></g>`; });
   // Middle terrace: the larder door dug into the hill, with a lamp over it and jars on a shelf beside it.
   o += `<g filter="url(#layer-sm)"><path d="M262 506 V478 a20 20 0 0 1 40 0 V506 Z" fill="${C.clay3}"/><path d="M272 506 V474 M282 506 V460 M292 506 V474" stroke="${C.clay4}" stroke-width="2"/>`;
   o += `<path d="M264 484 h16 M264 498 h16" stroke="${C.bark}" stroke-width="3" stroke-linecap="round"/><circle cx="294" cy="492" r="2.6" fill="${C.nGlow}"/><circle cx="282" cy="452" r="4" fill="#FFE9B0" stroke="${C.clay4}" stroke-width="1.2"/><path d="M282 448 v-6" stroke="${C.ink}" stroke-width="1.2"/>`;
@@ -457,7 +473,7 @@ function orchard() {
   o += `</g>`;
   // The nutrition keeper's kettle on the table: apricot, a curled spout, steam. No flame.
   o += `<g transform="translate(366 516) scale(0.6)" filter="url(#layer-sm)"><path d="M-16 28 C-26 26 -30 18 -26 12 C-24 18 -20 22 -12 22 Z" fill="${C.nGlow}"/><ellipse cx="4" cy="28" rx="20" ry="16" fill="${C.nGlow}"/><path d="M-10 36 a20 10 0 0 0 28 0" fill="${C.nGlowDeep}" opacity="0.45"/><rect x="-4" y="9" width="16" height="6" rx="3" fill="${C.nGlowDeep}"/><circle cx="4" cy="8" r="3.5" fill="${C.nGlowDeep}"/><path d="M22 20 C32 20 32 36 22 36" stroke="${C.nGlowDeep}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="-4" cy="22" r="3" fill="${C.paper}" opacity="0.6"/></g>`;
-  o += `<g class="km-steam"><path d="M352 524 c-4 -5 4 -8 0 -13 c-4 -5 4 -8 0 -13" stroke="${C.paper}" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M357 521 c-3 -4 3 -6 0 -10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/></g>`;
+  LIFE += `<g class="km-steam"><path d="M352 524 c-4 -5 4 -8 0 -13 c-4 -5 4 -8 0 -13" stroke="${C.paper}" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M357 521 c-3 -4 3 -6 0 -10" stroke="${C.paper}" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/></g>`;
   // A picnic blanket in the grass with a basket, a jug and a bowl of fruit.
   o += `<g transform="translate(230 600)" filter="url(#layer-sm)"><path d="M-44 -8 L40 -12 L50 10 L-36 14 Z" fill="${C.paper}"/>`;
   for (let i = 0; i < 7; i += 1) o += `<path d="M${-40 + i * 13} -9 L${-33 + i * 13} 13" stroke="${C.kindle}" stroke-width="4" opacity="0.5"/>`;
@@ -489,12 +505,16 @@ function field() {
   o += `</g>`;
   // A row of trees along the far side of the field.
   for (let i = 0; i < 9; i += 1) { const x = 1150 + i * 52 + r(-10, 10); o += `<g filter="url(#layer-sm)">${roundTree(x, 522 - (i % 2) * 4, 0.7 + r(0, 0.2), [C.pineMid, C.pineLight, '#5E8A52'])}</g>`; }
+  [[1176, 470], [1236, 466], [1296, 470], [1356, 464], [1416, 468]].forEach(([x, y], i) => {
+    const n = i + 2;
+    o += `<g data-km-part="dog-house-${n}" display="none" filter="url(#layer-sm)" transform="translate(${x} ${y}) scale(0.62)">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M18 60 V46 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/>${`<rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-${n}" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`}</g>`;
+  });
   for (let i = 0; i < 9; i += 1) o += `<rect x="${1060 + i * 60}" y="${f(500 - (i % 3) * 3)}" width="5" height="34" rx="2.5" fill="${C.dRusset}"/>`;
   o += `<path d="M1058 508 C1200 500 1360 492 1590 498 M1058 520 C1200 512 1360 504 1590 510" stroke="${C.dTan}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
   // The dog house: a pitched roof of shingles, a name board, a round door, a water bowl.
-  o += `<g filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+  o += `<g data-km-part="dog-house-1" filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
   for (let i = 0; i < 4; i += 1) o += `<path d="M${4 + i * 8} ${20 - i * 5} l8 6 M${56 - i * 8} ${20 - i * 5} l-8 6" stroke="${C.dRusset}" stroke-width="2"/>`;
-  o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="22" y="28" width="16" height="6" rx="3" fill="${C.paper}"/><path d="M26 31 h8" stroke="${C.dTan}" stroke-width="1.5"/>`;
+  o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`;
   o += `<ellipse cx="76" cy="60" rx="8" ry="3.2" fill="${C.fGlow}"/><ellipse cx="76" cy="58.6" rx="5.6" ry="2" fill="${C.mereLight}"/><path d="M-4 60 h8 l-1 -3 h-6 Z" fill="${C.dTan}"/></g>`;
   for (let i = 0; i < 6; i += 1) {
     const x = 1392 + i * 14;
@@ -504,13 +524,19 @@ function field() {
   }
   o += `${shadow(1516, 552, 36, 3)}<path d="M1484 550 V516 a32 32 0 0 1 64 0 V550" stroke="${C.dRusset}" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M1484 550 V516 a32 32 0 0 1 64 0 V550" stroke="${C.dGlow}" stroke-width="7" stroke-dasharray="4 7" fill="none"/>`;
   [[1100, 612, C.paper], [1160, 610, C.dGlow], [1230, 606, C.paper]].forEach(([x, y, col], i) => {
-    o += `<path d="M${x} ${y} v-20" stroke="${C.dLand}" stroke-width="1.6"/><path d="M${x} ${y - 20} h12 a4.5 4.5 0 0 1 0 9 h-12 Z" fill="${col}" class="km-flag" style="animation-delay:-${i * 0.6}s"/>`;
-    o += `<g fill="${C.dLand}"><ellipse cx="${x + 6}" cy="${y - 14.6}" rx="1.6" ry="1.3"/><circle cx="${x + 4.2}" cy="${y - 17.2}" r="0.8"/><circle cx="${x + 6}" cy="${y - 17.8}" r="0.8"/><circle cx="${x + 7.8}" cy="${y - 17.2}" r="0.8"/></g>`;
+    LIFE += `<path d="M${x} ${y} v-20" stroke="${C.dLand}" stroke-width="1.6"/><path d="M${x} ${y - 20} h12 a4.5 4.5 0 0 1 0 9 h-12 Z" fill="${col}" class="km-flag" style="animation-delay:-${i * 0.6}s"/>`;
+    LIFE += `<g fill="${C.dLand}"><ellipse cx="${x + 6}" cy="${y - 14.6}" rx="1.6" ry="1.3"/><circle cx="${x + 4.2}" cy="${y - 17.2}" r="0.8"/><circle cx="${x + 6}" cy="${y - 17.8}" r="0.8"/><circle cx="${x + 7.8}" cy="${y - 17.2}" r="0.8"/></g>`;
   });
   for (let i = 0; i < 10; i += 1) { const x = 1250 + i * 12; const y = shoreY(x) - 6 - (i % 2) * 3; o += `<g fill="${C.dGrassDark}" opacity="0.75"><ellipse cx="${f(x)}" cy="${f(y)}" rx="1.8" ry="1.4"/><circle cx="${f(x - 1.8)}" cy="${f(y - 2.1)}" r="0.8"/><circle cx="${f(x)}" cy="${f(y - 2.7)}" r="0.8"/><circle cx="${f(x + 1.8)}" cy="${f(y - 2.1)}" r="0.8"/></g>`; }
   o += `<g filter="url(#layer-sm)"><ellipse cx="1316" cy="578" rx="9" ry="3.2" fill="${C.fGlow}"/><ellipse cx="1316" cy="577.4" rx="6" ry="2" fill="none" stroke="${C.paper}" stroke-width="1"/>` +
     `<path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dGlow}" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M1170 588 c6 -4 12 2 18 -1 c5 -2 9 1 11 0" stroke="${C.dLand}" stroke-width="3" stroke-dasharray="2 3" fill="none"/><circle cx="1167" cy="588.6" r="3" fill="${C.dLand}"/><circle cx="1202" cy="587" r="3" fill="${C.dLand}"/>` +
     `<circle cx="1372" cy="566" r="3.4" fill="#D8E04A"/><path d="M1369.6 564.8 q2.4 1.8 4.8 0" stroke="${C.paper}" stroke-width="0.8" fill="none"/></g>`;
+  // Bushes with berries, like the Orchard's, along the Field.
+  [[1272, 552, 1], [1336, 560, 0.8], [1504, 566, 1.1], [1586, 592, 0.9], [1060, 560, 0.8]].forEach(([x, y, s]) => {
+    o += `<g filter="url(#layer-sm)">${shadow(x, y + 2, f(16 * s), 2)}<circle cx="${x}" cy="${f(y - 9 * s)}" r="${f(10 * s)}" fill="#5F7A3A"/><circle cx="${f(x - 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7 * s)}" fill="#6E8A42"/><circle cx="${f(x + 9 * s)}" cy="${f(y - 5 * s)}" r="${f(7.5 * s)}" fill="#748F48"/>` +
+      `<circle cx="${f(x - 3 * s)}" cy="${f(y - 12 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 4 * s)}" cy="${f(y - 8 * s)}" r="${f(1.4 * s)}" fill="#C8433A"/><circle cx="${f(x + 1 * s)}" cy="${f(y - 14 * s)}" r="${f(1.2 * s)}" fill="#C8433A"/></g>`;
+  });
+  o += flowers(20, 1040, 1590, 548, 600, [C.paper, C.nGlow, '#F2D27A'], C.nGlowDeep, 0.8);
   o += grassBlades(1030, 1600, 540, 600, 150, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 18);
   o += flowers(30, 1040, 1590, 540, 596, [C.paper, C.dGlow, C.paper, '#F2D27A'], C.dGlow, 0.8);
   o += grassBlades(1030, 1600, 598, 660, 90, [C.dGrassDeep, C.dGrassDark, '#8FAE3A'], 8, 16);
@@ -535,8 +561,8 @@ function bank() {
 function paths() {
   // Paths of light stitched into the ground: from each place to the signpost, and from the signpost down to the shore.
   const stitch = (d, delay) => `<path d="${d}" stroke="#E8D7B4" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.9"/>` +
-    `<path d="${d}" stroke="${C.paper}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 10" fill="none"/>` +
-    `<path d="${d}" stroke="#FFF7D6" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 140" fill="none" class="km-light" style="animation-delay:-${delay}s"/>`;
+    `<path d="${d}" stroke="${C.paper}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 10" fill="none"/>` + live(
+    `<path d="${d}" stroke="#FFF7D6" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 140" fill="none" class="km-light" style="animation-delay:-${delay}s"/>`);
   let o = '';
   o += stitch('M500 582 C600 590 700 600 782 608', 0);
   o += stitch('M690 572 C720 588 760 600 790 606', 1.5);
@@ -545,7 +571,7 @@ function paths() {
   // The spring from the hill's pool runs down to the lake, under a little bridge on the Field path.
   const spring = 'M1131 551 C1134 571 1126 588 1130 604 C1134 628 1128 664 1134 718';
   o += `<path d="${spring}" stroke="${C.mere}" stroke-width="10" stroke-linecap="round" fill="none"/>`;
-  o += `<path d="${spring}" stroke="${C.mereLight}" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10" fill="none" class="km-fall"/>`;
+  o += `<path d="${spring}" stroke="${C.mereLight}" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 10" fill="none"/>`;
   o += `<g transform="translate(1130 594) scale(0.8)" filter="url(#layer-sm)"><path d="M-26 6 C-14 -8 14 -8 26 6" stroke="${C.clay3}" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M-22 4 V-8 M-8 -2 V-14 M8 -2 V-14 M22 4 V-8" stroke="${C.clay4}" stroke-width="3" stroke-linecap="round"/><path d="M-22 -8 C-10 -18 10 -18 22 -8" stroke="${C.clay4}" stroke-width="3" fill="none"/></g>`;
   return g('id="km-paths"', o);
 }
@@ -590,8 +616,8 @@ function lake() {
   // A frog on a lily pad, and a paper duck keeping an eye on the dog.
   o += `<g transform="translate(1046 870) scale(0.55)" class="km-day-only"><ellipse cx="0" cy="0" rx="9" ry="6" fill="#5E8A3A"/><circle cx="-5" cy="-6" r="3.4" fill="#5E8A3A"/><circle cx="5" cy="-6" r="3.4" fill="#5E8A3A"/><circle cx="-5" cy="-6.4" r="1.6" fill="${C.ink}"/><circle cx="5" cy="-6.4" r="1.6" fill="${C.ink}"/><path d="M-4 1 q4 3 8 0" stroke="${C.ink}" stroke-width="1.2" fill="none"/></g>`;
   for (let i = 0; i < 12; i += 1) { const x = 1556 + i * 3.6; const y = shoreY(x) + 44; const h = r(18, 32); o += `<path d="M${f(x)} ${f(y)} q${f(r(-2, 2))} ${f(-h / 2)} ${f(r(-3, 3))} ${f(-h)}" stroke="${C.dGrassDark}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`; if (i % 2) o += `<rect x="${f(x - 1.6)}" y="${f(y - h - 1)}" width="3.2" height="8" rx="1.6" fill="${C.dLand}"/>`; }
-  o += `<g transform="translate(1504 716) scale(0.7)" class="km-bob" style="animation-delay:-2s"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="${C.paper}"/><circle cx="-1" cy="-4" r="5" fill="${C.paper}"/><path d="M-6 -4 l-5 1 l5 2 Z" fill="${C.dGlow}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/><path d="M-10 12 a14 3 0 0 0 26 0" stroke="${C.mereLight}" stroke-width="2" fill="none" opacity="0.7"/></g>`;
-  o += `<g class="km-fish"><path d="M1180 836 c6 -6 16 -6 21 0 c-5 6 -15 6 -21 0 Z M1201 836 l6 -5 v10 Z" fill="${C.nGlow}"/><circle cx="1186" cy="835" r="1.2" fill="${C.ink}"/></g>`;
+  LIFE += `<g transform="translate(1504 716) scale(0.7)" class="km-bob" style="animation-delay:-2s"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="${C.paper}"/><circle cx="-1" cy="-4" r="5" fill="${C.paper}"/><path d="M-6 -4 l-5 1 l5 2 Z" fill="${C.dGlow}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/><path d="M-10 12 a14 3 0 0 0 26 0" stroke="${C.mereLight}" stroke-width="2" fill="none" opacity="0.7"/></g>`;
+  LIFE += `<g class="km-fish"><path d="M1180 836 c6 -6 16 -6 21 0 c-5 6 -15 6 -21 0 Z M1201 836 l6 -5 v10 Z" fill="${C.nGlow}"/><circle cx="1186" cy="835" r="1.2" fill="${C.ink}"/></g>`;
   o += `<path d="M1176 854 a14 3.5 0 0 0 28 0" stroke="${C.mereLight}" stroke-width="1.5" fill="none" opacity="0.6"/>`;
   return g('id="km-lake"', o);
 }
@@ -622,9 +648,10 @@ function shore() {
   // The lantern post at the end of the dock.
   o += `<g filter="url(#layer-sm)"><rect x="852" y="716" width="4" height="64" rx="2" fill="${C.clay4}"/><path d="M854 718 h12 v4" stroke="${C.clay4}" stroke-width="2.4" fill="none"/></g>`;
   o += `<g transform="translate(866 736) scale(0.38)">${lanternBody()}</g>`;
-  o += `<g transform="translate(800 760) scale(0.6)"><g class="km-bob">${lanternBody()}<circle cx="0" cy="-4" r="30" fill="${C.kindle}" opacity="0.15"/></g></g></g>`;
+  o += '</g>';
+  LIFE += `<g transform="translate(0 ${DOCK_DY})"><g transform="translate(800 760) scale(0.6)"><g class="km-bob">${lanternBody()}<circle cx="0" cy="-4" r="30" fill="${C.kindle}" opacity="0.15"/></g></g></g>`;
   const reeds = (x0, n, h0) => { let s = ''; for (let i = 0; i < n; i += 1) { const x = x0 + i * r(4, 7); const h = h0 + r(-16, 20); s += `<path d="M${f(x)} 900 q${f(r(-4, 4))} ${f(-h / 2)} ${f(r(-7, 7))} ${f(-h)}" stroke="${pick([C.mereDeep, '#12333E', '#245868'])}" stroke-width="${f(r(2, 3.2))}" stroke-linecap="round" fill="none"/>`; if (rnd() > 0.55) s += `<rect x="${f(x - 2)}" y="${f(900 - h * 0.92)}" width="4.4" height="14" rx="2.2" fill="${C.clay4}"/>`; } return s; };
-  o += `<g class="km-sway">${reeds(0, 16, 90)}</g><g class="km-sway" style="animation-delay:-2s">${reeds(1500, 14, 80)}</g>`;
+  LIFE += `<g class="km-sway">${reeds(0, 16, 90)}</g><g class="km-sway" style="animation-delay:-2s">${reeds(1500, 14, 80)}</g>`;
   return g('id="km-shore"', o);
 }
 
@@ -636,7 +663,8 @@ function lanterns() {
   o += `<g transform="translate(580 800) scale(0.6)"><g class="km-bob" style="animation-delay:-1.5s"><path d="M70 30 h30 M76 36 h22" stroke="${C.mereLight}" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>`;
   o += `<path d="M0 18 H64 C58 30 48 34 32 34 C16 34 6 30 0 18 Z" fill="${C.paper}"/><path d="M0 18 H64 L60 24 H4 Z" fill="${C.creamDeep}"/><path d="M30 -14 V18 H8 Z" fill="${C.creamDeep}"/><path d="M30 -14 V18 H44 Z" fill="${C.paper}"/>`;
   o += `<rect x="34" y="6" width="22" height="12" rx="2" fill="${C.nLand}"/><rect x="34" y="6" width="22" height="3" fill="${C.cream}"/><rect x="38" y="11" width="14" height="2" rx="1" fill="${C.nGlow}"/></g></g></g>`;
-  return g('id="km-lanterns"', o);
+  LIFE += g('id="km-lanterns"', o);
+  return '';
 }
 
 /* ------------------------------------------------------------------ faces and moods */
@@ -710,7 +738,7 @@ function pose(mood, cx, fy, body) {
 /** In the scene a keeper carries a day face and a night face; on its own, one mood. */
 function faces(p, mood, night) {
   if (mood !== 'scene') return face(p, mood);
-  return `<g class="km-day-only">${face(p, 'happy')}</g><g class="km-night-only">${face(p, night.mood, night.lookUp)}</g>`;
+  return `<g class="km-day-only"><g class="km-face-happy">${face(p, 'happy')}</g><g class="km-face-thinking">${face(p, 'thinking')}</g><g class="km-face-oh">${face(p, 'oh')}</g></g><g class="km-night-only">${face(p, night.mood, night.lookUp)}</g>`;
 }
 
 /* ------------------------------------------------------------------ the keepers (their own units, feet at 0 0) */
@@ -753,6 +781,8 @@ function avocadoKeeper(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${cardArm}</g><g class="km-night-only">${restArm}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? restArm : cardArm;
   o += `<ellipse cx="42" cy="122" rx="10" ry="6" fill="#2B340C"/><ellipse cx="78" cy="122" rx="10" ry="6" fill="#2B340C"/>`;
+  // At night she sleeps in a wooden bowl.
+  if (mood === 'scene') o += `<g class="km-night-only"><path d="M-8 88 C-4 132 124 132 128 88 C112 99 8 99 -8 88 Z" fill="${C.clay2}"/><path d="M-8 88 C8 99 112 99 128 88" stroke="${C.clay1}" stroke-width="3" fill="none"/><path d="M6 100 C30 116 90 116 114 100 M14 112 C40 124 80 124 106 112" stroke="${C.clay3}" stroke-width="1.6" fill="none" opacity="0.7"/><ellipse cx="60" cy="124" rx="26" ry="5" fill="${C.clay3}"/><path d="M30 96 C40 86 54 86 60 94 C66 86 82 86 92 96" fill="${C.nLeaf}" opacity="0.9"/></g>`;
   return { body: o, cx: 60, feet: 126, head: [98, 14], w: 136, top: -32 };
 }
 
@@ -815,6 +845,13 @@ function summerSidekick(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${tart}</g><g class="km-night-only">${rest}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? rest : tart;
   o += `<ellipse cx="24" cy="61" rx="6" ry="3.4" fill="#C9662E"/><ellipse cx="40" cy="61" rx="6" ry="3.4" fill="#C9662E"/>`;
+  // At night she sleeps in a little woven basket under a checked napkin.
+  if (mood === 'scene') {
+    let weave = '';
+    for (let i = 0; i < 9; i += 1) weave += `<path d="M${-2 + i * 8} 48 l4 20" stroke="#A8824C" stroke-width="1.4"/>`;
+    o += `<g class="km-night-only"><path d="M-6 46 C-4 74 68 74 70 46 Z" fill="#C9A066"/>${weave}<path d="M-4 54 C20 62 44 62 68 54 M-2 62 C20 69 44 69 66 62" stroke="#A8824C" stroke-width="1.6" fill="none"/><ellipse cx="32" cy="46" rx="38" ry="6" fill="#B38A52"/>` +
+      `<path d="M-2 46 C12 40 52 40 66 46 L70 56 C48 62 16 62 -6 56 Z" fill="url(#km-gingham)"/><path d="M-6 56 l-3 6 l6 -2 Z M70 56 l3 6 l-6 -2 Z" fill="${C.nGlow}"/></g>`;
+  }
   return { body: o, cx: 32, feet: 63, head: [56, 0], w: 70, top: -12 };
 }
 
@@ -837,6 +874,12 @@ function spudSidekick(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${held}</g><g class="km-night-only">${down}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? down : held;
   o += `<ellipse cx="34" cy="93" rx="9" ry="5" fill="#7A5530"/><ellipse cx="60" cy="93" rx="9" ry="5" fill="#7A5530"/>`;
+  if (mood === 'scene') {
+    const mound = `<path d="M46 64 C44 56 48 50 52 46" stroke="#7D9A3A" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M50 50 c4 -4 9 -4 11 -2 c-3 3 -7 4 -11 2 Z M48 54 c-4 -3 -8 -2 -10 0 c3 2 7 2 10 0 Z" fill="#8FAE3A"/>` +
+      `<path d="M24 84 C26 66 68 66 70 84 Z" fill="#C49A64"/><path d="M36 76 q4 2.4 8 0 M50 76 q4 2.4 8 0" stroke="#4A2A12" stroke-width="2" stroke-linecap="round" fill="none"/>` +
+      `<path d="M-4 96 C8 78 86 76 98 96 Z" fill="#7A5530"/><path d="M4 92 C20 84 74 84 90 92" stroke="#8A6438" stroke-width="3" fill="none"/><circle cx="18" cy="90" r="2.4" fill="#A9804E"/><circle cx="74" cy="88" r="2" fill="#A9804E"/><path d="M6 94 l-2 -6 M12 93 l0 -7 M84 93 l2 -6 M90 94 l3 -5" stroke="#7D9A3A" stroke-width="1.8" stroke-linecap="round"/>`;
+    o = `<g class="km-dinner-only">${o}</g><g class="km-mound">${mound}</g>`;
+  }
   return { body: o, cx: 47, feet: 96, head: [80, 6], w: 110, top: -14 };
 }
 
@@ -860,12 +903,17 @@ function cloudSidekick(kind) {
   };
 }
 
-function placeSidekick(id, k, x, groundY, lift, cls) {
+/** Barkley and Sizzle, drawn by lane D (agents/dog-training/art/sidekicks.js @ 9c4bda3) on the owner's word: "Both Stick
+ * and Bacon need to be taller than tumble, matching scale with Avo and Steady. And both need enhancements to match the
+ * same standard being set by Avos team". Kept in the kit like the dog. */
+const DOG_SIDEKICKS = require('./parts/dog-sidekicks.js')({ C, f, faces });
+
+function placeSidekick(id, k, x, groundY, lift, cls, sc) {
   // A sidekick on the ground beside its keeper, or (a cloud) hovering `lift` above it with its shadow on the grass.
-  const s = KS;
+  const s = KS * (sc || 1);
   const y = groundY - lift;
   return `<g class="${cls || ''}"><ellipse cx="${x}" cy="${groundY}" rx="${f(k.w * 0.3 * s)}" ry="${f(5 * s)}" fill="${C.ink}" opacity="${lift ? 0.08 : 0.16}"/>` +
-    `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}>${k.body}</g></g></g>`;
+    `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}><g class="km-pose">${k.body}</g>${talkBubble(k)}</g></g></g>`;
 }
 
 /** The Field's dog, drawn by lane D (agents/dog-training/art/field-dog.svg @ faae296), kept in the kit as the one dog. */
@@ -886,9 +934,15 @@ function fieldDog(x, y) {
   return FIELD_DOG.group.replace(/<g id="dt-dog"[^>]*>/, `<g id="km-dog" class="dt-dog" data-km-part="dog" transform="translate(${x} ${y})">`);
 }
 
-function placeKeeper(id, k, x, feetY) {
-  // In the world: feet on the ground at (x, feetY), at the keepers' size.
-  return `<g id="${id}" transform="translate(${f(x - k.cx * KS)} ${f(feetY - k.feet * KS)}) scale(${KS})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${k.body}</g>`;
+/** The paper speech bubble over a head while the keepers talk (shown by data-km-talk="1" on the actor). */
+function talkBubble(k) {
+  return `<g class="km-talk" transform="translate(${k.head[0]} ${k.head[1]})"><path d="M-12 -30 h24 a8 8 0 0 1 8 8 v6 a8 8 0 0 1 -8 8 h-14 l-9 7 l2 -7 h-3 a8 8 0 0 1 -8 -8 v-6 a8 8 0 0 1 8 -8 Z" fill="${C.paper}"/><g class="km-dots" fill="${C.inkSoft}"><circle cx="-8" cy="-19" r="2.6"/><circle cx="0" cy="-19" r="2.6"/><circle cx="8" cy="-19" r="2.6"/></g></g>`;
+}
+
+function placeKeeper(id, k, x, feetY, sc) {
+  // In the world: feet on the ground at (x, feetY), at the keepers' size (smaller further off).
+  const s = KS * (sc || 1);
+  return `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(feetY - k.feet * s)}) scale(${s})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}<g class="km-pose">${k.body}</g>${talkBubble(k)}</g>`;
 }
 
 /* ------------------------------------------------------------------ the dog */
@@ -913,14 +967,13 @@ function sleepingDog() {
   return o;
 }
 
-function dogs() {
-  // By day the dog gallops through the shallows of the bay with the tennis ball (lane D's drawing, with its own
-  // splashes); by night it sleeps in its house.
-  const day = fieldDog(2648, 1334);
+const DOG_AT = [2648, 1334]; // where lane D's dog gallops through the shallows by day (its frame: paws at y 64)
+
+function sleepingDogAtHome() {
+  // By night the dog sleeps curled in the door of its house.
   const [kx, ky] = KENNEL;
   const door = [(kx + 30) * 2, (ky + 60) * 2]; // the middle of the door's sill, in the world
-  const night = `<g transform="translate(${door[0] - 4} ${door[1] - 14})" filter="url(#layer-sm)">${sleepingDog()}</g>`;
-  return g('id="km-dogs"', `<g class="km-day-only">${day}</g><g class="km-night-only">${night}</g>`);
+  return `<g class="km-night-only" transform="translate(${door[0] - 4} ${door[1] - 14})" filter="url(#layer-sm)">${sleepingDog()}</g>`;
 }
 
 /* ------------------------------------------------------------------ the night's own lights (not dimmed) */
@@ -951,7 +1004,7 @@ function nightLights() {
   o += `<g transform="scale(2)">${land}</g>`;
   // The sleepers' z's: the avocado at the table, the ball and the dog by the house.
   const sk = SIDEKICKS;
-  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 34, sk['nutrition-spud'].y - 122, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}</g>`;
+  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 24, sk['nutrition-spud'].y - 46, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}${zees(sk['dog-training-barkley'].x + 34, sk['dog-training-barkley'].y - 196, C.cream)}${zees(sk['dog-training-sizzle'].x + 30, sk['dog-training-sizzle'].y - 200, C.cream)}</g>`;
   o += `<g class="km-night-only">${zees(KEEPERS.nutrition.x + 40, KEEPERS.nutrition.y - 170, C.cream)}${zees(KEEPERS['dog-training'].x + 44, KEEPERS['dog-training'].y - 160, C.cream)}${zees((KENNEL[0] + 52) * 2, (KENNEL[1] + 30) * 2, C.cream)}</g>`;
   return `<g id="km-glow" opacity="0" pointer-events="none">${o}</g>`;
 }
@@ -969,22 +1022,26 @@ function glitter() {
 
 /* ------------------------------------------------------------------ where the keepers stand (world units) */
 const KEEPERS = {
-  nutrition: { x: 600, y: 1166, make: avocadoKeeper, id: 'km-keeper-nutrition' },
-  fitness: { x: 1236, y: 1176, make: stonesKeeper, id: 'km-keeper-fitness' },
-  'dog-training': { x: 2470, y: 1184, make: ballKeeper, id: 'km-keeper-dog-training' },
+  nutrition: { x: 600, y: 1166, make: avocadoKeeper, id: 'km-keeper-nutrition', name: 'Avo' },
+  fitness: { x: 1330, y: 1004, sc: 0.8, make: stonesKeeper, id: 'km-keeper-fitness', name: 'Steady' },
+  'dog-training': { x: 2470, y: 1184, make: ballKeeper, id: 'km-keeper-dog-training', name: 'Tumble' },
 };
 
 const SIDEKICKS = {
-  'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
-  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', cls: 'km-evening-only', title: 'Spud the potato, who brings dinner in the evenings' },
-  'fitness-puff': { x: 1108, y: 1182, lift: 64, make: cloudSidekick('puff'), id: 'km-sidekick-puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
-  'fitness-huff': { x: 1356, y: 1170, lift: 86, make: cloudSidekick('huff'), id: 'km-sidekick-huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
+  'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', name: 'Summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
+  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', name: 'Spud', title: 'Spud the potato, who brings dinner in the evenings' },
+  'fitness-puff': { x: 1232, y: 1012, lift: 50, sc: 0.8, make: cloudSidekick('puff'), id: 'km-sidekick-puff', name: 'Puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
+  'fitness-huff': { x: 1430, y: 998, lift: 66, sc: 0.8, make: cloudSidekick('huff'), id: 'km-sidekick-huff', name: 'Huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
 };
+SIDEKICKS['dog-training-barkley'] = { x: 2340, y: 1210, make: DOG_SIDEKICKS.barkley, id: 'km-sidekick-barkley', name: 'Barkley', title: 'Barkley the stick, Tumble\'s sidekick for outdoor play and dogs in the woods' };
+SIDEKICKS['dog-training-sizzle'] = { x: 2604, y: 1198, make: DOG_SIDEKICKS.sizzle, id: 'km-sidekick-sizzle', name: 'Sizzle', title: 'Sizzle the bacon strip, Tumble\'s sidekick for food and treats' };
 const FIGURES = Object.assign({}, KEEPERS, SIDEKICKS);
 
 /* ------------------------------------------------------------------ styles and defs */
 const STYLE = `
-  .km-night-only, .km-evening-only { display: none; }
+  .km-night-only, .km-evening-only, .km-dinner-only { display: none; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-dinner-only { display: inline; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-mound { display: none; }
   svg[data-km-evening="1"] .km-evening-only { display: inline; }
   svg[data-km-night="1"] .km-night-only { display: inline; }
   svg[data-km-night="1"] .km-day-only { display: none; }
@@ -1010,6 +1067,23 @@ const STYLE = `
   .km-ear-l, .km-ear-r { transform-box: fill-box; transform-origin: bottom center; animation: km-ear 4s ease-in-out infinite; }
   .km-ear-r { animation-delay: -0.4s; }
   .km-treat, .km-card-wave { animation: km-lift 2.6s ease-in-out infinite alternate; }
+  .km-face-thinking, .km-face-oh, .km-talk { display: none; }
+  [data-km-mood="thinking"] .km-face-happy, [data-km-mood="oh"] .km-face-happy { display: none; }
+  [data-km-mood="thinking"] .km-face-thinking, [data-km-mood="oh"] .km-face-oh, [data-km-talk="1"] .km-talk { display: inline; }
+  .km-dots circle { animation: km-dots 1.2s ease-in-out infinite; }
+  .km-dots circle:nth-child(2) { animation-delay: -0.8s; }
+  .km-dots circle:nth-child(3) { animation-delay: -0.4s; }
+  .km-ashore .dt-splash { display: none; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-day-only { display: inline; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-night-only { display: none; }
+  [data-km-part="telescope"] { cursor: pointer; }
+  .km-pose { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.35s ease; }
+  [data-km-mood="oh"] .km-pose { transform: translateY(-8px) scale(1.04, 0.97); }
+  [data-km-mood="thinking"] .km-pose { transform: rotate(-5deg); }
+  [data-km-talk="1"]:not([data-km-mood="oh"]) .km-pose { animation: km-chat 0.9s ease-in-out infinite alternate; }
+  @keyframes km-chat { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-3px) rotate(1.5deg); } }
+  svg:not([data-km-night="1"]) :is(.km-twinkle, .km-ff, .km-blink, .km-zz, .km-breathe) { animation: none; }
+  @keyframes km-dots { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
   @keyframes km-gallop { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-5px) rotate(-2deg); } }
   @keyframes km-drift { from { transform: translateX(0); } to { transform: translateX(36px); } }
@@ -1042,11 +1116,12 @@ function defs(view, ripples) {
     <radialGradient id="km-glow-g"><stop offset="0" stop-color="#FFB46E" stop-opacity="0.9"/><stop offset="0.4" stop-color="#FFC98F" stop-opacity="0.4"/><stop offset="1" stop-color="#FFC98F" stop-opacity="0"/></radialGradient>
     <linearGradient id="km-fade-orchard-1" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#525C12" stop-opacity="1"/><stop offset="1" stop-color="#525C12" stop-opacity="0"/></linearGradient>
     <linearGradient id="km-fade-orchard-2" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#7D8A26" stop-opacity="1"/><stop offset="1" stop-color="#7D8A26" stop-opacity="0"/></linearGradient>
-    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#7E9A2E" stop-opacity="0"/><stop offset="1" stop-color="#7E9A2E" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#A9C24A" stop-opacity="0"/><stop offset="1" stop-color="#A9C24A" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#7E9A2E"/><stop offset="1" stop-color="#7E9A2E"/></linearGradient>
-    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#A9C24A"/><stop offset="1" stop-color="#A9C24A"/></linearGradient>
+    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#78963A" stop-opacity="0"/><stop offset="1" stop-color="#78963A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#9CB54A" stop-opacity="0"/><stop offset="1" stop-color="#9CB54A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#78963A"/><stop offset="1" stop-color="#78963A"/></linearGradient>
+    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#9CB54A"/><stop offset="1" stop-color="#9CB54A"/></linearGradient>
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
+    <pattern id="km-gingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FFE1C2"/><rect width="8" height="4" fill="#FFB36B" opacity="0.4"/></pattern>
     <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
     ${ripples ? `<mask id="km-ripples"><rect y="724" width="1600" height="176" fill="#fff"/>${Array.from({ length: 16 }, (_, i) => `<rect y="${736 + i * 9}" width="1600" height="${3 + (i % 3)}" fill="#000"/>`).join('')}</mask>` : ''}
     <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>
@@ -1059,9 +1134,9 @@ const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale,
   'a larder door dug into the hill with a lamp and jars, a ladder and a basket of avocados, a vegetable patch with a rabbit, a herb spiral, a watering can, a picnic blanket with a basket, and a long table with a gingham cloth, avocado toast, avocado halves, blueberries, honey and an apricot kettle under a string of paper lights. ' +
   'There the nutrition keeper, an avocado through and through, with pale flesh down her front, the round pit for a belly, avocado-leaf ears and a satchel of seed-packet cards, holds up a card, with Summer, a little peach holding a berry tart, beside her; in the evenings Spud, a potato in an apron, brings a pot of dinner to the table. ' +
   'In the middle rises Stepping Hill, a big grassy hill with granite outcrops and pines, stone steps up its face, a switchback trail with stacked stones and flags, a quiet pool on its shoulder with a spring running down to the lake, and a lookout on the top with a spyglass. ' +
-  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust. ' +
+  'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust, a little way up the hill, where a bench waits part way up the steps and a few sheep graze. ' +
   'On the right, Lakeside Field: open grass running down to a bay of the lake, a split-rail fence, a row of trees, the dog house, weave poles, a willow hoop, flags with paw prints and toys. ' +
-  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on. ' +
+  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
   'From the signpost a dock runs out into the lake, with a basket of folded lanterns, a stool with a notebook and a lantern post; orange paper lanterns drift away across the water toward Louise, the librarian, and a paper boat brings a book back. ' +
   'After dark the sky fills with stars and the moon in its real phase, fireflies rise over the meadows, the string lights and lanterns glow, the keepers doze, and the dog sleeps curled in the door of its house.';
 
@@ -1069,22 +1144,24 @@ function build(view) {
   DETAIL = 0.5; DENS = 2.2;
   const land1 = far() + forest();
   DETAIL = 1 / 2.6; DENS = 2.4;
-  const hillPart = hillBody();
+  const hillPart = hillBody().replace(/ class="km-(flag|fall)"/g, '');
   DETAIL = 0.5; DENS = 2.2;
+  LIFE = '';
   const land2 = hillFoot() + orchard() + field() + bank() + paths() + signpost() + lake() + shore() + lanterns();
   DETAIL = 1; DENS = 1;
-  let keepers = '';
-  for (const k of Object.values(KEEPERS)) keepers += placeKeeper(k.id, k.make('scene'), k.x, k.y);
-  for (const k of Object.values(SIDEKICKS)) keepers += placeSidekick(k.id, k.make('scene'), k.x, k.y, k.lift || 0, k.cls);
-  const body = sky(view) +
-    `<g id="km-land" filter="url(#km-light)">` +
-    `<g transform="scale(2)">${land1}</g>` +
-    `<g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g>` +
-    `<g transform="scale(2)">${land2}</g>` +
-    keepers + dogs() +
-    `</g>` +
-    glitter() + nightLights() +
-    `<rect id="km-grain" class="km-grain" width="${W}" height="${H}" filter="url(#grain)" opacity="0.3" pointer-events="none"/>`;
+  const actor = (key, x, y, inner, name) => `<g data-km-actor="${key}" data-km-name="${name}" data-km-home="${x} ${y}" pointer-events="visiblePainted"><g filter="url(#km-light)">${inner}</g></g>`;
+  let actors = '';
+  for (const [key, k] of Object.entries(KEEPERS)) actors += actor(key, k.x, k.y, placeKeeper(k.id, k.make('scene'), k.x, k.y, k.sc), k.name);
+  for (const [key, k] of Object.entries(SIDEKICKS)) actors += actor(key, k.x, k.y, placeSidekick(k.id, k.make('scene'), k.x, k.y, k.lift || 0, k.cls, k.sc), k.name);
+  actors += actor('dog', DOG_AT[0] + 60, DOG_AT[1] + 64, `<g class="km-day-only">${fieldDog(DOG_AT[0], DOG_AT[1])}</g>`, 'dog');
+  const body =
+    `<g data-km-layer="sky">${sky(view)}</g>` +
+    `<g data-km-layer="far" filter="url(#km-light)"><g transform="scale(2)">${land1}</g></g>` +
+    `<g data-km-layer="hill" filter="url(#km-light)"><g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g></g>` +
+    `<g data-km-layer="land" filter="url(#km-light)"><g transform="scale(2)">${land2}</g></g>` +
+    `<g data-km-layer="life"><g filter="url(#km-light)"><g transform="scale(2)">${LIFE}</g>${sleepingDogAtHome()}</g>${glitter()}${nightLights()}</g>` +
+    `<g data-km-layer="actors">${actors}</g>` +
+    `<g data-km-layer="grain"><rect id="km-grain" class="km-grain" width="${W}" height="${H}" filter="url(#grain)" opacity="0.3" pointer-events="none"/></g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${view.box}" role="img" aria-labelledby="km-title km-desc" data-km-view="${view.key}" data-km-sky="${view.sky.join(' ')}">
 <title id="km-title">${view.title}</title>
 <desc id="km-desc">${DESC}</desc>
@@ -1125,10 +1202,10 @@ ${defs(null, false)}
  * units: the live script runs the sun and the moon between them, across the view's width.
  */
 const VIEWS = [
-  { key: 'realm', file: 'kindlemere.svg', box: `0 0 ${W} ${H}`, sky: [60, 900], title: 'Kindlemere' },
+  { key: 'realm', file: 'kindlemere.svg', box: '48 27 3104 1746', sky: [80, 900], title: 'Kindlemere' },
   { key: 'orchard', file: 'kindlemere-orchard.svg', box: '260 700 1024 576', sky: [710, 900], title: 'Kindlemere: the Orchard' },
   { key: 'hill', file: 'kindlemere-hill.svg', box: '820 610 1088 612', sky: [620, 860], title: 'Kindlemere: Stepping Hill' },
-  { key: 'field', file: 'kindlemere-field.svg', box: '2000 760 1200 675', sky: [772, 930], title: 'Kindlemere: Lakeside Field' },
+  { key: 'field', file: 'kindlemere-field.svg', box: '1976 760 1200 675', sky: [772, 930], title: 'Kindlemere: Lakeside Field' },
 ];
 
 if (require.main === module) {

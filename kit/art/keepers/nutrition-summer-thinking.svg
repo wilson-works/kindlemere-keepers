@@ -2,7 +2,9 @@
 <title id="km-title">Summer the peach, Avo's sidekick for treats and sweets, thinking, eyes up and to the side</title>
 <!-- Drawn by kit/art/make-kindlemere.js (keeper nutrition-summer, mood thinking). Edit that file, not this one. -->
 <style>
-  .km-night-only, .km-evening-only { display: none; }
+  .km-night-only, .km-evening-only, .km-dinner-only { display: none; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-dinner-only { display: inline; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-mound { display: none; }
   svg[data-km-evening="1"] .km-evening-only { display: inline; }
   svg[data-km-night="1"] .km-night-only { display: inline; }
   svg[data-km-night="1"] .km-day-only { display: none; }
@@ -28,6 +30,23 @@
   .km-ear-l, .km-ear-r { transform-box: fill-box; transform-origin: bottom center; animation: km-ear 4s ease-in-out infinite; }
   .km-ear-r { animation-delay: -0.4s; }
   .km-treat, .km-card-wave { animation: km-lift 2.6s ease-in-out infinite alternate; }
+  .km-face-thinking, .km-face-oh, .km-talk { display: none; }
+  [data-km-mood="thinking"] .km-face-happy, [data-km-mood="oh"] .km-face-happy { display: none; }
+  [data-km-mood="thinking"] .km-face-thinking, [data-km-mood="oh"] .km-face-oh, [data-km-talk="1"] .km-talk { display: inline; }
+  .km-dots circle { animation: km-dots 1.2s ease-in-out infinite; }
+  .km-dots circle:nth-child(2) { animation-delay: -0.8s; }
+  .km-dots circle:nth-child(3) { animation-delay: -0.4s; }
+  .km-ashore .dt-splash { display: none; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-day-only { display: inline; }
+  svg[data-km-night="1"] [data-km-awake="1"] .km-night-only { display: none; }
+  [data-km-part="telescope"] { cursor: pointer; }
+  .km-pose { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.35s ease; }
+  [data-km-mood="oh"] .km-pose { transform: translateY(-8px) scale(1.04, 0.97); }
+  [data-km-mood="thinking"] .km-pose { transform: rotate(-5deg); }
+  [data-km-talk="1"]:not([data-km-mood="oh"]) .km-pose { animation: km-chat 0.9s ease-in-out infinite alternate; }
+  @keyframes km-chat { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-3px) rotate(1.5deg); } }
+  svg:not([data-km-night="1"]) :is(.km-twinkle, .km-ff, .km-blink, .km-zz, .km-breathe) { animation: none; }
+  @keyframes km-dots { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
   @keyframes km-gallop { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-5px) rotate(-2deg); } }
   @keyframes km-drift { from { transform: translateX(0); } to { transform: translateX(36px); } }
@@ -58,11 +77,12 @@
     <radialGradient id="km-glow-g"><stop offset="0" stop-color="#FFB46E" stop-opacity="0.9"/><stop offset="0.4" stop-color="#FFC98F" stop-opacity="0.4"/><stop offset="1" stop-color="#FFC98F" stop-opacity="0"/></radialGradient>
     <linearGradient id="km-fade-orchard-1" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#525C12" stop-opacity="1"/><stop offset="1" stop-color="#525C12" stop-opacity="0"/></linearGradient>
     <linearGradient id="km-fade-orchard-2" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="690" y2="0"><stop offset="0" stop-color="#7D8A26" stop-opacity="1"/><stop offset="1" stop-color="#7D8A26" stop-opacity="0"/></linearGradient>
-    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#7E9A2E" stop-opacity="0"/><stop offset="1" stop-color="#7E9A2E" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#A9C24A" stop-opacity="0"/><stop offset="1" stop-color="#A9C24A" stop-opacity="1"/></linearGradient>
-    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#7E9A2E"/><stop offset="1" stop-color="#7E9A2E"/></linearGradient>
-    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#A9C24A"/><stop offset="1" stop-color="#A9C24A"/></linearGradient>
+    <linearGradient id="km-fade-field-1" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#78963A" stop-opacity="0"/><stop offset="1" stop-color="#78963A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-fade-field-2" gradientUnits="userSpaceOnUse" x1="930" y1="0" x2="1060" y2="0"><stop offset="0" stop-color="#9CB54A" stop-opacity="0"/><stop offset="1" stop-color="#9CB54A" stop-opacity="1"/></linearGradient>
+    <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#78963A"/><stop offset="1" stop-color="#78963A"/></linearGradient>
+    <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#9CB54A"/><stop offset="1" stop-color="#9CB54A"/></linearGradient>
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
+    <pattern id="km-gingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FFE1C2"/><rect width="8" height="4" fill="#FFB36B" opacity="0.4"/></pattern>
     <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
     
     <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>

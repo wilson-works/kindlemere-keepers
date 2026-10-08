@@ -191,8 +191,16 @@ function createShell(opts) {
     const type = TYPES[ext];
     if (!type) return fail(res, 404, 'Not found.');
     if (ext === '.html') return servePage(res, file);
-    const headers = { 'Content-Type': type };
+    // Files are checked, not re-sent: a page that loads the realm's scene twice (the img, then the live script) gets
+    // the second one as a 304.
+    const st = fs.statSync(file);
+    const etag = `"${st.size.toString(16)}-${Math.floor(st.mtimeMs).toString(16)}"`;
+    const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache', ETag: etag };
     if (ext === '.svg') headers['Content-Security-Policy'] = SVG_CSP;
+    if (res.req.headers['if-none-match'] === etag) {
+      res.writeHead(304, Object.assign({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' }, headers));
+      return res.end();
+    }
     return send(res, 200, fs.readFileSync(file), headers);
   }
 
