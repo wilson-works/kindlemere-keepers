@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="16 58 304 310" width="304" height="310" role="img" aria-labelledby="t d">
-  <title id="t">Cairn, keeper of the Stepping Peaks</title>
-  <desc id="d">An invented creature of cut paper standing on a wide stone step: three stacked round stones, rose,
-    periwinkle and rose, speckled and layered. The top stone tilts a little, with bright eyes, round cheeks and a
-    small pebble balanced on it. Across the middle stone runs a stitched sash of mismatched pebbles with a mountain
-    flower tucked in it. Five scratched tally marks on the base count the steps climbed. A tiny white star glints
-    in the seam. A tuft of peak grass grows at the foot of the step. No sky or scene behind: that is the realm's own.</desc>
+  <title id="t">Steady, keeper of the Stepping Peaks</title>
+  <desc id="d">An invented creature of cut paper standing with both feet planted on a wide stone step: three stacked
+    round stones, rose, periwinkle and rose, flat paper with speckles and facets. The top stone tilts a little, with bright
+    eyes, round cheeks and a small pebble balanced on it. Across the middle stone runs a stitched sash of mismatched
+    pebbles with a mountain flower tucked in it. Five scratched tally marks on the base count the steps climbed. A tiny
+    white star sits in the seam. Beside the step: the edge of the summit pool, peak grass and a trail flag. No sky or
+    scene behind: that is the realm's own.</desc>
   <!-- Cut paper (kit/REALM.md): flat pieces, no outlines or gradients; depth from layering and short hard shadows. -->
 
   <!-- The stone step -->
@@ -33,14 +34,17 @@
     <ellipse cx="112" cy="318" rx="6" ry="4" fill="#E58AB0"/>
   </g>
 
-  <!-- Shadow under Cairn -->
+  <!-- Shadow under Steady -->
   <ellipse cx="160" cy="318" rx="92" ry="12" fill="rgba(26,36,51,0.16)"/>
 
-  <!-- Feet: one planted, one lifted. Cairn is practising balance at the pool. -->
+  <!-- Feet: both planted, with weight. A dark contact shadow sits under each. -->
   <g>
-    <ellipse cx="126" cy="312" rx="24" ry="11" fill="#1A2433"/>
-    <path d="M114 316 v-5 M124 318 v-6 M134 317 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
-    <ellipse cx="120" cy="307" rx="8" ry="3" fill="#4A5568"/>
+    <ellipse cx="124" cy="318" rx="30" ry="6" fill="rgba(26,36,51,0.28)"/>
+    <ellipse cx="196" cy="318" rx="30" ry="6" fill="rgba(26,36,51,0.28)"/>
+    <ellipse cx="124" cy="312" rx="25" ry="11" fill="#1A2433"/>
+    <ellipse cx="196" cy="312" rx="25" ry="11" fill="#1A2433"/>
+    <path d="M112 316 v-5 M122 318 v-6 M132 317 v-5 M184 317 v-5 M194 318 v-6 M204 316 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="118" cy="307" rx="8" ry="3" fill="#4A5568"/><ellipse cx="190" cy="307" rx="8" ry="3" fill="#4A5568"/>
   </g>
 
   <!-- Base stone -->
@@ -64,21 +68,7 @@
     <circle cx="94" cy="282" r="1.6" fill="#A7D3A0"/><circle cx="104" cy="280" r="1.4" fill="#A7D3A0"/>
   </g>
 
-    <!-- the lifted foot, stretched out to balance -->
-  <g transform="rotate(-22 252 286)">
-    <ellipse cx="252" cy="286" rx="22" ry="10" fill="#1A2433"/>
-    <path d="M264 290 v-5 M254 292 v-6 M244 291 v-5" stroke="#4A5568" stroke-width="2.4" stroke-linecap="round"/>
-    <ellipse cx="258" cy="281" rx="7" ry="2.6" fill="#4A5568"/>
-  </g>
-  <ellipse cx="246" cy="318" rx="12" ry="3.5" fill="rgba(26,36,51,0.12)"/>
-
-  <!-- balance marks -->
-  <g stroke="#8FA2FF" stroke-width="3" fill="none" stroke-linecap="round">
-    <path d="M266 232 q10 10 0 22"/><path d="M276 226 q14 16 0 34"/>
-    <path d="M54 232 q-10 10 0 22"/>
-  </g>
-
-  <!-- Middle stone -->
+    <!-- Middle stone -->
   <g>
     <ellipse cx="160" cy="178" rx="70" ry="40" fill="rgba(26,36,51,0.16)" transform="translate(0 5)"/>
     <ellipse cx="160" cy="178" rx="70" ry="40" fill="#8FA2FF"/>
