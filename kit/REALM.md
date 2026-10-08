@@ -10,9 +10,10 @@ voice. The owner shaped it in passes on 2026-10-07; his words are in "His direct
 Kindlemere is a wide, still lake that catches the first light of every morning and keeps it. Kindle, for a first
 spark. Mere, an old word for a lake.
 
-Three places sit on the land beside it, each at its own hour of the day, all of them rooted in the same ground. The
-Orchard is always mid-morning, Stepping Hill always high noon, Lakeside Field always late afternoon. Each place keeps
-one kind of care. Its keeper knows that care well, and nothing else.
+Three places sit on the land beside it, rooted in the same ground, under one sky. The sun and the moon cross that sky
+at the real hours where you are: they rise behind the hills on the left, set on the right, and the land takes the
+light of the hour. At night the stars come out, fireflies rise over the meadows, the lanterns glow, the keepers doze
+and the dog sleeps in its house. Each place keeps one kind of care. Its keeper knows that care well, and nothing else.
 
 Paths of light are stitched into the ground between them. They meet at a signpost at the crossroads, and from there
 one path runs down to a dock on the lake. When a question belongs to a neighbour, the keeper doesn't guess at it. They
@@ -28,9 +29,9 @@ a keepsake box of what you told them and what helped. Nobody starts over.
 
 | Place | Who keeps it | What it is |
 |---|---|---|
-| **The Orchard** | the nutritionist (`agents/nutrition`), an avocado | A foresty picnic meadow on a terraced hill: a wood behind it, avocado trees heavy with avocados, a long picnic table with a gingham cloth, a larder door dug into the hill, a beehive, a vegetable patch, a herb spiral. Mid-morning. |
-| **Stepping Hill** | the fitness coach (`agents/fitness`), three stacked river stones | One big grassy hill in proportion with the others, with granite outcrops and pines, stone steps on a worn trail, a switchback path with little stacked stones and flags, a quiet pool on its shoulder with a spring running down to the lake, a lookout on the top with a spyglass on the horizon, and a bench, a stone kettlebell and a basket of river stones at its foot. High noon. |
-| **Lakeside Field** | the dog trainer (`agents/dog-training`), a large herding ball | Open grass running down into a bay of the lake: a split-rail fence, a kennel, weave poles, a willow hoop, flags with paw prints, toys in the grass, and the dog galloping through the shallows. Late afternoon. |
+| **The Orchard** | the nutritionist (`agents/nutrition`), an avocado | A foresty picnic meadow on terraced ground: a deep wood behind it, avocado trees heavy with avocados, a long picnic table with a gingham cloth under a string of paper lights, a picnic blanket and basket, a larder door dug into the hill with a lamp, a beehive, a vegetable patch with a rabbit, a herb spiral. |
+| **Stepping Hill** | the fitness coach (`agents/fitness`), three stacked river stones | One big grassy hill, the biggest thing in the park, with granite outcrops and pines, stone steps on a worn trail, a switchback path with little stacked stones and flags, a quiet pool set into its shoulder with a spring running down to the lake, a lookout on the top with a spyglass, and a bench, a stone kettlebell and a basket of river stones at its foot. |
+| **Lakeside Field** | the dog trainer (`agents/dog-training`), a large herding ball | Open grass running down into a bay of the lake, farmland and hedgerows beyond: a split-rail fence, the dog house, weave poles, a willow hoop, flags with paw prints, toys in the grass, and the dog galloping through the shallows (asleep in its house at night). |
 | **The paths and the signpost** | everyone | Stitched paths of light from each place to the crossroads; the signpost points to the Orchard, the Hill, the Field and Louise. Direction. |
 | **The dock** | everyone | Where questions leave for Louise as lanterns, and her books come back by paper boat. |
 | **The lake** | everyone | The deep teal at the foot of every page. |
@@ -44,8 +45,12 @@ The owner picked the style by pointing at one picture: the close view of the avo
 (`kit/art/kindlemere-orchard.svg`). That picture is the reference for every piece of art in the package. Hold new art
 next to it: if it is flatter, emptier, smaller in the frame or less alive, it is not done.
 
-- **Close framing.** The keeper is big in the frame and every detail reads: the bees, the card in her hand, the pit,
-  the kettle's steam, the avocado toast. A dashboard's hero is a close view, never a tiny figure on a wide strip.
+- **One world, to scale.** The land is drawn at twice the keepers' size and the hill bigger still: a tree stands well
+  over a keeper, a table comes to its middle, the hill is a real hill, the dog fits its house. Fine detail (grass,
+  flowers, pebbles) stays at the keepers' size, so a bigger world is a more detailed one.
+- **Close views.** A dashboard's hero is its place's close view of that one world: the keeper in its place with the
+  sky above, every detail readable (the bees, the card in her hand, the kettle's steam). Never a tiny figure on a
+  wide strip, and never a separate picture of the keeper on its own.
 - **Cut paper.** Every shape is a flat piece of coloured paper with clean, slightly soft edges. No outlines, no
   glossy gradients, no blur. Depth comes from layering: each layer sits on a short, hard shadow straight below it
   (`--km-layer`), and a fine paper grain lies over the whole picture.
@@ -71,14 +76,35 @@ next to it: if it is flatter, emptier, smaller in the frame or less alive, it is
 | File | What |
 |---|---|
 | `kit/art/make-kindlemere.js` | The generator. `node kit/art/make-kindlemere.js` redraws every file below. Edit it, not the SVGs. |
-| `kit/art/kindlemere.svg` | The whole realm, 16:9. |
+| `kit/art/kindlemere.svg` | The whole realm: a 3200 x 1800 world, 16:9. |
 | `kit/art/kindlemere-orchard.svg` | The Orchard close view: the nutrition dashboard's hero. |
 | `kit/art/kindlemere-hill.svg` | Stepping Hill close view: the fitness dashboard's hero. |
-| `kit/art/kindlemere-field.svg` | Lakeside Field close view: the dog-training dashboard's hero. |
-| `kit/art/scene.html` | All four on one page (`/kit/art/scene.html` from any agent's dashboard). |
+| `kit/art/kindlemere-field.svg` | Lakeside Field close view (the dog house, the keeper, the course, the bay): the dog-training dashboard's hero. |
+| `kit/art/keepers/<agent>-<mood>.svg` | Each keeper on its own in a mood: `happy`, `thinking`, `oh`, `worried`, `sleepy`. For a page that shows how the keeper feels about what is happening (searching, nothing found, an error, asleep). |
+| `kit/art/scene.html` | All four views on one page, live (`/kit/art/scene.html` from any agent's dashboard). |
+| `kit/dashboard/public/kindlemere.js` | The live sky (below). |
 
-The SVGs move gently (lanterns bob, steam rises, the spring runs, tails wag) and stand still for anyone who has asked
-their computer for reduced motion.
+The SVGs move gently (lanterns bob, steam rises, the spring runs, tails wag, fireflies drift) and stand still for
+anyone who has asked their computer for reduced motion.
+
+## Day and night
+
+The files carry a clear mid-morning sky, so a picture shown anywhere still looks right. On an agent's page the scene
+is live: `/kit/kit.js` loads `/kit/kindlemere.js` whenever the page shows a `/kit/art/kindlemere*.svg` image, and that
+script draws the picture inline and, once a minute:
+
+- puts the sun and the moon where they are in the real sky now, for this computer's clock and place: east on the left,
+  west on the right, rising and setting behind the hills. The moon shows its real phase.
+- colours the sky by the sun's height (night blues, an orange dawn and dusk, a clear teal day) and lights the land to
+  match, with moonlight on clear nights. Never violet or pink, even at dusk.
+- after dark (the sun 4 degrees below the horizon) brings out the stars, the fireflies, the string lights over the
+  table, the lamp over the larder door and the lanterns' glow; the avocado and the ball doze with z's rising, the
+  stones look up at the stars, and the dog sleeps curled in the door of its house. A path of light lies on the water
+  under the low sun or the moon.
+
+The place comes from `kit/realm.config.json` on this computer, `{ "lat": 35.5, "lon": -97.5 }` (one decimal place is
+plenty; the file is never committed), read through `GET /api/realm`. Without it, the place is the middle of this
+computer's time zone. To see another hour, add `?km-time=2026-10-08T19:30` to the page's address.
 
 ## Colour
 
@@ -109,7 +135,8 @@ No slot uses cream with plum, no land is Bert's fern (`#3E8F5E`) or his butter (
 
 - Link `/kit/design/tokens.css`, then `/kit/kit.css`, then the agent's own css; load `/kit/kit.js` before its script.
 - `<body data-agent="<key>">` gives every kit part the agent's colours.
-- The hero is the agent's close view as an `<img>` in a 16:9 card.
+- The hero is the agent's close view as an `<img>` in a 16:9 card. It goes live by itself (Day and night, above);
+  `object-fit: cover` and `object-position` on the image still frame it once it is live.
 - The parts: `.km-page`, `.km-top` (the agent's bar: mark, name, role), `.km-card` (a paper card; `.km-sky` for a
   sky-coloured one), `.km-btn` and `.km-btn-quiet` (pill buttons, 44 px tall), `.km-field`, `.km-chip`,
   `.km-lantern` (a question for Louise), `.km-thread` (a stitched path, as a divider), `.km-source` (a fact's
@@ -190,6 +217,13 @@ side before shipping one: if a line could come from any of them, rewrite it.
 - "No on this design" (a separate small avocado figure on a dashboard) and "yes on this (just needs a mouth of some
   kind)" (the avocado in the Orchard close-up)
 - "no dog houses in the water, no whistle on the ball"
+- "Scale is still off, we can make the world as big and detailed as we want. And I think the sun/moon should be like
+  a real time real cycle. So following local system location and time, shows the sun rise and set, and the moon rise
+  and set over the scene. Along with the day and night cycle applied to the entire scene with realistic lighting and
+  color (like at night having some fireflies flying around, the dog is asleep in the dog house, etc. )"
+- "It is getting closer though!"
+- "pond floating unrealistically", "sharp grass change", "layers errors" (the pool past the hill's edge, the seams
+  between the places' grass, boulders and pines on the stone steps)
 
 ## Consults
 
