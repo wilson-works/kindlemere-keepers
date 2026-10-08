@@ -209,7 +209,9 @@ tick meals off, and to plan the week with her. When they say "Avo, let's plan ne
 6. Give the link: `http://127.0.0.1:<port>/week.html?k=<link>`, where the port is `port` in `agent.config.json` if that
    file exists, else 7571. Her dashboard must be running (`node dashboard/server.js`). The link works on this computer
    only. A new week's link stays open until the Sunday after the week ends; a link reopened from Kept weeks stays
-   open 7 days. She keeps the week itself for good.
+   open 7 days. She keeps the week itself for good. On the week page they can print the fridge calendar (one US
+   Letter page, the 7 days by meal, a box to tick each), print it all, or download the whole week as one file that
+   opens on any computer. A link ending `&print=fridge` opens ready to print the calendar.
 
 Later, from the weeks she keeps:
 

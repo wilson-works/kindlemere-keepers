@@ -5,7 +5,13 @@
 body { background: var(--a-sky); }
 .km-top { display: flex; align-items: center; }
 .who { display: flex; flex-direction: column; min-width: 0; }
-.print { margin-left: auto; flex: none; }
+.take { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--km-space-2); justify-content: flex-end; }
+.take .km-btn { min-height: 44px; }
+
+/* The fridge calendar prints on its own page; on screen the plan below already shows the week. */
+.fridge { display: none; }
+@page { size: letter; margin: 0.5in; }
+@page cal { size: letter landscape; margin: 0.4in; }
 .quiet { color: var(--km-ink-soft); }
 .small { font-size: var(--km-text-sm); margin: 0 0 var(--km-space-3); }
 .letter > * + *, #body > * + * { margin-top: var(--km-space-4); }
@@ -83,6 +89,8 @@ a.dish { text-decoration-color: var(--a-glow); text-underline-offset: 3px; }
 .ticks + .ticks:not(:empty) { margin-top: var(--km-space-3); }
 
 @media (max-width: 600px) {
+  .km-top { flex-wrap: wrap; }
+  .take { margin-left: 0; width: 100%; justify-content: flex-start; }
   .targets thead { display: none; }
   .targets tr { display: grid; grid-template-columns: 1fr auto; padding: var(--km-space-2) 0; border-top: 1px solid rgba(26, 36, 51, 0.1); }
   .targets th, .targets td { border: 0; padding: 0; }
@@ -94,7 +102,22 @@ a.dish { text-decoration-color: var(--a-glow); text-underline-offset: 3px; }
 /* On paper: the letter only, ticks as boxes to pencil in. */
 @media print {
   body { background: #FFFFFF; }
-  .print, .jump, .km-foot, .acts { display: none !important; }
+  .take, .jump, .km-foot, .acts, .km-top { display: none !important; }
+  .fridge { display: block; page: cal; break-after: page; color: #1A2433; }
+  body.print-fridge #letter > :not(#body), body.print-fridge #body > :not(#fridge) { display: none !important; }
+  body.print-fridge .fridge { break-after: auto; }
+  .cal-head h2 { margin: 0 0 4px; font-size: 20pt; color: var(--a-land); }
+  .cal-head p { margin: 0 0 10px; font-size: 10pt; color: #444444; }
+  .cal { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .cal th, .cal td { border: 1px solid #999999; padding: 6px; vertical-align: top; text-align: left; line-height: 1.25; }
+  .cal thead th { background: #F2F2F2; }
+  .cal .corner { width: 11%; }
+  .cal tbody td { height: 1.25in; }
+  .cal-day, .cal-slot { display: block; font: 700 11pt/1.2 var(--km-font-head); }
+  .cal-date, .cal-who, .cal-kind { display: block; font-size: 8.5pt; color: #555555; }
+  .cal-dish { font-size: 10.5pt; line-height: 1.25; }
+  .cal-box { display: inline-block; width: 10px; height: 10px; border: 1.5px solid #555555; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .cal-foot { margin: 10px 0 0; font-size: 9.5pt; }
   .km-card, .recipe, .store { box-shadow: none; border: 1px solid #CCCCCC; break-inside: avoid; }
   .meals > li::before { content: ""; width: 12px; height: 12px; border: 1.5px solid #555555; border-radius: 3px; flex: none; }
   .meals > li { justify-content: flex-start; }
