@@ -140,12 +140,14 @@
     calm: ["Stretch or breathe. Pick one and I'll keep the time.", 'Stretch or breathe'],
   };
   let jokes = [];
+  let cheering = null;
   let path = 'run';
   let current = 'arrive';
   const ids = () => PATHS[path].map((x) => x[0]);
   const after = (step) => ids()[ids().indexOf(step) + 1] || 'arrive';
 
   function go(step, focus = true) {
+    clearTimeout(cheering); // a cheer waiting for one step never lands on the next
     current = step;
     for (const s of document.querySelectorAll('.step')) s.hidden = s.id !== `step-${step}`;
     const ol = $('stones');
@@ -160,7 +162,7 @@
     $('start-over').hidden = step === 'arrive';
     mood('happy');
     if (step === 'arrive') speak(jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Come on up.');
-    else if (step === 'cool') { speak(COOL[path][0]); $('cool-h').textContent = COOL[path][1]; }
+    else if (step === 'cool') { speak(COOL[path][0]); $('cool-h').textContent = COOL[path][1]; $('feel').hidden = path === 'calm'; }
     else speak(LINES[step]);
     if (step === 'check') { facts('flags', FLAGS).catch((err) => speak(err.message)); showFlags(true); $('check-more').hidden = true; }
     if (step === 'warm') loadSession('warmup', 'warm').catch((err) => speak(err.message));
@@ -339,6 +341,7 @@
     runTimer = null;
     running = false;
     busy();
+    const before = await kit.api('/api/progress').catch(() => ({}));
     const r = await kit.api('/api/log-run', { method: 'POST', body: { minutes } });
     if (!r.ok) { speak(r.text); return; }
     const s = parse(r.text);
@@ -350,7 +353,55 @@
     $('run-clock').hidden = true;
     go('cool');
     loadMemory().catch(() => {});
+    const longest = before.longestRun30 || 0;
+    if (!longest) speak("That's your first run in the log this month. The first stone is down.");
+    else if (minutes > longest && minutes <= Math.round(longest * 1.1)) {
+      mood('happy');
+      speak(`${minutes} minutes. Your longest run this month, and inside the 110% line.`);
+      cheer('Huff', "The run that went further! I kicked up dust for that one.");
+    }
   }
+  // Shows what the progress-log said, with the facts it rests on found again on her cards.
+  function showLog(text) {
+    const s = parse(text);
+    $('log-out').textContent = s.lines.join('\n').trim();
+    cite($('log-rests'), s.rests.map((x) => factByText(x.file, x.text)));
+    $('log-rests-box').hidden = !s.rests.length;
+  }
+  // A finished quick workout is logged as a strength day, counted against the 2-days-a-week guideline.
+  async function logWorkout() {
+    if (!$('workout-phases').querySelector('li.move input:checked')) return;
+    const r = await kit.api('/api/log-workout', { method: 'POST', body: {} });
+    if (!r.ok) return;
+    showLog(r.text);
+    loadMemory().catch(() => {});
+    const n = Number((/That's (\d+) strength/.exec(r.text) || [])[1]) || 0;
+    if (n) cheer(gearCloud, n >= 2 ? `Strength day ${n} this week. That's the guideline met!` : "Strength day one this week. One more and that's the guideline.");
+  }
+
+  /* How you feel now: the mind side. Kept in her memory on this computer, answered from her mood cards. */
+  const FEELINGS = {
+    better: ["That's the feeling. Remember it on a hard day.", 'happy',
+      [['exercise-for-mood.md', 'feel good about themselves after exercising'], ['exercise-for-mood.md', 'About five minutes of aerobic exercise']]],
+    same: ["That's normal. Not every session shows on the day.", 'thinking',
+      [['exercise-for-mood.md', 'Regular exercise can lessen stress effects'], ['exercise-for-mood.md', 'treat a missed week as normal']]],
+    worse: ["Thanks for telling me. Go gently today, and I'll remember it.", 'worried',
+      [['exercise-for-mood.md', 'So: exercise helps depressive symptoms']]],
+  };
+  $('feel-pick').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-feel]');
+    if (!b) return;
+    for (const x of $('feel-pick').querySelectorAll('[data-feel]')) x.disabled = true;
+    const [line, how, picks] = FEELINGS[b.dataset.feel];
+    const after = path === 'run' ? 'run' : path === 'workout' ? 'workout' : 'calm';
+    const more = b.dataset.feel === 'worse' && after === 'calm' ? [['meditation-breathwork.md', 'If practice keeps making you feel worse']] : [];
+    mood(how);
+    speak(line);
+    facts('feel-facts-after', [...picks, ...more]).catch(() => {});
+    const r = await kit.api('/api/feel', { method: 'POST', body: { feel: b.dataset.feel, after } }).catch(() => ({ ok: false }));
+    $('feel-note').textContent = r.ok ? "I'll remember that, on this computer only." : '';
+    loadMemory().catch(() => {});
+  });
   $('run-back').addEventListener('click', () => logRun(Math.max(1, Math.round(ran / 60))).catch((err) => speak(err.message)));
   $('log-hand').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -548,7 +599,7 @@
       const s = await loadSession(b.dataset.session, 'cool').catch((err) => { speak(err.message); return null; });
       if (!s) return;
       $('cool-rests-box').hidden = false;
-      runParts('cool', s, () => speak("That's the hill for today. Same steps next time, a little further."));
+      runParts('cool', s, () => { speak("That's the hill for today. Same steps next time, a little further."); $('feel').hidden = false; });
     });
   }
 
@@ -568,7 +619,11 @@
           'workout-clock', 'workout-go', 'workout-rests-box', 'plan-rests-box', 'sets', 'notes']) $(id).hidden = true;
         for (const id of ['cool-head', 'cool-phases', 'log-out', 'workout-head', 'workout-phases', 'plan-out']) $(id).textContent = '';
         for (const x of $('gear').querySelectorAll('[data-gear]')) x.setAttribute('aria-pressed', 'false');
+        for (const x of $('feel-pick').querySelectorAll('[data-feel]')) x.disabled = false;
+        $('feel-note').textContent = '';
+        $('feel-facts-after').textContent = '';
       }
+      if (current === 'workout' && b.dataset.next === 'next') logWorkout().catch(() => {});
       go(b.dataset.next === 'next' ? after(current) : b.dataset.next);
     });
   }
@@ -666,7 +721,8 @@
 
   /* The warm-up walk: the room opens at the foot of the hill with Steady a little way up. Walking up eases the view
      toward her (CSS, about 1.5 s; none with reduced motion), then her bubble and the trail appear beside her. */
-  $('walk-up').addEventListener('click', () => {
+  function walkUp() {
+    if ($('walk-up').hidden) return;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     $('walk-up').hidden = true;
     $('stage').classList.add('walking');
@@ -675,9 +731,39 @@
       busy();
       $('stage').classList.remove('at-foot');
       go('arrive');
-      speak("You made it up. Nice warm-up walk. What are we doing today?");
+      greet().catch(() => speak("You made it up. Nice warm-up walk. What are we doing today?"));
     }, still ? 0 : 1500);
     busy();
+  }
+  $('walk-up').addEventListener('click', walkUp);
+
+  /* She notices progress: sessions this week from her progress-log, and how you said you felt last time. */
+
+  const cheer = (who, text) => { clearTimeout(cheering); cheering = setTimeout(() => speak(text, who), 2600); };
+  async function greet() {
+    const [p, m] = await Promise.all([kit.api('/api/progress'), kit.api('/api/memory')]);
+    const felt = (m.worked || []).find((w) => /^Felt /.test(w.text || ''));
+    const n = p.sessions7 || 0;
+    if (felt && /^Felt better/.test(felt.text)) speak(`You made it up. Last time you ${felt.text.replace(/^Felt/, 'felt').replace(/\.$/, '')}. Let's find that again.`);
+    else if (n) speak(`You made it up. That's ${n} ${n === 1 ? 'session' : 'sessions'} this week already. Steady stones.`);
+    else speak("You made it up. Nice warm-up walk. What are we doing today?");
+    if (n >= 2) cheer(n % 2 ? 'Huff' : 'Puff', n % 2 ? "Look at that stack. Proper work." : "Woo! You keep turning up. That's the whole trick.");
+  }
+
+  /* Clicking a character in the scene (the kit's 'kindlemere:character'). Steady, Puff and Huff answer in her bubble;
+     clicking Steady from the foot of the hill is the walk up. At night the kit says they are asleep. */
+  const LINES_BY = {
+    Puff: "Home workouts and runs in the weather are my patch. Pick a quick workout and say just me.",
+    Huff: "Gym days and runs in the heat are mine. Pick a quick workout and say dumbbells.",
+  };
+  window.addEventListener('kindlemere:character', (e) => {
+    const d = e.detail || {};
+    if (!['Steady', 'Puff', 'Huff'].includes(d.name)) return;
+    if (d.svg && d.svg.getAttribute('data-km-night') === '1') return;
+    e.preventDefault();
+    if (!$('walk-up').hidden) { walkUp(); return; }
+    if (d.name === 'Steady') { mood('happy'); speak(jokes.length ? jokes[Math.floor(Math.random() * jokes.length)] : 'Hello again.'); }
+    else speak(LINES_BY[d.name], d.name);
   });
 
   kit.agent().then((a) => { jokes = Array.isArray(a.jokes) ? a.jokes : []; go('arrive', false); }).catch((err) => speak(err.message));
