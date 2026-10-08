@@ -1,0 +1,21 @@
+{
+  "slug": "2026-10-07-health-and-fitness-agent",
+  "title": "A health and fitness agent",
+  "askedAs": "I need to research everything for a health and fitness agent",
+  "status": "complete",
+  "startedAt": "2026-10-07T06:16:00.000Z",
+  "completedAt": "2026-10-07T06:52:00.000Z",
+  "files": [
+    "00-brief.md",
+    "01-exercise-science-foundations.md",
+    "02-cardio-and-running.md",
+    "03-strength-and-resistance.md",
+    "04-mobility-flexibility-recovery.md",
+    "05-mind-body-mental-wellness.md",
+    "06-special-populations-and-safety.md",
+    "07-nutrition-interface-boundary-note.md",
+    "sources.md"
+  ],
+  "totalLines": 1691,
+  "sourceCount": 77
+}

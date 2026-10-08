@@ -1,0 +1,5 @@
+# Check out this agent's files with LF line endings on every machine, so each tool's sha256 in
+# tools/registry.json matches the file a fresh clone writes (HQ git has core.autocrlf=true).
+* text=auto eol=lf
+*.svg text eol=lf
+*.png binary
