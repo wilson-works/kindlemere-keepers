@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 300" role="img" aria-labelledby="tumble-t tumble-d">
   <title id="tumble-t">Tumble, the dog trainer of Whistle Meadow</title>
-  <desc id="tumble-d">Tumble, a round haystack-shaped keeper made of russet cut paper with straw strands, stands in a patch of meadow grass. One grass-plume ear is perked and one tips forward to listen. Tumble waves with one stub arm and holds out a small biscuit with the other, a willow whistle on a braided cord at the chest. Beside Tumble a small black-and-white dog in a teal collar sits looking up, tail mid-wag, a ball at its paws. A willow hoop stands on the left and a scent-trail flag on the right.</desc>
+  <desc id="tumble-d">Tumble, a round haystack-shaped keeper made of russet cut paper with straw strands, stands on the meadow grass. One grass-plume ear is perked and one tips forward to listen. Tumble waves with one stub arm and holds out a small biscuit with the other, a willow whistle on a braided cord at the chest. Beside Tumble a lean, long-legged, mostly white dog with a ginger head and a white blaze sits nicely with a head tilt, one ear perked with its tip folded and one flopped, a green paisley bandana and a bone-shaped tag, its curled tail mid-wag and a tennis ball at its paws. A willow hoop stands on the left and a scent-trail flag on the right.</desc>
   <defs>
     <!-- Cut paper: each layer sits on a short, hard shadow 3 px straight below it. No blur. -->
     <filter id="tumble-layer" x="-10%" y="-10%" width="120%" height="130%">
@@ -150,34 +150,67 @@
     <ellipse cx="192" cy="264" rx="20" ry="9" fill="#6E3A12"/>
   </g>
 
-  <!-- The dog: a small black-and-white herding dog, sitting, looking up -->
+  <!-- The dog: lean and long-legged, mostly white, a ginger head with a white blaze, sitting nicely with a head tilt -->
+  <!-- curled white tail with a ginger base -->
   <g filter="url(#tumble-layer)">
-    <path d="M276 252 C292 246 300 232 294 220 C306 232 302 252 284 258 Z" fill="#2B3445"/>
-    <ellipse cx="262" cy="246" rx="24" ry="22" fill="#2B3445"/>
-    <ellipse cx="258" cy="252" rx="14" ry="16" fill="#FFFFFF"/>
-    <ellipse cx="248" cy="266" rx="9" ry="6" fill="#FFFFFF"/>
-    <ellipse cx="270" cy="266" rx="9" ry="6" fill="#FFFFFF"/>
+    <path d="M284 258 C300 256 312 240 306 224 C302 214 290 214 292 222 C296 232 294 246 280 250 Z" fill="#FFFFFF"/>
+    <ellipse cx="284" cy="255" rx="6" ry="5" fill="#C97C3D"/>
   </g>
+  <!-- body and haunch, with the ginger heart on the back and the patch on the hip -->
   <g filter="url(#tumble-layer)">
-    <path d="M246 200 C240 188 244 178 252 176 C252 186 254 194 256 200 Z" fill="#1A2433"/>
-    <path d="M276 196 C286 186 294 186 296 194 C288 196 282 200 278 204 Z" fill="#1A2433"/>
-    <circle cx="264" cy="210" r="20" fill="#2B3445"/>
-    <path d="M262 192 q4 10 2 30 q-6 -14 -2 -30 Z" fill="#FFFFFF"/>
-    <ellipse cx="258" cy="222" rx="11" ry="8" fill="#FFFFFF"/>
-    <rect x="246" y="228" width="34" height="6" rx="3" fill="#1F5C6E"/>
-    <circle cx="262" cy="238" r="4" fill="#FFFFFF"/>
+    <path d="M246 270 C242 240 248 214 264 206 C282 210 292 236 292 270 Z" fill="#FFFFFF"/>
+    <ellipse cx="282" cy="256" rx="14" ry="15" fill="#FFFFFF"/>
+    <path d="M290 266 C292 270 300 271 302 268 C302 264 296 262 290 264 Z" fill="#FFFFFF"/>
   </g>
-  <ellipse cx="252" cy="218" rx="4" ry="3" fill="#1A2433"/>
-  <circle cx="256" cy="206" r="3.4" fill="#1A2433"/>
-  <circle cx="271" cy="205" r="3.4" fill="#FFFFFF"/>
-  <circle cx="271" cy="205" r="2.4" fill="#1A2433"/>
-  <circle cx="255" cy="205" r="1.1" fill="#FFFFFF"/>
-  <circle cx="270" cy="204" r="0.9" fill="#FFFFFF"/>
-  <path d="M296 214 q6 -4 10 -2" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round"/>
-  <path d="M298 222 q6 -2 10 1" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round"/>
-  <!-- the ball -->
+  <ellipse cx="285" cy="254" rx="7" ry="8" fill="#C97C3D"/>
+  <path d="M281 232 c-6 -5 -9 -10 -4 -13 c3 -2 5 0 4 2 c-1 -2 1 -4 4 -2 c5 3 2 8 -4 13 Z" fill="#C97C3D"/>
+  <!-- long front legs and paws -->
   <g filter="url(#tumble-layer)">
-    <circle cx="58" cy="262" r="8" fill="#C2D77A"/>
+    <rect x="263" y="232" width="9" height="38" rx="4.5" fill="#EFE8DA"/>
+    <rect x="251" y="230" width="9" height="40" rx="4.5" fill="#FFFFFF"/>
+    <ellipse cx="255" cy="270" rx="8" ry="4.5" fill="#FFFFFF"/>
+    <ellipse cx="268" cy="270" rx="8" ry="4.5" fill="#EFE8DA"/>
   </g>
-  <path d="M52 257 q6 5 12 0" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <!-- the green paisley bandana and the bone-shaped tag -->
+  <g filter="url(#tumble-layer)">
+    <path d="M248 214 Q264 220 282 213 L268 236 Z" fill="#4E7A3A"/>
+  </g>
+  <circle cx="258" cy="219" r="2" fill="#C2D77A"/>
+  <path d="M266 222 q4 -3 5 1 q-1 4 -5 2 Z" fill="#C2D77A"/>
+  <circle cx="273" cy="218" r="1.6" fill="#DDEBA6"/>
+  <circle cx="267" cy="229" r="1.4" fill="#DDEBA6"/>
+  <g filter="url(#tumble-layer)">
+    <rect x="262" y="238" width="9" height="4" rx="2" fill="#CFE6EA"/>
+    <circle cx="262" cy="238" r="2.2" fill="#CFE6EA"/><circle cx="262" cy="242" r="2.2" fill="#CFE6EA"/>
+    <circle cx="271" cy="238" r="2.2" fill="#CFE6EA"/><circle cx="271" cy="242" r="2.2" fill="#CFE6EA"/>
+  </g>
+  <!-- the head, tilted: ginger, a white blaze to a white muzzle, one ear perked with its tip folded over, one flopped -->
+  <g transform="rotate(-16 266 194)">
+    <g filter="url(#tumble-layer)">
+      <path d="M252 182 C248 170 248 160 252 154 C258 160 260 170 260 180 Z" fill="#C97C3D"/>
+      <path d="M252 154 C246 152 242 156 242 162 C246 160 250 160 253 162 Z" fill="#8A4F22"/>
+      <path d="M276 180 C284 182 290 190 290 200 C286 202 282 198 278 192 Z" fill="#C97C3D"/>
+      <path d="M290 200 C288 204 284 204 282 200 C284 198 287 197 290 200 Z" fill="#8A4F22"/>
+      <ellipse cx="266" cy="190" rx="17" ry="15" fill="#C97C3D"/>
+      <path d="M264 176 C268 176 269 184 268 192 C274 196 274 206 266 208 C256 208 254 198 262 192 C261 184 261 176 264 176 Z" fill="#FFFFFF"/>
+      <ellipse cx="264" cy="202" rx="10" ry="7" fill="#FFFFFF"/>
+    </g>
+    <ellipse cx="264" cy="199" rx="3.6" ry="2.8" fill="#1A2433"/>
+    <circle cx="263" cy="198" r="0.9" fill="#FFFFFF"/>
+    <path d="M260 205 q4 3 8 0" fill="none" stroke="#1A2433" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="257" cy="189" r="3.2" fill="#6B4226"/>
+    <circle cx="275" cy="189" r="3.2" fill="#6B4226"/>
+    <circle cx="257" cy="189" r="1.6" fill="#1A2433"/>
+    <circle cx="275" cy="189" r="1.6" fill="#1A2433"/>
+    <circle cx="256" cy="188" r="0.9" fill="#FFFFFF"/>
+    <circle cx="274" cy="188" r="0.9" fill="#FFFFFF"/>
+  </g>
+  <!-- the tail's wag -->
+  <path d="M310 214 q6 -3 9 0" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round"/>
+  <path d="M312 224 q5 -1 8 2" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round"/>
+  <!-- the tennis ball, by the dog's paws -->
+  <g filter="url(#tumble-layer)">
+    <circle cx="236" cy="266" r="7" fill="#D6E26A"/>
+  </g>
+  <path d="M230 262 q6 5 12 0" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
 </svg>
