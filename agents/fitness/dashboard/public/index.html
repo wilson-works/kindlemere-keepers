@@ -22,8 +22,11 @@
 </header>
 
 <main class="hill">
-  <div class="stage">
-    <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="The foot of Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady waiting at the bottom of the steps" width="1600" height="900">
+  <div class="stage at-foot" id="stage">
+    <div class="view">
+      <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady and her two clouds, Puff and Huff, a little way up the slope" width="1600" height="900">
+      <button class="km-btn go walk-up" id="walk-up" type="button">Walk up to Steady</button>
+    </div>
 
     <div class="bubble" id="bubble">
       <span class="face" id="face" aria-hidden="true"><img id="face-img" src="/kit/art/keepers/fitness-happy.svg" alt="" width="244" height="217"></span>
@@ -115,7 +118,32 @@
           <button class="km-btn soft" type="button" id="workout-skip" hidden>Next part</button>
           <button class="km-btn soft" type="button" data-next="next">Done. Cool me down.</button>
         </div>
+        <div class="sets" id="sets" hidden>
+          <p class="set-now"><strong id="set-move"></strong> <span id="set-n"></span></p>
+          <div class="rest-pick" id="rest-pick" role="group" aria-label="Rest between sets">
+            <span>Rest between sets</span>
+            <button class="km-btn soft" type="button" data-rest="90" aria-pressed="false">1:30</button>
+            <button class="km-btn soft" type="button" data-rest="120" aria-pressed="true">2:00</button>
+            <button class="km-btn soft" type="button" data-rest="180" aria-pressed="false">3:00</button>
+          </div>
+          <div class="clock" id="rest-clock" hidden><span class="clock-n" id="rest-time">2:00</span><span>Rest</span></div>
+          <div class="choices">
+            <button class="km-btn go" type="button" id="set-done">Set done</button>
+            <button class="km-btn soft" type="button" id="rest-pause" hidden>Pause</button>
+            <button class="km-btn soft" type="button" id="rest-skip" hidden>Skip the rest</button>
+            <button class="km-btn soft" type="button" id="move-next">Next move</button>
+          </div>
+        </div>
         <ol class="phases" id="workout-phases"></ol>
+        <div class="notes" id="notes" hidden>
+          <details class="rests"><summary>How long to rest</summary><ul class="facts" id="rest-facts"></ul></details>
+          <h3>What it should feel like</h3>
+          <ul class="facts" id="feel-facts"></ul>
+          <h3>When to stop</h3>
+          <ul class="facts" id="stop-facts"></ul>
+          <h3>How to move up</h3>
+          <ul class="facts" id="up-facts"></ul>
+        </div>
         <details class="rests" id="workout-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="workout-rests"></ul></details>
       </div>
 
@@ -167,7 +195,7 @@
         <details class="rests" id="cool-rests-box" hidden><summary>What this rests on</summary><ul class="facts" id="cool-rests"></ul></details>
       </div>
 
-      <button class="km-btn-quiet start-over" id="start-over" type="button" data-next="arrive" hidden>Back to the foot of the hill</button>
+      <button class="km-btn-quiet start-over" id="start-over" type="button" data-next="arrive" hidden>Back to the start</button>
     </section>
   </div>
 </main>
