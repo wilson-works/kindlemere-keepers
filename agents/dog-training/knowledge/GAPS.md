@@ -29,3 +29,6 @@ All my instruments are US ones (AKC CGC, AAFCO, AAHA). Louise's reading room nam
 
 ## What a dog coach should keep about a dog's bite history, and for how long
 I remember each dog on the person's own computer, including behaviour history. Louise's reading room found that record retention, minors and a stored bite history appear in no source. I need what trainers' and behaviourists' professional codes say about keeping client and dog records, and any legal angle on keeping a bite record.
+
+## Dogs outdoors: woods, fields and water
+My book covers recall, the long line and fleas, ticks and heartworm, but not the rest of taking a dog into nature. I need veterinary and welfare guidance on heat and cold, swimming and water safety (currents, blue-green algae, leptospirosis), ticks after a walk, wildlife and livestock, plants and fungi that harm dogs, and leaving no trace on trails. US first, with other countries named where they differ.
