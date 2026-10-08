@@ -147,6 +147,7 @@
       dogs = r.dogs || [];
       actions = r.actions || [];
       lookChoices = r.look || {};
+      SKILLS = r.skills || SKILLS;
     } catch (e) {
       say(`I couldn't read my memory just now: ${e.message}`, 'Tumble', 'worried');
     }
@@ -332,7 +333,7 @@
   }
 
   // Train: a plan from the training-plan tool, and a session logged by the session-log tool.
-  const SKILLS = ['sit', 'down', 'stay', 'come', 'heel', 'wait', 'leave it', 'drop it', 'place', 'paw', 'spin', 'off', 'loose-lead walking'];
+  let SKILLS = [];   // the server's list (GET /api/dogs): a session is about one of these, never typed
   const sess = { on: false, reps: 0, hits: 0, start: 0, tick: 0 };
   function refreshPanels() {
     const d = dogNow();

@@ -26,6 +26,7 @@ const KEY = 'dog-training';
 const NAME_RE = /^[A-Za-z][A-Za-z '-]{0,23}$/;
 const FACTS = ['breed', 'age', 'temperament', 'level'];
 const ACTIONS = ['sit', 'down', 'stay', 'come', 'heel', 'wait', 'leave it', 'drop it', 'place', 'paw', 'spin', 'off'];
+const SKILLS = [...ACTIONS, 'loose-lead walking'];   // what a session can be about: the page's own list, nothing typed
 const COLOURS = ['white', 'cream', 'tan', 'ginger', 'brown', 'black', 'grey'];
 const LOOK = {
   coat: COLOURS, head: COLOURS, face: COLOURS,
@@ -107,7 +108,7 @@ module.exports = function routes(agentDir) {
       const count = (kind) => es.filter((e) => e.kind === kind).length;
       return { dogs: dogs().length, facts: count('fact'), worked: count('worked'), lessons: count('lesson') };
     },
-    'GET /api/dogs': () => ({ dogs: dogs(), actions: ACTIONS, look: LOOK }),
+    'GET /api/dogs': () => ({ dogs: dogs(), actions: ACTIONS, skills: SKILLS, look: LOOK }),
     'GET /api/faces': () => {
       let names = [];
       try { names = fs.readdirSync(path.join(agentDir, '..', '..', 'kit', 'art', 'keepers')); } catch (_) { names = []; }
@@ -180,8 +181,9 @@ module.exports = function routes(agentDir) {
       const reps = whole(body.reps, 200);
       const hits = whole(body.hits, 200);
       const minutes = whole(body.minutes, 120);
-      const skill = clean(body.skill, 40);
-      if (!skill || !reps || !hits || Number(hits) > Number(reps)) throw bad('A session needs a skill and the reps and wins, with no more wins than reps.');
+      const skill = String(body.skill || '');
+      if (!SKILLS.includes(skill)) throw bad(`Pick the skill from the list: ${SKILLS.join(', ')}.`);
+      if (!reps || !hits || Number(hits) > Number(reps)) throw bad('A session needs the reps and wins, with no more wins than reps.');
       return tool('session-log', ['--dog', d.name, '--skill', skill, '--reps', reps, '--hits', hits, ...(minutes ? ['--minutes', minutes] : [])]);
     },
   };
