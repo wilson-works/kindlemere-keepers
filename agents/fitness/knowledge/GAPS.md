@@ -24,8 +24,8 @@ The coach remembers what a person tells it (injuries, conditions, pregnancy, moo
 ## Postpartum return to exercise: when and how to build back up
 The book says postpartum women should reach 150 minutes a week and that activity lowers postpartum depression risk, but gives no timeline or stages for returning after birth, including after a caesarean. What would answer it: the ACOG, CSEP or similar guidance on when to start, what to start with, and the warning signs that mean stop.
 
-## Exercising in heat, cold and at altitude
-The book covers when not to exercise for medical reasons but not the weather. What would answer it: the signs of heat illness and cold injury during exercise, how to adjust a plan for heat, cold and altitude, and when to stop. (Drinking amounts belong to the nutritionist.)
+## Exercising in heat, cold, rain and wind, and at altitude
+The book covers when not to exercise for medical reasons but not the weather. What would answer it: the signs of heat illness and cold injury during exercise, how to adjust a run or a plan for heat, cold, rain, wind and altitude (pace, length, what to wear, when to move it indoors), and when to stop. Huff answers running in the heat and Puff running in the weather, so both wait on this. (Drinking amounts belong to the nutritionist.)
 
 ## Training plans for cycling, swimming and rowing
 The book builds running plans from evidence but has nothing specific for other common endurance activities. What would answer it: how to start and progress cycling, swimming and rowing for a general adult, the common overuse injuries in each, and how weekly minutes translate.

@@ -25,7 +25,13 @@
   <div class="stage">
     <img class="scene" src="/kit/art/kindlemere-hill.svg" alt="The foot of Stepping Hill in Kindlemere: a grassy hill with granite outcrops, wide stone steps and a spiral running path, with Steady waiting at the bottom of the steps" width="1600" height="900">
 
-    <p class="bubble" id="say" aria-live="polite">Come on up. The steps are wide and nobody's timing you.</p>
+    <div class="bubble" id="bubble">
+      <span class="face" id="face" aria-hidden="true"><img id="face-img" src="/kit/art/keepers/fitness-happy.svg" alt="" width="244" height="217"></span>
+      <div class="said">
+        <span class="who" id="who">Steady</span>
+        <p id="say" aria-live="polite">Come on up. The steps are wide and nobody's timing you.</p>
+      </div>
+    </div>
 
     <section class="trail" aria-labelledby="trail-h">
       <ol class="stones" id="stones" aria-label="Today's steps" hidden></ol>
@@ -72,6 +78,13 @@
 
       <div class="step" id="step-run" hidden>
         <h2 tabindex="-1">Your run</h2>
+        <p>What's it like out?</p>
+        <div class="choices" id="sky">
+          <button class="km-btn soft" type="button" data-sky="fine" aria-pressed="false">Fine</button>
+          <button class="km-btn soft" type="button" data-sky="hot" aria-pressed="false">Hot</button>
+          <button class="km-btn soft" type="button" data-sky="weather" aria-pressed="false">Cold, wet or windy</button>
+        </div>
+        <p class="note" id="sky-note"></p>
         <ul class="facts" id="run-facts"></ul>
         <div class="run-clock" id="run-clock" hidden><span class="clock-n" id="run-time">0:00</span><span class="note">Easy enough to talk. That's the pace.</span></div>
         <div class="choices">
