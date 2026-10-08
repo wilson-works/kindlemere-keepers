@@ -104,7 +104,8 @@ node kit/engine/shelf.js check <agent> [--strict]
   sources. Exit `1` and `Nothing on my shelf about that.` when there is none. Refused cards are never returned.
 - `show`: the card's title, sources and body.
 - `check`: each card `ok` or `refused: <why>`. With `--strict`, also each unsourced bullet (`<file>:<line>`) and each
-  source page that does not open in Louise's library. Exit `2` when anything is refused.
+  source page that does not open on any of Louise's shelves (every root in her config), or has fewer lines than the
+  `@` tag names. Exit `2` when anything is refused.
 
 Example: `node kit/engine/shelf.js find nutrition "protein older adults"`
 
@@ -178,6 +179,8 @@ node kit/engine/learn.js <agent> --topic "<pending topic>" --book <book id>
   shelves are never written: copy, never move.
 - A book with no summary card yet is left for next time and named. `--dry` shows the matches and copies nothing.
 
+Example: `node kit/engine/learn.js nutrition --topic "Protein needs in late pregnancy" --book 0-t-2026-10-09-protein-needs-in-late-pregnancy`
+
 ## 8. The toolsmith: `kit/engine/toolsmith.js`
 
 ```
@@ -203,9 +206,12 @@ node kit/engine/toolsmith.js list  <agent>
 
   The value the body returns is printed (JSON for an object).
 - `check` refuses a tool that requires anything else (`http`, `https`, `net`, `dns`, `child_process`, `fs` included),
-  that calls `fetch`, `import()`, `eval` or `Function`, or that touches `process.binding` or `globalThis`. Writes can
-  only go through `ctx.state.write`, so nothing is written outside the agent's `state/`. When it passes, `check` prints
-  the registry entry for the lane to add.
+  that uses `fetch`, `process`, `module`, `exports` or `global` in its code, that calls `import()`, `eval` or
+  `Function`, or that mentions `globalThis`, `constructor` or `__proto__` anywhere. Words inside strings and comments
+  are prose ("play fetch", "processed food" are fine). Writes can only go through `ctx.state.write`, so nothing is
+  written outside the agent's `state/`. Every card named on the tool's `Cards:` line must be on the shelf and not
+  refused. When it passes, `check` prints the registry entry for the lane to add. The check keeps an honest agent off
+  the network; it is not a sandbox against a tool written to escape it.
 - **The registry**, `agents/<agent>/tools/registry.json`, written by the agent's lane only:
 
   ```json

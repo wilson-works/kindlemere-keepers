@@ -1,0 +1,24 @@
+'use strict';
+
+/**
+ * {{tool}}: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
+ * Purpose: {{purpose}}
+ * Inputs: {{inputs}}
+ * Cards: {{cards}}
+ *
+ * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
+ * Run: node agents/{{agent}}/tools/{{tool}}.js {{usage}}
+ */
+
+const { run } = require('../../../kit/engine/tool-kit');
+
+run(__filename, (ctx) => {
+  // Fill this in. ctx.args holds the inputs; ctx.find(words) and ctx.card(file) read the shelf; ctx.recall() reads
+  // memory; ctx.state.read(name) and ctx.state.write(name, value) keep this tool's own files. Return what to show.
+  const words = ctx.args._.join(' ');
+  const found = ctx.find(words);
+  return {
+    asked: words,
+    cards: found.map((c) => ({ card: c.file, title: c.title, facts: c.facts.map((f) => f.text) })),
+  };
+});
