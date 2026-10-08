@@ -1,6 +1,7 @@
 /* Avo's table in the Orchard. You step into the kit's close view of the Orchard and sit down at the long table.
    Kit tokens and parts first (/kit/design/tokens.css, /kit/kit.css), then only what this page needs. In the close
-   view Avo stands at about 13% across, so her words sit just to her right and the table card takes the right side. */
+   view Avo stands at about a third across and half way down, so her words sit just above her head and the table card
+   takes the right side. */
 
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
@@ -25,7 +26,7 @@ body { background: var(--a-sky); }
 .stage.no-art .scene { display: none; }
 
 .bubble {
-  position: absolute; left: 21%; top: 5%; width: 27%; margin: 0; z-index: 1;
+  position: absolute; left: 17%; bottom: 50%; width: 32%; margin: 0; z-index: 1;
   background: #FFFFFF; color: var(--km-ink); border-radius: var(--km-radius);
   box-shadow: var(--km-layer-lift); padding: var(--km-space-3) var(--km-space-4);
   font: 600 var(--km-text-md)/1.4 var(--km-font-head);
@@ -34,8 +35,8 @@ body { background: var(--a-sky); }
 .bubble p { margin: 0; min-width: 0; }
 .face { width: 64px; height: 64px; flex: none; }
 .bubble::after {
-  content: ""; position: absolute; left: -9px; top: 28px; width: 20px; height: 20px;
-  background: #FFFFFF; transform: rotate(45deg); border-radius: 0 0 0 4px;
+  content: ""; position: absolute; left: 46%; bottom: -9px; width: 20px; height: 20px;
+  background: #FFFFFF; transform: rotate(45deg); border-radius: 0 0 4px 0;
 }
 
 /* The table card: four place cards along the top, one open at a time. */
@@ -181,8 +182,8 @@ body { background: var(--a-sky); }
 @media (max-width: 959px) {
   .stage { width: 100%; min-width: 0; aspect-ratio: auto; }
   .scene { position: static; width: 100%; aspect-ratio: 16 / 9; height: auto; }
-  .bubble { position: relative; left: auto; top: auto; width: auto; margin: var(--km-space-4) var(--km-gutter) 0; }
-  .bubble::after { left: 18%; top: -9px; border-radius: 4px 0 0 0; }
+  .bubble { position: relative; left: auto; top: auto; bottom: auto; width: auto; margin: var(--km-space-4) var(--km-gutter) 0; }
+  .bubble::after { left: 30%; top: -9px; bottom: auto; border-radius: 4px 0 0 0; }
   .table { position: static; width: auto; max-height: none; overflow: visible; margin: var(--km-space-4) var(--km-gutter) 0; }
 }
 @media (max-width: 520px) {
