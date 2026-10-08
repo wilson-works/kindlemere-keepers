@@ -160,13 +160,30 @@
     const svg = doc.documentElement;
     if (!svg || svg.nodeName !== 'svg' || doc.querySelector('parsererror')) return null;
     svg.querySelectorAll('script, foreignObject, title, desc').forEach((n) => n.remove());
+    // An inline svg has no object-fit: keep the picture's fit and position, and crop the view to match (crop()).
+    const cs = getComputedStyle(img);
+    const pos = cs.objectPosition.split(/\s+/).map((v) => (/%$/.test(v) ? parseFloat(v) / 100 : 0.5));
     const node = document.importNode(svg, true);
     node.removeAttribute('aria-labelledby');
     for (const a of ['class', 'id', 'width', 'height']) if (img.hasAttribute(a)) node.setAttribute(a, img.getAttribute(a));
     const alt = img.getAttribute('alt');
     if (alt) node.setAttribute('aria-label', alt); else node.setAttribute('aria-hidden', 'true');
     img.replaceWith(node);
-    return { svg: node, $: (id) => node.querySelector(`#${pre}km-${id}`) };
+    return {
+      svg: node, $: (id) => node.querySelector(`#${pre}km-${id}`),
+      box: node.getAttribute('viewBox').split(/\s+/).map(Number), cover: cs.objectFit === 'cover', pos: [pos[0], pos[1] === undefined ? 0.5 : pos[1]],
+    };
+  }
+
+  /** For a picture set to object-fit: cover, show the part of the view that fills the box, at its object-position. */
+  function crop(scene) {
+    if (!scene.cover) return;
+    const w = scene.svg.clientWidth;
+    const h = scene.svg.clientHeight;
+    if (!w || !h) return;
+    let [x, y, bw, bh] = scene.box;
+    if (w / h < bw / bh) { const cw = bh * (w / h); x += (bw - cw) * scene.pos[0]; bw = cw; } else { const ch = bw / (w / h); y += (bh - ch) * scene.pos[1]; bh = ch; }
+    scene.svg.setAttribute('viewBox', `${x.toFixed(1)} ${y.toFixed(1)} ${bw.toFixed(1)} ${bh.toFixed(1)}`);
   }
 
   function draw(scene, place, t) {
@@ -251,12 +268,17 @@
       let scene = null;
       try { scene = await inline(img); } catch (_) { scene = null; }
       if (!scene) continue; // the picture stays as it was
+      crop(scene);
       draw(scene, place, now());
       scenes.push(scene);
       const part = (name) => scene.svg.querySelector(`[data-km-part="${name}"]`);
       window.dispatchEvent(new CustomEvent('kindlemere:ready', { detail: { svg: scene.svg, part } }));
     }
     const tick = () => scenes.forEach((s) => draw(s, place, now()));
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(() => scenes.forEach((s) => { crop(s); draw(s, place, now()); }));
+      scenes.forEach((s) => ro.observe(s.svg));
+    }
     setInterval(tick, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
   }

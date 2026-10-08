@@ -1065,7 +1065,7 @@ ${defs(null, false)}
 const VIEWS = [
   { key: 'realm', file: 'kindlemere.svg', box: `0 0 ${W} ${H}`, sky: [60, 900], title: 'Kindlemere' },
   { key: 'orchard', file: 'kindlemere-orchard.svg', box: '260 700 1024 576', sky: [710, 900], title: 'Kindlemere: the Orchard' },
-  { key: 'hill', file: 'kindlemere-hill.svg', box: '820 560 1088 612', sky: [570, 860], title: 'Kindlemere: Stepping Hill' },
+  { key: 'hill', file: 'kindlemere-hill.svg', box: '820 610 1088 612', sky: [620, 860], title: 'Kindlemere: Stepping Hill' },
   { key: 'field', file: 'kindlemere-field.svg', box: '2000 760 1200 675', sky: [772, 930], title: 'Kindlemere: Lakeside Field' },
 ];
 
