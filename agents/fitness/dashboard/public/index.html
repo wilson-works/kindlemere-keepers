@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cairn, Stepping Peaks</title>
+<link rel="icon" href="/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/kit/design/tokens.css">
+<link rel="stylesheet" href="/kit/kit.css">
+<link rel="stylesheet" href="/cairn.css">
+</head>
+<body data-agent="fitness">
+<header class="km-top">
+  <img class="km-mark" src="/mark.svg" alt="" width="40" height="40">
+  <div>
+    <div class="km-name">Cairn</div>
+    <div class="km-role">Keeper of the Stepping Peaks</div>
+  </div>
+</header>
+
+<main class="km-page">
+  <section class="km-card km-sky room" aria-labelledby="room-h">
+    <img class="room-figure" src="/art.svg" alt="Cairn: three stacked paper stones with bright eyes and a pebble sash, on a stone step by a trail flag" width="220" height="224">
+    <div>
+      <h1 id="room-h">The Stepping Peaks</h1>
+      <p class="room-line" id="greeting">Come on up. The steps are wide and nobody's timing you.</p>
+      <p class="room-about">Three green peaks, a spiral running path, wide stone steps, and a still pool at the top for
+        stretching and breath. It's always high noon here.</p>
+      <p class="room-law">I answer only from my cards and from what you tell me. What I don't know, I send to Louise.</p>
+    </div>
+  </section>
+
+  <div class="km-grid counts" aria-label="At a glance">
+    <div class="km-card count"><span class="count-n" id="n-cards">0</span><span class="count-l" id="l-cards">cards on my shelf</span></div>
+    <div class="km-card count"><span class="count-n" id="n-facts">0</span><span class="count-l">facts, each with its source</span></div>
+    <div class="km-card count"><span class="count-n" id="n-remember">0</span><span class="count-l" id="l-remember">things I remember about you</span></div>
+    <div class="km-card count"><span class="count-n" id="n-louise">0</span><span class="count-l" id="l-louise">questions for Louise</span></div>
+  </div>
+
+  <section class="km-card" aria-labelledby="know-h">
+    <h2 id="know-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-cards"/></svg>What I know</h2>
+    <p>Every card is copied from Louise's book on health and fitness. Open one to see each fact and where it came from.</p>
+    <form class="find" id="find" role="search">
+      <label class="visually-hidden" for="q">Find on my shelf</label>
+      <input class="km-field" id="q" name="q" type="search" placeholder="Try: running, stretching, sleep" autocomplete="off">
+      <button class="km-btn" type="submit">Find</button>
+    </form>
+    <p class="note" id="know-note" role="status"></p>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <hr class="km-thread">
+
+  <div class="km-grid">
+    <section class="km-card" aria-labelledby="mem-h">
+      <h2 id="mem-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-keepsake"/></svg>What I remember</h2>
+      <p>I keep what you tell me in my keepsake box, on this computer only. Here I show how much, never what.</p>
+      <ul class="tally">
+        <li><span class="km-chip" id="m-facts">0</span> <span id="lm-facts">things you told me</span></li>
+        <li><span class="km-chip" id="m-worked">0</span> <span id="lm-worked">notes on what worked</span></li>
+        <li><span class="km-chip" id="m-lessons">0</span> <span id="lm-lessons">lessons I learned</span></li>
+      </ul>
+      <p class="note">Ask me to forget anything, any time, and it's gone.</p>
+    </section>
+
+    <section class="km-card" aria-labelledby="tools-h">
+      <h2 id="tools-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-chisel"/></svg>My tools</h2>
+      <p>Small tools I made with the toolsmith. Each reads only my cards and my memory.</p>
+      <ul class="tools" id="tools"></ul>
+    </section>
+  </div>
+
+  <section class="km-card" aria-labelledby="louise-h">
+    <h2 id="louise-h"><svg class="h-icon" aria-hidden="true" focusable="false"><use href="/icons.svg#i-lantern"/></svg>Questions for Louise</h2>
+    <p>What my cards don't cover goes to Louise as a lantern. When her book comes back, I learn it.</p>
+    <h3 class="sub">Waiting on her book</h3>
+    <ul class="lanterns" id="pending"></ul>
+    <h3 class="sub">Gaps I've noted</h3>
+    <ul class="lanterns" id="gaps"></ul>
+  </section>
+</main>
+
+<footer class="km-foot">
+  <div class="foot-in">
+    <span>Kindlemere, the Stepping Peaks.</span>
+    <span>Food goes to the Orchard Isle. Dogs go to Whistle Meadow.</span>
+  </div>
+</footer>
+<script src="/kit/kit.js"></script>
+<script src="/cairn.js"></script>
+</body>
+</html>
