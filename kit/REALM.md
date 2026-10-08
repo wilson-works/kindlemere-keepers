@@ -135,6 +135,9 @@ movement, and create the full scene to be immersive and engaging."
   wake, the room answers in its own words, and on a page with no answer the kit says a short line of its own. On the
   Kindlemere page a keeper steps you into its room. No box is drawn round what you touch; the keyboard's focus is a
   soft glow round the shape. Only what is in the picture is a stop for the keyboard.
+- **Plenty to say.** Owner, 2026-10-08: "characters should have quite a few quotes when pressed to keep things fresh
+  and engaging". Each character has a dozen lines of its own in the kit, and its room adds more (the keepers' jokes,
+  today's treat, tonight's dinner, the hints for the board). A click never gets the line it got last time.
 - Reduced motion: no depth shift and no wandering; the still scene.
 
 ## The dog
@@ -153,6 +156,10 @@ backwards is another fix".
   hill, into the Orchard, out on the lake (where it floats back in to the shallows). The dog runs for it, picks it
   up, brings it back to where you threw from, drops it and waits. On a phone the dog and the ball are at least a
   finger wide. In Tumble's room the same dog also takes the commands Tumble shows and the look for the treats.
+- **Sizzle's treat.** Owner, 2026-10-08: "when clicking Sizzle, the dog should run to Sizzle and sit in front of
+  Sizzle waiting for a treat that sizzle tosses". Click Sizzle and the dog runs to the side of him it is on, puts its
+  ball down, sits looking up at his jar and catches the bone biscuit he lobs from it. It chews, picks its ball up again
+  and goes back to its day. Sizzle stays put until it has, and the dog comes in every view, from wherever it is.
 - **The ground** it may walk is marked in the art (`data-km-walk`: the Orchard's meadow, the hill's face to its top,
   the Field and the shallows; `data-km-shore`: the water's edge). A ball can come down anywhere on it.
 - After dark it sleeps in its house. In Tumble's room a command wakes it for a while, sleepy: a sit, a lie down.
@@ -186,8 +193,16 @@ the signs to each scene".
   places' colours. An arm glides the camera there, and the place the camera has come to wears the pin. Arrived at a
   place, a bigger arm offers the way into its keeper's room (Step into the Orchard, Climb Stepping Hill, Walk to
   Lakeside Field), never the room you are in. The signposts in the art glide the camera too.
-- **Everyone carries on.** The characters go about their day and the dog plays fetch. A character you click answers
-  in the scene, since a room's own answers would be off the screen.
+- **The agents come too.** Owner, 2026-10-08: "I just wish the agents could work in the full screen mode rather than
+  have to use the windowed mode to get their tools to work". On a room's page the whole stage goes full screen: the
+  keeper's words dock top left (the camera moves, so they no longer point), the room's card stands top right under
+  the buttons, the room's book (Avo's cookbook, Steady's pack, Tumble's books) has a button there and opens over the
+  full screen, and a character you click gets the room's own answer. Typing in the card never moves the camera. On a
+  phone the words go across the top and the card opens as a sheet from its button.
+- **Into a room and on.** Stepping into a room from full screen changes the page, and the browser leaves full screen
+  then. The room offers it back for a moment with one button, as the browser wants a click before it goes again.
+- **Everyone carries on.** The characters go about their day and the dog plays fetch. On the Kindlemere page, where
+  no room comes with the scene, a character you click answers in the scene in the kit's words.
 - **Smooth on a big screen.** A camera on the move is moved and scaled on the graphics card, not drawn again each
   frame, and the view is drawn sharp where it comes to rest (for a moment in a long move the picture is a little
   soft). In full daylight the land's light filter is left off, since it is then the picture as drawn: that doubles
