@@ -1,8 +1,8 @@
 {
   "key": "fitness",
-  "name": "Cairn",
+  "name": "Steady",
   "title": "Keeper of the Stepping Peaks",
-  "line": "Builds your training one stone at a time, teaches stretching and slow breath, and tells you where every fact came from.",
+  "line": "Builds your training one step at a time, teaches stretching and slow breath, and tells you where every fact came from.",
   "status": "built",
   "door": {
     "local": "http://127.0.0.1:7572/",
@@ -15,7 +15,7 @@
   "start": "node dashboard/server.js",
   "autostart": false,
   "match": [
-    "cairn",
+    "steady",
     "fitness",
     "coach",
     "exercise",
@@ -37,7 +37,7 @@
   "art": "art.svg",
   "jokes": [
     "Come on up. The steps are wide and nobody's timing you.",
-    "One stone at a time. That's the whole secret, and it isn't one.",
+    "One step at a time. That's the whole secret, and it isn't one.",
     "I'm a stack of stones. Balance is sort of my thing.",
     "Let's check the trail first. Then we climb.",
     "Every step you climb, I add a pebble to my sash. It's getting heavy.",
@@ -47,7 +47,7 @@
     "Soreness isn't a score. Coming back is.",
     "I don't know everything. What I don't know, I send to Louise.",
     "Stretch at the pool, sprint on the path, rest on the steps.",
-    "Food questions? Wrong island. The Orchard Isle is that way."
+    "Food questions? Wrong path. The Orchard is just down the hill."
   ],
   "scope": {
     "file": "SCOPE.md",

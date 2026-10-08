@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="t">
-  <title id="t">Cairn's mark: three stacked paper stones with a pebble sash and a small white star</title>
+  <title id="t">Steady's mark: three stacked paper stones with a pebble sash and a small white star</title>
   <!-- Cut paper (kit/REALM.md): flat shapes, each on a short hard shadow below it. Same stones as art.svg. -->
   <g fill="rgba(26,36,51,0.16)">
     <ellipse cx="32" cy="50" rx="22" ry="11"/>
@@ -9,7 +9,7 @@
   <!-- base -->
   <ellipse cx="32" cy="47" rx="22" ry="11" fill="#B0205C"/>
   <path d="M11 49 Q32 62 53 48 Q50 57 32 58 Q14 57 11 49 Z" fill="#8E1748"/>
-  <path d="M17 42 Q23 37 32 37 Q25 40 22 44 Q18 46 17 42 Z" fill="#C9497F"/>
+  <path d="M17 43 L23 38 L31 37 L24 41 L21 45 Z" fill="#C23A70"/>
   <g stroke="#E8A3C1" stroke-width="1.4" stroke-linecap="round"><path d="M38 41.5 l-0.6 5"/><path d="M41 41.5 l-0.6 5"/><path d="M44 41.5 l-0.6 5"/><path d="M36.5 45 l9 -2.6"/></g>
   <!-- middle and its sash -->
   <ellipse cx="32" cy="31.5" rx="15.5" ry="8.5" fill="#8FA2FF"/>
