@@ -104,7 +104,8 @@ node kit/engine/shelf.js check <agent> [--strict]
   sources. Exit `1` and `Nothing on my shelf about that.` when there is none. Refused cards are never returned.
 - `show`: the card's title, sources and body.
 - `check`: each card `ok` or `refused: <why>`. With `--strict`, also each unsourced bullet (`<file>:<line>`) and each
-  source page that does not open in Louise's library. Exit `2` when anything is refused.
+  source page that does not open on any of Louise's shelves (every root in her config), or has fewer lines than the
+  `@` tag names. Exit `2` when anything is refused.
 
 Example: `node kit/engine/shelf.js find nutrition "protein older adults"`
 
@@ -177,6 +178,8 @@ node kit/engine/learn.js <agent> --topic "<pending topic>" --book <book id>
   `origin: louise-card`), checks the copy, and marks the request `learned` with the book id and card file. Louise's
   shelves are never written: copy, never move.
 - A book with no summary card yet is left for next time and named. `--dry` shows the matches and copies nothing.
+
+Example: `node kit/engine/learn.js nutrition --topic "Protein needs in late pregnancy" --book 0-t-2026-10-09-protein-needs-in-late-pregnancy`
 
 ## 8. The toolsmith: `kit/engine/toolsmith.js`
 
