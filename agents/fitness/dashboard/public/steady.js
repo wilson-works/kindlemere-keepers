@@ -11,6 +11,20 @@
   };
   const plain = (t) => String(t || '').replace(/\s*@\S+/g, '').replace(/\s*\[\^\d+\]/g, '').trim();
   const say = (id, n, one, many) => { $(id).textContent = n === 1 ? one : many; };
+  // Steady's mood shows in the face and the pose. The figures come from the kit (kit/art/keepers/fitness-<mood>.svg);
+  // until the kit has exported them the page carries no figure (the owner: "do not ship a figure of your own"), so mood() does nothing.
+  const MOODS = {
+    happy: "Steady, smiling: three stacked granite stones with bright eyes and a pebble sash, on the grass of Stepping Hill",
+    thinking: "Steady, thinking: head tilted, eyes up, little pebbles of thought rising",
+    oh: "Steady, surprised: a little hop, eyes wide, mouth round in an oh",
+    worried: "Steady, worried: leaning back, brows tipped up, a wobbly mouth",
+  };
+  function mood(name) {
+    const img = $("figure");
+    if (!img || !MOODS[name]) return;
+    img.src = "/kit/art/keepers/fitness-" + name + ".svg";
+    img.alt = MOODS[name];
+  }
   const day = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-CA'); };
 
   function renderCards(cards, emptyText) {
@@ -44,9 +58,11 @@
   }
 
   async function find(q) {
-    if (!q) return loadShelf();
+    mood('thinking');
+    if (!q) { await loadShelf(); mood('happy'); return; }
     const { cards } = await kit.api(`/api/shelf?q=${encodeURIComponent(q)}`);
     renderCards(cards, "Nothing on my shelf about that yet. That's a question for Louise.");
+    mood(cards.length ? 'happy' : 'oh');
   }
 
   async function loadMemory() {
@@ -106,9 +122,9 @@
 
   $('find').addEventListener('submit', (e) => {
     e.preventDefault();
-    find($('q').value.trim()).catch((err) => { $('know-note').textContent = err.message; });
+    find($('q').value.trim()).catch((err) => { $('know-note').textContent = err.message; mood('worried'); });
   });
 
   Promise.all([greet(), loadShelf(), loadMemory(), loadTools(), loadLouise()])
-    .catch((err) => { $('know-note').textContent = err.message; });
+    .catch((err) => { $('know-note').textContent = err.message; mood('worried'); });
 }());

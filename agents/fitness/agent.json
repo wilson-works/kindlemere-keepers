@@ -1,7 +1,7 @@
 {
   "key": "fitness",
   "name": "Steady",
-  "title": "Keeper of the Stepping Peaks",
+  "title": "Keeper of Stepping Hill",
   "line": "Builds your training one step at a time, teaches stretching and slow breath, and tells you where every fact came from.",
   "status": "built",
   "door": {
@@ -26,15 +26,15 @@
     "meditation"
   ],
   "brand": {
-    "bg": "#F1F4FF",
-    "panel": "#D9E1FF",
+    "bg": "#F1F4F6",
+    "panel": "#DCE5EC",
     "ink": "#1A2433",
-    "accent": "#B0205C",
+    "accent": "#4B5D6E",
     "accent2": "#FF7A45",
     "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
     "mark": "mark.svg"
   },
-  "art": "art.svg",
+  "art": "mark.svg",
   "jokes": [
     "Come on up. The steps are wide and nobody's timing you.",
     "One step at a time. That's the whole secret, and it isn't one.",
