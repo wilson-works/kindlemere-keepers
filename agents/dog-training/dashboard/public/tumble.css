@@ -118,3 +118,5 @@ svg.tm-awake .tm-night-dogs { display: none !important; }
   .tm-panel { padding: var(--km-space-4); }
   .tm-mood { width: 44px; height: 44px; }
 }
+[id$="km-keeper-dog-training"]:focus { outline: none; }
+.tm-view:has([id$="km-keeper-dog-training"]:focus-visible) { outline: 3px solid var(--km-ink); outline-offset: -3px; }

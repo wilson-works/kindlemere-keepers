@@ -133,7 +133,7 @@
     const act = { then: 'home', hold: 0, target: 0 };
     let state = 'home';   // home, dropping, ready, dragging, flying, out, pick, back, leap, pose, spin, come
     let pose = 'stand';
-    let paused = false, timer = 0, holdFor = 0, samples = [], awakeUntil = 0;
+    let paused = false, timer = 0, holdFor = 0, samples = [], awakeUntil = 0, holding_ = false;
 
     dog.setAttribute('tabindex', '0');
     dog.setAttribute('role', 'button');
@@ -185,6 +185,12 @@
       if (!['dragging', 'pose', 'come'].includes(next) && pose !== 'stand') setPose('stand');
       state = next;
       timer = 0;
+      // while the dog is busy, the kit's characters stay home (window.kindlemere.hold, lane A's mingle plan)
+      const busy = next !== 'home';
+      if (busy !== holding_) {
+        holding_ = busy;
+        try { if (window.kindlemere && typeof window.kindlemere.hold === 'function') window.kindlemere.hold(busy); } catch (_) { /* the kit's own business */ }
+      }
       svg.classList.toggle('is-picking', next === 'pick');
       ball.style.cursor = (next === 'ready' || next === 'flying' || next === 'dropping') ? 'grab' : (next === 'dragging' ? 'grabbing' : 'default');
     }

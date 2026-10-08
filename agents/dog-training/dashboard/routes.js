@@ -14,8 +14,10 @@
  *   POST /api/dog-forget {name}                forget everything about this dog
  *   POST /api/plan {dog}                       the training-plan tool, for a remembered dog
  *   POST /api/log {dog, skill, reps, hits, minutes}   the session-log tool
+ *   GET  /api/faces                            which of the kit's faces exist for Tumble, Barkley and Sizzle (file names)
  */
 
+const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const memory = require('../../../kit/engine/memory');
@@ -106,6 +108,11 @@ module.exports = function routes(agentDir) {
       return { dogs: dogs().length, facts: count('fact'), worked: count('worked'), lessons: count('lesson') };
     },
     'GET /api/dogs': () => ({ dogs: dogs(), actions: ACTIONS, look: LOOK }),
+    'GET /api/faces': () => {
+      let names = [];
+      try { names = fs.readdirSync(path.join(agentDir, '..', '..', 'kit', 'art', 'keepers')); } catch (_) { names = []; }
+      return { faces: names.filter((n) => /^dog-training(-[a-z]+)?-[a-z]+\.svg$/.test(n)) };
+    },
 
     'POST /api/dog': ({ body }) => {
       const name = nameOf(body.name);

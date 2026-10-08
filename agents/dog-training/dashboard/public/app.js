@@ -22,17 +22,47 @@
 
   /* ---------- who is speaking ---------- */
   const MOODS = ['happy', 'thinking', 'oh', 'worried', 'sleepy'];
+  // The kit's faces: dog-training-<mood>.svg for Tumble, dog-training-barkley-<mood>.svg and -sizzle- for the
+  // sidekicks once the kit draws them. Only a face the kit has is asked for; otherwise the name says who is talking.
+  const FACE = { Tumble: 'dog-training', Barkley: 'dog-training-barkley', Sizzle: 'dog-training-sizzle' };
+  let faces = new Set(['dog-training-happy.svg']);
   function say(text, who, mood) {
     const speaker = who || 'Tumble';
-    put('who', speaker === 'Tumble' ? 'Tumble' : `${speaker}:`);
+    put('who', speaker);
     put('say', text);
     const img = $('mood');
-    // Barkley and Sizzle are not drawn yet; until the kit draws them, their name says who is talking.
-    img.hidden = speaker !== 'Tumble';
     const m = MOODS.includes(mood) ? mood : 'happy';
-    if (speaker === 'Tumble' && !img.src.endsWith(`dog-training-${m}.svg`)) img.src = `/kit/art/keepers/dog-training-${m}.svg`;
+    const file = [`${FACE[speaker]}-${m}.svg`, `${FACE[speaker]}-happy.svg`].find((f) => faces.has(f));
+    img.hidden = !file;
+    if (file && !img.src.endsWith(`/${file}`)) img.src = `/kit/art/keepers/${file}`;
     $('bubble').dataset.who = speaker.toLowerCase();
   }
+
+  // Clicking a character: each answers in the bubble with its own face. Jokes are Tumble's own (agent.json); the
+  // sidekicks' lines are their own greetings, never advice.
+  let jokes = [];
+  const LINES = {
+    Barkley: ['Sniff first, walk second.', 'Every stick has a story. Shall we go outside? Open Play.', 'Out by the reeds is the best sniffing in Kindlemere.'],
+    Sizzle: ['Treats are training money. Spend them well.', 'Every dog in the field is watching me. Open Treats and I\'ll do the sums.', 'Crisp, warm, and counted. That\'s a good treat.'],
+  };
+  const pick = (xs) => xs[Math.floor(Math.random() * xs.length)];
+  let lastTalk = { name: '', at: 0 };
+  function talk(name) {
+    const now = performance.now();
+    if (lastTalk.name === name && now - lastTalk.at < 250) return;   // the kit's event and the page's own click, once
+    lastTalk = { name, at: now };
+    if (name === 'Tumble') say(jokes.length ? pick(jokes) : 'Small steps, lots of wins.', 'Tumble', 'happy');
+    else if (LINES[name]) say(pick(LINES[name]), name, 'happy');
+    else if (dogs.some((d) => d.name === name)) chooseDog(name);
+  }
+  window.addEventListener('kindlemere:character', (e) => {
+    const name = e.detail && e.detail.name;
+    if (typeof name !== 'string') return;
+    const n = name.replace(/^./, (c) => c.toUpperCase());
+    if (n === 'Dog') return;   // the dog answers a tap itself (fetch)
+    if (game && game.asleep() && /^(Tumble|Barkley|Sizzle)$/.test(n)) { say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy'); return; }
+    talk(n);
+  });
 
   /* ---------- the cards, and sources the way a book gives them ---------- */
   let shelf = [];
@@ -125,6 +155,22 @@
     drawDogBar();
     fillDogForms();
     paintScene();
+    publishDogs();
+  }
+
+  function chooseDog(name) {
+    current = name;
+    store.set('tm-dog', current);
+    drawDogBar(); fillDogForms(); paintScene(); refreshPanels();
+    say(`${name}'s turn.`);
+  }
+
+  // The kit draws one house per dog (lane A): the page tells it how many dogs, and their names, on this computer only.
+  function publishDogs() {
+    if (!svg) return;
+    const names = dogs.map((d) => d.name).slice(0, 6);
+    svg.setAttribute('data-km-dogs', String(names.length));
+    window.dispatchEvent(new CustomEvent('kindlemere:dogs', { detail: { svg, names } }));
   }
 
   function drawDogBar() {
@@ -134,7 +180,7 @@
       const b = el('button', 'km-chip tm-dog-chip', d.name);
       b.type = 'button';
       b.setAttribute('aria-pressed', String(d.name === current));
-      b.addEventListener('click', () => { current = d.name; store.set('tm-dog', current); drawDogBar(); fillDogForms(); paintScene(); refreshPanels(); say(`${d.name}'s turn.`); });
+      b.addEventListener('click', () => chooseDog(d.name));
       bar.append(b);
     }
     const add = el('button', 'km-btn-quiet tm-dog-add', dogs.length ? 'Add another dog' : 'Add your dog');
@@ -178,14 +224,20 @@
     if (!ours || !defs || !at) return;
     scene.insertBefore(defs, scene.firstChild);
     ours.setAttribute('data-home', `${at[1]} ${at[2]}`);
+    // the kit's names for the dog's parts go with it, so the kit's own hooks (part('dog'), the mingle) still find it
+    ours.setAttribute('data-km-part', 'dog');
+    const partOf = (sel, name) => { const n = ours.querySelector(sel); if (n) n.setAttribute('data-km-part', name); };
+    partOf('.dt-look', 'dog-head'); partOf('.dt-pupil', 'dog-pupils'); partOf('.dt-held', 'dog-ball');
     const day = theirs.parentNode;
     theirs.replaceWith(ours);
-    // the scene dog's own splash and dust go with it; this dog brings its own
-    for (const c of [...day.children]) if (c !== ours) c.setAttribute('display', 'none');
-    // after dark the scene puts its dogs to bed; a woken dog shows over the sleeping one (tumble.css)
-    day.classList.add('tm-day-dogs');
-    const sleeping = day.nextElementSibling;
-    if (sleeping && sleeping.classList.contains('km-night-only')) sleeping.classList.add('tm-night-dogs');
+    if (day.classList.contains('km-day-only')) {
+      // the scene dog's own splash and dust go with it; this dog brings its own
+      for (const c of [...day.children]) if (c !== ours) c.setAttribute('display', 'none');
+      // after dark the scene puts its dogs to bed; a woken dog shows over the sleeping one (tumble.css)
+      day.classList.add('tm-day-dogs');
+      const sleeping = day.nextElementSibling;
+      if (sleeping && sleeping.classList.contains('km-night-only')) sleeping.classList.add('tm-night-dogs');
+    }
     // a second and third dog of the person's sit nearby, each in its own colours
     extras = PLACES.map(([dx, dy], i) => {
       const x = ours.cloneNode(true);
@@ -198,17 +250,28 @@
       x.setAttribute('role', 'img');
       x.style.display = 'none';
       ours.before(x);
+      x.removeAttribute('data-km-part');
+      x.querySelectorAll('[data-km-part]').forEach((n) => n.removeAttribute('data-km-part'));
       x.addEventListener('click', () => {
         const name = x.getAttribute('aria-label');
-        if (!dogs.some((d) => d.name === name)) return;
-        current = name; store.set('tm-dog', current); drawDogBar(); fillDogForms(); paintScene(); refreshPanels();
-        say(`${name}'s turn.`);
+        if (dogs.some((d) => d.name === name)) chooseDog(name);
       });
       return x;
     });
     svg = scene;
     game = window.tmFetch.init(svg, (t) => say(t), ours);
     paintScene();
+    publishDogs();
+    // Tumble answers a click (or Enter) with a line of its own; the kit's character event does the same (talk)
+    const keeper = svg.querySelector('[id$="km-keeper-dog-training"]');
+    if (keeper) {
+      keeper.setAttribute('role', 'button');
+      keeper.setAttribute('tabindex', '0');
+      keeper.setAttribute('aria-label', 'Talk to Tumble');
+      keeper.style.cursor = 'pointer';
+      keeper.addEventListener('click', () => talk('Tumble'));
+      keeper.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); talk('Tumble'); } });
+    }
     if (!game) return;
     const pause = $('pause');
     pause.hidden = false;
@@ -579,6 +642,8 @@
       load('/api/louise', { requests: [], gaps: [] }), load('/api/remembered', {}),
     ]);
     shelf = sh.cards || [];
+    jokes = Array.isArray(agent.jokes) ? agent.jokes : [];
+    try { faces = new Set((await api('/api/faces')).faces || []); } catch (_) { /* Tumble's happy face stays */ }
     if (agent.name) {
       document.title = `${agent.name}, ${agent.title}`;
       put('name', agent.name);
