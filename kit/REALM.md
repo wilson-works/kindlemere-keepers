@@ -29,7 +29,7 @@ a keepsake box of what you told them and what helped. Nobody starts over.
 
 | Place | Who keeps it | What it is |
 |---|---|---|
-| **The Orchard** | the nutritionist (`agents/nutrition`), Avo the avocado, with Summer the peach (treats and sweets) and, in the evenings, Spud the potato (dinner) | A foresty picnic meadow on terraced ground: a deep wood behind it, avocado trees heavy with avocados, a long picnic table with a gingham cloth under a string of paper lights, a picnic blanket and basket, a larder door dug into the hill with a lamp, a beehive, a vegetable patch with a rabbit, a herb spiral. |
+| **The Orchard** | the nutritionist (`agents/nutrition`), Avo the avocado, with Summer the peach (treats and sweets) and Spud the potato (dinner), who sleeps in the ground and pops up at dinner time | A foresty picnic meadow on terraced ground: a deep wood behind it, avocado trees heavy with avocados, a long picnic table with a gingham cloth under a string of paper lights, a picnic blanket and basket, a larder door dug into the hill with a lamp, a beehive, a vegetable patch with a rabbit, a herb spiral. |
 | **Stepping Hill** | the fitness coach (`agents/fitness`), Steady, three stacked river stones, with Puff (a white cloud: home workouts, running in the weather) and Huff (the same cloud in dust: the gym, running in the heat), a short warm-up climb up the hill | One big grassy hill, the biggest thing in the park, with granite outcrops and pines, wildflowers, grazing sheep, stone steps on a worn trail with a bench part way up, a switchback path with little stacked stones and flags, a quiet pool set into its shoulder with a spring running down to the lake, a lookout on the top with a telescope, and a bench, a stone kettlebell and a basket of river stones at its foot. |
 | **Lakeside Field** | the dog trainer (`agents/dog-training`), Tumble, a large herding ball, with Barkley (a big stick: outdoor play, dogs in the woods), Sizzle (a strip of bacon: food and treats) and the dog | Open grass in the same greens as the hill, running down into a bay of the lake, farmland and hedgerows beyond: berry bushes and wildflowers, a split-rail fence, one dog house per dog (each with its name), weave poles, a willow hoop, flags with paw prints, toys in the grass, and the dog galloping through the shallows (asleep in its house at night). |
 | **The paths and the signpost** | everyone | Stitched paths of light from each place to the crossroads; the signpost points to the Orchard, the Hill, the Field and Louise. Direction. |
@@ -99,10 +99,11 @@ script draws the picture inline and, once a minute:
   west on the right, rising and setting behind the hills. The moon shows its real phase.
 - colours the sky by the sun's height (night blues, an orange dawn and dusk, a clear teal day) and lights the land to
   match, with moonlight on clear nights. Never violet or pink, even at dusk.
-- brings Spud to the table from late afternoon (the sun low in the west) through the night.
+- brings Spud up out of the ground at dinner time, from late afternoon (the sun low in the west) until dark. The rest
+  of the day and all night he is planted in the ground: the top of his head and his sprout, eyes shut.
 - after dark (the sun 4 degrees below the horizon) brings out the stars, the fireflies, the string lights over the
-  table, the lamp over the larder door and the lanterns' glow; the keepers and sidekicks doze with z's rising, the
-  stones look up at the stars, and the dog sleeps curled in the door of its house. A path of light lies on the water
+  table, the lamp over the larder door and the lanterns' glow; the keepers and sidekicks doze with z's rising (Avo in a
+  wooden bowl, Summer in a little woven basket under a checked napkin, Spud in the ground), the stones look up at the stars, and the dog sleeps curled in the door of its house. A path of light lies on the water
   under the low sun or the moon.
 - at night puts one character (the same one all night, a different one each night) up on the lookout by the
   telescope. Click the telescope at night and it opens a round lens on tonight's moon, its phase worked out from the
@@ -120,7 +121,8 @@ computer's time zone. To see another hour, add `?km-time=2026-10-08T19:30` to th
 - **At rest they mingle.** After 20 seconds with no touch, key or wheel, one group walks the stitched paths to visit
   another: Avo and Summer climb to Steady, Steady and the clouds come down to the table, Tumble brings Barkley,
   Sizzle and the dog to the signpost or the Orchard. They grow as they come nearer the front, stop and talk (a paper
-  bubble, faces that think, smile and go "oh"), and walk home. Any touch, key or wheel sends everyone home at once.
+  bubble, faces that think, smile and go "oh", bodies that tilt to think, hop at an "oh" and sway as they talk),
+  and walk home. Any touch, key or wheel sends everyone home at once.
   A room busy with its own work holds them at home (`window.kindlemere.hold`). Nobody wanders at night.
 - **A touch.** Every character is a button. Clicking one (or Enter or Space) wakes its face and bubble; the room
   answers in the character's own words, and on a page with no answer the kit says a short line of its own.
@@ -262,6 +264,8 @@ side before shipping one: if a line could come from any of them, rewrite it.
   scene animation and the scales to be consistent across all scene elements."
 - "And maybe the fitness agents are slightly up the hill so smaller dimmension wise for them and its a short \"warm up\"
   walk to greet them, to split them from Avos scene a bitt more"
+- "Can we get Avo and the crew some individual Baskets to sleep in? Like Avo has a bowl, Spud sticks himself into the
+  ground and pops up around dinner time, and Summer is in a little woven basket with a checkered napkin blanket."
 
 ## Consults
 
