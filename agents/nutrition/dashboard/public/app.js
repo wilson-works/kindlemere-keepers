@@ -218,6 +218,19 @@
     if (prefill != null && !box.value) box.value = prefill;
     box.focus();
   }
+  // When the scene is at rest Avo walks off to visit; the kit moves her by giving her figure's button a transform and
+  // takes it away when she is home. Her bubble steps aside while she is out, so it never points at an empty spot.
+  function watchAvo() {
+    const avo = document.querySelector('[role="button"][aria-label="Avo"]');
+    if (!avo || avo.dataset.watched) return;
+    avo.dataset.watched = '1';
+    const bubble = $('say').parentElement;
+    new MutationObserver(() => bubble.classList.toggle('away', avo.hasAttribute('transform')))
+      .observe(avo, { attributes: true, attributeFilter: ['transform'] });
+  }
+  window.addEventListener('kindlemere:ready', watchAvo);
+  watchAvo();
+
   window.addEventListener('kindlemere:character', (ev) => {
     const who = ev.detail && ev.detail.name;
     if (!['Avo', 'Summer', 'Spud'].includes(who)) return;

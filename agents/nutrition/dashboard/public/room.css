@@ -226,3 +226,7 @@ body { background: var(--a-sky); }
 .talk-acts .km-btn:disabled { opacity: 0.55; cursor: wait; }
 /* While you talk with her, the table card takes the room it needs; on the other place cards it stops above Spud. */
 .table:has(#place-plan:not([hidden])) { max-height: 92%; }
+/* While Avo is away visiting (the kit's mingle at rest), her bubble steps aside until she is home. */
+.bubble { transition: opacity 0.4s ease; }
+.bubble.away { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .bubble { transition: none; } }
