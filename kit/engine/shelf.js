@@ -55,14 +55,16 @@ function show(key, file) {
   return cards.read(f);
 }
 
-/** Does Louise's page exist, and (when a line is named) is it that long? */
-function pageProblem(library, page, line) {
-  if (!library) return null;
+/** Does Louise's page exist on one of her shelves, and (when a line is named) is it that long? */
+function pageProblem(libraries, page, line) {
+  if (!libraries || !libraries.length) return null;
   const parts = page.split('/');
   if (parts.some((p) => !p || p === '..' || p === '.')) return `${page} is not a plain page path.`;
-  const file = path.join(library, ...parts);
-  let text;
-  try { text = fs.readFileSync(file, 'utf8'); } catch (_) { return `${page} does not open in Louise's library.`; }
+  let text = null;
+  for (const lib of libraries) {
+    try { text = fs.readFileSync(path.join(lib, ...parts), 'utf8'); break; } catch (_) { /* try her next shelf */ }
+  }
+  if (text == null) return `${page} does not open in Louise's library.`;
   if (line != null) {
     const n = text.split('\n').length;
     if (line < 1 || line > n) return `${page} has ${n} lines, not ${line}.`;
@@ -72,11 +74,11 @@ function pageProblem(library, page, line) {
 
 function check(key, opts) {
   const strict = Boolean(opts && opts.strict);
-  let library = null;
+  let library = [];
   let libraryNote = null;
   if (strict) {
-    try { library = require('./louise').libraryDir(); } catch (e) { libraryNote = e.message; }
-    if (!library && !libraryNote) libraryNote = "Louise has no library set, so the source pages could not be opened.";
+    try { library = require('./louise').libraryDirs(); } catch (e) { libraryNote = e.message; }
+    if (!library.length && !libraryNote) libraryNote = "Louise has no library set, so the source pages could not be opened.";
   }
   const res = { ok: [], refused: [], problems: [], library, libraryNote };
   for (const c of all(key)) {

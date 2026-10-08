@@ -1,5 +1,116 @@
-/* /kit/kit.css — the shared page frame. It reads the tokens in /kit/design/tokens.css (link that first). */
+/*
+ * /kit/kit.css — the shared page frame and parts for every Kindlemere agent (kit/REALM.md).
+ * Link /kit/design/tokens.css first. Put data-agent="<key>" on <body> to take that agent's palette slot.
+ * Parts: .km-page, .km-top, .km-mark, .km-card, .km-btn, .km-btn-quiet, .km-field, .km-chip, .km-lantern,
+ * .km-thread (the dotted line of the Weave), .km-source (a fact's source), .km-foot (the mere).
+ */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; min-height: 100vh; line-height: 1.5; }
 img, svg { max-width: 100%; height: auto; }
+
+body {
+  --a-bg: var(--km-mere-light);
+  --a-sky: var(--km-paper);
+  --a-land: var(--km-mere);
+  --a-glow: var(--km-kindle);
+  margin: 0;
+  min-height: 100vh;
+  background: var(--a-bg);
+  color: var(--km-ink);
+  font-family: var(--km-font-body);
+  font-size: var(--km-text-md);
+  line-height: var(--km-leading);
+}
+[data-agent="nutrition"] { --a-bg: var(--nutrition-bg); --a-sky: var(--nutrition-sky); --a-land: var(--nutrition-land); --a-glow: var(--nutrition-glow); }
+[data-agent="fitness"] { --a-bg: var(--fitness-bg); --a-sky: var(--fitness-sky); --a-land: var(--fitness-land); --a-glow: var(--fitness-glow); }
+[data-agent="dog-training"] { --a-bg: var(--dog-training-bg); --a-sky: var(--dog-training-sky); --a-land: var(--dog-training-land); --a-glow: var(--dog-training-glow); }
+
+h1, h2, h3 { font-family: var(--km-font-head); line-height: 1.15; margin: 0 0 var(--km-space-3); letter-spacing: 0.005em; }
+h1 { font-size: var(--km-text-2xl); }
+h2 { font-size: var(--km-text-xl); }
+h3 { font-size: var(--km-text-lg); }
+p { margin: 0 0 var(--km-space-4); }
+a { color: var(--a-land); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--km-mere-deep); outline-offset: 2px; }
+
+.km-page { max-width: var(--km-page-max); margin: 0 auto; padding: var(--km-space-5) var(--km-gutter) var(--km-space-7); }
+
+.km-top {
+  display: flex; align-items: center; gap: var(--km-space-3);
+  padding: var(--km-space-3) var(--km-gutter);
+  position: relative; margin-bottom: 16px;
+  background: var(--a-sky);
+  filter: drop-shadow(0 3px 0 var(--km-shadow));
+}
+/* The horizon: rolling hills under the agent's bar. */
+.km-top::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 16px; background: var(--a-sky);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 16%27%3E%3Cpath d=%27M0 0H120V7C104 7 98 15 80 15S54 5 38 5 12 13 0 9Z%27/%3E%3C/svg%3E") repeat-x 0 0 / 120px 16px; mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 16%27%3E%3Cpath d=%27M0 0H120V7C104 7 98 15 80 15S54 5 38 5 12 13 0 9Z%27/%3E%3C/svg%3E") repeat-x 0 0 / 120px 16px;
+}
+.km-top > * { min-width: 0; }
+.km-top .km-name { font-family: var(--km-font-head); font-size: var(--km-text-lg); font-weight: 700; }
+.km-top .km-role { color: var(--km-ink-soft); font-size: var(--km-text-sm); }
+.km-mark { width: 40px; height: 40px; flex: none; }
+
+.km-card {
+  background: var(--km-paper);
+  border-radius: var(--km-radius);
+  box-shadow: var(--km-layer);
+  padding: var(--km-space-5);
+  margin: 0 0 var(--km-space-4);
+}
+.km-card.km-sky { background: var(--a-sky); }
+
+.km-btn, .km-btn-quiet {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--km-space-2);
+  min-height: 44px; padding: 0 var(--km-space-5);
+  border: 0; border-radius: var(--km-radius-pill);
+  font: 600 var(--km-text-md)/1 var(--km-font-body);
+  cursor: pointer;
+}
+.km-btn { background: var(--a-land); color: #FFFFFF; box-shadow: 0 3px 0 var(--km-shadow-deep); }
+.km-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--km-shadow-deep); }
+.km-btn-quiet { background: transparent; color: var(--a-land); box-shadow: inset 0 0 0 2px var(--a-land); }
+
+.km-field {
+  width: 100%; min-height: 44px; padding: var(--km-space-2) var(--km-space-4);
+  border: 2px solid #6B7686; border-radius: var(--km-radius-sm);
+  background: var(--km-paper); color: var(--km-ink); font: inherit;
+}
+.km-field:focus { border-color: var(--a-land); }
+
+.km-chip {
+  display: inline-block; padding: var(--km-space-1) var(--km-space-3);
+  border-radius: var(--km-radius-pill); background: var(--a-sky);
+  font-size: var(--km-text-sm); font-weight: 600;
+}
+
+/* A question sent across the mere to Louise. */
+.km-lantern {
+  display: flex; gap: var(--km-space-3); align-items: flex-start;
+  background: var(--km-paper); border-radius: var(--km-radius);
+  box-shadow: 0 3px 0 rgba(194, 78, 28, 0.25);
+  padding: var(--km-space-4);
+}
+.km-lantern::before {
+  content: ""; flex: none; width: 18px; height: 24px; margin-top: 2px;
+  border-radius: 9px 9px 6px 6px; background: var(--km-kindle);
+  box-shadow: 0 0 0 4px rgba(255, 122, 69, 0.22);
+}
+
+/* The Weave: a dotted thread between things that belong together. */
+.km-thread { border: 0; height: 0; margin: var(--km-space-5) 0; border-top: 3px dotted var(--a-land); opacity: 0.55; }
+
+.km-source { color: var(--km-ink-soft); font-size: var(--km-text-xs); font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+
+.km-foot { position: relative; margin-top: 16px; background: var(--km-mere); color: #FFFFFF; padding: var(--km-space-5) var(--km-gutter); }
+/* The mere's edge: a cut-paper wave along the top of the foot. */
+.km-foot::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 16px; background: var(--km-mere);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 16%27%3E%3Cpath d=%27M0 16V9C15 9 15 3 30 3S45 9 60 9 75 3 90 3 105 9 120 9V16Z%27/%3E%3C/svg%3E") repeat-x 0 0 / 120px 16px; mask: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 16%27%3E%3Cpath d=%27M0 16V9C15 9 15 3 30 3S45 9 60 9 75 3 90 3 105 9 120 9V16Z%27/%3E%3C/svg%3E") repeat-x 0 0 / 120px 16px;
+}
+.km-foot a { color: #FFFFFF; }
+
+.km-grid { display: grid; gap: var(--km-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

@@ -104,7 +104,8 @@ node kit/engine/shelf.js check <agent> [--strict]
   sources. Exit `1` and `Nothing on my shelf about that.` when there is none. Refused cards are never returned.
 - `show`: the card's title, sources and body.
 - `check`: each card `ok` or `refused: <why>`. With `--strict`, also each unsourced bullet (`<file>:<line>`) and each
-  source page that does not open in Louise's library. Exit `2` when anything is refused.
+  source page that does not open on any of Louise's shelves (every root in her config), or has fewer lines than the
+  `@` tag names. Exit `2` when anything is refused.
 
 Example: `node kit/engine/shelf.js find nutrition "protein older adults"`
 
@@ -178,6 +179,8 @@ node kit/engine/learn.js <agent> --topic "<pending topic>" --book <book id>
   shelves are never written: copy, never move.
 - A book with no summary card yet is left for next time and named. `--dry` shows the matches and copies nothing.
 
+Example: `node kit/engine/learn.js nutrition --topic "Protein needs in late pregnancy" --book 0-t-2026-10-09-protein-needs-in-late-pregnancy`
+
 ## 8. The toolsmith: `kit/engine/toolsmith.js`
 
 ```
@@ -207,8 +210,11 @@ node kit/engine/toolsmith.js list  <agent>
   `Function`, or that mentions `globalThis`, `constructor` or `__proto__` anywhere. Words inside strings and comments
   are prose ("play fetch", "processed food" are fine). Writes can only go through `ctx.state.write`, so nothing is
   written outside the agent's `state/`. Every card named on the tool's `Cards:` line must be on the shelf and not
-  refused. When it passes, `check` prints the registry entry for the lane to add. The check keeps an honest agent off
-  the network; it is not a sandbox against a tool written to escape it.
+  refused. The file must compile (`check` compiles it and never runs it). When it passes, `check` prints the
+  registry entry for the lane to add. The check keeps an honest agent off the network; it is not a sandbox against a
+  tool written to escape it.
+- `sha256` is taken over the file with CRLF read as LF, so a checkout's line endings never stop a tool. The repo's
+  root `.gitattributes` also checks every text file out with LF.
 - **The registry**, `agents/<agent>/tools/registry.json`, written by the agent's lane only:
 
   ```json
@@ -225,8 +231,11 @@ Example: `node kit/engine/toolsmith.js new nutrition plate-check --purpose "Chec
 ## 9. No web
 
 - The root `.claude/settings.json` and every agent's `.claude/settings.json` (a copy of
-  `kit/claude/settings.agent.json`) deny web search, web fetch and every MCP tool.
+  `kit/claude/settings.agent.json`) deny web search, web fetch, every MCP tool, and the shell's web commands (`curl`,
+  `wget`, `iwr`, `irm`, `Invoke-WebRequest`, `Invoke-RestMethod`, in Bash and PowerShell). When the kit's copy gains
+  a rule, each agent copies it again: `noweb.js check` requires every rule in the kit's copy.
 - An agent's `CLAUDE.md` says it answers only from its cards and its memory, says so when it cannot, and asks Louise.
+  It also says the agent never reaches the web any other way: no shell command, script or tool that fetches anything.
 - No tool the toolsmith passes can reach the network (section 8).
 - `node kit/engine/noweb.js check` checks all three for every agent folder: exit `2` with what failed.
 
