@@ -7,7 +7,10 @@ ever uses the web. When one of them does not know something, it asks Louise, the
 and learns from her book when it comes back.
 
 They live in Kindlemere, a park beside a lake under the real sky: the sun and the moon rise and set at the true hours
-for this computer's place, and at night the fireflies come out and the dog sleeps in its house (`kit/REALM.md`).
+for this computer's place, and at night the fireflies come out and the dog sleeps in its house. Each keeper has
+helpers for parts of its work: Summer and Spud with Avo, Puff and Huff with Steady, Barkley and Sizzle with Tumble.
+Click any of them. Leave the page alone for a while and they visit each other; at night, click the telescope on the
+hill to see tonight's moon (`kit/REALM.md`).
 
 ## The three
 
@@ -24,8 +27,10 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
 ## Opening an agent
 
 - **Its room** (the dashboard): run `node agents/<agent>/dashboard/server.js` from this folder, then open the address
-  it prints. The room shows the keeper in its place, what it knows, what it remembers, its tools, and what it is
-  waiting on from Louise. It answers only on this computer (127.0.0.1).
+  it prints. The room is a step into the keeper's place, made for doing: Avo plans meals with you, Steady takes you
+  through a run, a workout or a stretch, Tumble trains with you and your dog. What the keeper knows, what it
+  remembers, its tools and what it is waiting on from Louise are in a drawer. It answers only on this computer
+  (127.0.0.1).
 - **Talking with it:** open a Claude chat in the agent's own folder (`agents/nutrition`, `agents/fitness` or
   `agents/dog-training`). The folder's `CLAUDE.md` makes that chat the agent, and its `.claude/settings.json` turns
   the web off.

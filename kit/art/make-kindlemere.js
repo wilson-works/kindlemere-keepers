@@ -781,6 +781,8 @@ function avocadoKeeper(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${cardArm}</g><g class="km-night-only">${restArm}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? restArm : cardArm;
   o += `<ellipse cx="42" cy="122" rx="10" ry="6" fill="#2B340C"/><ellipse cx="78" cy="122" rx="10" ry="6" fill="#2B340C"/>`;
+  // At night she sleeps in a wooden bowl.
+  if (mood === 'scene') o += `<g class="km-night-only"><path d="M-8 88 C-4 132 124 132 128 88 C112 99 8 99 -8 88 Z" fill="${C.clay2}"/><path d="M-8 88 C8 99 112 99 128 88" stroke="${C.clay1}" stroke-width="3" fill="none"/><path d="M6 100 C30 116 90 116 114 100 M14 112 C40 124 80 124 106 112" stroke="${C.clay3}" stroke-width="1.6" fill="none" opacity="0.7"/><ellipse cx="60" cy="124" rx="26" ry="5" fill="${C.clay3}"/><path d="M30 96 C40 86 54 86 60 94 C66 86 82 86 92 96" fill="${C.nLeaf}" opacity="0.9"/></g>`;
   return { body: o, cx: 60, feet: 126, head: [98, 14], w: 136, top: -32 };
 }
 
@@ -843,6 +845,13 @@ function summerSidekick(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${tart}</g><g class="km-night-only">${rest}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? rest : tart;
   o += `<ellipse cx="24" cy="61" rx="6" ry="3.4" fill="#C9662E"/><ellipse cx="40" cy="61" rx="6" ry="3.4" fill="#C9662E"/>`;
+  // At night she sleeps in a little woven basket under a checked napkin.
+  if (mood === 'scene') {
+    let weave = '';
+    for (let i = 0; i < 9; i += 1) weave += `<path d="M${-2 + i * 8} 48 l4 20" stroke="#A8824C" stroke-width="1.4"/>`;
+    o += `<g class="km-night-only"><path d="M-6 46 C-4 74 68 74 70 46 Z" fill="#C9A066"/>${weave}<path d="M-4 54 C20 62 44 62 68 54 M-2 62 C20 69 44 69 66 62" stroke="#A8824C" stroke-width="1.6" fill="none"/><ellipse cx="32" cy="46" rx="38" ry="6" fill="#B38A52"/>` +
+      `<path d="M-2 46 C12 40 52 40 66 46 L70 56 C48 62 16 62 -6 56 Z" fill="url(#km-gingham)"/><path d="M-6 56 l-3 6 l6 -2 Z M70 56 l3 6 l-6 -2 Z" fill="${C.nGlow}"/></g>`;
+  }
   return { body: o, cx: 32, feet: 63, head: [56, 0], w: 70, top: -12 };
 }
 
@@ -865,6 +874,12 @@ function spudSidekick(mood) {
   if (mood === 'scene') o += `<g class="km-day-only">${held}</g><g class="km-night-only">${down}</g>`;
   else o += (mood === 'worried' || mood === 'sleepy') ? down : held;
   o += `<ellipse cx="34" cy="93" rx="9" ry="5" fill="#7A5530"/><ellipse cx="60" cy="93" rx="9" ry="5" fill="#7A5530"/>`;
+  if (mood === 'scene') {
+    const mound = `<path d="M46 64 C44 56 48 50 52 46" stroke="#7D9A3A" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M50 50 c4 -4 9 -4 11 -2 c-3 3 -7 4 -11 2 Z M48 54 c-4 -3 -8 -2 -10 0 c3 2 7 2 10 0 Z" fill="#8FAE3A"/>` +
+      `<path d="M24 84 C26 66 68 66 70 84 Z" fill="#C49A64"/><path d="M36 76 q4 2.4 8 0 M50 76 q4 2.4 8 0" stroke="#4A2A12" stroke-width="2" stroke-linecap="round" fill="none"/>` +
+      `<path d="M-4 96 C8 78 86 76 98 96 Z" fill="#7A5530"/><path d="M4 92 C20 84 74 84 90 92" stroke="#8A6438" stroke-width="3" fill="none"/><circle cx="18" cy="90" r="2.4" fill="#A9804E"/><circle cx="74" cy="88" r="2" fill="#A9804E"/><path d="M6 94 l-2 -6 M12 93 l0 -7 M84 93 l2 -6 M90 94 l3 -5" stroke="#7D9A3A" stroke-width="1.8" stroke-linecap="round"/>`;
+    o = `<g class="km-dinner-only">${o}</g><g class="km-mound">${mound}</g>`;
+  }
   return { body: o, cx: 47, feet: 96, head: [80, 6], w: 110, top: -14 };
 }
 
@@ -934,7 +949,7 @@ function placeSidekick(id, k, x, groundY, lift, cls, sc) {
   const s = KS * (sc || 1);
   const y = groundY - lift;
   return `<g class="${cls || ''}"><ellipse cx="${x}" cy="${groundY}" rx="${f(k.w * 0.3 * s)}" ry="${f(5 * s)}" fill="${C.ink}" opacity="${lift ? 0.08 : 0.16}"/>` +
-    `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}>${k.body}${talkBubble(k)}</g></g></g>`;
+    `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(y - k.feet * s)}) scale(${s})" filter="url(#layer-sm)"><g${lift ? ' class="km-bob"' : ''}><g class="km-pose">${k.body}</g>${talkBubble(k)}</g></g></g>`;
 }
 
 /** The Field's dog, drawn by lane D (agents/dog-training/art/field-dog.svg @ faae296), kept in the kit as the one dog. */
@@ -963,7 +978,7 @@ function talkBubble(k) {
 function placeKeeper(id, k, x, feetY, sc) {
   // In the world: feet on the ground at (x, feetY), at the keepers' size (smaller further off).
   const s = KS * (sc || 1);
-  return `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(feetY - k.feet * s)}) scale(${s})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${k.body}${talkBubble(k)}</g>`;
+  return `<g id="${id}" transform="translate(${f(x - k.cx * s)} ${f(feetY - k.feet * s)}) scale(${s})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}<g class="km-pose">${k.body}</g>${talkBubble(k)}</g>`;
 }
 
 /* ------------------------------------------------------------------ the dog */
@@ -1025,7 +1040,7 @@ function nightLights() {
   o += `<g transform="scale(2)">${land}</g>`;
   // The sleepers' z's: the avocado at the table, the ball and the dog by the house.
   const sk = SIDEKICKS;
-  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 34, sk['nutrition-spud'].y - 122, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}</g>`;
+  o += `<g class="km-night-only">${zees(sk['nutrition-summer'].x + 22, sk['nutrition-summer'].y - 86, C.cream)}${zees(sk['nutrition-spud'].x + 24, sk['nutrition-spud'].y - 46, C.cream)}${zees(sk['fitness-puff'].x + 44, sk['fitness-puff'].y - 136, C.cream)}${zees(sk['fitness-huff'].x + 44, sk['fitness-huff'].y - 158, C.cream)}</g>`;
   o += `<g class="km-night-only">${zees(KEEPERS.nutrition.x + 40, KEEPERS.nutrition.y - 170, C.cream)}${zees(KEEPERS['dog-training'].x + 44, KEEPERS['dog-training'].y - 160, C.cream)}${zees((KENNEL[0] + 52) * 2, (KENNEL[1] + 30) * 2, C.cream)}</g>`;
   return `<g id="km-glow" opacity="0" pointer-events="none">${o}</g>`;
 }
@@ -1050,7 +1065,7 @@ const KEEPERS = {
 
 const SIDEKICKS = {
   'nutrition-summer': { x: 486, y: 1172, make: summerSidekick, id: 'km-sidekick-summer', name: 'Summer', title: 'Summer the peach, Avo\'s sidekick for treats and sweets' },
-  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', cls: 'km-evening-only', name: 'Spud', title: 'Spud the potato, who brings dinner in the evenings' },
+  'nutrition-spud': { x: 936, y: 1198, make: spudSidekick, id: 'km-sidekick-spud', name: 'Spud', title: 'Spud the potato, who brings dinner in the evenings' },
   'fitness-puff': { x: 1232, y: 1012, lift: 50, sc: 0.8, make: cloudSidekick('puff'), id: 'km-sidekick-puff', name: 'Puff', title: 'Puff the white cloud, Steady\'s sidekick for home workouts and running in the weather' },
   'fitness-huff': { x: 1430, y: 998, lift: 66, sc: 0.8, make: cloudSidekick('huff'), id: 'km-sidekick-huff', name: 'Huff', title: 'Huff the dust cloud, Steady\'s sidekick for gym workouts and running in the heat' },
 };
@@ -1060,7 +1075,9 @@ const FIGURES = Object.assign({}, KEEPERS, SIDEKICKS);
 
 /* ------------------------------------------------------------------ styles and defs */
 const STYLE = `
-  .km-night-only, .km-evening-only { display: none; }
+  .km-night-only, .km-evening-only, .km-dinner-only { display: none; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-dinner-only { display: inline; }
+  svg[data-km-evening="1"]:not([data-km-night="1"]) .km-mound { display: none; }
   svg[data-km-evening="1"] .km-evening-only { display: inline; }
   svg[data-km-night="1"] .km-night-only { display: inline; }
   svg[data-km-night="1"] .km-day-only { display: none; }
@@ -1096,6 +1113,11 @@ const STYLE = `
   svg[data-km-night="1"] [data-km-awake="1"] .km-day-only { display: inline; }
   svg[data-km-night="1"] [data-km-awake="1"] .km-night-only { display: none; }
   [data-km-part="telescope"] { cursor: pointer; }
+  .km-pose { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 0.35s ease; }
+  [data-km-mood="oh"] .km-pose { transform: translateY(-8px) scale(1.04, 0.97); }
+  [data-km-mood="thinking"] .km-pose { transform: rotate(-5deg); }
+  [data-km-talk="1"]:not([data-km-mood="oh"]) .km-pose { animation: km-chat 0.9s ease-in-out infinite alternate; }
+  @keyframes km-chat { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-3px) rotate(1.5deg); } }
   svg:not([data-km-night="1"]) :is(.km-twinkle, .km-ff, .km-blink, .km-zz, .km-breathe) { animation: none; }
   @keyframes km-dots { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   @keyframes km-bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
@@ -1135,6 +1157,7 @@ function defs(view, ripples) {
     <linearGradient id="km-ground-1" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#525C12"/><stop offset="0.34" stop-color="#525C12"/><stop offset="0.5" stop-color="#6A7E2A"/><stop offset="0.66" stop-color="#78963A"/><stop offset="1" stop-color="#78963A"/></linearGradient>
     <linearGradient id="km-ground-2" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="1220" y2="0"><stop offset="0" stop-color="#7D8A26"/><stop offset="0.34" stop-color="#7D8A26"/><stop offset="0.5" stop-color="#93A83E"/><stop offset="0.66" stop-color="#9CB54A"/><stop offset="1" stop-color="#9CB54A"/></linearGradient>
     <radialGradient id="km-pool-g"><stop offset="0" stop-color="#FFC37A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC37A" stop-opacity="0"/></radialGradient>
+    <pattern id="km-gingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#FFFFFF"/><rect width="4" height="8" fill="#FFE1C2"/><rect width="8" height="4" fill="#FFB36B" opacity="0.4"/></pattern>
     <clipPath id="km-moon-clip"><use href="#km-moon-lit"/></clipPath>
     ${ripples ? `<mask id="km-ripples"><rect y="724" width="1600" height="176" fill="#fff"/>${Array.from({ length: 16 }, (_, i) => `<rect y="${736 + i * 9}" width="1600" height="${3 + (i % 3)}" fill="#000"/>`).join('')}</mask>` : ''}
     <symbol id="star" viewBox="-10 -10 20 20"><path d="M0 -10 C1.2 -2.5 2.5 -1.2 10 0 C2.5 1.2 1.2 2.5 0 10 C-1.2 2.5 -2.5 1.2 -10 0 C-2.5 -1.2 -1.2 -2.5 0 -10 Z" fill="#FFFFFF"/></symbol>

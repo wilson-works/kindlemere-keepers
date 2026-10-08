@@ -284,12 +284,20 @@ What the shell does:
   | `POST /api/ask-louise` `{ topic, framing }` | `louise.js ask`: `{ queued, message }` |
 
 - `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`.
-  When the page shows an `<img src="/kit/art/kindlemere*.svg">`, `kit.js` also loads `/kit/kindlemere.js`, which
-  draws that picture inline (keeping the image's class, id, size, alt, `object-fit: cover` and `object-position`)
-  and runs its sky by the real clock (`kit/REALM.md`, "Day and night"). Then it fires `kindlemere:ready` on
-  `window` with `{ svg, part }`: `part(name)` returns the element marked `data-km-part="<name>"` (`dog`, `dog-head`,
-  `dog-pupils`, `dog-ball`), and `svg` has `data-km-night="1"` after dark. The scene's own ids are prefixed per
-  scene; find parts with `part()`, never by id.
+- The live scene. When the page shows an `<img src="/kit/art/kindlemere*.svg">`, `kit.js` also loads
+  `/kit/kindlemere.js`. That replaces the picture with a stack of depth layers (a `div` that keeps the image's class,
+  id, alt, box, `object-fit: cover` and `object-position`) and runs it (`kit/REALM.md`, "Day and night" and "At
+  rest"). The scene's own ids are prefixed per scene: find parts with `part()`, never by id.
+
+  | On `window` | What |
+  |---|---|
+  | `kindlemere:ready` `{ svg, scene, part }` | fired once per scene. `svg` is the characters' layer, `scene` the stack, `part(name)` the element marked `data-km-part="<name>"`: `dog`, `dog-head`, `dog-pupils`, `dog-ball`, `telescope`, `dog-house-<1..6>`, `dog-house-name-<1..6>` |
+  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley`, `Sizzle` or `dog`. Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line |
+  | `kindlemere:dogs` `{ svg, names }` | fired by a page (Tumble's) when its dogs change: the kit shows one dog house per name (one at least, six at most) with the name on its board |
+  | `kindlemere.hold(true \| false)` | a room busy with its own work (a run clock, a timer, a game) holds the keepers at home; `kit.js` defines it, so it is safe to call before the scene loads |
+
+  The stack and every layer carry `data-km-night="1"` after dark and `data-km-evening="1"` from late afternoon
+  through night. Every character is in a `[data-km-actor]` group with `data-km-name`.
 - An agent may pass `routes` to `start`: `{ 'GET /api/<name>': (ctx) => object }`, where `ctx` is
   `{ agentDir, query, body }`. A route may not replace a kit route.
 
@@ -298,5 +306,8 @@ What the shell does:
 `kit/REALM.md` (the universe, its art style, each agent's place, the shared voice rules) and `kit/design/tokens.css`
 (type, spacing, the shared ground, one palette slot per agent: `--nutrition-*`, `--fitness-*`, `--dog-training-*`).
 An agent's page links `/kit/design/tokens.css` and `/kit/kit.css`, then its own css. The realm's art is in
-`kit/art/` and drawn by `kit/art/make-kindlemere.js`: the scene and its close views, and each keeper in five moods,
-`kit/art/keepers/<agent>-<mood>.svg` (`happy`, `thinking`, `oh`, `worried`, `sleepy`).
+`kit/art/` and drawn by `kit/art/make-kindlemere.js`: the scene and its close views, and every character in five
+moods (`happy`, `thinking`, `oh`, `worried`, `sleepy`): the keepers as `kit/art/keepers/<agent>-<mood>.svg` and
+their sidekicks as `kit/art/keepers/<agent>-<sidekick>-<mood>.svg` (`nutrition-summer`, `nutrition-spud`,
+`fitness-puff`, `fitness-huff`, `dog-training-barkley`, `dog-training-sizzle`). The Field's dog is lane D's drawing,
+kept in the kit as `kit/art/parts/field-dog.svg`.

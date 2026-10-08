@@ -282,6 +282,7 @@
     scene.night = h < -4;
     mark(scene, 'data-km-night', scene.night);
     // Evening: from late afternoon (the sun low in the west) through the night. Spud comes round for dinner.
+    scene.dinner = h < 12 && sun.az > 0 && !scene.night;
     mark(scene, 'data-km-evening', (h < 12 && sun.az > 0) || h < -4);
 
     // The path of light on the water: under the low sun by day, under the moon by night.
@@ -370,7 +371,8 @@
     a.wakeTimer = setTimeout(() => { a.el.removeAttribute('data-km-mood'); }, 900);
     setTimeout(() => { a.el.removeAttribute('data-km-talk'); }, 2600);
     const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root } });
-    if (window.dispatchEvent(ev)) say(scene, a.el, scene.night && !a.el.hasAttribute('data-km-awake') ? `${name === 'dog' ? 'The dog' : name} is asleep.` : LINES[key] || name);
+    const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (key === 'nutrition-spud' && !scene.dinner);
+    if (window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : LINES[key] || name);
   }
 
   function makeCast(scene) {
@@ -599,7 +601,7 @@
   const LOOKOUT = [1622, 322];
   function watch(scene, t) {
     if (!scene.cast) return;
-    const keys = Object.keys(scene.cast).filter((k) => k !== 'dog');
+    const keys = Object.keys(scene.cast).filter((k) => k !== 'dog' && k !== 'nutrition-spud'); // Spud sleeps in the ground
     const pickKey = keys[Math.floor(days(t)) % keys.length];
     for (const k of keys) {
       const a = scene.cast[k];
