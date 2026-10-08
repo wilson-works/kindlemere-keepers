@@ -51,6 +51,11 @@
     const now = performance.now();
     if (lastTalk.name === name && now - lastTalk.at < 250) return;   // the kit's event and the page's own click, once
     lastTalk = { name, at: now };
+    // after dark the keepers doze in the scene: a click on one, or the kit's event, gets the same quiet answer
+    if (/^(Tumble|Barkley|Sizzle)$/.test(name) && svg && svg.getAttribute('data-km-night') === '1') {
+      say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy');
+      return;
+    }
     if (name === 'Tumble') say(jokes.length ? pick(jokes) : 'Small steps, lots of wins.', 'Tumble', 'happy');
     else if (LINES[name]) say(pick(LINES[name]), name, 'happy');
     else if (dogs.some((d) => d.name === name)) chooseDog(name);
@@ -60,7 +65,6 @@
     if (typeof name !== 'string') return;
     const n = name.replace(/^./, (c) => c.toUpperCase());
     if (n === 'Dog') return;   // the dog answers a tap itself (fetch)
-    if (game && game.asleep() && /^(Tumble|Barkley|Sizzle)$/.test(n)) { say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy'); return; }
     talk(n);
   });
 
