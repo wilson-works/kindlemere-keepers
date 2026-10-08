@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg">
-  <!-- Small cut-paper objects from the Stepping Peaks for the page's section headings (kit/REALM.md style). -->
+  <!-- Small cut-paper objects from Stepping Hill for the page's section headings (kit/REALM.md style). -->
   <symbol id="i-cards" viewBox="0 0 48 48">
     <rect x="9" y="12" width="28" height="22" rx="3" fill="rgba(26,36,51,0.16)" transform="translate(0 3) rotate(-8 23 23)"/>
     <rect x="9" y="12" width="28" height="22" rx="3" fill="#DCE5EC" transform="rotate(-8 23 23)"/>
