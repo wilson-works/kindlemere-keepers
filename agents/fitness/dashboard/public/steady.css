@@ -33,11 +33,14 @@ body { background: var(--a-sky); }
   background: #FFFFFF; transform: rotate(45deg); border-radius: 0 0 4px 0;
 }
 .bubble p { margin: 0; }
-.bubble.cloud::after { display: none; }
+.bubble.puff::after { left: calc(19% - 10px); } /* Puff hovers about 27% across, left of Steady */
+.bubble.huff::after { left: calc(85% - 10px); } /* Huff hovers about 49% across, right of Steady */
 .who { display: block; font-size: var(--km-text-xs); font-weight: 700; color: var(--a-land); letter-spacing: 0.02em; }
 /* Her face: the kit's keeper figure for her mood, cropped to the head (x 36 to 92, y 4 to 44 of the figure). */
 .face { position: relative; flex: none; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: var(--a-sky); }
 .face img { position: absolute; width: 244px; height: 217px; max-width: none; left: -100px; top: -58px; transform: scale(0.9); transform-origin: 126px 84px; }
+/* A cloud's face: the whole cloud (x -4 to 96, y 2 to 56 of its 208 by 143 figure), scaled to fit, centred on its face. */
+.face.cloud img { width: 208px; height: 143px; left: -81px; top: -68px; transform: scale(0.6); transform-origin: 107px 94px; }
 
 .trail {
   position: absolute; right: 2.5%; top: 5%; max-height: 90%; width: 36%; overflow: auto; z-index: 1;
@@ -175,6 +178,8 @@ body { background: var(--a-sky); }
   .scene { position: static; aspect-ratio: 4 / 3; height: auto; object-position: 30% 50%; }
   .bubble { position: relative; left: auto; top: auto; bottom: auto; width: auto; margin: var(--km-space-4) var(--km-gutter) 0; }
   .bubble::after { left: 35%; top: -10px; bottom: auto; border-radius: 4px 0 0 0; }
+  .bubble.puff::after { left: calc(25% - 10px); }
+  .bubble.huff::after { left: calc(49% - 10px); }
   .trail { position: static; width: auto; overflow: visible; margin: var(--km-space-4) var(--km-gutter) 0; }
 }
 @media (max-width: 520px) {
