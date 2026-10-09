@@ -1251,16 +1251,50 @@ function orchard() {
   o += `<g filter="url(#layer-sm)">${ownSeed(TREE_SEED, () => orchardTree(120, 462, 66, 58))}</g>`;
   tree(44, 466, 30, 22, [C.nLand, C.nLeaf, C.nLeafLight], C.nGlow, 'avocado');
   o += `<g filter="url(#layer-sm)"><rect x="34" y="420" width="4" height="46" rx="2" fill="${C.clay3}"/>${ownSeed(TREE_SEED + 1, () => orchardTree(44, 466, 30, 22, 'young'))}<path d="M36 446 l8 2" stroke="${C.cream}" stroke-width="2"/></g>`;
+  // The skep (owner, 2026-10-09: "polish this background scene up"): coils of straw, each stitched, its shady side
+  // darker, on a grained stand.
   o += `<g filter="url(#layer-sm)" transform="translate(212 452)">${shadow(0, 18, 18, 3)}<path d="M-16 18 C-18 0 -8 -14 0 -14 C8 -14 18 0 16 18 Z" fill="${C.dGlow}"/>`;
-  for (let i = 0; i < 4; i += 1) o += `<path d="M${-16 + i * 1.5} ${f(14 - i * 7)} H${16 - i * 1.5}" stroke="${C.nGlowDeep}" stroke-width="2"/>`;
-  o += `<path d="M-4 18 a4 5 0 0 1 8 0" fill="${C.clay4}"/><rect x="-20" y="18" width="40" height="5" rx="2.5" fill="${C.clay3}"/></g>`;
-  [[236, 424], [248, 436], [226, 414]].forEach(([x, y], i) => { LIFE += `<g class="km-buzz km-day-only" style="animation-delay:-${i}s"><ellipse cx="${x}" cy="${y}" rx="2.4" ry="1.8" fill="#E9C24A"/><path d="M${x - 0.6} ${y - 1.8} v3.6 M${x + 0.9} ${y - 1.8} v3.6" stroke="${C.ink}" stroke-width="0.8"/><ellipse cx="${x}" cy="${y - 2.4}" rx="1.8" ry="1.2" fill="${C.paper}" opacity="0.85"/></g>`; });
+  for (let i = 0; i < 6; i += 1) {
+    const y = 16 - i * 5; const w = Math.sqrt(Math.max(0, 1 - ((14 - y) / 30) ** 2)) * 16 - i * 0.6;
+    o += `<path d="M${f(-w)} ${f(y)} Q0 ${f(y + 2.2)} ${f(w)} ${f(y)}" stroke="${C.nGlowDeep}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+    for (let k = -2; k <= 2; k += 1) o += `<path d="M${f(k * w * 0.36 - 0.8)} ${f(y - 1.6)} l1.6 2.4" stroke="#C9822B" stroke-width="0.7" stroke-linecap="round"/>`;
+  }
+  o += `<path d="M2 -14 C10 -12 18 0 16 18 H4 C8 6 7 -6 2 -14 Z" fill="#7A4A1C" opacity="0.22"/>`;
+  o += `<path d="M-4 18 a4 5 0 0 1 8 0" fill="${C.clay4}"/><rect x="-20" y="18" width="40" height="5" rx="2.5" fill="${C.clay3}"/><path d="M-17 20 h12 M2 21.4 h14" stroke="${C.clay4}" stroke-width="0.6" opacity="0.8"/></g>`;
+  [[236, 424], [248, 436], [226, 414]].forEach(([x, y], i) => { LIFE += `<g class="km-buzz km-day-only" style="animation-delay:-${i}s"><path d="M${x - 3} ${y + 0.6} c-4 2 -8 -3 -12 0 s-6 5 -10 2" stroke="${C.paper}" stroke-width="0.7" fill="none" stroke-linecap="round" opacity="0.6"/><ellipse cx="${x}" cy="${y}" rx="2.4" ry="1.8" fill="#E9C24A"/><path d="M${x - 0.6} ${y - 1.8} v3.6 M${x + 0.9} ${y - 1.8} v3.6" stroke="${C.ink}" stroke-width="0.8"/><ellipse cx="${x}" cy="${y - 2.4}" rx="1.8" ry="1.2" fill="${C.paper}" opacity="0.85"/></g>`; });
   // Middle terrace: the larder door dug into the hill, with a lamp over it and jars on a shelf beside it.
-  o += `<g filter="url(#layer-sm)"><path d="M262 506 V478 a20 20 0 0 1 40 0 V506 Z" fill="${C.clay3}"/><path d="M272 506 V474 M282 506 V460 M292 506 V474" stroke="${C.clay4}" stroke-width="2"/>`;
-  o += `<path d="M264 484 h16 M264 498 h16" stroke="${C.bark}" stroke-width="3" stroke-linecap="round"/><circle cx="294" cy="492" r="2.6" fill="${C.nGlow}"/><circle cx="282" cy="452" r="4" fill="#FFE9B0" stroke="${C.clay4}" stroke-width="1.2"/><path d="M282 448 v-6" stroke="${C.ink}" stroke-width="1.2"/>`;
-  o += `<path d="M258 508 a26 30 0 0 1 48 0" stroke="${C.cream}" stroke-width="6" fill="none"/>${stones(258, 308, 508, 3.5, [C.cream, C.creamDeep])}`;
-  o += `<rect x="312" y="490" width="40" height="4" rx="2" fill="${C.clay4}"/>`;
-  [[318, '#D9CF62'], [330, C.nGlow], [342, '#B7C46A']].forEach(([x, col]) => { o += `<rect x="${x - 4}" y="478" width="9" height="12" rx="2.5" fill="${col}"/><rect x="${x - 4}" y="476" width="9" height="3" rx="1.5" fill="${C.cream}"/>`; });
+  // The larder door set into the bank: a dark recess cut into the earth, a ring of dressed stones round it standing on
+  // the ground at both feet, and the plank door inside with its frame, strap hinges and knob; the lamp over it.
+  o += `<g filter="url(#layer-sm)"><path d="M255 509 V478 a27 27 0 0 1 54 0 V509 Z" fill="#5E4A2E"/><path d="M258 509 V478 a24 24 0 0 1 48 0 V509 Z" fill="#2E2316"/>`;
+  for (let i = 0; i < 11; i += 1) {
+    const a0 = Math.PI + (Math.PI * i) / 11 + 0.02; const a1 = Math.PI + (Math.PI * (i + 1)) / 11 - 0.02;
+    const p = (a, rr) => `${f(282 + Math.cos(a) * rr)} ${f(478 + Math.sin(a) * rr)}`;
+    o += `<path d="M${p(a0, 23)} L${p(a0, 30)} A30 30 0 0 1 ${p(a1, 30)} L${p(a1, 23)} A23 23 0 0 0 ${p(a0, 23)} Z" fill="${['#CFC8B4', '#B9B2A0', '#DDD6C2'][i % 3]}" stroke="#8F8A78" stroke-width="0.6"/>`;
+  }
+  for (const [x, y, w, h, c] of [[251, 478, 8, 11, '#B9B2A0'], [251.6, 489.4, 7.4, 10, '#DDD6C2'], [250, 499.8, 9.4, 9.6, '#CFC8B4'], [305, 478, 8, 11, '#DDD6C2'], [305, 489.4, 7.4, 10, '#CFC8B4'], [304.6, 499.8, 9.4, 9.6, '#B9B2A0']]) {
+    o += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2.2" fill="${c}" stroke="#8F8A78" stroke-width="0.6"/>`;
+  }
+  o += `${contact(255, 510, 7, 1.4, 0.2)}${contact(309, 510, 7, 1.4, 0.2)}`;
+  o += `<path d="M262 509 V479 a20 20 0 0 1 40 0 V509 Z" fill="${C.clay3}" stroke="${C.bark}" stroke-width="1.6"/><path d="M272 509 V463 M282 509 V459 M292 509 V463" stroke="${C.clay4}" stroke-width="1.4"/>`;
+  o += `<path d="M262.8 479 a19.2 19.2 0 0 1 10 -16.6 V509 H262.8 Z" fill="#2E2316" opacity="0.28"/>`;
+  // (the old arch's stones still run for their draws, discarded, so everything drawn after keeps its detail)
+  stones(258, 308, 508, 3.5, [C.cream, C.creamDeep]);
+  for (const y of [470, 497]) o += `<path d="M263 ${y} h17" stroke="#2A2420" stroke-width="2.6" stroke-linecap="round"/><circle cx="266" cy="${y}" r="0.7" fill="#8F8A78"/><circle cx="275" cy="${y}" r="0.7" fill="#8F8A78"/>`;
+  o += `<circle cx="295" cy="488" r="2.4" fill="#C9A24A" stroke="#6E4A1C" stroke-width="0.7"/><circle cx="294.3" cy="487.3" r="0.8" fill="#FFF1C4"/>`;
+  o += `<path d="M282 444 v-6 h-6" stroke="${C.ink}" stroke-width="1.2" fill="none"/><circle cx="282" cy="448" r="4" fill="#FFE9B0" stroke="${C.clay4}" stroke-width="1.2"/>`;
+  // the shelf, grained, on two brackets, and three jars of honey: glass with a shine, a lid, a label
+  o += `<rect x="312" y="490" width="40" height="4" rx="1.2" fill="${C.clay3}"/><path d="M314 491.4 h14 M332 492.6 h17" stroke="${C.clay4}" stroke-width="0.6"/>`;
+  o += `<path d="M316 494 v7 l6 -7 Z M348 494 v7 l-6 -7 Z" fill="${C.clay4}"/>`;
+  [[318, '#E2A43A'], [330, '#D98E2B'], [342, '#EAB64E']].forEach(([x, col]) => {
+    o += `<rect x="${x - 4}" y="478.6" width="9" height="11.4" rx="2.6" fill="${col}" opacity="0.92"/><rect x="${x - 3.6}" y="476" width="8.2" height="3" rx="1" fill="#8A5A30"/>` +
+      `<rect x="${x - 2.6}" y="482.4" width="6.2" height="4" rx="0.6" fill="${C.cream}"/><path d="M${x - 1.6} 484.4 h4.2" stroke="${C.clay4}" stroke-width="0.5"/>` +
+      `<path d="M${x - 2.6} 480 v8.4" stroke="#FFF6D8" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>`;
+  });
+  // a cluster of flowers on stems and a tuft at each foot of the arch
+  for (const [x, y, c] of [[247, 508, '#F3E6C4'], [244, 506, '#E7B9C8'], [249.6, 505, '#F3E6C4'], [313, 508, '#E7B9C8'], [316.4, 506.4, '#F3E6C4']]) {
+    o += `<path d="M${x} ${y + 3} q0.6 -3 0 -5" stroke="${C.nLeaf}" stroke-width="0.8" fill="none"/><circle cx="${x}" cy="${y - 2.4}" r="1.6" fill="${c}"/><circle cx="${x}" cy="${y - 2.4}" r="0.6" fill="#E9C24A"/>`;
+  }
+  o += `<use href="#kmt-a" x="250" y="510"/><use href="#kmt-c" x="312" y="510"/>`;
   o += `</g>`;
   // The second avocado tree and its ladder, with a basket of avocados at the foot.
   tree(520, 528, 86, 50, ['#3E4A14', '#5F6C18', C.nLand, C.nLeaf], '#3E4A14', 'avocado');
@@ -2454,7 +2488,8 @@ function nightLights() {
   land += `<ellipse cx="420" cy="560" rx="150" ry="40" fill="url(#km-pool-g)" class="km-screen"/><ellipse cx="290" cy="474" rx="40" ry="20" fill="url(#km-pool-g)" class="km-screen"/><ellipse cx="830" cy="${700 + DOCK_DY}" rx="90" ry="40" fill="url(#km-pool-g)" class="km-screen"/>`;
   for (let i = 1; i < STRING.n; i += 1) {
     const [bx, by] = stringPoint(i / STRING.n);
-    land += `<circle cx="${f(bx)}" cy="${f(by + 4.6)}" r="6" fill="${C.bulbGlow}" opacity="0.4"/><circle cx="${f(bx)}" cy="${f(by + 4.4)}" r="2.2" fill="${C.bulb}"/>`;
+    // each bulb glows softly out into the dusk, then brighter at its heart
+    land += `<circle cx="${f(bx)}" cy="${f(by + 4.6)}" r="12" fill="${C.bulbGlow}" opacity="0.14"/><circle cx="${f(bx)}" cy="${f(by + 4.6)}" r="6" fill="${C.bulbGlow}" opacity="0.4"/><circle cx="${f(bx)}" cy="${f(by + 4.4)}" r="2.2" fill="${C.bulb}"/>`;
   }
   land += `<circle cx="282" cy="452" r="12" fill="${C.bulbGlow}" opacity="0.35"/><circle cx="282" cy="452" r="3.6" fill="${C.bulb}"/>`;
   LANTERNS.forEach(([x, y, s], i) => { land += `<g data-km-glow="lantern-${i}" transform="translate(${x} ${y + WATER_DY}) scale(${f(s * 0.6)})"><g class="km-bob" style="animation-delay:-${f(i * 0.9)}s"><circle cx="0" cy="-8" r="46" fill="${C.kindle}" opacity="0.28"/><circle cx="0" cy="-8" r="22" fill="#FFC08A" opacity="0.6"/></g></g>`; });
