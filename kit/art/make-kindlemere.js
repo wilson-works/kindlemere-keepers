@@ -1002,14 +1002,6 @@ function stepsFootShape() {
     on: (x, y, m) => near(spine, x, y, m),
   };
 }
-function stepsFoot() {
-  // The trail wears through the grassy lip where the hill meets the meadow, then narrows to the path's end.
-  const d = 'M603 532.6 Q628 533 657 540.2 C661 552 677 564 701 571 L692 579 C656 576 612 562 603 532.6 Z';
-  return `<g class="km-steps-trail"><path d="${d}" fill="#A8865A" transform="translate(1 1.4)"/><path d="${d}" fill="#C9A77A"/>` +
-    `<path d="M614 534.6 Q631 535 646 539.4 C652 551 670 563 694 573.4 C664 570 626 558 614 534.6 Z" fill="#D6BC90"/>` +
-    `<path d="M609 538 h3 M650 543 h2.6 M624 549 h2 M660 561 h2.4 M676 569 h2" stroke="${C.fLight}" stroke-width="1.4" stroke-linecap="round"/>` +
-    [[604, 538, 'a'], [608, 549, 'd'], [619, 558, 'b'], [636, 566, 'e'], [655, 572, 'a'], [673, 577, 'd'], [659, 546, 'b'], [664, 554, 'e'], [676, 561, 'a'], [688, 566, 'b']].map(([x, y, k]) => `<use href="#kmt-${k}" x="${x}" y="${y}"/>`).join('') + `</g>`;
-}
 
 /** Where the stream meets the lake: its lighter water fanning out, a bar of sand either side, rings spreading. */
 function streamMouth() {
@@ -1168,10 +1160,10 @@ function orchard() {
   o += `</g>`;
   o += grassBlades(0, 330, 430, 466, 40, [C.nLand, C.nLeaf, '#5F6C18'], 4, 9);
   o += undergrowth(10, 300, 436, 466, 18);
-  o += `<path d="M0 470 C80 466 180 470 250 478" stroke="${C.nLand}" stroke-width="10" fill="none"/>${stones(0, 250, 474, 5, [C.cream, C.creamDeep, '#D8D1BC'])}`;
-  o += `<path d="M0 470 C80 466 180 470 250 478 L250 488 C180 482 80 478 0 482 Z" fill="${C.nLeaf}"/>`;
-  o += `<path d="M0 512 C120 508 260 512 360 520" stroke="${C.nLand}" stroke-width="10" fill="none"/>${stones(0, 360, 516, 5.5, [C.cream, C.creamDeep, '#D8D1BC'])}`;
-  o += `<path d="M0 512 C120 508 260 512 360 520 L360 530 C260 524 120 520 0 524 Z" fill="${C.nLeaf}"/>`;
+  o += `<path d="M0 470 C80 466 180 470 250 478" stroke="${C.nLand}" stroke-width="10" stroke-linecap="round" fill="none"/>${stones(0, 250, 474, 5, [C.cream, C.creamDeep, '#D8D1BC'])}`;
+  o += `<path d="M0 470 C80 466 180 470 250 478 Q259 483 248 488 C180 482 80 478 0 482 Z" fill="${C.nLeaf}"/>`;
+  o += `<path d="M0 512 C120 508 260 512 360 520" stroke="${C.nLand}" stroke-width="10" stroke-linecap="round" fill="none"/>${stones(0, 360, 516, 5.5, [C.cream, C.creamDeep, '#D8D1BC'])}`;
+  o += `<path d="M0 512 C120 508 260 512 360 520 Q369 525 358 530 C260 524 120 520 0 524 Z" fill="${C.nLeaf}"/>`;
   o += ownSeed(ORCHARD_SEED, orchardGround);
   // Top terrace: the big avocado tree, a young avocado on a stake, the straw beehive with bees.
   o += `<g filter="url(#layer-sm)">${tree(120, 462, 66, 58, ['#3E4A14', C.nLand, C.nLeaf, '#5F6C18'], C.nGlow, 'avocado')}</g>`;
@@ -1883,7 +1875,7 @@ function dirtPath(c, width, n, open) {
   return ownSeed(PATH_SEED + n, () => {
     const pts = [];
     for (let i = 0; i <= 48; i += 1) { const t = i / 48; pts.push([bez(c[0], c[2], c[4], c[6], t), bez(c[1], c[3], c[5], c[7], t), width(t)]); }
-    const round = pts.map(([x, y, w], i) => [x, y, open && i < 5 ? w * Math.sqrt(1 - ((5 - i) / 5.6) ** 2) : w]);
+    const round = pts.map(([x, y, w], i) => [x, y, open && i < 6 ? w * Math.max(0.12, Math.sqrt(1 - ((6 - i) / 6) ** 2)) : w]);
     const shape = {
       edge: strip(round.map(([x, y, w]) => [x + 0.8, y + 1.2, w + 0.6]), -1, 1, 1.1),
       earth: strip(round, -1, 1, 1.2),
@@ -1922,13 +1914,13 @@ function dirtPatch(cx, cy, rx, ry, n) {
 }
 /** Dirt shapes laid down as one ground: every edge, then every earth, then every worn middle, pebbles, grass. */
 function dirtGround(shapes) {
-  const all = (k) => shapes.map((s) => s[k]).join('');
+  const all = (k) => shapes.map((s) => s[k] || '').join('');
   // Nothing of one path's edge lands on another's dirt where they meet: no pebble on it, no tuft on it or just below it.
   const onDirt = (x, y, m, own) => shapes.some((s) => s !== own && s.on(x, y, m));
   const peb = shapes.flatMap((s) => s.peb.filter(([x, y]) => !onDirt(x, y, 0.5, s)));
   const tufts = shapes.flatMap((s) => s.tufts.filter(([x, y]) => !shapes.some((o) => o.on(x, y, 2.4) || o.on(x, y - 4.6, 1.2))))
     .map(([x, y, id]) => `<use href="#kmt-${id}" x="${f(x)}" y="${f(y)}"/>`).join('');
-  return `<path d="${all('edge')}" fill="${DIRT.edge}"/><path d="${all('earth')}" fill="${DIRT.earth}"/><path d="${all('worn')}" fill="${DIRT.worn}"/>` +
+  return `<path d="${all('edge')}" fill="${DIRT.edge}"/><path d="${all('earth')}" fill="${DIRT.earth}"/><path d="${all('worn')}" fill="${DIRT.worn}"/>${all('extra')}` +
     DIRT.pebbles.map((col, j) => blobs(col, peb.filter((_, i) => i % 3 === j))).join('') + tufts;
 }
 // A little wider where a path meets the landing or the boardwalk.
@@ -1936,10 +1928,11 @@ const flare = (t, end) => 3 * Math.exp(-(end ? 1 - t : t) / 0.07);
 
 function paths() {
   // From each place to the landing under the signpost, and from the landing down to the boardwalk on the shore.
-  let o = stepsFoot();
+  let o = '';
   o += dirtGround([
+    stepsFootShape(),
     dirtPath([500, 582, 600, 590, 700, 602, 798, 613], (t) => 10.5 + 1.5 * t + flare(t, true), 1, true),
-    dirtPath([690, 572, 720, 588, 760, 602, 796, 611], (t) => 8.5 + 1.5 * t + flare(t, true), 2, true),
+    dirtPath([684, 567, 716, 586, 760, 602, 796, 611], (t) => 8.5 + 1.5 * t + flare(t, true), 2),
     dirtPath([1180, 590, 1060, 598, 920, 606, 804, 613], (t) => 11 + t + flare(t, true), 3, true),
     // down to the boardwalk: about as wide as a keeper there, narrower going up and away, a gentle bend; both ends tuck in
     dirtPath([800, 618, 814, 642, 786, 668, 800, 700], (t) => 15 + 6 * t + 4 * Math.exp(-t / 0.07) + flare(t, true), 4),
