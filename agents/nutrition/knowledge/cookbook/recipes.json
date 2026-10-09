@@ -7927,7 +7927,7 @@
      "qty": 4,
      "qty_text": "4 (4-ounce)",
      "unit": "",
-     "item": "salmon fillets (4-oz each)",
+     "item": "salmon fillets",
      "prep": "",
      "aisle": "meat and seafood",
      "optional": false
@@ -8141,7 +8141,7 @@
      "qty": 1,
      "qty_text": "1 (14.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added diced tomatoes (14.5-oz can)",
+     "item": "no-salt-added diced tomatoes",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -8760,7 +8760,7 @@
      "qty": 1,
      "qty_text": "1 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added black beans (15-oz can)",
+     "item": "no-salt-added black beans",
      "prep": "chilled in the refrigerator, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -9364,7 +9364,7 @@
      "qty": 1,
      "qty_text": "1 (15.5-ounce)",
      "unit": "can",
-     "item": "chickpeas (garbanzo beans) (15.5-oz can)",
+     "item": "chickpeas (garbanzo beans)",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -9373,7 +9373,7 @@
      "qty": 1,
      "qty_text": "1 (16-ounce)",
      "unit": "package",
-     "item": "frozen stir-fry vegetables (16-oz package)",
+     "item": "frozen stir-fry vegetables",
      "prep": "",
      "aisle": "frozen",
      "optional": false
@@ -9382,7 +9382,7 @@
      "qty": 1,
      "qty_text": "1 (8-ounce)",
      "unit": "can",
-     "item": "crushed pineapple (8-oz can)",
+     "item": "crushed pineapple",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -9391,7 +9391,7 @@
      "qty": 1,
      "qty_text": "1 (8-ounce)",
      "unit": "can",
-     "item": "water chestnuts (8-oz can)",
+     "item": "water chestnuts",
      "prep": "drained",
      "aisle": "canned and jarred",
      "optional": false
@@ -9476,7 +9476,7 @@
      "qty": 4,
      "qty_text": "4 (4-ounce)",
      "unit": "",
-     "item": "cod fillets (4-oz each)",
+     "item": "cod fillets",
      "prep": "",
      "aisle": "meat and seafood",
      "optional": false
@@ -9692,7 +9692,7 @@
      "qty": 4,
      "qty_text": "4 (4- to 6-ounce)",
      "unit": "",
-     "item": "firm-textured fish fillets or fish steaks, 4- to 6-ounce each (e.g. catfish, cod, halibut, tilapia)",
+     "item": "firm-textured fish fillets or fish steaks (e.g. catfish, cod, halibut, tilapia)",
      "prep": "",
      "aisle": "meat and seafood",
      "optional": false
@@ -10745,7 +10745,7 @@
      "qty": 1,
      "qty_text": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen mixed vegetables (10-oz package; e.g. green beans, carrots, corn, peas)",
+     "item": "frozen mixed vegetables (e.g. green beans, carrots, corn, peas)",
      "prep": "",
      "aisle": "frozen",
      "optional": false
@@ -10857,7 +10857,7 @@
      "qty": 1,
      "qty_text": "1 (15.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added garbanzo beans (15.5-oz can)",
+     "item": "no-salt-added garbanzo beans",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -10884,7 +10884,7 @@
      "qty": 1,
      "qty_text": "1 (14.5-ounce)",
      "unit": "can",
-     "item": "diced tomatoes (14.5-oz can)",
+     "item": "diced tomatoes",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -11024,7 +11024,7 @@
      "qty": 2,
      "qty_text": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added black beans (15-oz cans)",
+     "item": "no-salt-added black beans",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -11510,7 +11510,7 @@
      "qty": 1,
      "qty_text": "1 (15-ounce)",
      "unit": "can",
-     "item": "garbanzo beans (chickpeas) (15-oz can)",
+     "item": "garbanzo beans (chickpeas)",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -11519,7 +11519,7 @@
      "qty": 1,
      "qty_text": "1 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added tomato sauce (15-oz can)",
+     "item": "no-salt-added tomato sauce",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -11775,7 +11775,7 @@
      "qty": 1,
      "qty_text": "1 (23.5-ounce)",
      "unit": "",
-     "item": "jar reduced-sodium pasta sauce (23.5-oz jar)",
+     "item": "jar reduced-sodium pasta sauce",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -11940,7 +11940,7 @@
      "qty": 1,
      "qty_text": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen chopped spinach (10-oz package)",
+     "item": "frozen chopped spinach",
      "prep": "thawed and squeezed to remove moisture",
      "aisle": "frozen",
      "optional": false
@@ -12320,7 +12320,7 @@
      "qty": 1,
      "qty_text": "1 (28-ounce)",
      "unit": "can",
-     "item": "no-salt-added crushed tomatoes (28-oz can)",
+     "item": "no-salt-added crushed tomatoes",
      "prep": "",
      "aisle": "canned and jarred",
      "optional": false
@@ -12329,7 +12329,7 @@
      "qty": 2,
      "qty_text": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added beans (15-oz cans; one type or a combination, e.g. kidney, black, pinto)",
+     "item": "no-salt-added beans (one type or a combination, e.g. kidney, black, pinto)",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
@@ -12338,7 +12338,7 @@
      "qty": 1,
      "qty_text": "1 (11-ounce)",
      "unit": "package",
-     "item": "frozen corn (11-oz bag)",
+     "item": "frozen corn",
      "prep": "",
      "aisle": "frozen",
      "optional": false
@@ -12681,7 +12681,7 @@
      "qty": 1,
      "qty_text": "1 (16-ounce) block",
      "unit": "package",
-     "item": "extra-firm tofu (16-oz block)",
+     "item": "extra-firm tofu",
      "prep": "cubed",
      "aisle": "deli and refrigerated",
      "optional": false
@@ -12835,7 +12835,7 @@
      "qty": 2,
      "qty_text": "2 (15.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added white cannellini beans (15.5-oz cans)",
+     "item": "no-salt-added white cannellini beans",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
