@@ -154,7 +154,9 @@
   /* ---------------------------------------------------------------- one scene, in depth layers */
   const NS = 'http://www.w3.org/2000/svg';
   const OVER = 0.015; // each layer is drawn this far past every edge, so a parallax shift never shows an edge
-  const DEPTH = { sky: 0.15, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
+  // The sky is at infinity: its stars and moon never slide with the pointer or the tilt (owner, 2026-10-09: "those
+  // stars need to not be moving that way in the night sky"). The camera's own glide and zoom still carry it.
+  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let count = 0;
 
@@ -380,7 +382,7 @@
   // paths to visit another place, talks there and walks home. A click stops one to answer. In a room its own keeper
   // keeps to its spot (the room's bubble points at it) and only goes visiting once the page has been left alone a while.
   // window.kindlemere.hold(true) brings everyone home and keeps them there while a room is busy. Nobody wanders at
-  // night, Spud only comes up for dinner, and the dog has a day of its own (/kit/kindlemere-dog.js). Reduced motion:
+  // night, Spud only comes up for dinner or when he is woken (spudUp), and the dog has a day of its own (/kit/kindlemere-dog.js). Reduced motion:
   // all still.
   const WAYS = { // how each one goes about: its gait, its speed (world units a second) and how far it potters from home
     nutrition: { gait: 'walk', speed: 64, zone: [96, 20] },
@@ -516,13 +518,189 @@
     p.style.cssText = `position:absolute;z-index:4;left:${left}px;top:${Math.max(6, b.top - r.top - 8)}px;transform:translate(-50%,-100%);max-width:220px;` +
       'background:#FFFFFF;color:#1A2433;border-radius:14px;padding:8px 12px;font:600 14px/1.3 ui-rounded,Candara,"Gill Sans","Segoe UI",sans-serif;box-shadow:0 3px 0 rgba(26,36,51,0.18);pointer-events:none';
     scene.root.appendChild(p);
-    setTimeout(() => p.remove(), 3600);
+    p.gone = setTimeout(() => p.remove(), 3600);
   }
 
-  function wake(scene, key) {
+  /* ---------------------------------------------------------------- Spud, woken in the ground */
+  // Owner, 2026-10-09: "when clicking spud while he is sleeping he should pop up for a bit to talk, and then can jump
+  // back into the ground." Outside dinner (by day, and at night) Spud sleeps in his mound. A click pops him up: a short
+  // rise out of the soil with a puff of earth, his eyes blink awake, a yawn. He stays up to talk; left alone
+  // SPUD_STAY_MS (window.kindlemere.spud.stay() keeps him up while a room talks with him) he says goodbye and hops back
+  // down. Reduced motion: he just appears and goes. Only Spud does this; at night everyone else sleeps on.
+  const SPUD = 'nutrition-spud';
+  const SPUD_STAY_MS = 20000;
+  const SPUD_UP = [
+    "Mm? Oh, hello. I was napping in the soil. Is it dinner already?", "Yaaawn. Hello there. Earth's warm today. What's up?",
+    "Who's that? Oh, you. Fine, I'm up. Want to talk dinner?", "Five more minutes... No? All right. What's cooking?",
+  ];
+  const SPUD_NIGHT = "Yaaawn. It's late, but I'm up now. Want to talk about tomorrow's dinner?";
+  const SPUD_TALK = ["Dinner's my department. Shall we talk about tonight's?", 'I keep dinner. Come and ask me what to make.',
+    "Hungry already? Let's plan a dinner with Avo."];
+  const SPUD_BYE = ["Right, back into the ground for a nap. Wake me at dinner.", "Off I pop. Down I go. See you at dinner.",
+    "That's me back to the soil. Night-night, or day-day, whichever it is."];
+  const inGround = (scene, a) => a.key === SPUD && !scene.dinner;
+  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  let live = null;
+  /** A quiet line for screen readers (a live region the page keeps; the bubbles come and go). */
+  function announce(text) {
+    if (!live) {
+      live = document.createElement('div');
+      live.className = 'km-announce';
+      live.setAttribute('aria-live', 'polite');
+      live.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap';
+      document.body.appendChild(live);
+    }
+    live.textContent = '';
+    setTimeout(() => { live.textContent = text; }, 60);
+  }
+  // His parts in the drawing: the figure (shown at dinner), the mound he sleeps in, his awake and sleeping faces.
+  function spudParts(a) {
+    if (a.parts) return a.parts;
+    const body = a.el.querySelector('.km-dinner-only');
+    const mound = a.el.querySelector('.km-mound');
+    if (!body || !mound) return null;
+    const dayFace = body.querySelector('.km-face-happy') ? body.querySelector('.km-face-happy').parentElement : null;
+    const nightFace = dayFace && dayFace.nextElementSibling && dayFace.nextElementSibling.classList.contains('km-night-only') ? dayFace.nextElementSibling : null;
+    const holder = body.parentElement && body.parentElement.parentElement; // his own drawing's frame: feet at y 96
+    a.parts = { body, mound, dayFace, nightFace, holder };
+    return a.parts;
+  }
+  // Nothing of him shows below the ground line while he rises or sinks (a clip in his drawing's own units).
+  let clips = 0;
+  function groundClip(scene, p) {
+    if (!p.holder || p.holder.hasAttribute('clip-path')) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = scene.layers.actors;
+    let defs = svg.querySelector(':scope > defs');
+    if (!defs) { defs = document.createElementNS(NS, 'defs'); svg.insertBefore(defs, svg.firstChild); }
+    const id = `km-spud-ground-${clips += 1}`;
+    const clip = document.createElementNS(NS, 'clipPath');
+    clip.setAttribute('id', id);
+    clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
+    const r = document.createElementNS(NS, 'rect');
+    [['x', -300], ['y', -400], ['width', 700], ['height', 499]].forEach(([k, v]) => r.setAttribute(k, v));
+    clip.appendChild(r);
+    defs.appendChild(clip);
+    p.holder.setAttribute('clip-path', `url(#${id})`);
+  }
+  // A little puff of earth round his feet.
+  function soil(p) {
+    if (still || !p.holder) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const g = document.createElementNS(NS, 'g');
+    const bits = [[-26, -10], [-14, -18], [0, -22], [14, -18], [26, -10], [-8, -26], [8, -26]];
+    bits.forEach(([dx, dy], i) => {
+      const c = document.createElementNS(NS, 'ellipse');
+      c.setAttribute('cx', 47);
+      c.setAttribute('cy', 92);
+      c.setAttribute('rx', 4 + (i % 3));
+      c.setAttribute('ry', 3 + (i % 2));
+      c.setAttribute('fill', i % 2 ? '#8A6438' : '#7A5530');
+      g.appendChild(c);
+      c.animate([{ transform: 'translate(0, 0)', opacity: 0.95 }, { transform: `translate(${dx * 1.6}px, ${dy * 1.4}px)`, opacity: 0 }],
+        { duration: 620 + i * 30, easing: 'cubic-bezier(.2,.7,.4,1)', fill: 'forwards' });
+    });
+    p.holder.appendChild(g);
+    setTimeout(() => g.remove(), 900);
+  }
+  const face = (p, sleeping) => {
+    if (p.dayFace) p.dayFace.style.display = sleeping ? 'none' : '';
+    if (p.nightFace) p.nightFace.style.display = sleeping ? 'inline' : '';
+  };
+  /** Up out of the ground. True when he came up. */
+  function spudUp(scene, a) {
+    const p = spudParts(a);
+    if (!p || a.up || a.sinking) return false;
+    a.up = true;
+    a.el.setAttribute('data-km-awake', '1');   // after dark too: his awake face and his pot held up
+    groundClip(scene, p);
+    p.mound.style.display = 'none';
+    p.body.style.display = 'inline';
+    a.el.setAttribute('aria-label', 'Spud, up out of the ground: talk dinner with him');
+    announce('Spud pops up out of the ground.');
+    const awake = () => {
+      face(p, false);
+      a.el.setAttribute('data-km-mood', 'oh');   // eyes wide: awake
+      clearTimeout(a.wakeTimer);
+      a.wakeTimer = setTimeout(() => a.el.removeAttribute('data-km-mood'), 800);
+    };
+    if (still) awake();
+    else {
+      face(p, true);   // he comes up still asleep, then blinks awake
+      soil(p);
+      p.body.animate([{ transform: 'translateY(74px)' }, { transform: 'translateY(-8px)', offset: 0.72 }, { transform: 'translateY(0)' }],
+        { duration: 760, easing: 'cubic-bezier(.25,.8,.35,1)' });
+      setTimeout(awake, 820);
+    }
+    spudStay(scene, a);
+    return true;
+  }
+  function spudStay(scene, a) {
+    if (!a.up) return;
+    clearTimeout(a.stayTimer);
+    a.stayTimer = setTimeout(() => spudDown(scene, a), SPUD_STAY_MS);
+  }
+  /** His goodbye, and back down into the ground. */
+  function spudDown(scene, a) {
+    const p = spudParts(a);
+    if (!p || !a.up || a.sinking) return;
+    clearTimeout(a.stayTimer);
+    const done = () => {
+      a.up = false;
+      a.sinking = false;
+      p.body.style.display = '';
+      p.mound.style.display = '';
+      face(p, false);
+      a.el.removeAttribute('data-km-awake');
+      a.el.removeAttribute('data-km-mood');
+      a.el.removeAttribute('data-km-talk');
+      a.el.setAttribute('aria-label', 'Spud');
+    };
+    if (scene.dinner) { done(); return; }   // dinner came round: he stays up anyway
+    a.sinking = true;
+    const ev = new CustomEvent('kindlemere:spud', { cancelable: true, detail: { up: false, svg: scene.layers.actors, scene: scene.root } });
+    const bare = fullScene === scene && stageOf(scene) === scene.root;
+    if (bare || window.dispatchEvent(ev)) say(scene, a.el, pick(SPUD_BYE));
+    a.el.setAttribute('data-km-talk', '1');
+    setTimeout(() => {
+      a.el.removeAttribute('data-km-talk');
+      announce('Spud hops back down into the ground.');
+      if (still) { done(); return; }
+      face(p, true);
+      soil(p);
+      const sink = p.body.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-10px)', offset: 0.3 }, { transform: 'translateY(78px)' }],
+        { duration: 640, easing: 'cubic-bezier(.5,0,.75,.4)', fill: 'forwards' });
+      sink.onfinish = () => { done(); sink.cancel(); };
+    }, 1800);
+  }
+
+  // The park's way into Avo's room to talk dinner with him: a button in his bubble.
+  async function spudTalkAction(scene, a, viaKey) {
+    const to = window.kit && typeof window.kit.address === 'function' ? await window.kit.address('nutrition').catch(() => null) : null;
+    const b = scene.root.querySelector('.km-say');
+    if (!to || !b || !a.up) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Talk dinner with Spud';
+    btn.style.cssText = 'display:block;margin:8px auto 0;padding:6px 12px;border-radius:999px;border:1px solid rgba(26,36,51,0.25);background:#F4EFE3;color:#1A2433;font:700 13px/1.2 ui-rounded,Candara,"Gill Sans","Segoe UI",sans-serif;cursor:pointer';
+    btn.addEventListener('click', () => go(`${to.split('#')[0].split('?')[0]}?talk=spud`, 'nutrition'));
+    b.style.pointerEvents = 'auto';
+    b.appendChild(btn);
+    clearTimeout(b.gone);
+    b.gone = setTimeout(() => b.remove(), 9000);
+    spudStay(scene, a);
+    if (viaKey) btn.focus();
+  }
+
+  function wake(scene, key, viaKey) {
     const a = scene.cast[key];
     if (!a) return;
+    if (a.sinking) return;   // on his way down: he has said goodbye
     const name = a.el.getAttribute('data-km-name') || key;
+    // Spud asleep in the ground pops up; Spud already up stays up a while longer.
+    const popped = inGround(scene, a) && !a.up ? spudUp(scene, a) : false;
+    const up = inGround(scene, a) && Boolean(a.up);
+    if (up) spudStay(scene, a);
     // a click stops one to answer: it turns to you, says its piece, and goes back to its day a little later
     if (a.mode === 'potter' && a.walk) { a.walk = null; a.moving = false; a.mode = 'idle'; stand(a); }
     a.pauseUntil = performance.now() + 4500;
@@ -531,11 +709,16 @@
     clearTimeout(a.wakeTimer);
     a.wakeTimer = setTimeout(() => { a.el.removeAttribute('data-km-mood'); }, 900);
     setTimeout(() => { a.el.removeAttribute('data-km-talk'); }, 2600);
-    const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root } });
-    const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (key === 'nutrition-spud' && !scene.dinner);
+    // up: Spud is up out of the ground outside dinner; popped: this click brought him up (a room says his yawn)
+    const ev = new CustomEvent('kindlemere:character', { cancelable: true, detail: { name, key, svg: scene.layers.actors, scene: scene.root, up, popped } });
+    const asleep = (scene.night && !a.el.hasAttribute('data-km-awake')) || (inGround(scene, a) && !a.up);
     // the scene alone full screen (the Kindlemere page) has no room on it to answer: the kit answers
     const bare = fullScene === scene && stageOf(scene) === scene.root;
-    if (bare || window.dispatchEvent(ev)) say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep${key === 'nutrition-spud' ? ' in the ground. He pops up at dinner time' : ''}.` : line(key) || name);
+    if (bare || window.dispatchEvent(ev)) {
+      if (popped) say(scene, a.el, scene.night ? SPUD_NIGHT : pick(SPUD_UP));
+      else if (up) { say(scene, a.el, pick(SPUD_TALK)); spudTalkAction(scene, a, viaKey); }
+      else say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep.` : line(key) || name);
+    }
     if (key === 'dog-training-sizzle' && !asleep) treatFrom(scene, a);
   }
 
@@ -582,7 +765,7 @@
       el.setAttribute('aria-label', name === 'dog' ? 'The dog' : name);
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => wake(scene, key));
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wake(scene, key); } });
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wake(scene, key, true); } });
     });
     // The telescope on the lookout: at night it opens a lens on tonight's moon.
     const scope = scene.root.querySelector('[data-km-part="telescope"]');
@@ -1496,6 +1679,14 @@
       toPlace: (key) => { if (fullScene) toPlace(fullScene, key); },
       // a character's next line: from a room's own lines for it and the kit's, never the last one again
       line,
+      // Spud out of the ground outside dinner: up() pops him up, stay() keeps him up while a room talks with him (he
+      // goes back down by himself SPUD_STAY_MS after the last stay or click), down() sends him down now
+      spud: {
+        up: () => scenes.forEach((s) => { const a = s.cast && s.cast[SPUD]; if (a && inGround(s, a)) spudUp(s, a); }),
+        stay: () => scenes.forEach((s) => { const a = s.cast && s.cast[SPUD]; if (a) spudStay(s, a); }),
+        down: () => scenes.forEach((s) => { const a = s.cast && s.cast[SPUD]; if (a) spudDown(s, a); }),
+        isUp: () => scenes.some((s) => Boolean(s.cast && s.cast[SPUD] && s.cast[SPUD].up)),
+      },
     });
   }
   start();

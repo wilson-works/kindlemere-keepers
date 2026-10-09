@@ -196,8 +196,8 @@ function sky(view) {
   for (let i = 0; i < 170; i += 1) {
     const x = r(0, W);
     const y = r(0, 1060);
-    if (i % 9 === 0) s += `<use href="#star" x="${f(x - 8)}" y="${f(y - 8)}" width="16" height="16" class="km-twinkle" style="animation-delay:-${f(r(0, 3))}s"/>`;
-    else s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r(1.1, 3))}" fill="${C.paper}" opacity="${f(r(0.45, 1))}"${i % 4 === 0 ? ` class="km-twinkle" style="animation-delay:-${f(r(0, 3))}s"` : ''}/>`;
+    if (i % 9 === 0) s += `<use href="#star" x="${f(x - 8)}" y="${f(y - 8)}" width="16" height="16" class="km-star" style="animation-delay:-${f(r(0, 3))}s"/>`;
+    else s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r(1.1, 3))}" fill="${C.paper}" opacity="${f(r(0.45, 1))}"${i % 4 === 0 ? ` class="km-star" style="animation-delay:-${f(r(0, 3))}s"` : ''}/>`;
   }
   o += `<g id="km-stars" opacity="0">${s}</g>`;
   // The glow on the horizon around the sun at dawn and dusk.
@@ -2343,8 +2343,13 @@ const STYLE = `
   @keyframes km-lift { from { transform: translateY(0); } to { transform: translateY(-3px); } }
   @media (prefers-reduced-motion: reduce) { svg * { animation: none !important; } }`;
 
-/* The running water and the hill's life (scene files only); STYLE's reduced-motion rule stops it too. */
+/* The running water and the hill's life (scene files only); STYLE's reduced-motion rule stops it too. The sky's stars
+   (owner, 2026-10-09: "those stars need to not be moving that way in the night sky") twinkle by brightness alone and
+   never move: no scale, no shift. */
 const HILL_STYLE = `
+  .km-star { animation: km-star 3.2s ease-in-out infinite; }
+  svg:not([data-km-night="1"]) .km-star { animation: none; }
+  @keyframes km-star { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .km-flow { animation: km-flow 3s linear infinite; }
   .km-cascade { animation: km-cascade 0.8s linear infinite; }
   .km-foam { animation: km-foam 1.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
@@ -2458,6 +2463,38 @@ ${defs(null, false)}
 }
 
 /*
+ * The pack's own door (the repo's root agent.json, Kindlemere installed as one agent): the three keepers side by side,
+ * happy, drawn from their own figures, as `art.svg` (the figure in the open doorway) and `mark.svg` (the sign on the
+ * door: the same three on a round of the lake's colour). Never the lantern orange.
+ */
+function packFigures() {
+  let x = 0;
+  let o = '';
+  for (const key of ['nutrition', 'fitness', 'dog-training']) {
+    const k = FIGURES[key].make('happy');
+    o += `<g transform="translate(${x - k.cx} ${-k.feet})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${pose('happy', k.cx, k.feet, k.body)}</g>`;
+    x += 160;
+  }
+  return o;   // feet on y 0; the keepers stand at x 0, 160 and 320
+}
+function packFile(kind) {
+  const head = (box, title) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box}" role="img" aria-labelledby="km-title">
+<title id="km-title">${title}</title>
+<!-- Drawn by kit/art/make-kindlemere.js (the pack's ${kind}). Edit that file, not this one. -->
+<style>${STYLE}
+</style>
+${defs(null, false)}
+`;
+  if (kind === 'art') return `${head('-100 -170 520 192', 'Kindlemere: Avo the avocado, Steady the stacked stones and Tumble the herding ball, side by side and happy')}${packFigures()}
+</svg>
+`;
+  return `${head('-130 -130 260 260', 'Kindlemere: Avo, Steady and Tumble')}<circle r="124" fill="${C.mere}"/><circle r="124" fill="none" stroke="${C.paper}" stroke-width="8"/>
+<g transform="scale(0.5) translate(-160 80)">${packFigures()}</g>
+</svg>
+`;
+}
+
+/*
  * One world, four cameras. The wide view is the map of the whole realm; each close view frames one keeper in its
  * place with sky above (owner, 2026-10-07, on the Orchard close-up: "this one"). `sky` is [top, horizon] in world
  * units: the live script runs the sun and the moon between them, across the view's width.
@@ -2485,6 +2522,12 @@ if (require.main === module) {
     }
   }
   process.stdout.write(`Drew ${Object.keys(FIGURES).length * MOODS.length} keeper and sidekick moods in ${path.relative(process.cwd(), dir)}\n`);
+  for (const kind of ['art', 'mark']) {
+    seed = 20261007;
+    const out = path.join(__dirname, '..', '..', `${kind}.svg`);
+    fs.writeFileSync(out, packFile(kind), 'utf8');
+    process.stdout.write(`Drew ${path.relative(process.cwd(), out)}, the pack's ${kind === 'art' ? 'door figure' : 'door sign'}\n`);
+  }
 }
 
 module.exports = { VIEWS, MOODS, KEEPERS };

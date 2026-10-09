@@ -68,6 +68,27 @@ for (const b of bundle.agents || []) {
 }
 if (!waiting) { process.stderr.write('No room in Kindlemere could open.\n'); process.exit(1); }
 
+// Installed as one agent (the root agent.json, key kindlemere), its door is the park page on one room's port. When the
+// WilsonWorks Workspace's installer found that port taken and gave the pack another, nothing else opens the new one: the
+// park opens it too, as a front gate for the park page: the kit's pages and its rooms' addresses, none of a room's own
+// routes (each room keeps its one talk and its own state on its own port).
+const pack = common.readJson(path.join(ROOT, 'agent.json'), {}) || {};
+const gate = pack.probe && Number(pack.probe.port);
+const roomPorts = (bundle.agents || []).map((b) => { try { return portOf(path.join(ROOT, 'agents', String(b.key))); } catch (_) { return null; } });
+if (Number.isInteger(gate) && gate >= 1024 && gate <= 65535 && !roomPorts.includes(gate) && (bundle.agents || []).length) {
+  const first = path.join(ROOT, 'agents', String(bundle.agents[0].key));
+  try {
+    const server = createShell({ agentDir: first, routes: {} });
+    server.on('error', (e) => process.stderr.write(`The park's front gate on port ${gate} did not open: ${e.code === 'EADDRINUSE' ? 'the port is in use' : e.message}.\n`));
+    server.listen(gate, '127.0.0.1', () => {
+      servers.push({ server, url: `http://127.0.0.1:${gate}/` });
+      process.stdout.write(`Kindlemere's front gate is on http://127.0.0.1:${gate}/kit/kindlemere.html\n`);
+    });
+  } catch (e) {
+    process.stderr.write(`The park's front gate did not open: ${e.message}\n`);
+  }
+}
+
 for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, () => {
     clearPid();

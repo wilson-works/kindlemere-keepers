@@ -1,10 +1,12 @@
 # The wellbeing agents
 
 Three agents who share one world and one kit: a nutritionist, a fitness coach and a dog trainer. Each keeps to its
-own ground and hands everything else to the right sibling. Each answers only from its own knowledge cards, where
-every fact names the page of Louise's book it came from, and from what it remembers on this computer. None of them
-ever uses the web. When one of them does not know something, it asks Louise, the research librarian, to look it up,
-and learns from her book when it comes back.
+own ground and hands everything else to the right sibling. Each answers first from its own knowledge cards, where
+every fact names its source, and from what it remembers on this computer. When its cards don't cover a question, it
+looks in a book Louise the research librarian already wrote, then in the research library (`kit/library/`), then on
+the web, straight away, with the address of the page beside each fact, and keeps what it found as a new card so the
+next answer comes from the card (owner, 2026-10-09: "we cant rely on Louise for everything"). When Louise is on this
+computer, the question also goes on her list for a fuller book.
 
 They live in Kindlemere, a park beside a lake under the real sky: the sun and the moon rise and set at the true hours
 for this computer's place, and at night the fireflies come out and the dog sleeps in its house. Each keeper has
@@ -40,29 +42,41 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
   remembers, its tools and what it is waiting on from Louise are in a drawer. It answers only on this computer
   (127.0.0.1).
 - **Talking with it:** Avo and Tumble talk with you in their rooms. Each message runs one Claude Code turn on this
-  computer, in the agent's own folder and under its own rules, with no web and no connectors, so Claude Code must
-  be installed. Steady's room is guided steps instead. You can also open a Claude chat in any agent's own folder
-  (`agents/nutrition`, `agents/fitness` or `agents/dog-training`). The folder's `CLAUDE.md` makes that chat the
-  agent, and its `.claude/settings.json` turns the web off.
+  computer, in the agent's own folder and under its own rules, with the web only through Claude Code's WebSearch and
+  WebFetch and no connectors, so Claude Code must be installed. Steady's room is guided steps instead. You can also
+  open a Claude chat in any agent's own folder (`agents/nutrition`, `agents/fitness` or `agents/dog-training`). The
+  folder's `CLAUDE.md` makes that chat the agent, and its `.claude/settings.json` allows those two web tools and
+  turns off every connector, MCP server and shell command that fetches.
 
-## How a gap reaches Louise
+## When a keeper doesn't know
 
-1. You ask something the agent's cards do not cover. It says "I don't know yet" rather than guess.
-2. It puts the question on Louise's list with `kit/engine/louise.js ask`: a lantern sent across the lake. You can see
-   it in the room under "Waiting on Louise".
-3. When you tell Louise to research her list, she writes a book on it with a source for every fact.
-4. The agent takes the book in (`kit/engine/learn.js`): it copies the answering page as a new card, with its sources,
-   and answers from it from then on.
+You ask something its cards do not cover. It never guesses. It looks, in this order:
 
-Gaps each agent already knows about are in its `knowledge/GAPS.md`; `kit/engine/louise.js send-gaps <agent>` puts
-them on her list, once each.
+1. **A book Louise already wrote**, when she is on this computer (`kit/engine/learn.js <agent> --find`, then
+   `--book`): it copies that book's summary card onto its shelf and answers from it.
+2. **The research library**, `kit/library/<agent>/`: deep research reports from the Align project, each citing its own
+   studies. It names the report and the study.
+3. **The web, straight away**, with Claude Code's WebSearch and WebFetch only. It prefers government health agencies,
+   professional bodies and peer-reviewed reviews, gives the page's address beside each fact, and searches for the
+   topic, never for you. It keeps what it found as a card, `knowledge/web-<subject>.md`, with each page's address and
+   the day it read it (`kit/engine/webcard.js`), so next time the answer comes from the card.
+4. **Louise's list**, only when she is on this computer: the card's subject goes on her list once, for a fuller book.
+   When she is not, the keeper says nothing about her. When you tell Louise to research her list, she writes a book
+   with a source for every fact, and the keeper takes it in (`kit/engine/learn.js`).
+
+If none of them has an answer it can trust, it says "I don't know yet". Emergencies and the people to see (a doctor,
+a vet) always come first, whatever a page says. Gaps each agent already knows about are in its `knowledge/GAPS.md`;
+`kit/engine/louise.js send-gaps <agent>` puts them on her list, once each.
 
 ## What is in the kit
 
 `kit/CONTRACT.md` lists every command an agent may rely on, with an example of each. In short:
 
-- `kit/engine/`: the shelf of cards, memory, Louise's list, learning from her books, the toolsmith (each agent builds
-  its own small tools, checked and registered), and the no-web check.
+- `kit/engine/`: the shelf of cards, memory, Louise's list, learning from her books, keeping a web find as a card
+  (`webcard.js`), the toolsmith (each agent builds its own small tools, checked and registered), and the fences check
+  (`fences.js`: the web only through WebSearch and WebFetch, never a connector, an MCP server or a shell fetcher).
+- `kit/library/`: the research library, one folder per keeper (its `README.md` says what is there and where it came
+  from).
 - `kit/dashboard/`: the room every agent shares (local only, a new key each start).
 - `kit/design/` and `kit/art/`: the realm's colours and type, the scene, and each keeper in five moods.
 
@@ -72,8 +86,59 @@ These wait for your word:
 
 - Louise has not researched their questions. The build used a test copy of her list. At the close of the build run,
   each agent's gaps (`knowledge/GAPS.md`) go on her real list once; she researches them when you tell her to.
-- The package is private, installed only on HQ, and deployed nowhere.
-- No agent may use the web or a connector.
+- The package is private and deployed nowhere. Kindlemere is not in the WilsonWorks Workspace's agent catalog yet:
+  adding it is a change to that repo.
+- The keepers use the web only through WebSearch and WebFetch (owner, 2026-10-09). No agent may use a connector or an
+  MCP server.
+- A card from the web shows on the keeper's shelf like any other, but the rooms' card drawers don't yet show its
+  pages' addresses the way they show Louise's footnotes.
+
+## Install
+
+Kindlemere needs Node 18 or later and nothing else: no `npm install`, no account, no database. To talk with Avo and
+Tumble in their rooms (and for the keepers to look things up on the web) it also needs Claude Code on the same
+computer. Louise, the research librarian, is optional: without her the keepers use their cards, the research library
+and the web.
+
+**On its own.** Get the folder (clone it, or unzip it), then from inside it:
+
+```
+node kit/dashboard/park.js
+```
+
+It prints the park's address, `http://127.0.0.1:7572/kit/kindlemere.html` with the usual ports. Open it in a
+browser on the same computer. The rooms use ports 7571, 7572 and 7573. If one is taken, give that keeper another port
+in a file that stays on your computer, for example `agents/nutrition/agent.config.json` with `{ "port": 7574 }`, and
+start the park again. Optional, for the sky over your own town: `kit/realm.config.json` with your latitude and
+longitude, one decimal place, for example `{ "lat": 51.5, "lon": -0.1 }`.
+
+**In a WilsonWorks Workspace.** Kindlemere installs as one agent (its `agent.json` at the top of this folder, key
+`kindlemere`): from the Workspace folder,
+
+```
+node agents/bin/install-agent.js kindlemere
+```
+
+once it is in the Workspace's catalog, or with this folder's path or git address in place of `kindlemere` before
+then. Its door in the office opens the park, and Wake starts it.
+
+**Check it** (optional): `node kit/engine/fences.js check` says what each keeper can reach. With Louise on the computer,
+`node kit/engine/shelf.js check <agent> --strict` also checks every card's sources against her library.
+
+## Make your own version
+
+Everything a keeper knows and how it looks lives in plain files you can change:
+
+- **What it knows:** its cards, `agents/<keeper>/knowledge/*.md`. Each card is one subject, and each fact ends with
+  where it came from (the card format is in `kit/CONTRACT.md`, section 3). Add a card, edit one, or delete one; the
+  keeper answers from what is there. Its research shelf is `kit/library/<keeper>/`.
+- **Who it is:** its name, title and lines are in `agents/<keeper>/agent.json`; how it talks and what it will and won't
+  do are in `agents/<keeper>/CLAUDE.md` and `SCOPE.md`.
+- **How it looks:** every figure and the park itself are drawn by `kit/art/make-kindlemere.js`. Change the drawing
+  there and run `node kit/art/make-kindlemere.js` to redraw them all. The colours are in `kit/design/tokens.css`.
+
+WilsonWorks builds personalized versions: your own keepers, your own field, your own research shelf. See
+https://wilsonworks.studio/ai-consulting/agents.
 
 ## Install on HQ
 
@@ -84,7 +149,7 @@ The repo is at `D:\Hub\20-Coding\Projects\wellbeing-agents`. It needs Node and n
    `agents/nutrition/agent.config.json` with `{ "port": 7574 }`.
 3. Optional, for the sky: `kit/realm.config.json` with your town's latitude and longitude, one decimal place, for
    example `{ "lat": 35.5, "lon": -97.5 }`. Without it the sky follows the middle of this computer's time zone.
-4. Check each agent: `node kit/engine/noweb.js check`, then for each agent
+4. Check each agent: `node kit/engine/fences.js check`, then for each agent
    `node kit/engine/shelf.js check <agent> --strict` and `node kit/engine/toolsmith.js list <agent>`.
 5. Start the park, `node kit/dashboard/park.js`, or one room, `node agents/<agent>/dashboard/server.js`, and open
    the address it prints.

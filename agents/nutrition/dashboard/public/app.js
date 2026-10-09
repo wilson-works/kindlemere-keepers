@@ -231,12 +231,44 @@
   window.addEventListener('kindlemere:ready', watchAvo);
   watchAvo();
 
+  // Spud woken in the ground (owner, 2026-10-09): the kit pops him up out of the soil; he yawns, and clicked again he
+  // talks dinner here, through the page talk (Avo asks him). He stays up while that talk goes on and hops back down by
+  // himself once he is left alone (window.kindlemere.spud).
+  const spud = () => (window.kindlemere && window.kindlemere.spud) || null;
+  const stayUp = () => { if (spud() && spud().isUp()) spud().stay(); };
+  const tonight = () => {
+    const dinner = table && table.todayMeals.find((s) => s.slot === 'dinner');
+    return dinner ? `Tonight it's ${dinner.name}.` : 'No dinner planned tonight yet.';
+  };
+  function spudTalk() {
+    say(`Let's talk dinner. ${tonight()} Ask away, and Avo will fetch me.`, 'Spud', 'happy');
+    openTalk('Spud, what should we have for dinner tonight?');
+    stayUp();
+  }
+  $('talk-text').addEventListener('input', stayUp);
+  window.addEventListener('kindlemere:spud', (ev) => {
+    ev.preventDefault();
+    say('Right, back into the ground for a nap. Wake me at dinner.', 'Spud', 'sleepy');
+  });
+  // From the park's "Talk dinner with Spud": he pops up here too, and the talk opens on dinner.
+  if (new URLSearchParams(location.search).get('talk') === 'spud') {
+    window.addEventListener('kindlemere:ready', () => setTimeout(() => {
+      if (spud()) spud().up();
+      spudTalk();
+    }, 1200), { once: true });
+  }
+
   window.addEventListener('kindlemere:character', (ev) => {
     const who = ev.detail && ev.detail.name;
     if (!['Avo', 'Summer', 'Spud'].includes(who)) return;
     ev.preventDefault();
     const dinner = table && table.todayMeals.find((s) => s.slot === 'dinner');
     const treat = table && table.todayMeals.find((s) => s.slot === 'snack');
+    if (who === 'Spud' && ev.detail.up) {
+      if (ev.detail.popped) say(`Yaaawn. Oh, hello. I was napping in the soil. ${tonight()} Click me again to talk dinner.`, 'Spud', 'oh');
+      else spudTalk();
+      return;
+    }
     if (asleep()) {
       if (who === 'Avo') sleepy();
       else say(`${who} is fast asleep. Let's not wake ${who === 'Spud' ? 'him' : 'her'}.`, null, 'sleepy');
@@ -431,6 +463,7 @@
     const now = $('talk-now');
     now.hidden = !st.busy;
     if (st.busy) {
+      stayUp();   // Spud stays up while the talk he is part of goes on
       now.textContent = `${st.activity || 'Thinking'}...`;
       const who = st.activity === 'Asking Summer' ? 'Summer' : st.activity === 'Asking Spud' ? 'Spud' : null;
       say(who ? `${who} is helping me with this.` : `${st.activity || 'Thinking'}...`, null, 'thinking');

@@ -61,8 +61,8 @@ Ports: `nutrition` 7571, `fitness` 7572, `dog-training` 7573. `brand` colours co
 
 ## 3. A knowledge card
 
-One Markdown file in `knowledge/`, one subject per card. Facts come from Louise's books, never from the builder's own
-head or a web search.
+One Markdown file in `knowledge/`, one subject per card. Facts come from Louise's books, or (a card from the web,
+section 7a) from web pages a keeper read, never from the builder's own head.
 
 ```markdown
 ---
@@ -181,6 +181,42 @@ node kit/engine/learn.js <agent> --topic "<pending topic>" --book <book id>
 
 Example: `node kit/engine/learn.js nutrition --topic "Protein needs in late pregnancy" --book 0-t-2026-10-09-protein-needs-in-late-pregnancy`
 
+When a keeper's cards don't cover a question, it first looks for a book Louise already wrote, with no request on her
+list:
+
+```
+node kit/engine/learn.js <agent> --find "<words>"
+node kit/engine/learn.js <agent> --book <book id>
+```
+
+- `--find`: her finished books with at least half the words in their title or folder, best first:
+  `<book id>  <title>  (<date>)`. Exit `1` with `Louise has no finished book on that yet.`, or with `Louise is not on
+  this computer...` when she isn't.
+- `--book` alone copies that finished book's summary card, as above, and touches no request.
+
+## 7a. Keeping what it found on the web: `kit/engine/webcard.js`
+
+```
+node kit/engine/webcard.js save <agent> "<title>" "<fact> @<https://page>" ["<fact> @<https://page>" ...]
+     [--question "<what was asked, with nothing about the person>"] [--tags "<a, b>"]
+```
+
+- The keeper read the pages itself (WebSearch, WebFetch); the script never fetches anything. Each fact is one plain
+  line ending with `@` and the address of the page it came from (http or https, no login in it, a comma written
+  `%2C`), at most 25 facts. A fact that names a page of Louise's book is refused.
+- It writes `agents/<agent>/knowledge/web-<slug of the title>.md`, never over a card that is there, and reads it back
+  through the shelf's reader: a card that would be refused is not kept.
+- **A card from the web** carries `origin: web`, `fetched: YYYY-MM-DD` (and `copied`, the same day), the web addresses
+  as its `sources`, and an optional `question`; it has no `louise_book`. Each fact ends with `@<https://the page>`.
+  The shelf refuses one whose sources are not web addresses, that has no `@https://` source, or no `fetched` date;
+  `shelf.js check --strict` also refuses a bullet with no web source, or one naming a page that is not in its
+  `sources`. The kit never opens those pages.
+- Then, only when Louise is on this computer, it asks her for a fuller book: `louise.js ask` with the title as the
+  topic, and the card, the date and the question as the framing (never twice while it is pending). When she is not,
+  it says so. It prints `Saved knowledge/<card>: <n> facts from <m> web pages, fetched <date>.` and that line.
+
+Example: `node kit/engine/webcard.js save nutrition "Leftovers in the fridge" "<what the chart says, in one sentence> @https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts" --question "How long do leftovers keep?"`
+
 ## 8. The toolsmith: `kit/engine/toolsmith.js`
 
 ```
@@ -228,16 +264,28 @@ node kit/engine/toolsmith.js list  <agent>
 
 Example: `node kit/engine/toolsmith.js new nutrition plate-check --purpose "Checks a meal against the plate guide" --inputs "meal" --cards "plate-guide.md"`
 
-## 9. No web
+## 9. The fences: the web through two tools only
 
-- The root `.claude/settings.json` and every agent's `.claude/settings.json` (a copy of
-  `kit/claude/settings.agent.json`) deny web search, web fetch, every MCP tool, and the shell's web commands (`curl`,
-  `wget`, `iwr`, `irm`, `Invoke-WebRequest`, `Invoke-RestMethod`, in Bash and PowerShell). When the kit's copy gains
-  a rule, each agent copies it again: `noweb.js check` requires every rule in the kit's copy.
-- An agent's `CLAUDE.md` says it answers only from its cards and its memory, says so when it cannot, and asks Louise.
-  It also says the agent never reaches the web any other way: no shell command, script or tool that fetches anything.
+Owner, 2026-10-09: "allow them to search the internet for solutions when Louise is unavailable. They are useless
+without accessing information and we cant rely on Louise for everything." Until then no keeper had the web at all.
+
+- Every agent's `.claude/settings.json` (a copy of `kit/claude/settings.agent.json`) allows WebSearch and WebFetch,
+  and denies every MCP tool and the shell's web commands (`curl`, `wget`, `iwr`, `irm`, `Invoke-WebRequest`,
+  `Invoke-RestMethod`, in Bash and PowerShell). The root `.claude/settings.json` denies those too, and still denies
+  the web as well: a chat at the repo root is not a keeper. When the kit's copy gains a rule, each agent copies it
+  again: `fences.js check` requires every rule in the kit's copy.
+- A room that talks (Avo's `dashboard/talk.js`, Tumble's `dashboard/routes.js`) exports `argv(agentDir, session)`,
+  the Claude Code command line of one turn: `--restricted`, `--strict-mcp-config` with no MCP config, its own settings
+  file, and the tools `Read, Grep, Glob, Bash, Task` (Avo also `Edit, Write` for her week draft), `WebSearch` and
+  `WebFetch`, with Bash held to its own `node` commands.
+- An agent's `CLAUDE.md` says the order it looks in when its cards don't cover a question: a book Louise already wrote
+  (`learn.js --find`, then `--book`), the research library (`kit/library/<agent>/`), then the web straight away, with
+  the page's address beside each fact, kept as a card (`webcard.js`, section 7a), which also puts the subject on
+  Louise's list when she is on this computer. It names no fact without its source, searches for the topic and never
+  the person, and keeps its emergency and referral lines first. It never reaches the web any other way: no connector,
+  no MCP server, no shell command, script or tool that fetches anything.
 - No tool the toolsmith passes can reach the network (section 8).
-- `node kit/engine/noweb.js check` checks all three for every agent folder: exit `2` with what failed.
+- `node kit/engine/fences.js check` checks all of it for every agent folder: exit `2` with what failed.
 
 ## 10. The dashboard shell: `kit/dashboard/shell.js`
 
@@ -311,13 +359,15 @@ What the shell does:
   | On `window` | What |
   |---|---|
   | `kindlemere:ready` `{ svg, scene, part }` | fired once per scene, after the page's own scripts have run. `svg` is the characters' layer, `scene` the stack, `part(name)` the element marked `data-km-part="<name>"`: `dog`, `dog-head`, `dog-pupils`, `dog-ball`, `telescope`, `sign-nutrition`, `sign-fitness`, `sign-dog-training`, `sign-louise`, `dog-house-<1..6>`, `dog-house-name-<1..6>` |
-  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley` or `Sizzle` (the dog is its own button: fetch). Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line. In full screen it is fired when the room's stage came along (`data-km-stage`); with the scene alone (the Kindlemere page) the kit's own line answers in the scene |
+  | `kindlemere:character` `{ name, key, svg, scene }` | fired when a character is clicked, or pressed with Enter or Space: `name` is `Avo`, `Summer`, `Spud`, `Steady`, `Puff`, `Huff`, `Tumble`, `Barkley` or `Sizzle` (the dog is its own button: fetch). Cancelable: a room that answers calls `preventDefault()`, otherwise the kit shows the character's own line. In full screen it is fired when the room's stage came along (`data-km-stage`); with the scene alone (the Kindlemere page) the kit's own line answers in the scene. For Spud outside dinner, `up` is true while he is up out of the ground and `popped` is true on the click that brought him up (the kit pops him up itself; a room says his yawn) |
+| `kindlemere:spud` `{ up: false, svg, scene }` | fired when Spud, left alone, says goodbye and goes back into the ground. Cancelable: a room that answers calls `preventDefault()` and says his goodbye itself |
   | `kindlemere:dogs` `{ svg, names }` | fired by a page (Tumble's) when its dogs change: the kit shows one dog house per name (one at least, six at most) with the name on its board |
   | `kindlemere.hold(true \| false)` | a room busy with its own work (a run clock, a timer, a game) holds the keepers at home; `kit.js` defines it, so it is safe to call before the scene loads |
   | `kindlemere.go(url, place)` | go to another place: the camera glides toward `place` (`realm`, `nutrition`, `fitness`, `dog-training`) and the next page glides the rest of the way in (`#km-from=` on its address). Reduced motion: a plain page change |
   | `kindlemere.say(el, text)` | a line in the scene's paper bubble over `el` |
   | `kindlemere.full()`, `kindlemere.isFull()`, `kindlemere.toPlace(place)` | show the scene in view full screen (`REALM.md`, "Full screen"); whether a scene is; in full screen, glide the camera to a place (`realm`, `nutrition`, `fitness`, `dog-training`) without leaving the page |
-  | `kindlemere.line(key, own)` | a character's next line (`key` as in `data-km-actor`: `nutrition-summer`, `dog-training-sizzle`), from the room's own lines for it (`own`, an array) and the kit's dozen, never the line it said last |
+  | `kindlemere.spud.up()`, `.stay()`, `.down()`, `.isUp()` | Spud out of the ground outside dinner (owner, 2026-10-09): pop him up, keep him up while a room talks with him (he goes back down by himself 20 seconds after the last stay or click), send him down now, and whether he is up. Reduced motion: no rise or sink, he just appears and goes |
+| `kindlemere.line(key, own)` | a character's next line (`key` as in `data-km-actor`: `nutrition-summer`, `dog-training-sizzle`), from the room's own lines for it (`own`, an array) and the kit's dozen, never the line it said last |
   | `kindlemereDog.attach(svg, dogEl, { say, chatty })` | the dog's game on a scene's characters layer: its day, fetch and the commands. Returns `{ setPaused, state, show(cmd), beg, wake, asleep, visit(points), treat(spot, from), home, busy, where }`, or `null` without the dog's parts or the ground. `treat` runs it to `spot` ([x, y] in the world), sits it looking up at `from()` (a function giving the world point a biscuit is tossed from) and has it catch one (the kit's click on Sizzle). `chatty` says every line through `say`, not only the first hints |
   | `kindlemereDog.of(svg)`, `kindlemereDog.ground(svg)` | the game attached to a layer; the ground the art marks out (`inside`, `span`, `water`, `where`, `snap`) |
   | `kindlemereDogManual = true` | a room that brings its own dog sets this before the scene starts and attaches its dog itself on `kindlemere:ready` (Tumble's `fetch.js`) |

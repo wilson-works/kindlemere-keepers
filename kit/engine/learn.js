@@ -7,12 +7,19 @@
  *
  *   candidates(key, topic, askedDay)   her finished books for the topic, shelved on or after askedDay, best first
  *   learn(key, { dry, topic, book })   [{ topic, status: learned | waiting | no-card | dry, book, card, why }]
+ *   shelved(words)                     her finished books whose title or folder has at least half the words, best first:
+ *                                      [{ id, title, date, overlap }]. Throws (status 1) when Louise is not on this
+ *                                      computer
+ *   take(key, bookId)                  copies the summary card of a finished book she already has, with no request on
+ *                                      her list: { status: learned | waiting | no-card, book, card, why }
  *
  * A book counts for a request (automatic mode) when it is a finished topic, shelved on or after the day it was asked,
  * and at least half the request's words are in its title or folder name. With --topic and --book the agent has judged
- * the match itself, and only "finished" and "has a summary card" are checked.
+ * the match itself, and only "finished" and "has a summary card" are checked. When a keeper's cards don't cover a
+ * question, `--find` looks on Louise's shelves for a book she already wrote, and `--book` alone takes it.
  *
- * CLI: learn.js <agent> [--dry] | learn.js <agent> --topic "<pending topic>" --book <book id>   [--json]
+ * CLI: learn.js <agent> [--dry] | learn.js <agent> --topic "<pending topic>" --book <book id>
+ *      | learn.js <agent> --find "<words>" | learn.js <agent> --book <book id>   [--json]
  */
 
 const fs = require('fs');
@@ -118,13 +125,53 @@ function learn(key, opts) {
   return out;
 }
 
-module.exports = { learn, candidates };
+/** Louise's own folder, or a plain "she is not here" (status 1): a keeper then goes to the web, never pretends. */
+function louiseHere() {
+  try { return louise.louiseDir(); } catch (e) {
+    throw common.refuse(`Louise is not on this computer, so there are no books of hers to take. (${e.message})`, 1);
+  }
+}
+
+function shelved(wordsIn) {
+  const dir = louiseHere();
+  const want = [...new Set(cards.words(wordsIn))];
+  if (!want.length) throw common.refuse('Say what to look for, in a few words.');
+  return findBooks(dir, String(wordsIn))
+    .filter((b) => b.kind === 'topic' && b.status === 'finished')
+    .map((b) => {
+      const have = new Set(cards.words(`${b.title} ${bookFolder(b)}`));
+      return { id: b.id, title: b.title, date: b.date || '', overlap: want.filter((w) => have.has(w)).length / want.length };
+    })
+    .filter((b) => b.overlap >= 0.5)
+    .sort((a, b) => b.overlap - a.overlap || String(b.date).localeCompare(String(a.date)));
+}
+
+function take(key, bookId) {
+  common.agentDir(key);
+  const dir = louiseHere();
+  const book = findById(dir, String(bookId), String(bookId));
+  if (!book) return { status: 'waiting', book: bookId, why: `Louise's shelves have no book ${bookId}.` };
+  if (book.status !== 'finished') return { status: 'waiting', book: book.id, why: `That book is ${book.status}, not finished.` };
+  return Object.assign({ book: book.id }, copyCard(key, book));
+}
+
+module.exports = { learn, candidates, shelved, take };
 
 if (require.main === module) {
   common.cli((args) => {
     const key = args._[0];
-    if (!key) throw common.refuse('Use: learn.js <agent> [--dry] | learn.js <agent> --topic "<pending topic>" --book <book id>');
-    if ((args.topic && !args.book) || (args.book && !args.topic)) throw common.refuse('Give --topic and --book together.');
+    if (!key) throw common.refuse('Use: learn.js <agent> [--dry] | learn.js <agent> --topic "<pending topic>" --book <book id> | learn.js <agent> --find "<words>" | learn.js <agent> --book <book id>');
+    if (args.find) {
+      common.agentDir(key);
+      const found = shelved(args.find === true ? '' : args.find);
+      if (!found.length) return { text: 'Louise has no finished book on that yet.', data: found, code: 1 };
+      return { text: found.map((b) => `${b.id}  ${b.title}  (${b.date})`).join('\n'), data: found };
+    }
+    if (args.book && !args.topic) {
+      const r = take(key, args.book);
+      return { text: `${r.status.padEnd(8)} ${r.book}${r.card ? ` -> knowledge/${r.card}` : ''}${r.why ? `  (${r.why})` : ''}`, data: r, code: r.status === 'learned' ? 0 : 1 };
+    }
+    if (args.topic && !args.book) throw common.refuse('Give --topic and --book together.');
     const r = learn(key, { dry: args.dry, topic: args.topic, book: args.book });
     if (!r.length) return { text: 'Nothing waiting on Louise, so nothing to learn.', data: r, code: 1 };
     const text = r.map((x) => `${x.status.padEnd(8)} ${x.topic}${x.card ? ` -> knowledge/${x.card}` : ''}${x.why ? `  (${x.why})` : ''}`).join('\n');

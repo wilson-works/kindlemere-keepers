@@ -1,0 +1,29 @@
+{
+  "key": "kindlemere",
+  "name": "Kindlemere",
+  "title": "Avo, Steady and Tumble by the lake",
+  "line": "Three keepers in a park by a lake: Avo plans your meals and shopping, Steady your workouts and stretches, Tumble your dog's training and play.",
+  "status": "live",
+  "door": { "local": "http://127.0.0.1:7572/kit/kindlemere.html", "phone": null },
+  "probe": { "port": 7572, "path": "/health" },
+  "start": "node kit/dashboard/park.js",
+  "autostart": false,
+  "match": [],
+  "brand": {
+    "bg": "#F4EFE3",
+    "panel": "#DCE5EC",
+    "ink": "#1A2433",
+    "accent": "#1F5C6E",
+    "accent2": "#6F8A34",
+    "font": "ui-rounded, Candara, \"Gill Sans\", \"Gill Sans MT\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
+    "mark": "mark.svg"
+  },
+  "art": "art.svg",
+  "jokes": [
+    "Half an avocado on toast. The other half is me, thank you.",
+    "Balance is easy when you're three stones high.",
+    "Let's ask the dog.",
+    "Spud is asleep in the ground. Knock louder.",
+    "The kettle is warm, the stones are stacked and the ball is rolling. Come in."
+  ]
+}
