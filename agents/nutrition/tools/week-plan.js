@@ -3,8 +3,8 @@
 /**
  * week-plan: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
  * Purpose: Builds a week of eating shaped on DASH and on what the person has told me, every line a card fact with its card named.
- * Inputs: days
- * Cards: eating-patterns.md, labels-and-energy.md, protein.md, diabetes.md, food-allergies.md, celiac-and-gluten.md, plant-based-and-genes.md, pregnancy.md, training-fuel.md, kidney-disease.md, scope-and-escalation.md, medicines-and-pku.md
+ * Inputs: days, diet, avoid
+ * Cards: eating-patterns.md, labels-and-energy.md, protein.md, diabetes.md, food-allergies.md, celiac-and-gluten.md, plant-based-and-genes.md, pregnancy.md, training-fuel.md, kidney-disease.md, scope-and-escalation.md, medicines-and-pku.md, cookbook.md
  *
  * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
  * Run: node agents/nutrition/tools/week-plan.js --days <days>
@@ -55,7 +55,28 @@ run(__filename, (ctx) => {
   for (const [why, file, re] of shaped) out.push('', why, ...pick(file, re).map((f) => say(f, file)));
   if (!shaped.length) out.push('', 'You have not told me about allergies, conditions or training yet. Tell me and I will shape this plan around them.');
 
-  out.push('', 'Recipes: none on my shelf yet. A starter set is on my list of questions for Louise, and I learn them when her book lands.');
+  // Meals from my cookbook that fit: Avo's breakfasts and lunches, Spud's dinners, Summer's treats.
+  const lib = ctx.data('cookbook/recipes.json');
+  const book = lib && Array.isArray(lib.recipes) ? lib.recipes : [];
+  const words = (v) => String(v && v !== true ? v : '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  const diet = words(ctx.args.diet);
+  if (has(/\bvegan\b/) && !diet.includes('vegan')) diet.push('vegan');
+  else if (has(/vegetarian/) && !diet.includes('vegetarian') && !diet.includes('vegan')) diet.push('vegetarian');
+  if (has(/gluten|celiac|coeliac/) && !diet.includes('gluten-free')) diet.push('gluten-free');
+  const avoid = words(ctx.args.avoid);
+  const AL = { milk: 'milk', dairy: 'milk', egg: 'egg', eggs: 'egg', fish: 'fish', shellfish: 'shellfish', nuts: 'tree nuts', 'tree nuts': 'tree nuts',
+    peanut: 'peanuts', peanuts: 'peanuts', wheat: 'wheat', gluten: 'wheat', soy: 'soy', sesame: 'sesame' };
+  const fit = (r) => diet.every((x) => r.diet.includes(x))
+    && avoid.every((a) => !AL[a] || !r.allergens.concat(r.optional_allergens).includes(AL[a]));
+  if (book.length) {
+    used.add('cookbook.md');
+    out.push('', `From my cookbook${diet.length ? ` (${diet.join(', ')})` : ''}${avoid.length ? `, without ${avoid.join(', ')}` : ''}, every recipe from a real recipe page:`);
+    for (const [label, meals] of [['Avo, breakfast', ['breakfast']], ['Avo, lunch', ['lunch']], ['Spud, dinner', ['dinner']], ['Summer, treats', ['treat', 'snack']]]) {
+      const xs = book.filter((r) => meals.includes(r.meal) && fit(r));
+      out.push(`  - ${label}: ${xs.length} fit${xs.length ? `, such as ${xs.slice(0, 3).map((r) => r.title).join('; ')}` : ''}.`);
+    }
+    out.push(`To put a week of them on the table: node tools/meal-week.js plan${diet.length ? ` --diet ${diet.join(',')}` : ''}${avoid.length ? ` --avoid ${avoid.join(',')}` : ''}`);
+  } else out.push('', 'My cookbook is not on the shelf, so I have no recipes to offer. I never make one up.');
   out.push('Your shopping list comes from this plan: run prep-list next.');
   out.push('', `Rests on: ${[...used].join(', ')}`);
   ctx.state.write('last-plan.json', { at: new Date().toISOString(), days, built: true, shaped: shaped.map((s) => s[0]), cards: [...used] });

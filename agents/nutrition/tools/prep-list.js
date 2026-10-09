@@ -3,8 +3,8 @@
 /**
  * prep-list: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
  * Purpose: Makes the shopping order and a batch-cook schedule whose keep-times and temperatures come from my food-safety card.
- * Inputs: cook
- * Cards: meal-planning-and-shopping.md, food-safety.md, food-allergies.md
+ * Inputs: cook, recipes
+ * Cards: meal-planning-and-shopping.md, food-safety.md, food-allergies.md, cookbook.md, meal-prep-batch-day.md
  *
  * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
  * Run: node agents/nutrition/tools/prep-list.js --cook <cook>
@@ -40,6 +40,26 @@ run(__filename, (ctx) => {
     const freeze = gap > lastDay;
     out.push(`  - Cook ${NAMES[d]}. Eat it through ${NAMES[eatTo]}.${freeze ? ` Freeze what's left on ${NAMES[eatTo]}, since your next cook day is ${gap} days away.` : ''}`);
   });
+  // With --recipes (ids from my cookbook): a batch-prep order for those dishes, longest cook first, each with its own
+  // keep-time and freezer note from the storage chart the cookbook names.
+  const ids = String(ctx.args.recipes && ctx.args.recipes !== true ? ctx.args.recipes : '').split(',').map((s) => s.trim()).filter(Boolean);
+  if (ids.length) {
+    const lib = ctx.data('cookbook/recipes.json');
+    const book = lib && Array.isArray(lib.recipes) ? lib.recipes : [];
+    const missing = ids.filter((id) => !book.some((r) => r.id === id));
+    if (missing.length) return `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} not in my cookbook. Find recipes with: cookbook.js find`;
+    const mins = (r) => r.total_min || ((r.prep_min || 0) + (r.cook_min || 0)) || 0;
+    const picked = ids.map((id) => book.find((r) => r.id === id)).sort((a, b) => mins(b) - mins(a));
+    const first = sorted[0];
+    out.push('', `Prep order for ${NAMES[first]}, from my cookbook (longest cook first):`);
+    for (const p of pick('meal-prep-batch-day.md', /^Start whatever cooks longest first|^Portion into single meals/)) out.push(say(p, 'meal-prep-batch-day.md'));
+    picked.forEach((r, k) => {
+      const days = r.prep.fridge_days;
+      const by = days ? NAMES[(first + days) % 7] : NAMES[first];
+      out.push(`  ${k + 1}. ${r.title} (${mins(r) || '?'} min, serves ${r.servings}): ${r.prep.batch ? `keeps ${r.prep.fridge} in the fridge, so eat it by ${by}` : r.prep.fridge}. Freezer: ${r.prep.freezes ? r.prep.freezer : `no, ${r.prep.freezer}`}. ${r.prep.reheat} [${r.prep.basis.name}] ${r.source.url}`);
+    });
+    used.add('cookbook.md');
+  }
   out.push('', 'Keep it safe while you prep:',
     ...pick('food-safety.md', /Poultry, all types|Ground beef|Whole cuts|Fish and shellfish|Reheated leftovers|Never leave perishable|Fridge at 40|Thaw in the fridge/).map((f) => say(f, 'food-safety.md')));
   const told = ctx.recall().facts.map((f) => `${f.about || ''} ${f.text}`.toLowerCase());

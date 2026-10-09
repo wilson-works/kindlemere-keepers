@@ -1,0 +1,37 @@
+/* "My recipes" in the My cookbook drawer (cookbook.js). Status is a pill or a dot with a word; no accent stripes. */
+.recipes-box .ask { margin-bottom: var(--km-space-2); }
+.rfilter { display: flex; flex-wrap: wrap; gap: var(--km-space-1); margin: var(--km-space-2) 0; }
+.rchip {
+  font: inherit; font-size: var(--km-text-xs); padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  background: var(--km-paper); color: var(--km-ink); border: 1px solid var(--km-line, #d9d2c3);
+}
+.rchip[aria-pressed="true"] { background: var(--a-land); color: #FFFFFF; border-color: var(--a-land); }
+.rchip:focus-visible, .rrow:focus-visible { outline: 3px solid var(--a-land); outline-offset: 2px; }
+.rlist { list-style: none; margin: var(--km-space-2) 0 0; padding: 0; max-height: 46vh; overflow-y: auto; }
+.rlist > li + li { border-top: 1px solid var(--km-line, #e6dfd0); }
+.rrow {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left;
+  font: inherit; background: none; border: 0; padding: var(--km-space-2) var(--km-space-1); cursor: pointer; color: var(--km-ink);
+}
+.rrow:hover { background: var(--km-paper); }
+.rtitle { font-weight: 600; }
+.rmeta { font-size: var(--km-text-xs); color: var(--km-ink-soft); margin: 0; }
+.rhead { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--km-space-3); }
+.rhead h4 { margin: 0; font-size: var(--km-text-lg); }
+.rback { flex: none; }
+.rtags { list-style: none; display: flex; flex-wrap: wrap; gap: var(--km-space-1); margin: var(--km-space-2) 0; padding: 0; }
+.rcontains { display: flex; align-items: baseline; gap: var(--km-space-2); font-size: var(--km-text-sm); margin: 0 0 var(--km-space-2); }
+.rcontains .dot { width: 8px; height: 8px; border-radius: 50%; background: #B4532A; flex: none; transform: translateY(-1px); }
+.radd { display: flex; flex-wrap: wrap; gap: var(--km-space-2); align-items: center; margin: var(--km-space-3) 0 var(--km-space-1); }
+.radd select { width: auto; min-width: 8rem; }
+.radd-said { font-size: var(--km-text-sm); margin: 0 0 var(--km-space-2); }
+.rrecipe h5 { margin: var(--km-space-3) 0 var(--km-space-1); font-size: var(--km-text-sm); color: var(--a-land); }
+.raisle { margin: var(--km-space-2) 0 0; font-size: var(--km-text-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--km-ink-soft); }
+.ringredients { margin: 2px 0 0; padding-left: 1.2em; font-size: var(--km-text-sm); }
+.rsteps ol { margin: 0; padding-left: 1.4em; font-size: var(--km-text-sm); }
+.rprep p, .rsource { font-size: var(--km-text-sm); margin: 0 0 var(--km-space-1); }
+.rsource { margin-top: var(--km-space-3); color: var(--km-ink-soft); }
+@media (max-width: 560px) {
+  .rhead { flex-direction: column; }
+  .radd select, .radd .km-btn { width: 100%; }
+}

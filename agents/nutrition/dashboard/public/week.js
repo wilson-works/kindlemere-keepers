@@ -91,7 +91,17 @@
     if (r.minutes) meta.push(`about ${r.minutes} minutes`);
     art.append(el('p', 'meta', meta.join(', ') + '.'));
     const src = r.source || {};
-    art.append(el('p', 'from', src.card ? `From my card "${titles[src.card] || src.card.replace(/\.md$/, '')}".` : 'From your own recipe box.'));
+    if (src.cookbook) {
+      // A cookbook recipe names the page it came from.
+      const from = el('p', 'from', `From my cookbook: ${src.name || 'a recipe page'}, `);
+      const a = el('a', null, 'the recipe page');
+      a.href = src.url;
+      a.rel = 'noopener noreferrer';
+      a.target = '_blank';
+      from.append(a, document.createTextNode('.'));
+      art.append(from);
+    } else art.append(el('p', 'from', src.card ? `From my card "${titles[src.card] || src.card.replace(/\.md$/, '')}".` : 'From your own recipe box.'));
+    if (r.prep) art.append(el('p', 'meta', `${r.prep.fridge_days ? `Keeps ${r.prep.fridge} in the fridge` : `${r.prep.fridge[0].toUpperCase()}${r.prep.fridge.slice(1)}`}. Freezer: ${r.prep.freezes ? r.prep.freezer : `no, ${r.prep.freezer}`}. ${r.prep.reheat}`));
     if (r.ingredients.length) {
       art.append(el('h4', null, 'For one batch'));
       const ul = el('ul', 'ingredients');
@@ -116,7 +126,16 @@
     const prep = w.recipes.filter((r) => r.kind === 'prep');
     const quick = w.recipes.filter((r) => r.kind !== 'prep');
     $('prep-days').textContent = prep.length ? `Prep day${w.prep_days.length > 1 ? 's' : ''}: ${w.prep_days.join(' and ')}. ${plain(w.safety && w.safety.keep)}` : '';
-    $('prep-list').replaceChildren(...(prep.length ? prep.map(recipe) : [el('p', 'quiet', 'No meal prep this week.')]));
+    // The batch-prep schedule: per prep day, what to cook (longest first), how many batches, eat by, and what to freeze.
+    const plan = (w.prep_plan || []).map((p) => {
+      const box = el('div', 'prep-plan');
+      box.append(el('h3', null, `Prep ${p.day}: cook in this order`));
+      const ol = el('ol', 'steps');
+      ol.append(...p.cook.map((c) => el('li', null, `${c.name}: ${plural(c.batches, 'batch', 'batches')} (${plural(c.portions, 'portion', 'portions')}${c.minutes ? `, about ${c.minutes} minutes` : ''}). Eat from the fridge by ${c.use_by}${c.fridge.length ? ` (${c.fridge.join(', ')})` : ''}.${c.freeze.length ? ` Freeze for ${c.freeze.join(', ')}.` : ''}`)));
+      box.append(ol);
+      return box;
+    });
+    $('prep-list').replaceChildren(...plan, ...(prep.length ? prep.map(recipe) : [el('p', 'quiet', 'No meal prep this week.')]));
     $('quick-list').replaceChildren(...(quick.length ? quick.map(recipe) : [el('p', 'quiet', 'No quick cooks this week.')]));
   }
 
@@ -126,8 +145,12 @@
       const sec = el('section', 'store');
       sec.append(el('h3', null, `${g.store} `), el('p', 'quiet small', plural(g.items.length, 'item', 'items')));
       const ul = el('ul', 'basket');
-      ul.append(...g.items.map((x, i) => {
+      let aisle = null;
+      ul.append(...g.items.flatMap((x, i) => {
         const li = el('li');
+        // Items come sorted by aisle; each new aisle gets its name above it.
+        const head = x.aisle && x.aisle !== aisle ? [el('li', 'aisle', x.aisle[0].toUpperCase() + x.aisle.slice(1))] : [];
+        if (x.aisle) aisle = x.aisle;
         const key = `avo-shop:${w.id}:${g.store}:${x.item}:${x.unit}`;
         const id = `buy-${g.store.replace(/\W+/g, '')}-${i}`;
         const box = el('input');
@@ -140,7 +163,7 @@
         label.append(el('span', 'item', [amount(x), x.item].filter(Boolean).join(' ')));
         if (x.for && x.for.length) label.append(el('span', 'for', `for ${x.for.join(', ')}`));
         li.append(box, label);
-        return li;
+        return [...head, li];
       }));
       sec.append(ul);
       return sec;
