@@ -277,6 +277,32 @@ function forest() {
   return g('id="km-forest"', o);
 }
 
+/* ------------------------------------------------------------------ the valley trees (world units, hill layer) */
+// Owner, 2026-10-09: "maybe just add some large trees behind the foreground layer but infront of the background so its
+// like theres a tree peaking up from a valley." Two big trees either side of the Hill, in the hill layer behind the hill
+// itself: their crowns rise over the far wood (right of the Orchard's string lights) and over the farmland (between the
+// Hill's right flank and the Field's fence), and the hill and the near ground hide their trunks. Drawn as the Orchard's
+// trees are (overlapping clumps, darkest behind, lighter toward the morning sun) in the hill's and the wood's greens,
+// a few paths each and no filter. On a seed of their own, so nothing else in the park moves.
+const VALLEY_SEED = 20261020;
+const VALLEY = [[780, 937, 100, 64], [900, 940, 120, 86], [2715, 1084, 100, 68], [2560, 1056, 130, 90]]; // x, base, trunk, crown
+function valleyTree(x, base, h, rad) {
+  const cy = base - h - rad * 0.35;
+  const tw = rad * 0.1;
+  const lit = (bx, by) => ((bx - x) * -0.62 + (by - cy) * -0.78) / rad;
+  let o = `<path d="M${f(x - tw * 1.4)} ${base} C${f(x - tw * 0.8)} ${f(base - h * 0.3)} ${f(x - tw * 0.7)} ${f(base - h * 0.7)} ${f(x - tw * 0.45)} ${f(cy)} H${f(x + tw * 0.45)} C${f(x + tw * 0.75)} ${f(base - h * 0.7)} ${f(x + tw * 0.85)} ${f(base - h * 0.3)} ${f(x + tw * 1.4)} ${base} Z" fill="${C.bark}"/>`;
+  const clumps = [];
+  for (let i = 0; i < 24; i += 1) { const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd()) * rad * 0.78; clumps.push([x + Math.cos(a) * d, cy + Math.sin(a) * d * 0.82, r(rad * 0.22, rad * 0.36)]); }
+  clumps.sort((a, b) => a[1] - b[1]);
+  o += blobs('#3A5226', clumps.map(([bx, by, br]) => [bx, by + br * 0.12, br * 1.08]));
+  o += blobs('#4E6B30', clumps.map(([bx, by, br]) => [bx, by, br]));
+  o += blobs('#5F7A3A', clumps.filter(([bx, by]) => lit(bx, by) > -0.35).map(([bx, by, br]) => [bx - br * 0.12, by - br * 0.14, br * 0.84]));
+  o += blobs('#748F48', clumps.filter(([bx, by]) => lit(bx, by) > 0.05).map(([bx, by, br]) => [bx - br * 0.2, by - br * 0.24, br * 0.6]));
+  o += blobs('#8FA05A', clumps.filter(([bx, by]) => lit(bx, by) > 0.42).map(([bx, by, br]) => [bx - br * 0.28, by - br * 0.32, br * 0.32]));
+  return o;
+}
+const valley = () => g('id="km-valley"', ownSeed(VALLEY_SEED, () => VALLEY.map((t) => valleyTree(...t)).join('')));
+
 /* ------------------------------------------------------------------ Stepping Hill (fitness), at the centre */
 function roundTree(x, base, s, cols) {
   let o = shadow(x, base, f(16 * s), f(3 * s)) + `<rect x="${f(x - 2 * s)}" y="${f(base - 14 * s)}" width="${f(4 * s)}" height="${f(14 * s)}" rx="${f(2 * s)}" fill="${C.fDeep}"/>`;
@@ -2801,7 +2827,7 @@ function build(view) {
   const body =
     `<g data-km-layer="sky">${sky(view)}</g>` +
     `<g data-km-layer="far" filter="url(#km-light)"><g transform="scale(2)">${land1}</g></g>` +
-    `<g data-km-layer="hill" filter="url(#km-light)"><g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g></g>` +
+    `<g data-km-layer="hill" filter="url(#km-light)">${valley()}<g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g></g>` +
     `<g data-km-layer="land" filter="url(#km-light)"><g transform="scale(2)">${land2}</g></g>` +
     `<g data-km-layer="life" filter="url(#km-light)"><g transform="scale(2)">${LIFE}</g>${sleepingDogAtHome()}</g>` +
     // the night's own lights, never in the hour's light: a layer of their own, so the live scene lights the land as one
