@@ -1980,22 +1980,33 @@ function bay() {
   [[1468, 714, 0.32], [1586, 704, 0.36], [1380, 716, 0.28]].forEach(([x, y, s]) => {
     o += `<path d="M${x} ${y} m${f(-22 * s)} 0 a${f(22 * s)} ${f(9 * s)} 0 1 0 ${f(44 * s)} 0 a${f(22 * s)} ${f(9 * s)} 0 0 0 ${f(-18 * s)} ${f(-8 * s)} l${f(-4 * s)} ${f(8 * s)} Z" fill="#4E7F3A"/>`;
   });
-  // a grey heron fishing in the shallows by the reeds, still as a post
-  o += `<g transform="translate(1528 ${f(water(1528) + 30)}) scale(0.9)">` +
-    `<ellipse cx="0" cy="0.6" rx="7" ry="1.2" fill="none" stroke="${C.mereLight}" stroke-width="0.7" opacity="0.7"/>` +
-    `<path d="M-1.4 0 L-1 -11 M1.2 0 L1.2 -11" stroke="#8A7F70" stroke-width="0.8" stroke-linecap="round"/>` +
-    `<path d="M-6 -14 C-6 -20 2 -24 7 -20 C9 -18 8 -12 3 -10.6 C-1 -9.6 -5 -10.6 -6 -14 Z" fill="#A9B8C4"/>` +
-    `<path d="M-6 -14 C-4 -12 -1 -11 3 -10.6 C0 -9.6 -4.6 -10.4 -7.4 -12.4 Z" fill="#8C9DAB"/><path d="M-6.4 -14.4 l-4 2.8 l3.4 -0.6 Z" fill="#6B7A88"/>` +
-    `<path d="M5 -19.4 C6.6 -23 4.6 -26 5.4 -29.4" stroke="#C9D3DB" stroke-width="2" stroke-linecap="round" fill="none"/>` +
-    `<ellipse cx="6.2" cy="-30.2" rx="2.2" ry="1.5" fill="#E4EAEF"/><path d="M8 -30.4 l6 0.9 l-6 0.5 Z" fill="${C.dGlow}"/><path d="M4.6 -31 q2 -0.8 4.4 -0.2" stroke="${C.ink}" stroke-width="0.6" fill="none"/><circle cx="7" cy="-30.6" r="0.36" fill="${C.ink}"/><path d="M4.4 -30.6 l-3 1.6" stroke="${C.ink}" stroke-width="0.4"/></g>`;
-  // what moves: ducklings after the duck, reeds in the wind, a dragonfly over the shallows
+  // a grey heron fishing in the shallows by the reeds, still as a post (owner, 2026-10-09: "and also the fish needs
+  // redesign", with the lake's other life): long yellow legs, a slim grey body with the wings folded and their dark
+  // flight feathers, an S-bent white neck streaked black, a black crest and a dagger bill, about knee-high to a keeper
+  o += `<g transform="translate(1528 ${f(water(1528) + 30)}) scale(0.62)">` +
+    `<ellipse cx="0" cy="0.8" rx="11" ry="1.8" fill="none" stroke="${C.mereLight}" stroke-width="0.9" opacity="0.7"/><ellipse cx="0" cy="0.8" rx="6" ry="1" fill="none" stroke="${C.mereLight}" stroke-width="0.7" opacity="0.6"/>` +
+    `<path d="M-2 0.4 L-1.2 -17 M2.2 0.4 L1.4 -17" stroke="#C9B46A" stroke-width="1.3" stroke-linecap="round"/><path d="M-1.2 -9 l-0.6 0.6 M1.6 -9 l0.6 0.6" stroke="#A8954E" stroke-width="1.4"/>` +
+    `<path d="M-15 -20 C-10 -21 -2 -27 6 -26 C11 -25.6 12 -21 9 -18.4 C4 -15 -6 -15.4 -15 -20 Z" fill="#A9B4BE"/>` +
+    `<path d="M-15 -20 C-8 -19 0 -19.6 6 -21.4 C3 -18 -6 -16.6 -15 -20 Z" fill="#7F8E9B"/><path d="M-17 -20.6 L-11 -21.6 L-10 -18.8 Z" fill="#4A5662"/><path d="M-6 -22.6 C-2 -24 3 -24.6 7 -23.6" stroke="#C9D2DA" stroke-width="0.8" fill="none"/>` +
+    `<path d="M6 -25 C10 -29 6 -33 9 -37.6 C10.6 -40 12.4 -41 12.6 -43" stroke="#E8ECEF" stroke-width="3.4" stroke-linecap="round" fill="none"/>` +
+    `<path d="M8.6 -27.6 C9.6 -30.4 7.6 -33.4 9.6 -36.6" stroke="#3A4048" stroke-width="0.6" fill="none" opacity="0.8"/>` +
+    `<ellipse cx="13" cy="-44.4" rx="3" ry="2.2" fill="#F2F4F6"/><path d="M11 -45.8 q2.6 -1.2 4.8 -0.2 l-5.8 -1.6 Z" fill="#22272C"/><path d="M10.4 -45.4 l-6 -1.4 l5.6 0.4 Z" fill="#22272C"/>` +
+    `<path d="M15.6 -44.8 L24 -43.6 L15.6 -43.4 Z" fill="#E2B04A"/><circle cx="13.8" cy="-44.8" r="0.5" fill="#C9A13A"/><circle cx="13.8" cy="-44.8" r="0.24" fill="#111"/></g>`;
+  // what moves: ducklings after the duck (a brown duck, her blue wing patch showing), reeds in the wind, a dragonfly over the shallows
   let life = '';
-  life += `<g class="km-bob" style="animation-delay:-0.7s">${[[1530, 721, 0.38], [1543, 723.6, 0.34]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="#E9C24A"/><circle cx="-1" cy="-4" r="5" fill="#E9C24A"/><path d="M-6 -4 l-4 1 l4 2 Z" fill="${C.clay2}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/></g>`).join('')}</g>`;
+  const wake = (x, y, w) => `<path d="M${f(x + 3)} ${f(y + 1.4)} l${f(w)} ${f(-0.8)} M${f(x + 3)} ${f(y + 1.9)} l${f(w)} ${f(0.8)}" stroke="${C.mereLight}" stroke-width="0.6" stroke-linecap="round" opacity="0.7"/>`;
+  life += `<g class="km-bob" style="animation-delay:-0.7s">${motherDuck()}${wake(1517, 721.6, 6) + wake(1530, 723, 4) + wake(1543, 725.6, 3.6) + wake(1556, 727.4, 3.2)}${[[1530, 721, 0.38], [1543, 723.6, 0.34], [1556, 725.4, 0.32]].map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="#E9C24A"/><circle cx="-1" cy="-4" r="5" fill="#E9C24A"/><path d="M-6 -4 l-4 1 l4 2 Z" fill="${C.clay2}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/></g>`).join('')}</g>`;
   life += `<g class="km-sway" style="animation-delay:-1.3s">${reedClump(1500, 6, 20)}</g>`;
   life += `<g transform="translate(1416 ${f(water(1416) + 4)}) scale(1.4)" class="km-day-only"><g class="km-flit" style="animation-duration:7s;animation-delay:-4s"><g class="km-wing"><path d="M-1.6 -0.4 q-1 -3 0.4 -3.2 q0.6 1.6 -0.4 3.2 Z M0.4 -0.4 q0.4 -3.2 1.8 -3 q-0.4 1.8 -1.8 3 Z" fill="${C.paper}" opacity="0.85"/></g><path d="M-3 0 H5" stroke="${C.mereShine}" stroke-width="0.7" stroke-linecap="round"/><circle cx="-3.4" cy="-0.1" r="0.75" fill="${C.mere}"/></g></g>`;
   live(`<g class="km-bay-life">${life}</g>`);
   return `<g class="km-bay">${o}</g>`;
 }
+
+/** The ducklings' mother on the bay (owner, 2026-10-09: "the ducklings: with a duck, on the water"). */
+const motherDuck = () => `<g transform="translate(1515 718.4) scale(0.5)"><path d="M12 10 l16 -2 M12 11.4 l16 2" stroke="${C.mereLight}" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>` +
+    `<path d="M-4 8 C-8 4 -6 -1 0 -1 C6 -1 12 -2 18 -5 C20 1 18 9 8 10 C4 10.6 -1 10.4 -4 8 Z" fill="#8A6A44"/><path d="M2 2 C7 1.6 12 0.4 15 -1.6 C14 3 10 5.6 4 5.4 Z" fill="#6E5233"/><path d="M8 2.2 l5 -0.8 l-0.6 2 l-4.6 0.4 Z" fill="#3A63B8"/>` +
+    `<path d="M1 8 C6 9.4 12 9.2 16 7" stroke="#A88A62" stroke-width="0.8" fill="none"/><path d="M-1 0 C-3 -3 -3 -7 0 -9 C3 -10.6 6 -8.4 5 -5 C4.4 -3 2 -1 -1 0 Z" fill="#8A6A44"/>` +
+    `<path d="M-1.6 -6.4 h5" stroke="#5A4128" stroke-width="0.8"/><path d="M-1.4 -8 L-7.6 -6.6 L-6.8 -5.2 L-1 -5.6 Z" fill="#E08A2E"/><circle cx="1.2" cy="-6.8" r="0.9" fill="${C.ink}"/></g>`;
 
 /* ------------------------------------------------------------------ the bank, the paths and the signpost */
 function bank() {
@@ -2158,11 +2169,20 @@ function lake() {
   });
   o += flower(232, 842, C.paper, C.nGlow, 2.2) + flower(1052, 858, C.paper, C.dGlow, 2);
   // A frog on a lily pad, and a paper duck keeping an eye on the dog.
-  o += `<g transform="translate(1046 870) scale(0.55)" class="km-day-only"><ellipse cx="0" cy="0" rx="9" ry="6" fill="#5E8A3A"/><circle cx="-5" cy="-6" r="3.4" fill="#5E8A3A"/><circle cx="5" cy="-6" r="3.4" fill="#5E8A3A"/><circle cx="-5" cy="-6.4" r="1.6" fill="${C.ink}"/><circle cx="5" cy="-6.4" r="1.6" fill="${C.ink}"/><path d="M-4 1 q4 3 8 0" stroke="${C.ink}" stroke-width="1.2" fill="none"/></g>`;
+  o += `<g transform="translate(1046 870) scale(0.55)" class="km-day-only"><ellipse cx="0.6" cy="4.6" rx="11" ry="2.2" fill="#3E6A2A" opacity="0.5"/>` +
+    `<path d="M-11 3 C-13 -1 -10 -3 -7 -1.6 C-9 1 -8 3 -5 3.6 Z M11 3 C13 -1 10 -3 7 -1.6 C9 1 8 3 5 3.6 Z" fill="#4E7A30"/>` +
+    `<path d="M-8 2.6 C-9 -4 -5 -8 0 -8 C5 -8 9 -4 8 2.6 C5 4.4 -5 4.4 -8 2.6 Z" fill="#6A9A3E"/><path d="M-5 1.8 C-4 -1 4 -1 5 1.8 C3 3.2 -3 3.2 -5 1.8 Z" fill="#D6E3A0"/>` +
+    `<path d="M-4.6 3.4 l-1.6 1.6 h2.6 M4.6 3.4 l1.6 1.6 h-2.6" stroke="#4E7A30" stroke-width="1.2" stroke-linecap="round" fill="none"/>` +
+    `<circle cx="-4.4" cy="-7.6" r="2.8" fill="#6A9A3E"/><circle cx="4.4" cy="-7.6" r="2.8" fill="#6A9A3E"/><circle cx="-4.4" cy="-8" r="1.7" fill="#E9C24A"/><circle cx="4.4" cy="-8" r="1.7" fill="#E9C24A"/>` +
+    `<rect x="-5.4" y="-8.5" width="2" height="1" rx="0.5" fill="${C.ink}"/><rect x="3.4" y="-8.5" width="2" height="1" rx="0.5" fill="${C.ink}"/><path d="M-3.4 -3.4 q3.4 1.6 6.8 0" stroke="#2E4A1A" stroke-width="0.7" fill="none"/>` +
+    `<circle cx="-2" cy="-5" r="0.6" fill="#8DBA5A"/><circle cx="2.6" cy="-4.6" r="0.5" fill="#8DBA5A"/></g>`;
   for (let i = 0; i < 12; i += 1) { const x = 1556 + i * 3.6; const y = shoreY(x) + 44; const h = r(18, 32); o += `<path d="M${f(x)} ${f(y)} q${f(r(-2, 2))} ${f(-h / 2)} ${f(r(-3, 3))} ${f(-h)}" stroke="${C.dGrassDark}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`; if (i % 2) o += `<rect x="${f(x - 1.6)}" y="${f(y - h - 1)}" width="3.2" height="8" rx="1.6" fill="${C.dLand}"/>`; }
-  LIFE += `<g transform="translate(1504 716) scale(0.7)" class="km-bob" style="animation-delay:-2s"><path d="M0 8 c-6 0 -8 -8 -2 -10 c4 -1 6 2 10 2 c6 0 10 -2 12 0 c0 6 -6 9 -14 9 Z" fill="${C.paper}"/><circle cx="-1" cy="-4" r="5" fill="${C.paper}"/><path d="M-6 -4 l-5 1 l5 2 Z" fill="${C.dGlow}"/><circle cx="-2" cy="-5" r="1.2" fill="${C.ink}"/><path d="M-10 12 a14 3 0 0 0 26 0" stroke="${C.mereLight}" stroke-width="2" fill="none" opacity="0.7"/></g>`;
-  LIFE += `<g class="km-fish"><path d="M1180 836 c6 -6 16 -6 21 0 c-5 6 -15 6 -21 0 Z M1201 836 l6 -5 v10 Z" fill="${C.nGlow}"/><circle cx="1186" cy="835" r="1.2" fill="${C.ink}"/></g>`;
-  o += `<path d="M1176 854 a14 3.5 0 0 0 28 0" stroke="${C.mereLight}" stroke-width="1.5" fill="none" opacity="0.6"/>`;
+  // a koi rising out of the lake and dropping back (reduced motion: it stays under, and only its rings show)
+  LIFE += `<g class="km-fish"><g transform="translate(1190 836) rotate(-12)"><path d="M-12 0 C-8 -5.4 4 -6 10 -1.4 C4 4.4 -8 4.6 -12 0 Z" fill="#F07A2E"/>` +
+    `<path d="M-4 -4.4 C-1 -2 3 -2 6 -3.6 C5 -1 0 0.4 -4 -1 Z M-9 1.4 C-6 0.4 -3 1.6 -2 3.4 C-5 3.6 -8 3 -9 1.4 Z" fill="#FFF4E6"/><path d="M-1 -5 C1 -8.4 5 -8 7 -4.6 Z" fill="#E0662A"/>` +
+    `<path d="M10 -1.4 C13 -5 16 -6 17 -4.4 C15.6 -2 15.6 0 17 2.4 C16 4 13 3 10 -1.4 Z" fill="#E0662A"/><path d="M-2 2.6 l-2.6 3.4 l3.6 -1.6 Z" fill="#E0662A"/>` +
+    `<circle cx="-8.4" cy="-1.4" r="1" fill="${C.ink}"/><path d="M-12 0.6 q-1.6 0.8 -2.4 2" stroke="#C9541E" stroke-width="0.5" fill="none"/><path d="M-6 -3.6 C-2 -4.8 3 -4.6 6 -3" stroke="#FFFFFF" stroke-width="0.6" fill="none" opacity="0.6"/></g></g>`;
+  o += `<path d="M1176 854 a14 3.5 0 0 0 28 0" stroke="${C.mereLight}" stroke-width="1.5" fill="none" opacity="0.6"/><path d="M1170 853 a20 5 0 0 0 40 0" stroke="${C.mereLight}" stroke-width="0.9" fill="none" opacity="0.35"/>`;
   o += streamMouth();
   o += ownSeed(FIELD_SEED + 2, bay); // the bay below the Field
   return g('id="km-lake"', o);
@@ -2205,7 +2225,11 @@ function shore() {
 function lanterns() {
   let o = `<g transform="translate(0 ${WATER_DY})">`;
   LANTERNS.forEach(([x, y, s], i) => { o += lantern(x, y, f(s * 0.6), f(i * 0.9), i); });
-  o += `<path d="M860 806 C1060 812 1300 822 1600 832" stroke="${C.mereLight}" stroke-width="1.4" stroke-dasharray="1.6 9" stroke-linecap="round" fill="none" opacity="0.5"/>`;
+  // the lanterns are strung on a rope from the dock's post out across the water, sagging between them
+  const knots = [[856, 798]].concat(LANTERNS.map(([x, y, s]) => [x, y + 34 * s * 0.6 - 2]));
+  let rope = '';
+  for (let i = 1; i < knots.length; i += 1) { const [x0, y0] = knots[i - 1]; const [x1, y1] = knots[i]; rope += `M${x0} ${f(y0)} Q${f((x0 + x1) / 2)} ${f((y0 + y1) / 2 + 7)} ${x1} ${f(y1)}`; }
+  o += `<path d="${rope}" stroke="#6B4E30" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="${rope}" stroke="#A8865A" stroke-width="0.5" stroke-linecap="round" fill="none" transform="translate(0 -0.4)"/>`;
   // The paper boat bringing a book back from Louise, with its wake.
   o += `<g transform="translate(580 800) scale(0.6)"><g class="km-bob" style="animation-delay:-1.5s"><path d="M70 30 h30 M76 36 h22" stroke="${C.mereLight}" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>`;
   o += `<path d="M0 18 H64 C58 30 48 34 32 34 C16 34 6 30 0 18 Z" fill="${C.paper}"/><path d="M0 18 H64 L60 24 H4 Z" fill="${C.creamDeep}"/><path d="M30 -14 V18 H8 Z" fill="${C.creamDeep}"/><path d="M30 -14 V18 H44 Z" fill="${C.paper}"/>`;
@@ -2699,6 +2723,8 @@ const STYLE = `
    (owner, 2026-10-09: "those stars need to not be moving that way in the night sky") twinkle by brightness alone and
    never move: no scale, no shift. */
 const HILL_STYLE = `
+  /* the koi only leaps when things may move; held still, it stays under and its rings show */
+  @media (prefers-reduced-motion: reduce) { .km-fish { opacity: 0; } }
   /* a lantern with no question on it: dark paper on its post (/kit/kindlemere-lanterns.js) */
   [data-km-lantern="off"] .km-ll, [data-km-glow][data-km-lantern="off"] { display: none; }
   [data-km-lantern="off"] .km-lp { fill: #8C7B6A; }
