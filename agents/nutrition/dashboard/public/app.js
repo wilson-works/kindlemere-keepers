@@ -258,6 +258,19 @@
     }, 1200), { once: true });
   }
 
+  // Out of the chat (owner, 2026-10-09: "clicking out into kindlemere should escape from it"): a click on the open
+  // scene, or Escape inside it, closes "Plan with me" back to Today. The conversation is kept; the tab brings it back.
+  function leaveTalk(focusTab) {
+    if ($('tab-plan').getAttribute('aria-selected') !== 'true') return false;
+    show($('tab-today'));
+    if (focusTab) $('tab-today').focus();
+    return true;
+  }
+  window.addEventListener('kindlemere:outside', () => leaveTalk(false));
+  $($('tab-plan').getAttribute('aria-controls')).addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && leaveTalk(true)) ev.preventDefault();
+  });
+
   window.addEventListener('kindlemere:character', (ev) => {
     const who = ev.detail && ev.detail.name;
     if (!['Avo', 'Summer', 'Spud'].includes(who)) return;

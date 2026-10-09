@@ -20,44 +20,45 @@
   .km-way .km-btn { align-self: flex-start; margin: var(--km-space-2) var(--km-space-2) 0; text-decoration: none; }
   .km-way .km-btn[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
   .km-shut:empty { display: none; }
+  body { --a-sky: #D6E7EF; }
 </style>
 </head>
 <body>
 <header class="km-top">
-  <div><h1 class="km-name" style="margin: 0">Kindlemere</h1><div class="km-role">One park beside one lake, under the real sky</div></div>
+  <div><h1 class="km-name" style="margin: 0">Kindlemere</h1><div class="km-role">Avo's Orchard, Steady's Hill and Tumble's Field, round one lake</div></div>
 </header>
 <main class="km-page">
   <figure class="km-realm-box">
     <img class="km-realm" src="/kit/art/kindlemere.svg" width="3200" height="1800" alt="Kindlemere: the Orchard, Stepping Hill and Lakeside Field beside a teal lake, joined by paths at a signpost, under a sky that follows the time of day.">
-    <figcaption class="km-hint">Click Avo, Steady or Tumble to step into their place, or take the signpost. Click the dog to play fetch anywhere in the park.</figcaption>
+    <figcaption class="km-hint">Click a keeper to walk over to their place, or follow the signpost. Click Asher the Dasher, the park's dog, and he'll fetch anywhere you throw.</figcaption>
   </figure>
   <p class="km-hint km-shut" id="shut" role="status"></p>
 
   <section class="km-ways" aria-labelledby="ways">
-    <h2 id="ways">Three ways in</h2>
+    <h2 id="ways">Who are you here to see?</h2>
     <div class="km-grid">
       <article class="km-card km-sky km-way" data-agent="nutrition" data-room="nutrition">
         <img src="/kit/art/kindlemere-orchard.svg#km-still" width="1600" height="900" alt="The Orchard: Avo the avocado by the long table under the string lights.">
-        <h3>The Orchard</h3>
-        <p>Avo, with Summer and Spud. Plan your meals, the shop and a week of cooking.</p>
-        <a class="km-btn" data-way href="#" aria-disabled="true">Step into the Orchard</a>
+        <h3>Avo's Orchard</h3>
+        <p>Avo plans the week's meals and the shopping list at the long table. Summer and Spud help.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Go to the Orchard</a>
       </article>
       <article class="km-card km-sky km-way" data-agent="fitness" data-room="fitness">
         <img src="/kit/art/kindlemere-hill.svg#km-still" width="1600" height="900" alt="Stepping Hill: Steady the stacked stones at the foot of the stone steps.">
-        <h3>Stepping Hill</h3>
-        <p>Steady, with Puff and Huff. Runs, workouts, stretches and slow breath.</p>
-        <a class="km-btn" data-way href="#" aria-disabled="true">Climb Stepping Hill</a>
+        <h3>Steady's Hill</h3>
+        <p>Steady sets your runs, workouts and stretches, one stone step at a time. Puff and Huff keep pace.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Climb the Hill</a>
       </article>
       <article class="km-card km-sky km-way" data-agent="dog-training" data-room="dog-training">
-        <img src="/kit/art/kindlemere-field.svg#km-still" width="1600" height="900" alt="Lakeside Field: Tumble the herding ball by the dog house, and the dog in the shallows.">
-        <h3>Lakeside Field</h3>
-        <p>Tumble, with Barkley, Sizzle and your dog. Train, play and treats.</p>
-        <a class="km-btn" data-way href="#" aria-disabled="true">Walk to Lakeside Field</a>
+        <img src="/kit/art/kindlemere-field.svg#km-still" width="1600" height="900" alt="Lakeside Field: Tumble the herding ball by the dog house, and Asher the Dasher in the shallows.">
+        <h3>Tumble's Field</h3>
+        <p>Tumble trains your dog with treats and patience. No dog yet? Asher the Dasher will stand in.</p>
+        <a class="km-btn" data-way href="#" aria-disabled="true">Walk down to the Field</a>
       </article>
     </div>
   </section>
 </main>
-<footer class="km-foot"><p>When a keeper doesn't know something, it looks in Louise's books, then the research library, then the web, and names where every fact came from. Louise, our librarian across the lake, gets the question too when she lives on this computer.</p></footer>
+<footer class="km-foot"><p>Stuck on something? A keeper checks Louise's books first, then the research library, then the web, and tells you where each fact came from. Louise lives across the water. When she's on this computer, she gets your question as a lantern.</p></footer>
 <script src="/kit/kit.js"></script>
 <script src="/kit/kindlemere-page.js"></script>
 </body>

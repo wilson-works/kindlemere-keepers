@@ -156,7 +156,7 @@
   const OVER = 0.015; // each layer is drawn this far past every edge, so a parallax shift never shows an edge
   // The sky is at infinity: its stars and moon never slide with the pointer or the tilt (owner, 2026-10-09: "those
   // stars need to not be moving that way in the night sky"). The camera's own glide and zoom still carry it.
-  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
+  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, lights: 0.85, actors: 1, grain: 0 };
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let count = 0;
 
@@ -201,7 +201,14 @@
       const o = `${((OVER / (1 + 2 * OVER)) * 100).toFixed(4)}%`;
       s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;transform-origin:${o} ${o};${still ? '' : 'will-change:transform;'}`;
       if (i === 0) for (const n of Array.from(svg.children)) if (n.nodeName === 'style' || n.nodeName === 'defs') s.appendChild(document.importNode(n, true));
-      s.appendChild(document.importNode(gEl, true));
+      const layer = document.importNode(gEl, true);
+      // A layer lit by the hour as a whole (far, hill, land, life) takes the light as the layer's own CSS filter, not a
+      // filter inside its drawing: the browser then applies it to the layer's finished picture on the graphics card,
+      // so the night's moving water, lights and camera never make it redraw the whole land under the filter (owner,
+      // 2026-10-09: "full screen at night is still super buggy graphically").
+      const lit = layer.getAttribute('filter');
+      if (lit && /km-light\)$/.test(lit)) { layer.removeAttribute('filter'); s.dataset.kmLight = lit; s.style.filter = lit; }
+      s.appendChild(layer);
       root.appendChild(s);
       layers[gEl.getAttribute('data-km-layer')] = s;
     });
@@ -298,6 +305,7 @@
       scene.plain = plain;
       if (!scene.lit) scene.lit = [...scene.root.querySelectorAll('[filter$="km-light)"]')].map((el) => [el, el.getAttribute('filter')]);
       for (const [el, f] of scene.lit) if (plain) el.removeAttribute('filter'); else el.setAttribute('filter', f);
+      scene.root.querySelectorAll('svg[data-km-light]').forEach((s) => { s.style.filter = plain ? '' : s.dataset.kmLight; });
     }
 
     const sunEl = $('sun');
@@ -717,7 +725,7 @@
     if (bare || window.dispatchEvent(ev)) {
       if (popped) say(scene, a.el, scene.night ? SPUD_NIGHT : pick(SPUD_UP));
       else if (up) { say(scene, a.el, pick(SPUD_TALK)); spudTalkAction(scene, a, viaKey); }
-      else say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep.` : line(key) || name);
+      else say(scene, a.el, asleep ? `${name === 'dog' ? 'Asher the Dasher' : name} is asleep.` : line(key) || name);
     }
     if (key === 'dog-training-sizzle' && !asleep) treatFrom(scene, a);
   }
@@ -762,7 +770,7 @@
       };
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
-      el.setAttribute('aria-label', name === 'dog' ? 'The dog' : name);
+      el.setAttribute('aria-label', name === 'dog' ? 'Asher the Dasher, the park\'s dog' : name);
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => wake(scene, key));
       el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wake(scene, key, true); } });
@@ -1058,12 +1066,12 @@
     const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
     const dogEl = scene.layers.actors && scene.layers.actors.querySelector('[data-km-part="dog"][role="button"]');
     if (dog && dog.where && dogEl) { const w = dog.where(); reach(dogEl, seen(w.x, w.y)); }
-    // the signpost's arms and the telescope stand still: looked at again only when the camera moves
+    // the signpost's arms, the telescope and the lanterns stand still: looked at again only when the camera moves
     const at = scene.vb.map(Math.round).join();
     if (scene.reachAt === at) return;
     scene.reachAt = at;
     const r = scene.root.getBoundingClientRect();
-    scene.root.querySelectorAll('[data-km-part^="sign-"], [data-km-part="telescope"]').forEach((el) => {
+    scene.root.querySelectorAll('[data-km-part^="sign-"], [data-km-part="telescope"], [data-km-part^="lantern-"][role]').forEach((el) => {
       const b = el.getBoundingClientRect();
       reach(el, b.right > r.left && b.left < r.right && b.bottom > r.top && b.top < r.bottom);
     });
@@ -1176,7 +1184,7 @@
       if (!PLACE_NAMES[key]) {
         el.setAttribute('role', 'button');
         el.setAttribute('aria-label', 'Louise, the librarian, across the lake');
-        on(() => say(scene, el, 'Louise is across the lake. Questions go to her as lanterns from the dock.'));
+        on(() => say(scene, el, 'Louise is across the lake. Questions go to her as lanterns: press the one waiting at the dock to send one.'));
         return;
       }
       el.setAttribute('role', 'link');
@@ -1428,11 +1436,13 @@
     // The drag takes hold of the pointers only once one has moved a few pixels (or two are down): a press that does not
     // move stays a click on whatever it is on (one of your dogs seated in Tumble's room, a dog house).
     const grab = () => {
+      scene.dragged = true;   // a drag is not a click on the scene (kindlemere:outside)
       for (const id of down.keys()) try { scene.root.setPointerCapture(id); } catch (_) { /* a pointer the browser no longer tracks */ }
       scene.root.classList.add('km-dragging');
       scene.held = true;
     };
     scene.root.addEventListener('pointerdown', (e) => {
+      scene.dragged = false;
       if (fullScene !== scene || (e.pointerType === 'mouse' && e.button !== 0)) return;
       if (e.target.closest('.km-fs, [role="button"], [role="link"], .km-ball')) return;
       down.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY });
@@ -1474,6 +1484,24 @@
     };
     scene.root.addEventListener('pointerup', up);
     scene.root.addEventListener('pointercancel', up);
+  }
+  // Owner, 2026-10-09: "when in an agent chat section, clicking out into kindlemere should escape from it." A plain
+  // click on the open scene (not a drag, not on the room's card, a drawer or the scene's own buttons) fires
+  // kindlemere:outside first, in the capture phase: the room closes its open chat or panel, and then whatever was
+  // clicked (a character) still does its own thing. With no room to stop it, the card's sheet (full screen on a narrow
+  // screen) closes too.
+  function outside(scene) {
+    scene.root.addEventListener('click', (e) => {
+      if (scene.dragged) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (!t || t.closest('[data-km-card], dialog, .km-fs, .km-say')) return;
+      const ev = new CustomEvent('kindlemere:outside', { cancelable: true, detail: { svg: scene.layers.actors, scene: scene.root } });
+      const stage = stageOf(scene);
+      if (window.dispatchEvent(ev) && fullScene === scene && stage.classList.contains('km-card-open')) {
+        stage.classList.remove('km-card-open');
+        if (scene.fs && scene.fs.cardButton) scene.fs.cardButton.setAttribute('aria-expanded', 'false');
+      }
+    }, { capture: true });
   }
   document.addEventListener('keydown', (e) => {
     const s = fullScene;
@@ -1604,6 +1632,7 @@
       makeCast(scene);
       signposts(scene);
       steering(scene);
+      outside(scene);
       // A layer with something to press in it (the signpost's arms, the telescope) is not hidden from assistive tech;
       // its other words (plates, labels) still are.
       for (const s of Object.values(scene.layers)) {

@@ -9,7 +9,7 @@ next answer comes from the card (owner, 2026-10-09: "we cant rely on Louise for 
 computer, the question also goes on her list for a fuller book.
 
 They live in Kindlemere, a park beside a lake under the real sky: the sun and the moon rise and set at the true hours
-for this computer's place, and at night the fireflies come out and the dog sleeps in its house. Each keeper has
+for this computer's place, and at night the fireflies come out and Asher the Dasher, the park's dog, sleeps in his house. Each keeper has
 helpers for parts of its work: Summer and Spud with Avo, Puff and Huff with Steady, Barkley and Sizzle with Tumble.
 Click any of them. Leave the page alone for a while and they visit each other; at night, click the telescope on the
 hill to see tonight's moon (`kit/REALM.md`).
@@ -33,7 +33,7 @@ sick dog to a vet. `bundle.json` lists the three with their ports and the kit's 
   `/kit/kindlemere.html` on any of them. That page is the whole realm, live. Click Avo, Steady or Tumble to step into
   their room, or take the signpost; each place also has its own card under the realm. The bar at the top of every
   page goes between Kindlemere, the Orchard, the Hill and the Field, and the camera glides from one to the next. Click
-  the dog to play fetch anywhere in the park: drag the ball and flick it up the hill, into the Orchard or out on the
+  Asher the Dasher, the park's dog, to play fetch anywhere in the park: drag the ball and flick it up the hill, into the Orchard or out on the
   lake. The office's three doors all start the park this way and open this page, so any door wakes the whole park and
   Sleep on any door puts it to sleep.
 - **Its room** (the dashboard): run `node agents/<agent>/dashboard/server.js` from this folder, then open the address
@@ -99,6 +99,12 @@ Kindlemere needs Node 18 or later and nothing else: no `npm install`, no account
 Tumble in their rooms (and for the keepers to look things up on the web) it also needs Claude Code on the same
 computer. Louise, the research librarian, is optional: without her the keepers use their cards, the research library
 and the web.
+
+**Asher comes with it.** Asher the Dasher is Kindlemere's own dog. If you have no dog, Asher keeps you company:
+Tumble trains with him, and his plans and practice sessions work as a demo. Tell Tumble about your own dog under My
+dog and your dog becomes the training dog, with its own house in the Field (up to five of yours). Asher stays either
+way: he keeps his own house and is always ready for fetch. He is never one of your dogs, so nothing about him goes in
+Tumble's memory, and he can't be renamed or forgotten.
 
 **On its own.** Get the folder (clone it, or unzip it), then from inside it:
 

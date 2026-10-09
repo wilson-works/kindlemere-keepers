@@ -53,7 +53,7 @@
     lastTalk = { name, at: now };
     // after dark the keepers doze in the scene: a click on one, or the kit's event, gets the same quiet answer
     if (/^(Tumble|Barkley|Sizzle)$/.test(name) && svg && svg.getAttribute('data-km-night') === '1') {
-      say('Shh. Everyone\'s asleep. Come back in the morning, or wake the dog for a game.', 'Tumble', 'sleepy');
+      say('Shh. Everyone\'s asleep. Come back in the morning, or wake Asher for a game.', 'Tumble', 'sleepy');
       return;
     }
     // the room's own lines and the kit's for each of them, never the same twice running (window.kindlemere.line)
@@ -147,6 +147,10 @@
   let lookChoices = {};
   let current = store.get('tm-dog') || '';
   const dogNow = () => dogs.find((d) => d.name === current) || null;
+  // Asher the Dasher, Kindlemere's own dog (owner, 2026-10-09): he plays fetch in the field and keeps house 1, and with
+  // no dog of the person's he is the demo dog for plans and practice. Never one of their dogs; nothing of his is kept.
+  const ASHER = { name: 'Asher', pronoun: 'he', cues: {}, playlist: [] };
+  const trainee = () => dogNow() || (dogs.length ? null : ASHER);
   const pronounOf = (d) => (d && /^(she|he|they)$/i.test(d.pronoun || '') ? d.pronoun.toLowerCase() : 'they');
 
   async function loadDogs() {
@@ -177,7 +181,7 @@
   // The kit draws one house per dog (lane A): the page tells it how many dogs, and their names, on this computer only.
   function publishDogs() {
     if (!svg) return;
-    const names = dogs.map((d) => d.name).slice(0, 6);
+    const names = [ASHER.name, ...dogs.map((d) => d.name)].slice(0, 6);   // house 1 is Asher's
     svg.setAttribute('data-km-dogs', String(names.length));
     window.dispatchEvent(new CustomEvent('kindlemere:dogs', { detail: { svg, names } }));
   }
@@ -200,19 +204,18 @@
 
   /* ---------- the scene ---------- */
   let svg = null, game = null, extras = [];
-  // where the person's second to sixth dogs sit, from the first dog's spot: along the bank, then on the grass
+  // where the person's dogs sit, from Asher's spot: along the bank, then on the grass
   const PLACES = [[-150, -34], [-290, -22], [-20, -150], [130, -110], [270, -84]];
   function paintScene() {
     if (!svg) return;
     const main = svg.querySelector('#dt-dog');
-    const d = dogNow();
-    window.tmFetch.paint(main, d && d.look);
-    const others = dogs.filter((x) => x !== d).slice(0, extras.length);
+    window.tmFetch.paint(main, null);   // the fetch dog is always Asher, in his own colours
+    const others = dogs.slice(0, extras.length);
     extras.forEach((x, i) => {
       x.style.display = others[i] ? '' : 'none';
       if (others[i]) { window.tmFetch.paint(x, others[i].look); x.setAttribute('aria-label', others[i].name); }
     });
-    if (main) main.setAttribute('aria-label', d ? `Play fetch with ${d.name}` : 'Play fetch with the dog');
+    if (main) main.setAttribute('aria-label', 'Play fetch with Asher the Dasher');
   }
 
   async function svgAt(path) {
@@ -297,8 +300,8 @@
       svg.classList.toggle('is-paused', on);
       game.setPaused(on);
     });
-    if (game.asleep()) say('It\'s night in Lakeside Field. The dog\'s asleep in its house. Show it a command to wake it for a game.', 'Tumble', 'sleepy');
-    else say(dogNow() ? `Come in. ${dogNow().name} is out in the field. Tap ${pronounOf(dogNow()) === 'they' ? 'them' : pronounOf(dogNow()) === 'she' ? 'her' : 'him'} to play fetch.` : 'Come in. Tap the dog to play fetch, or tell me about your own dog under My dog.');
+    if (game.asleep()) say('It\'s night in Lakeside Field. Asher the Dasher is asleep in his house. Show him a command to wake him for a game.', 'Tumble', 'sleepy');
+    else say(dogs.length ? `Come in. Asher the Dasher is out in the field, ready for fetch, and ${dogs.map((x) => x.name).join(' and ')} ${dogs.length > 1 ? 'are' : 'is'} here to train.` : 'Come in. No dog yet? Asher the Dasher will train and play with you. Tap him to play fetch, or tell me about your own dog under My dog.');
   }
   window.addEventListener('kindlemere:ready', (e) => { stage(e.detail && e.detail.svg).catch(() => { /* the plain picture stays */ }); });
   // When the scene is at rest Tumble may walk off to visit: the kit moves him by giving his figure's button a transform
@@ -327,6 +330,19 @@
     }
   }
   for (const b of document.querySelectorAll('.tm-act')) b.addEventListener('click', () => openPanel(b.dataset.panel));
+  // Out of an open panel, the talk included (owner, 2026-10-09: "clicking out into kindlemere should escape from it"):
+  // a click on the open scene, or Escape inside the panel, closes it. What was typed and said is kept.
+  function closePanels(focusButton) {
+    const open = [...document.querySelectorAll('.tm-act')].find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!open) return false;
+    openPanel(open.dataset.panel);   // pressing the open one again closes it
+    if (focusButton) open.focus();
+    return true;
+  }
+  window.addEventListener('kindlemere:outside', () => closePanels(false));
+  for (const p of document.querySelectorAll('.tm-panel')) {
+    p.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && closePanels(true)) ev.preventDefault(); });
+  }
 
   // Show me: the dog does it in the field, with the person's own word for it.
   const COMMANDS = [
@@ -345,12 +361,12 @@
       b.type = 'button';
       b.addEventListener('click', () => {
         if (!game) { say('The field is still loading.'); return; }
-        const d = dogNow();
+        const d = dogNow();   // Asher shows it in the field, with this dog's word for it
         const woke = game.asleep();
         const ok = game.show(cmd);
         if (!ok) { say('Hang on, it\'s busy with the ball. Try again when it\'s home.'); return; }
         const cue = d && d.cues && d.cues[cmd];
-        const who = d ? d.name : 'The dog';
+        const who = 'Asher';
         const line = cue ? `"${cue}". That's your word for ${label.toLowerCase()}, and ${who} knows it.` : `${label}. Tell me your own word for it under My dog and I'll use it.`;
         say(woke ? `Up it gets, still a bit sleepy. ${line}` : line);
         const f = SHOW_FACTS[cmd];
@@ -365,16 +381,17 @@
   const sess = { on: false, reps: 0, hits: 0, start: 0, tick: 0 };
   function refreshPanels() {
     const d = dogNow();
-    put('train-who', d ? `For ${d.name}. Tell me more about ${d.name} under My dog and the plan gets sharper.` : 'Add your dog under My dog first, and I\'ll plan around them.');
-    $('plan-go').disabled = !d;
-    $('sess-start').disabled = !d;
+    const t = trainee();
+    put('train-who', d ? `For ${d.name}. Tell me more about ${d.name} under My dog and the plan gets sharper.` : t ? 'For Asher the Dasher, the park\'s dog, until you tell me about your own under My dog.' : 'Pick one of your dogs above.');
+    $('plan-go').disabled = !t;
+    $('sess-start').disabled = !t;
     $('play-save').disabled = !d;
     const list = d && d.playlist && d.playlist.length ? d.playlist.map((id) => (PLAY.find((p) => p.id === id) || {}).label).filter(Boolean) : [];
     put('play-list-now', d ? (list.length ? `${d.name}'s play list: ${list.join('; ')}.` : `No play list for ${d.name} yet. Tick a few and keep them.`) : 'Add your dog under My dog to keep a play list.');
     for (const box of document.querySelectorAll('#play-picks input')) box.checked = Boolean(d && d.playlist && d.playlist.includes(box.value));
   }
   $('plan-go').addEventListener('click', async () => {
-    const d = dogNow();
+    const d = trainee();
     if (!d) return;
     say(`Thinking about ${d.name}…`, 'Tumble', 'thinking');
     try {
@@ -433,7 +450,7 @@
   });
   $('sess-miss').addEventListener('click', () => mark(false));
   $('sess-end').addEventListener('click', async () => {
-    const d = dogNow();
+    const d = trainee();
     if (!sess.on || !d) return;
     sess.on = false;
     clearInterval(sess.tick);

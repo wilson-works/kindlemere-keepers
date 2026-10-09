@@ -56,6 +56,15 @@
   // A busy room keeps the realm's keepers at home: window.kindlemere.hold(true) while its work runs, then hold(false).
   window.kindlemere = { held: false, hold(on) { this.held = Boolean(on); window.dispatchEvent(new Event('kindlemere:hold')); } };
 
+  // A room's drawer (a <dialog>: Avo's cookbook, Tumble's books, Steady's pack) closes on a click outside it, on its
+  // backdrop, as it does with Escape (owner, 2026-10-09: "clicking out into kindlemere should escape from it").
+  document.addEventListener('click', (e) => {
+    const d = e.target;
+    if (!(d instanceof HTMLDialogElement) || !d.open || (!e.clientX && !e.clientY)) return;
+    const r = d.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
+  });
+
   // Arriving from another place (window.kindlemere.go): the picture waits under its veil until it is live.
   if (/km-from=/.test(location.hash)) {
     document.documentElement.classList.add('km-arriving');
@@ -63,9 +72,10 @@
   }
 
   // A page that shows the realm's scene gets its live sky, its people and its dog: the dog's script first, so the
-  // scene can hand it the dog (/kit/kindlemere-dog.js, then /kit/kindlemere.js).
+  // scene can hand it the dog (/kit/kindlemere-dog.js, then /kit/kindlemere.js), and the lanterns on the lake
+  // (/kit/kindlemere-lanterns.js).
   if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
-    for (const src of ['/kit/kindlemere-dog.js', '/kit/kindlemere.js']) {
+    for (const src of ['/kit/kindlemere-dog.js', '/kit/kindlemere-lanterns.js', '/kit/kindlemere.js']) {
       const s = document.createElement('script');
       s.src = src;
       s.async = false;
@@ -127,6 +137,28 @@
         if (window.kindlemere && typeof window.kindlemere.go === 'function') { e.preventDefault(); window.kindlemere.go(to, key); }
       });
     }
+    // The foot, on the shore, carries the places again by their keepers' names, and who made the park.
+    const foot = document.querySelector('.km-foot');
+    if (!foot || foot.querySelector('.km-foot-nav')) return;
+    const NAMES = { realm: 'The whole park', nutrition: "Avo's Orchard", fitness: "Steady's Hill", 'dog-training': "Tumble's Field" };
+    const fnav = document.createElement('nav');
+    fnav.className = 'km-foot-nav';
+    fnav.setAttribute('aria-label', 'Places in Kindlemere, from the shore');
+    for (const a of links) {
+      if (!a.getAttribute('href')) continue;
+      const c = document.createElement('a');
+      c.href = a.getAttribute('href');
+      c.textContent = NAMES[a.dataset.place];
+      if (a.hasAttribute('aria-current')) c.setAttribute('aria-current', 'page');
+      fnav.appendChild(c);
+    }
+    const made = document.createElement('p');
+    made.className = 'km-foot-made';
+    const ww = document.createElement('a');
+    ww.href = 'https://wilsonworks.studio/ai-consulting/agents';
+    ww.textContent = 'WilsonWorks';
+    made.append('Kindlemere is drawn and built by ', ww, '.');
+    foot.append(fnav, made);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ways); else ways();
 }());

@@ -116,6 +116,15 @@ Run every command from this folder (`agents/dog-training/`). The kit is two fold
 7. Before sending, read the reply once against `brand/VOICE.md`: no exclamation marks, em dashes, ellipses or
    semicolons, nothing its sources do not hold, and it talks to the person about their dog, not to the dog.
 
+## Asher the Dasher
+
+Asher the Dasher (Asher for short) is Kindlemere's own dog, the white one with the ginger head, the heart patch and
+the green bandana. He lives in the Field, plays fetch with anyone, and keeps house 1. When the person has no dog of
+their own, say so warmly: "No dog yet? Asher the Dasher will train and play with you." Plans and practice can use him
+as the demo dog (`node tools/training-plan.js --dog Asher`, `node tools/session-log.js --dog Asher ...`). He is never
+the person's dog: never remember anything about him with memory.js, and never take a dog of theirs to be Asher.
+Their own dogs, once named under My dog, are the training dogs.
+
 ## Remembering a dog
 
 Each dog gets four subjects, so a tool can read them:
