@@ -1080,6 +1080,85 @@ function stringPoint(t) {
   return [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1];
 }
 
+/*
+ * The Orchard's detail, to the Hill's and the Field's standard (owner, 2026-10-09: "we did so much good detailed work
+ * on the hill and the field that now the orchard is looking like the slacker in design detail"). Land units. The
+ * ground first (under everything on it): meadow patches in the orchard's greens, dappled light under the two trees,
+ * tufts and drifts of wildflowers in the hill's own pieces (kmt-*, kmf-*), fallen leaves and windfall avocados. Then
+ * what stands in it: a crate of the harvest, a mossy log, ferns and shrubs at its edges, a ring of mushrooms, stepping
+ * stones down from the larder. Each on a seed of its own, so nothing else in the park moves.
+ */
+const ORCHARD_SEED = 20261011;
+// Where the orchard's ground is open (not under the table, the blanket, the beds, the larder, the ladder or the path).
+function orchardOpen(x, y) {
+  const ground = (y >= 590 && y <= 690 && x <= 600) || (y >= 532 && y < 590 && x <= 560) || (y >= 486 && y <= 528 && x <= 356) || (y >= 436 && y <= 468 && x <= 246);
+  if (!ground) return false;
+  return !((x > 340 && x < 505 && y > 512 && y < 586) || (x > 180 && x < 286 && y > 582 && y < 620) || (x > 18 && x < 162 && y > 554 && y < 598)
+    || (x > 174 && x < 220 && y > 564 && y < 588) || (x > 452 && x < 540 && y > 440 && y < 560) || (x > 252 && x < 360 && y > 440 && y < 512)
+    || (y > 568 && y < 618 && x > 488));
+}
+function orchardGround() {
+  let o = '';
+  const wobble = (cx, cy, rx, ry) => {
+    const pts = [];
+    for (let i = 0; i < 16; i += 1) { const a = (i / 16) * Math.PI * 2; const k = r(0.82, 1.12); pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]); }
+    let d = `M${f((pts[15][0] + pts[0][0]) / 2)} ${f((pts[15][1] + pts[0][1]) / 2)}`;
+    pts.forEach((p, i) => { const q = pts[(i + 1) % 16]; d += `Q${f(p[0])} ${f(p[1])} ${f((p[0] + q[0]) / 2)} ${f((p[1] + q[1]) / 2)}`; });
+    return `${d}Z`;
+  };
+  // Meadow patches: lighter where the sun reaches, deeper in the long grass, as the hill's are.
+  [[96, 644, 76, 15, '#97A63C', 0.8], [300, 664, 96, 17, '#76862A', 0.7], [526, 652, 70, 13, '#A2B04A', 0.75], [150, 498, 64, 8, '#97A63C', 0.75],
+    [70, 450, 44, 6, '#A2B04A', 0.75], [418, 626, 58, 9, '#76862A', 0.65], [262, 548, 54, 8, '#97A63C', 0.7], [40, 612, 34, 8, '#76862A', 0.7],
+    [560, 600, 36, 7, '#A2B04A', 0.65], [190, 676, 60, 9, '#A2B04A', 0.65]].forEach(([cx, cy, rx, ry, col, op]) => { o += `<path d="${wobble(cx, cy, rx, ry)}" fill="${col}" opacity="${op}"/>`; });
+  // Dappled light under the two avocado trees by day; under the string lights the night's own glow does it.
+  [[120, 470, 58, 7], [100, 476, 22, 3], [520, 548, 70, 8], [548, 556, 26, 3]].forEach(([cx, cy, rx, ry], i) => {
+    o += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${i % 2 ? '#F6F0B8' : '#2F3A10'}" opacity="${i % 2 ? 0.28 : 0.16}" class="${i % 2 ? 'km-day-only' : ''}"/>`;
+  });
+  // Fallen leaves and windfall avocados under the trees.
+  const leaf = (x, y, a, col) => `<path d="M0 0 C3 -4 10 -5 15 -3 C11 1 4 2 0 0 Z" fill="${col}" transform="translate(${f(x)} ${f(y)}) rotate(${f(a)}) scale(0.55)"/>`;
+  for (let i = 0; i < 18; i += 1) { const t = i < 9; const x = t ? r(70, 176) : r(462, 580); const y = t ? r(462, 474) : r(540, 560); if (orchardOpen(x, y) || !t) o += leaf(x, y, r(-60, 60), pick([C.nLand, '#5F6C18', '#8A7A2A', C.nLeaf])); }
+  [[96, 470], [152, 466], [556, 552], [584, 548]].forEach(([x, y], i) => { o += `${contact(x + 0.6, y + 2.6, 4, 1, 0.2)}<ellipse cx="${x}" cy="${y}" rx="3.4" ry="4.4" fill="${i % 2 ? '#3E4A14' : '#525C12'}" transform="rotate(${i % 2 ? 60 : -70} ${x} ${y})"/><ellipse cx="${x - 0.8}" cy="${y - 1.2}" rx="1" ry="1.6" fill="#7D8A26" transform="rotate(${i % 2 ? 60 : -70} ${x} ${y})"/>`; });
+  // Tufts of grass and blades all over, as on the hill.
+  let uses = '';
+  for (let i = 0; i < N(260); i += 1) {
+    const x = r(0, 600); const y = r(436, 690);
+    if (!orchardOpen(x, y)) continue;
+    uses += `<use href="#kmt-${y > 600 ? pick(['d', 'e', 'a', 'c']) : pick(['a', 'b', 'c', 'e'])}" x="${f(x)}" y="${f(y)}"/>`;
+  }
+  // Drifts of wildflowers and clover: daisies, buttercups, clover, harebells and the orchard's apricot blossom.
+  const drifts = [[60, 630, 30, 7, 'wwy'], [150, 672, 34, 8, 'ycw'], [330, 640, 28, 6, 'wwc'], [420, 676, 30, 7, 'wyt'], [540, 668, 34, 7, 'ywb'],
+    [92, 520, 24, 5, 'wcw'], [210, 510, 22, 5, 'yyw'], [40, 452, 18, 4, 'wtw'], [180, 452, 18, 4, 'ywc'], [300, 560, 18, 4, 'cww'], [590, 640, 14, 5, 'wyw']];
+  drifts.forEach(([cx, cy, rx, ry, mix]) => {
+    for (let i = 0; i < N(14); i += 1) {
+      const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd());
+      const x = cx + Math.cos(a) * rx * d; const y = cy + Math.sin(a) * ry * d;
+      if (orchardOpen(x, y)) uses += `<use href="#kmf-${pick(mix.split(''))}" x="${f(x)}" y="${f(y)}"/>`;
+    }
+  });
+  return o + uses;
+}
+function orchardProps() {
+  let o = '';
+  // A crate of the harvest by the table's end, avocados heaped in it.
+  o += `<g filter="url(#layer-sm)" transform="translate(226 540)">${contact(1, 9.6, 15, 2.2)}<rect x="-13" y="-4" width="26" height="13" rx="1.5" fill="${C.clay2}"/><path d="M-13 1 h26 M-13 5.4 h26" stroke="${C.clay3}" stroke-width="1.2"/><path d="M-11 -4 v13 M11 -4 v13" stroke="${C.clay3}" stroke-width="1.6"/>`;
+  [[-8, -5], [-3, -6.4], [2.6, -5.6], [8, -5], [-5.4, -9], [0.4, -9.6], [5.6, -8.8]].forEach(([x, y], i) => { o += `<ellipse cx="${x}" cy="${y}" rx="3" ry="3.8" fill="${i % 3 ? '#3E4A14' : '#525C12'}" transform="rotate(${(i % 2 ? 1 : -1) * 18} ${x} ${y})"/>`; });
+  o += `</g>`;
+  // A mossy log at the meadow's front, with a fern at its end.
+  o += `<g filter="url(#layer-sm)" transform="translate(560 676)">${contact(0, 4.4, 24, 2.4)}<rect x="-22" y="-6" width="44" height="10" rx="5" fill="${C.bark}"/><rect x="-22" y="-6" width="44" height="3.6" rx="1.8" fill="${C.clay2}" opacity="0.6"/>` +
+    `<ellipse cx="22" cy="-1" rx="3.2" ry="5" fill="${C.clay3}"/><ellipse cx="22" cy="-1" rx="1.8" ry="3" fill="#E9C08A"/><path d="M-18 -6 c6 -3 14 -3 20 0 c-6 1 -14 1 -20 0 Z M6 -6 c4 -2 8 -2 10 0 c-3 1 -7 1 -10 0 Z" fill="${C.moss}"/></g>`;
+  o += fern(530, 682, 1.3) + fern(8, 604, 1.2, true) + fern(232, 470, 1.1);
+  // Shrubs at the orchard's edges, and one by the larder.
+  o += shrub(16, 676, 1.4, 'bush') + shrub(590, 616, 1.2, 'bush') + shrub(244, 512, 1.1, 'juniper') + shrub(8, 520, 1.2, 'bush');
+  // A ring of mushrooms in the shade of the big tree.
+  for (let i = 0; i < 7; i += 1) {
+    const a = (i / 7) * Math.PI * 2; const x = 176 + Math.cos(a) * 14; const y = 462 + Math.sin(a) * 3.6;
+    o += `<path d="M${f(x - 0.6)} ${f(y)} v-2.6 h1.2 v2.6 Z" fill="${C.cream}"/><path d="M${f(x - 2.4)} ${f(y - 2.4)} a2.4 1.8 0 0 1 4.8 0 Z" fill="${i % 2 ? '#C24E1C' : '#B5643A'}"/><circle cx="${f(x - 0.8)}" cy="${f(y - 3.2)}" r="0.4" fill="${C.paper}"/>`;
+  }
+  // Stepping stones from the larder door down to the long table.
+  [[292, 516, 5], [306, 524, 4.6], [320, 532, 4.4], [334, 540, 4]].forEach(([x, y, w]) => { o += `${contact(x + 0.5, y + 1.2, w + 0.6, 1.4, 0.16)}<ellipse cx="${x}" cy="${y + 0.5}" rx="${w}" ry="${f(w * 0.34)}" fill="#8F8A78"/><ellipse cx="${x}" cy="${y}" rx="${w}" ry="${f(w * 0.32)}" fill="#B9B2A0"/><ellipse cx="${x - 0.8}" cy="${y - 0.3}" rx="${f(w * 0.5)}" ry="${f(w * 0.14)}" fill="#CFC8B4"/>`; });
+  return o;
+}
+
 function orchard() {
   let o = '';
   // The hill: three terraces held by stone walls, rising to the left.
@@ -1093,6 +1172,7 @@ function orchard() {
   o += `<path d="M0 470 C80 466 180 470 250 478 L250 488 C180 482 80 478 0 482 Z" fill="${C.nLeaf}"/>`;
   o += `<path d="M0 512 C120 508 260 512 360 520" stroke="${C.nLand}" stroke-width="10" fill="none"/>${stones(0, 360, 516, 5.5, [C.cream, C.creamDeep, '#D8D1BC'])}`;
   o += `<path d="M0 512 C120 508 260 512 360 520 L360 530 C260 524 120 520 0 524 Z" fill="${C.nLeaf}"/>`;
+  o += ownSeed(ORCHARD_SEED, orchardGround);
   // Top terrace: the big avocado tree, a young avocado on a stake, the straw beehive with bees.
   o += `<g filter="url(#layer-sm)">${tree(120, 462, 66, 58, ['#3E4A14', C.nLand, C.nLeaf, '#5F6C18'], C.nGlow, 'avocado')}</g>`;
   o += `<g filter="url(#layer-sm)"><rect x="34" y="420" width="4" height="46" rx="2" fill="${C.clay3}"/>${tree(44, 466, 30, 22, [C.nLand, C.nLeaf, C.nLeafLight], C.nGlow, 'avocado')}<path d="M36 446 l8 2" stroke="${C.cream}" stroke-width="2"/></g>`;
@@ -1161,6 +1241,7 @@ function orchard() {
   o += flowers(16, 10, 580, 632, 682, [C.paper, C.nGlow, '#F2D27A'], C.nGlowDeep, 0.8);
   o += undergrowth(20, 580, 640, 680, 10);
   o += flowers(10, 10, 330, 484, 520, [C.paper, C.nGlow], C.nGlowDeep, 0.7);
+  o += ownSeed(ORCHARD_SEED + 1, orchardProps);
   return g('id="km-orchard"', o);
 }
 
