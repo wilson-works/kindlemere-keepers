@@ -1,9 +1,9 @@
 {
  "format": "kindlemere-library/1",
- "generated_at": "2026-10-09T03:19:16-05:00",
+ "generated_at": "2026-10-09T03:34:48-05:00",
  "source": {
-  "repo": "wilson-works/wellbeing-agents",
-  "sha": "a5d8d2fb9c6533e14ef9aca66c65138557f6427b"
+  "repo": "wilson-works/kindlemere-keepers",
+  "sha": "852594d72dd9f9078b7bb3933c84c01f2bf3927d"
  },
  "recipes": [
   {
