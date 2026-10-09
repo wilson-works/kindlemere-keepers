@@ -175,14 +175,15 @@ module.exports = function routes(agentDir) {
     });
   }
 
+  // A dog of the person's own comes first, even one that was already called Asher before he came to the park (Gate D).
   const known = (v) => {
-    if (isAsher(v)) throw bad("Asher the Dasher is the park's own dog, so I keep nothing about him. Tell me about your own dog under My dog.");
     const d = find(nameOf(v));
-    if (!d) throw bad('I don\'t remember that dog yet. Add it under My dog first.');
-    return d;
+    if (d) return d;
+    if (isAsher(v)) throw bad("Asher the Dasher is the park's own dog, so I keep nothing about him. Tell me about your own dog under My dog.");
+    throw bad('I don\'t remember that dog yet. Add it under My dog first.');
   };
   // a plan or a session: one of the person's dogs, or Asher as the demo dog
-  const trainee = (v) => (isAsher(v) ? { name: ASHER } : known(v));
+  const trainee = (v) => (isAsher(v) && !find(nameOf(v)) ? { name: ASHER } : known(v));
 
   return {
     'GET /api/remembered': () => {
@@ -198,7 +199,11 @@ module.exports = function routes(agentDir) {
     },
 
     'POST /api/dog': ({ body }) => {
-      if (isAsher(body.name) || isAsher(body.was)) throw bad("Asher the Dasher is the park's own dog. Give yours another name.");
+      // A new dog can't take Asher's name; a dog of theirs that already had it keeps it, and can be renamed (Gate D).
+      const ownAsher = (v) => isAsher(v) && find(nameOf(v));
+      const keepsName = !body.was || nameOf(body.was).toLowerCase() === nameOf(body.name).toLowerCase();
+      if (isAsher(body.name) && !(ownAsher(body.name) && keepsName)) throw bad("Asher the Dasher is the park's own dog. Give yours another name.");
+      if (isAsher(body.was) && !ownAsher(body.was)) throw bad("Asher the Dasher is the park's own dog. Give yours another name.");
       const name = nameOf(body.name);
       const was = body.was ? nameOf(body.was) : null;
       if (was && was.toLowerCase() !== name.toLowerCase()) {

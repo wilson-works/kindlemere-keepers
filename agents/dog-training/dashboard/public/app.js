@@ -181,7 +181,9 @@
   // The kit draws one house per dog (lane A): the page tells it how many dogs, and their names, on this computer only.
   function publishDogs() {
     if (!svg) return;
-    const names = [ASHER.name, ...dogs.map((d) => d.name)].slice(0, 6);   // house 1 is Asher's
+    // house 1 is Asher's, until the person has six dogs of their own: then he gives his house up (Gate D)
+    const own = dogs.map((d) => d.name);
+    const names = (own.length >= 6 ? own : [ASHER.name, ...own]).slice(0, 6);
     svg.setAttribute('data-km-dogs', String(names.length));
     window.dispatchEvent(new CustomEvent('kindlemere:dogs', { detail: { svg, names } }));
   }
