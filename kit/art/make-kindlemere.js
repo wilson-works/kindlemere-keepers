@@ -1089,6 +1089,63 @@ function tree(x, base, h, rad, leaves, fruit, fruitShape) {
   return o;
 }
 
+/* Owner, 2026-10-09: "trees detail". One builder for every orchard tree, each on a seed of its own: its shadow on the
+   grass, a trunk with bark and a root flare, limbs reaching into an uneven, leafy crown in four greens lit from the
+   morning side (the hour's light tints it at night like everything else), and avocados that hang on stems from twigs
+   under the crown, fewer and where fruit grows. kind 'young' is the sapling on its stake. */
+const TREE_SEED = 20261014;
+function orchardTree(x, base, h, rad, kind) {
+  const young = kind === 'young';
+  const cy = base - h - rad * 0.35;
+  const tw = Math.max(2.6, rad * 0.1);
+  const lit = (bx, by) => ((bx - x) * -0.62 + (by - cy) * -0.78) / rad;   // the morning sun is up and to the left
+  let o = `<ellipse cx="${f(x + rad * 0.3)}" cy="${f(base + 1.5)}" rx="${f(rad * 0.95)}" ry="${f(rad * 0.15)}" fill="${C.ink}" opacity="0.16"/>`;
+  // roots, the trunk, its sunny side and its bark
+  for (const s of [-1, 1]) o += `<path d="M${f(x + s * tw * 0.5)} ${f(base - tw * 1.6)} C${f(x + s * tw * 1.1)} ${f(base - tw * 0.4)} ${f(x + s * tw * 2)} ${f(base)} ${f(x + s * tw * 2.8)} ${f(base + 0.8)}" stroke="${C.bark}" stroke-width="${f(tw * 0.75)}" stroke-linecap="round" fill="none"/>`;
+  o += `<path d="M${f(x - tw * 1.4)} ${base} C${f(x - tw * 0.8)} ${f(base - h * 0.3)} ${f(x - tw * 0.7)} ${f(base - h * 0.7)} ${f(x - tw * 0.45)} ${f(base - h)} H${f(x + tw * 0.45)} C${f(x + tw * 0.75)} ${f(base - h * 0.7)} ${f(x + tw * 0.85)} ${f(base - h * 0.3)} ${f(x + tw * 1.4)} ${base} Z" fill="${C.bark}"/>`;
+  o += `<path d="M${f(x - tw * 1.1)} ${base} C${f(x - tw * 0.6)} ${f(base - h * 0.3)} ${f(x - tw * 0.5)} ${f(base - h * 0.7)} ${f(x - tw * 0.3)} ${f(base - h)} L${f(x - tw * 0.05)} ${f(base - h)} C${f(x - tw * 0.2)} ${f(base - h * 0.6)} ${f(x - tw * 0.3)} ${f(base - h * 0.3)} ${f(x - tw * 0.3)} ${base} Z" fill="#8A6440" opacity="0.55"/>`;
+  for (let i = 0; i < (young ? 2 : 5); i += 1) {
+    const bx = x + r(-tw * 0.6, tw * 0.6); const by = base - r(h * 0.08, h * 0.7);
+    o += `<path d="M${f(bx)} ${f(by)} q${f(r(-1.5, 1.5))} ${f(-h * 0.06)} ${f(r(-0.5, 0.5))} ${f(-h * 0.12)}" stroke="#4A2F18" stroke-width="${f(Math.max(0.6, tw * 0.18))}" stroke-linecap="round" fill="none" opacity="0.8"/>`;
+  }
+  // limbs into the crown
+  const fork = [x, base - h * 0.82];
+  const limbs = young ? [[-0.6, -0.7], [0.55, -0.75]] : [[-0.95, -0.45], [-0.5, -0.85], [0.08, -1], [0.55, -0.82], [0.92, -0.42]];
+  for (const [dx, dy] of limbs) {
+    const ex = x + dx * rad * 0.78; const ey = cy + dy * rad * 0.55;
+    o += `<path d="M${f(fork[0])} ${f(fork[1])} Q${f(x + dx * rad * 0.3)} ${f(fork[1] - rad * 0.1)} ${f(ex)} ${f(ey)}" stroke="${C.bark}" stroke-width="${f(tw * 0.8)}" stroke-linecap="round" fill="none"/>`;
+  }
+  // the crown: overlapping clumps, darkest behind, lighter toward the sun
+  const clumps = [];
+  for (let i = 0; i < (young ? 12 : 26); i += 1) { const a = r(0, Math.PI * 2); const d = Math.sqrt(rnd()) * rad * 0.78; clumps.push([x + Math.cos(a) * d, cy + Math.sin(a) * d * 0.82, r(rad * 0.22, rad * 0.36)]); }
+  clumps.sort((a, b) => a[1] - b[1]);
+  o += blobs('#2F3A10', clumps.map(([bx, by, br]) => [bx, by + br * 0.12, br * 1.08]));
+  o += blobs('#3E4A14', clumps.map(([bx, by, br]) => [bx, by, br]));
+  o += blobs(C.nLand, clumps.filter(([bx, by]) => lit(bx, by) > -0.35).map(([bx, by, br]) => [bx - br * 0.12, by - br * 0.14, br * 0.84]));
+  o += blobs(C.nLeaf, clumps.filter(([bx, by]) => lit(bx, by) > 0.05).map(([bx, by, br]) => [bx - br * 0.2, by - br * 0.24, br * 0.6]));
+  o += blobs('#8E9C34', clumps.filter(([bx, by]) => lit(bx, by) > 0.42).map(([bx, by, br]) => [bx - br * 0.28, by - br * 0.32, br * 0.32]));
+  // a leafy edge: single leaves standing out round the crown
+  for (let i = 0; i < (young ? 18 : 44); i += 1) {
+    const a = (i / (young ? 18 : 44)) * Math.PI * 2 + r(-0.07, 0.07);
+    const d = rad * r(0.8, 0.94);
+    const lx = x + Math.cos(a) * d; const ly = cy + Math.sin(a) * d * 0.82;
+    const k = lit(lx, ly);
+    o += `<path d="M0 0 C3 -3 9 -3.6 13 -2 C9 1 4 1.6 0 0 Z" fill="${k > 0.3 ? C.nLeaf : k > -0.3 ? C.nLand : '#3E4A14'}" transform="translate(${f(lx)} ${f(ly)}) rotate(${f((a * 180) / Math.PI + r(-25, 25))}) scale(${f(rad / 110 + 0.15)})"/>`;
+  }
+  // twigs showing through underneath, and the avocados hanging from them
+  const fruit = young ? 2 : 7;
+  for (let i = 0; i < fruit; i += 1) {
+    const a = Math.PI * (0.18 + (0.64 * (i + r(0.2, 0.8))) / fruit);
+    const tx = x + Math.cos(a) * rad * r(0.4, 0.78); const ty = cy + Math.sin(a) * rad * r(0.42, 0.66);
+    const k = Math.max(0.55, rad / 70);
+    o += `<path d="M${f(tx - 6 * k)} ${f(ty - 5 * k)} Q${f(tx - 2 * k)} ${f(ty - 7 * k)} ${f(tx)} ${f(ty - 4 * k)}" stroke="${C.bark}" stroke-width="${f(1.2 * k)}" stroke-linecap="round" fill="none"/>`;
+    o += `<g transform="translate(${f(tx)} ${f(ty + 6 * k)}) scale(${f(k * 0.8)})"><path d="M0 -12 v5" stroke="${C.bark}" stroke-width="1.3"/>` +
+      `<path d="M0 -8 c4 0 4 5 3 7 c5 3 6 10 0 11 c-2 0.7 -4 0.7 -6 0 c-6 -1 -5 -8 0 -11 c-1 -2 -1 -7 3 -7 Z" fill="#4B5A16" stroke="#26300C" stroke-width="0.8"/>` +
+      `<path d="M-3.4 2 c-1.4 2.4 -1 5.6 1 6.6" stroke="#A3B152" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.85"/><ellipse cx="-1.2" cy="-5" rx="0.9" ry="1.6" fill="#A3B152" opacity="0.7"/></g>`;
+  }
+  return o;
+}
+
 const STRING = { x0: 150, y0: 404, cx: 330, cy: 476, x1: 505, y1: 444, n: 15 };
 function stringPoint(t) {
   const { x0, y0, cx, cy, x1, y1 } = STRING;
@@ -1189,8 +1246,11 @@ function orchard() {
   o += `<path d="M0 512 C120 508 260 512 360 520 Q369 525 358 530 C260 524 120 520 0 524 Z" fill="${C.nLeaf}"/>`;
   o += ownSeed(ORCHARD_SEED, orchardGround);
   // Top terrace: the big avocado tree, a young avocado on a stake, the straw beehive with bees.
-  o += `<g filter="url(#layer-sm)">${tree(120, 462, 66, 58, ['#3E4A14', C.nLand, C.nLeaf, '#5F6C18'], C.nGlow, 'avocado')}</g>`;
-  o += `<g filter="url(#layer-sm)"><rect x="34" y="420" width="4" height="46" rx="2" fill="${C.clay3}"/>${tree(44, 466, 30, 22, [C.nLand, C.nLeaf, C.nLeafLight], C.nGlow, 'avocado')}<path d="M36 446 l8 2" stroke="${C.cream}" stroke-width="2"/></g>`;
+  // (each old tree() still runs for its draws, discarded, so everything drawn after keeps its detail)
+  tree(120, 462, 66, 58, ['#3E4A14', C.nLand, C.nLeaf, '#5F6C18'], C.nGlow, 'avocado');
+  o += `<g filter="url(#layer-sm)">${ownSeed(TREE_SEED, () => orchardTree(120, 462, 66, 58))}</g>`;
+  tree(44, 466, 30, 22, [C.nLand, C.nLeaf, C.nLeafLight], C.nGlow, 'avocado');
+  o += `<g filter="url(#layer-sm)"><rect x="34" y="420" width="4" height="46" rx="2" fill="${C.clay3}"/>${ownSeed(TREE_SEED + 1, () => orchardTree(44, 466, 30, 22, 'young'))}<path d="M36 446 l8 2" stroke="${C.cream}" stroke-width="2"/></g>`;
   o += `<g filter="url(#layer-sm)" transform="translate(212 452)">${shadow(0, 18, 18, 3)}<path d="M-16 18 C-18 0 -8 -14 0 -14 C8 -14 18 0 16 18 Z" fill="${C.dGlow}"/>`;
   for (let i = 0; i < 4; i += 1) o += `<path d="M${-16 + i * 1.5} ${f(14 - i * 7)} H${16 - i * 1.5}" stroke="${C.nGlowDeep}" stroke-width="2"/>`;
   o += `<path d="M-4 18 a4 5 0 0 1 8 0" fill="${C.clay4}"/><rect x="-20" y="18" width="40" height="5" rx="2.5" fill="${C.clay3}"/></g>`;
@@ -1203,9 +1263,12 @@ function orchard() {
   [[318, '#D9CF62'], [330, C.nGlow], [342, '#B7C46A']].forEach(([x, col]) => { o += `<rect x="${x - 4}" y="478" width="9" height="12" rx="2.5" fill="${col}"/><rect x="${x - 4}" y="476" width="9" height="3" rx="1.5" fill="${C.cream}"/>`; });
   o += `</g>`;
   // The second avocado tree and its ladder, with a basket of avocados at the foot.
-  o += `<g filter="url(#layer-sm)">${tree(520, 528, 86, 50, ['#3E4A14', '#5F6C18', C.nLand, C.nLeaf], '#3E4A14', 'avocado')}</g>`;
+  tree(520, 528, 86, 50, ['#3E4A14', '#5F6C18', C.nLand, C.nLeaf], '#3E4A14', 'avocado');
+  o += `<g filter="url(#layer-sm)">${ownSeed(TREE_SEED + 2, () => orchardTree(520, 528, 86, 50))}</g>`;
   o += `<g filter="url(#layer-sm)"><path d="M482 540 L516 446 M496 544 L530 450" stroke="${C.clay2}" stroke-width="4" stroke-linecap="round"/>`;
   for (let i = 0; i < 7; i += 1) { const t = 0.1 + i * 0.13; o += `<path d="M${f(482 + 34 * t)} ${f(540 - 94 * t)} L${f(496 + 34 * t)} ${f(544 - 94 * t)}" stroke="${C.clay3}" stroke-width="3" stroke-linecap="round"/>`; }
+  o += `<path d="M520 462 Q514 452 500 444" stroke="${C.bark}" stroke-width="4.4" stroke-linecap="round" fill="none"/>` +
+    blobs('#3E4A14', [[512, 446, 7], [526, 444, 8], [536, 452, 6]]) + blobs(C.nLand, [[510, 443, 5], [524, 441, 5.6]]) + blobs(C.nLeaf, [[508, 441, 2.8], [521, 439, 3]]);
   o += `${shadow(474, 556, 18, 2.5)}<path d="M460 538 h28 l-3 16 h-22 Z" fill="${C.clay2}"/><path d="M462 543 h24 M463 548 h22" stroke="${C.clay3}" stroke-width="1.5"/><path d="M463 538 a11 9 0 0 1 22 0" stroke="${C.clay3}" stroke-width="2.4" fill="none"/>`;
   o += `<ellipse cx="468" cy="535" rx="4" ry="5.4" fill="#3E4A14" transform="rotate(-20 468 535)"/><ellipse cx="476" cy="533" rx="4" ry="5.4" fill="#3E4A14"/><ellipse cx="483" cy="535" rx="4" ry="5.4" fill="#525C12" transform="rotate(20 483 535)"/></g>`;
   // The string of paper lights from the big tree to the second, over the long table.
