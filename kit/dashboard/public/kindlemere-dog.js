@@ -248,7 +248,7 @@
     let pace = 1;
     dogEl.setAttribute('tabindex', '0');
     dogEl.setAttribute('role', 'button');
-    if (!dogEl.getAttribute('aria-label')) dogEl.setAttribute('aria-label', 'Play fetch with the dog');
+    if (!dogEl.getAttribute('aria-label')) dogEl.setAttribute('aria-label', 'Play fetch with Asher the Dasher');
     dogEl.setAttribute('pointer-events', 'visiblePainted');
     dogEl.style.cursor = 'pointer';
     // A finger-sized target round the dog and the ball, however small the scene is drawn (44 px across at least).
@@ -581,7 +581,7 @@
         if (throwSpot) [d.x, d.y] = throwSpot;
         drawDog();
         drop();
-        offer('Fetched it. The dog has brought the ball back. Throw it again.');
+        offer('Fetched it. Asher has brought the ball back. Throw it again.');
         return;
       }
       setState('air');
@@ -729,7 +729,7 @@
         stopPlan();
         setPose('stand');
         drop();
-        offer(fromKeyboard ? 'The ball is down. Press Enter on the dog again to throw it.' : 'The ball is down. Drag it and let go to throw it.');
+        offer(fromKeyboard ? 'The ball is down. Press Enter on Asher again to throw it.' : 'The ball is down. Drag it and let go to throw it.');
       } else if (state === 'offer' && fromKeyboard && b.mode !== 'mouth') {
         throwSomewhere();
       } else if (state === 'offer') {
@@ -1088,7 +1088,7 @@
     }
 
     function startLeap() {
-      if (reduced.matches) { holding(true); setPose('stand'); setState('free'); say('That was a long wait. The dog jumped up and took the ball. Good catch.', true); return; }
+      if (reduced.matches) { holding(true); setPose('stand'); setState('free'); say('That was a long wait. Asher jumped up and took the ball. Good catch.', true); return; }
       const k = sc(d.y);
       leap.from = [d.x, d.y];
       leap.to = [clamp(b.sx - MOUTH * k * (b.sx >= d.x ? 1 : -1), bounds().x0, bounds().x1), d.y];

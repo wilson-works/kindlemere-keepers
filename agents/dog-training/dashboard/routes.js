@@ -12,8 +12,9 @@
  *   POST /api/dog-ways {name, cues?, trouble?, opportunity?}               how the person trains this dog
  *   POST /api/dog-playlist {name, items}                                   this dog's play list (ids from the page)
  *   POST /api/dog-forget {name}                forget everything about this dog
- *   POST /api/plan {dog}                       the training-plan tool, for a remembered dog
- *   POST /api/log {dog, skill, reps, hits, minutes}   the session-log tool
+ *   POST /api/plan {dog}                       the training-plan tool, for a remembered dog or Asher the Dasher (the park's
+ *                                              dog, the demo dog when the person has none of their own)
+ *   POST /api/log {dog, skill, reps, hits, minutes}   the session-log tool, the same dogs
  *   GET  /api/faces                            which of the kit's faces exist for Tumble, Barkley and Sizzle (file names)
  *   POST /api/talk {text, session?}            a turn of conversation with Tumble: Claude Code, headless, in this folder,
  *                                              under Tumble's law (CLAUDE.md), restricted, no MCP, the kit's node
@@ -39,6 +40,12 @@ const LOOK = {
 const PLAY_ID = /^[a-z0-9-]{1,40}$/;
 
 const bad = (message) => Object.assign(new Error(message), { status: 400 });
+
+// Asher the Dasher, Kindlemere's own dog (owner, 2026-10-09): the park's mascot, always ready to play, and the demo dog
+// for plans and practice when the person has no dog of their own. Never one of the person's dogs: never remembered,
+// named for one of theirs, renamed or forgotten.
+const ASHER = 'Asher';
+const isAsher = (n) => /^asher( the dasher)?$/i.test(String(n || '').trim());
 
 // Talking with Tumble. The CLI is found where npm puts it on Windows, or on the PATH; TUMBLE_CLAUDE names another.
 // TUMBLE_CHAT_MODEL picks the model when the installed CLI's default cannot run.
@@ -169,10 +176,13 @@ module.exports = function routes(agentDir) {
   }
 
   const known = (v) => {
+    if (isAsher(v)) throw bad("Asher the Dasher is the park's own dog, so I keep nothing about him. Tell me about your own dog under My dog.");
     const d = find(nameOf(v));
     if (!d) throw bad('I don\'t remember that dog yet. Add it under My dog first.');
     return d;
   };
+  // a plan or a session: one of the person's dogs, or Asher as the demo dog
+  const trainee = (v) => (isAsher(v) ? { name: ASHER } : known(v));
 
   return {
     'GET /api/remembered': () => {
@@ -188,6 +198,7 @@ module.exports = function routes(agentDir) {
     },
 
     'POST /api/dog': ({ body }) => {
+      if (isAsher(body.name) || isAsher(body.was)) throw bad("Asher the Dasher is the park's own dog. Give yours another name.");
       const name = nameOf(body.name);
       const was = body.was ? nameOf(body.was) : null;
       if (was && was.toLowerCase() !== name.toLowerCase()) {
@@ -255,10 +266,10 @@ module.exports = function routes(agentDir) {
       try { return await converse(text, session); } finally { talking = false; }
     },
 
-    'POST /api/plan': ({ body }) => tool('training-plan', ['--dog', known(body.dog).name]),
+    'POST /api/plan': ({ body }) => tool('training-plan', ['--dog', trainee(body.dog).name]),
 
     'POST /api/log': ({ body }) => {
-      const d = known(body.dog);
+      const d = trainee(body.dog);
       const whole = (v, max) => { const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= max ? String(n) : null; };
       const reps = whole(body.reps, 200);
       const hits = whole(body.hits, 200);

@@ -28,7 +28,10 @@ run(__filename, (ctx) => {
     const known = Object.values(dogs).map((d) => d.name);
     return known.length ? `Which dog? I remember ${known.join(', ')}.` : 'I do not remember any dogs yet. Tell me about one first.';
   }
-  const dog = dogs[name.toLowerCase()];
+  // Asher the Dasher, the park's own dog, is the demo dog for anyone with no dog of their own. He is never remembered:
+  // his facts live here, not in memory.
+  const dog = dogs[name.toLowerCase()] || (/^asher( the dasher)?$/i.test(name)
+    ? { name: 'Asher', breed: 'mixed breed', age: '3 years', temperament: 'friendly, keen to play', level: 'knows sit and come' } : null);
   if (!dog) return `I do not remember a dog called ${name}. Tell me its breed, age, temperament and level first.`;
 
   const used = new Set();

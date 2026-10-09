@@ -1686,7 +1686,7 @@ function field() {
     // The dog house: a pitched roof of shingles, a name board, a round door, a water bowl.
     o += `<g data-km-part="dog-house-1" filter="url(#layer-sm)" transform="translate(${KENNEL[0]} ${KENNEL[1]})">${shadow(30, 62, 44, 4)}<path d="M0 60 V24 L30 4 L60 24 V60 Z" fill="${C.dSky}"/><path d="M4 30 h52 M4 40 h52 M4 50 h52" stroke="#C8D98C" stroke-width="1.4"/><path d="M-6 26 L30 0 L66 26" stroke="${C.dLand}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
     for (let i = 0; i < 4; i += 1) o += `<path d="M${4 + i * 8} ${20 - i * 5} l8 6 M${56 - i * 8} ${20 - i * 5} l-8 6" stroke="${C.dRusset}" stroke-width="2"/>`;
-    o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}"></text>`;
+    o += `<path d="M18 60 V44 a12 12 0 0 1 24 0 V60 Z" fill="${C.dDark}"/><rect x="12" y="26" width="36" height="8" rx="2" fill="${C.paper}"/><text data-km-part="dog-house-name-1" x="30" y="32.2" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="5.8" font-weight="700" fill="${C.dLand}">Asher</text>`;
     o += `<ellipse cx="76" cy="60" rx="8" ry="3.2" fill="${C.fGlow}"/><ellipse cx="76" cy="58.6" rx="5.6" ry="2" fill="${C.mereLight}"/><path d="M-4 60 h8 l-1 -3 h-6 Z" fill="${C.dTan}"/></g>`;
     // Along the fence, behind the open grass, back to front: the willow by the bay, berry bushes, the course (a bar
     // jump, the weave poles, the willow hoop), a trough, the toy basket and a bench under the willow.
@@ -2346,7 +2346,7 @@ function sleepingDog() {
 const DOG_AT = [2648, 1334]; // where lane D's dog gallops through the shallows by day (its frame: paws at y 64)
 
 function sleepingDogAtHome() {
-  // By night the dog sleeps curled in the door of its house.
+  // By night Asher sleeps curled in the door of his house.
   const [kx, ky] = KENNEL;
   const door = [(kx + 30) * 2, (ky + 60) * 2]; // the middle of the door's sill, in the world
   return `<g class="km-night-only" transform="translate(${door[0] - 4} ${door[1] - 14})" filter="url(#layer-sm)">${sleepingDog()}</g>`;
@@ -2582,7 +2582,7 @@ const DESC = 'Kindlemere: one big park beside a still teal lake, drawn to scale,
   'At its foot stands the fitness keeper, three stacked river stones in granite greys with a pebble sash and a paper star, beside a log bench, a coiled rope, a stone kettlebell, a water flask and a towel, with two little clouds hovering low either side, Puff in white and Huff in sandy dust, a little way up the hill, where a bench waits part way up the steps and a few sheep graze. ' +
   'On the right, Lakeside Field: open grass in the hill\'s greens running down to a little beach of sand and pebbles on a bay of the lake, with a mown training lane, drifts of wildflowers and clover, and toys and paw prints in the grass. Along its split-rail fence stand the dog house, a bar jump, weave poles, a woven willow hoop and flags with paw prints, and a weeping willow shades a bench and a basket of toys. ' +
   'Beyond the fence lies farmland: fields of pasture, wheat and ploughed earth between hedgerows with trees in them, a barn, round hay bales, a gate and a few sheep. In the bay a heron fishes among the reeds and cattails and two ducklings follow the duck. ' +
-  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
+  'There the dog keeper, a large herding ball with a handle on top, tooth marks and a treat pouch, waves on Asher the Dasher, the park\'s dog: a lean white dog with a ginger head, a white blaze, one ear up and a green bandana, who gallops through the shallows with a tennis ball in its mouth while a paper duck looks on, with Barkley, a big stick off a tree, and Sizzle, an oversized strip of bacon, either side. ' +
   'From the signpost a dock runs out into the lake, with a basket of folded lanterns, a stool with a notebook and a lantern post. Orange paper lanterns drift away across the water toward Louise, the librarian, and a paper boat brings a book back. ' +
   'After dark the sky fills with stars and the moon in its real phase, fireflies rise over the meadows, the string lights and lanterns glow, the keepers doze, and the dog sleeps curled in the door of its house.';
 

@@ -717,7 +717,7 @@
     if (bare || window.dispatchEvent(ev)) {
       if (popped) say(scene, a.el, scene.night ? SPUD_NIGHT : pick(SPUD_UP));
       else if (up) { say(scene, a.el, pick(SPUD_TALK)); spudTalkAction(scene, a, viaKey); }
-      else say(scene, a.el, asleep ? `${name === 'dog' ? 'The dog' : name} is asleep.` : line(key) || name);
+      else say(scene, a.el, asleep ? `${name === 'dog' ? 'Asher the Dasher' : name} is asleep.` : line(key) || name);
     }
     if (key === 'dog-training-sizzle' && !asleep) treatFrom(scene, a);
   }
@@ -762,7 +762,7 @@
       };
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
-      el.setAttribute('aria-label', name === 'dog' ? 'The dog' : name);
+      el.setAttribute('aria-label', name === 'dog' ? 'Asher the Dasher, the park\'s dog' : name);
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => wake(scene, key));
       el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wake(scene, key, true); } });
