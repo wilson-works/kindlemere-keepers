@@ -1,9 +1,9 @@
 {
  "format": "kindlemere-library/1",
- "generated_at": "2026-10-09T03:19:16-05:00",
+ "generated_at": "2026-10-09T03:27:24-05:00",
  "source": {
   "repo": "wilson-works/wellbeing-agents",
-  "sha": "a5d8d2fb9c6533e14ef9aca66c65138557f6427b"
+  "sha": "852594d72dd9f9078b7bb3933c84c01f2bf3927d"
  },
  "recipes": [
   {
@@ -6251,7 +6251,7 @@
     {
      "qty": "4 (4-ounce)",
      "unit": null,
-     "item": "salmon fillets (4-oz each)",
+     "item": "salmon fillets",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -6421,7 +6421,7 @@
     {
      "qty": "1 (14.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added diced tomatoes (14.5-oz can)",
+     "item": "no-salt-added diced tomatoes",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -6909,7 +6909,7 @@
     {
      "qty": "1 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added black beans (15-oz can), chilled in the refrigerator, drained and rinsed",
+     "item": "no-salt-added black beans, chilled in the refrigerator, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -7382,28 +7382,28 @@
     {
      "qty": "1 (15.5-ounce)",
      "unit": "can",
-     "item": "chickpeas (garbanzo beans) (15.5-oz can), drained and rinsed",
+     "item": "chickpeas (garbanzo beans), drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
     {
      "qty": "1 (16-ounce)",
      "unit": "package",
-     "item": "frozen stir-fry vegetables (16-oz package)",
+     "item": "frozen stir-fry vegetables",
      "aisle": "frozen",
      "optional": false
     },
     {
      "qty": "1 (8-ounce)",
      "unit": "can",
-     "item": "crushed pineapple (8-oz can)",
+     "item": "crushed pineapple",
      "aisle": "canned and jarred",
      "optional": false
     },
     {
      "qty": "1 (8-ounce)",
      "unit": "can",
-     "item": "water chestnuts (8-oz can), drained",
+     "item": "water chestnuts, drained",
      "aisle": "canned and jarred",
      "optional": false
     }
@@ -7472,7 +7472,7 @@
     {
      "qty": "4 (4-ounce)",
      "unit": null,
-     "item": "cod fillets (4-oz each)",
+     "item": "cod fillets",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -7642,7 +7642,7 @@
     {
      "qty": "4 (4- to 6-ounce)",
      "unit": null,
-     "item": "firm-textured fish fillets or fish steaks, 4- to 6-ounce each (e.g. catfish, cod, halibut, tilapia)",
+     "item": "firm-textured fish fillets or fish steaks (e.g. catfish, cod, halibut, tilapia)",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -8473,7 +8473,7 @@
     {
      "qty": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen mixed vegetables (10-oz package; e.g. green beans, carrots, corn, peas)",
+     "item": "frozen mixed vegetables",
      "aisle": "frozen",
      "optional": false
     },
@@ -8561,7 +8561,7 @@
     {
      "qty": "1 (15.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added garbanzo beans (15.5-oz can), drained and rinsed",
+     "item": "no-salt-added garbanzo beans, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -8582,7 +8582,7 @@
     {
      "qty": "1 (14.5-ounce)",
      "unit": "can",
-     "item": "diced tomatoes (14.5-oz can)",
+     "item": "diced tomatoes",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -8694,7 +8694,7 @@
     {
      "qty": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added black beans (15-oz cans), drained and rinsed",
+     "item": "no-salt-added black beans, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -9081,14 +9081,14 @@
     {
      "qty": "1 (15-ounce)",
      "unit": "can",
-     "item": "garbanzo beans (chickpeas) (15-oz can), drained and rinsed",
+     "item": "garbanzo beans (chickpeas), drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
     {
      "qty": "1 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added tomato sauce (15-oz can)",
+     "item": "no-salt-added tomato sauce",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -9288,7 +9288,7 @@
     {
      "qty": "1 (23.5-ounce)",
      "unit": null,
-     "item": "jar reduced-sodium pasta sauce (23.5-oz jar)",
+     "item": "jar reduced-sodium pasta sauce",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -9419,7 +9419,7 @@
     {
      "qty": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen chopped spinach (10-oz package), thawed and squeezed to remove moisture",
+     "item": "frozen chopped spinach, thawed and squeezed to remove moisture",
      "aisle": "frozen",
      "optional": false
     },
@@ -9721,21 +9721,21 @@
     {
      "qty": "1 (28-ounce)",
      "unit": "can",
-     "item": "no-salt-added crushed tomatoes (28-oz can)",
+     "item": "no-salt-added crushed tomatoes",
      "aisle": "canned and jarred",
      "optional": false
     },
     {
      "qty": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added beans (15-oz cans; one type or a combination, e.g. kidney, black, pinto), drained and rinsed",
+     "item": "no-salt-added beans, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
     {
      "qty": "1 (11-ounce)",
      "unit": "package",
-     "item": "frozen corn (11-oz bag)",
+     "item": "frozen corn",
      "aisle": "frozen",
      "optional": false
     }
@@ -10006,7 +10006,7 @@
     {
      "qty": "1 (16-ounce) block",
      "unit": "package",
-     "item": "extra-firm tofu (16-oz block), cubed",
+     "item": "extra-firm tofu, cubed",
      "aisle": "deli and refrigerated",
      "optional": false
     },
@@ -10127,7 +10127,7 @@
     {
      "qty": "2 (15.5-ounce)",
      "unit": "can",
-     "item": "no-salt-added white cannellini beans (15.5-oz cans), drained and rinsed",
+     "item": "no-salt-added white cannellini beans, drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },
