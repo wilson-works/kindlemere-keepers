@@ -87,7 +87,8 @@ tags: [protein, older adults]
 - `@research/<path>` (the form Louise's own summary cards use) is read as `@<path>`.
 - Cards that `learn.js` copies from Louise carry `origin: louise-card` and keep her card's body exactly as she wrote it.
 - A card is refused by the shelf when it has no `sources`, or no `@` source anywhere in its body. `shelf.js check
-  --strict` also refuses any bullet with no `@` source, and any source page that does not open on Louise's shelves.
+  --strict` also refuses any bullet with no `@` source, and any source page that does not open on Louise's shelves
+  or in the agent's own `knowledge/books/` (a book the lane researched itself, with a source URL on every line).
   Cards the agent's lane writes must pass `--strict`; Louise's own cards are checked without it.
 
 ## 4. The shelf: `kit/engine/shelf.js`
@@ -104,8 +105,8 @@ node kit/engine/shelf.js check <agent> [--strict]
   sources. Exit `1` and `Nothing on my shelf about that.` when there is none. Refused cards are never returned.
 - `show`: the card's title, sources and body.
 - `check`: each card `ok` or `refused: <why>`. With `--strict`, also each unsourced bullet (`<file>:<line>`) and each
-  source page that does not open on any of Louise's shelves (every root in her config), or has fewer lines than the
-  `@` tag names. Exit `2` when anything is refused.
+  source page that does not open on any of Louise's shelves (every root in her config) or in the agent's own
+  `knowledge/books/`, or has fewer lines than the `@` tag names. Exit `2` when anything is refused.
 
 Example: `node kit/engine/shelf.js find nutrition "protein older adults"`
 
@@ -238,6 +239,7 @@ node kit/engine/toolsmith.js list  <agent>
   | `find(words)` | shelf matches: `[{ file, title, facts: [{ text, sources }] }]` |
   | `card(file)` | `{ title, sources, tags, body, facts }` |
   | `recall()` | the memory `recall` gives, as `{ lessons, facts, worked }` |
+  | `data(name)` | a JSON file the agent keeps in `knowledge/` (`<name>.json` or `<folder>/<name>.json`), parsed, read only; `null` when there is none |
   | `state.read(name)` / `state.write(name, text or object)` | its own files under `state/tools/<tool>/` |
 
   The value the body returns is printed (JSON for an object).

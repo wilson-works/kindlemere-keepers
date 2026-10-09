@@ -1,0 +1,28 @@
+# How long food keeps in the fridge and freezer
+
+Researched for Avo's kitchen, 2026-10-09 (lane AVO, n1009). One fact per line, in plain words, with its source and address.
+
+- Keep the fridge at 40°F or below and the freezer at 0°F or below. [^5] (https://www.cdc.gov/food-safety/prevention/index.html)
+- Freezer times are for quality only: food kept at 0°F stays safe indefinitely. [^1] [^4] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts ; https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/freezing-and-food-safety)
+- Product dates are not a guide to safe use; go by the storage chart. [^2] (https://www.fda.gov/media/74435/download)
+- Soups and stews, vegetable or meat added: 3 to 4 days in the fridge, 2 to 3 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Leftover cooked meat or poultry: 3 to 4 days in the fridge, 2 to 6 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Chicken nuggets or patties: 3 to 4 days in the fridge, 1 to 3 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Pizza: 3 to 4 days in the fridge, 1 to 2 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Egg, chicken, ham, tuna and macaroni salads: 3 to 4 days in the fridge; they do not freeze well. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Casseroles with eggs, after baking: 3 to 4 days in the fridge, 2 to 3 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Quiche with filling, after baking: 3 to 5 days in the fridge, 2 to 3 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Pumpkin or pecan pie, after baking: 3 to 4 days in the fridge, 1 to 2 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Custard and chiffon pies, after baking: 3 to 4 days in the fridge; do not freeze. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Hard-cooked eggs: 1 week in the fridge; do not freeze. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Raw eggs in the shell: 3 to 5 weeks in the fridge; do not freeze them in the shell (beat yolks and whites together, then freeze). [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Raw hamburger and other ground meat or poultry: 1 to 2 days in the fridge, 3 to 4 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Fresh chicken or turkey pieces: 1 to 2 days in the fridge, 9 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Fresh beef, veal, lamb and pork steaks, chops and roasts: 3 to 5 days in the fridge, 4 to 12 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Bacon: 1 week in the fridge, 1 month in the freezer. Raw sausage: 1 to 2 days in the fridge, 1 to 2 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Luncheon meat, opened or deli sliced: 3 to 5 days in the fridge, 1 to 2 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Fatty fish such as salmon and tuna: 1 to 3 days in the fridge, 2 to 3 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Shrimp and crayfish: 3 to 5 days in the fridge, 6 to 18 months in the freezer. [^1] (https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
+- Cooked fish: 3 to 4 days in the fridge, 4 to 6 months in the freezer. [^2] (https://www.fda.gov/media/74435/download)
+- Gravy and meat broth: 1 to 2 days in the fridge, 2 to 3 months in the freezer. [^2] (https://www.fda.gov/media/74435/download)
+- Any other leftovers: 3 to 4 days in the fridge, or 3 to 4 months in the freezer. [^3] (https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/leftovers-and-food-safety)

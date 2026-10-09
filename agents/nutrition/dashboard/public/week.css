@@ -73,6 +73,9 @@ a.dish { text-decoration-color: var(--a-glow); text-underline-offset: 3px; }
 .basket input:checked + label .item { text-decoration: line-through; color: var(--km-ink-soft); }
 .item { font-size: var(--km-text-sm); font-weight: 600; }
 .for { font-size: var(--km-text-xs); color: var(--km-ink-soft); }
+.basket > li.aisle { display: block; margin-top: var(--km-space-2); padding: var(--km-space-1) 0 0; font-size: var(--km-text-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--a-land); }
+.prep-plan { background: var(--km-paper); border-radius: var(--km-radius); border: 1px solid var(--km-line, #d9d2c3); padding: var(--km-space-3) var(--km-space-4); }
+.prep-plan h3 { margin: 0 0 var(--km-space-1); font-size: var(--km-text-base, 1rem); }
 
 /* Targets. */
 .targets { width: 100%; border-collapse: collapse; font-size: var(--km-text-sm); }

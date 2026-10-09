@@ -2,7 +2,8 @@
 
 /**
  * kit/engine/shelf.js — an agent's shelf of knowledge cards (kit/CONTRACT.md, sections 3 and 4). Node built-ins only.
- * It only reads: the agent's knowledge/ and, for `check --strict`, the pages its cards name in Louise's library.
+ * It only reads: the agent's knowledge/ and, for `check --strict`, the pages its cards name in Louise's library or in
+ * the agent's own knowledge/books/.
  *
  *   all(key)                 every card, read (refused ones carry .refused)
  *   find(key, words)         [{ file, title, sources, score, facts: [matching facts] }], best first, refused left out
@@ -81,6 +82,9 @@ function check(key, opts) {
     if (!library.length && !libraryNote) libraryNote = "Louise has no library set, so the source pages could not be opened.";
   }
   const res = { ok: [], refused: [], problems: [], library, libraryNote };
+  // The agent's own books (knowledge/books/<book>/) are a shelf too: Louise's copies, and books the agent's lane
+  // researched itself with a source URL on every line.
+  const shelves = library.length ? library.concat(path.join(knowledgeDir(key), 'books')) : library;
   for (const c of all(key)) {
     if (c.refused) { res.refused.push({ file: c.file, why: c.refused }); continue; }
     const problems = [];
@@ -104,7 +108,7 @@ function check(key, opts) {
         const id = `${p.page}:${p.line}`;
         if (seen.has(id)) continue;
         seen.add(id);
-        const why = pageProblem(library, p.page, p.line);
+        const why = pageProblem(shelves, p.page, p.line);
         if (why) problems.push({ file: c.file, line: p.at, why });
       }
     }

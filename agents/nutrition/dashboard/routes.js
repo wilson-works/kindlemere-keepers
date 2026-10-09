@@ -12,6 +12,10 @@
  *   POST /api/talk {text, fresh}      say something to Avo at her table (one turn of Claude Code in her folder; talk.js)
  *   GET  /api/talk                    the conversation, and what she is doing while she answers
  *   POST /api/talk-stop               stop the answer she is working on
+ *   GET  /api/cookbook                every recipe in her cookbook, short (knowledge/cookbook/recipes.json, read only)
+ *   GET  /api/recipe?id=<id>          one cookbook recipe, whole
+ *   POST /api/cookbook-add {id, day, slot}   runs `meal-week.js add`: the recipe goes into this week, which is
+ *                                     published again (same link), with its prep schedule and shopping list
  *   GET  /api/sources                 the titles behind each footnote number, from the sources.md of each of
  *                                     Louise's books in knowledge/books (read only)
  */
@@ -19,6 +23,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const SLOTS = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -49,6 +54,15 @@ module.exports = function routes(agentDir) {
     return { done: c.done || {}, swapped: c.swapped || {} };
   };
   const openLink = (links, id, today) => links.filter((l) => l.week === id && l.expires >= today).pop() || null;
+  const bookFile = path.join(agentDir, 'knowledge', 'cookbook', 'recipes.json');
+  let book = null;
+  let bookAt = 0;
+  const cookbook = () => {
+    let at = 0;
+    try { at = fs.statSync(bookFile).mtimeMs; } catch (_) { throw bad('My cookbook is not on the shelf.', 404); }
+    if (!book || at !== bookAt) { book = JSON.parse(fs.readFileSync(bookFile, 'utf8')); bookAt = at; }
+    return book;
+  };
 
   // A prep day's cooking: every prep meal from this prep day up to the next one, as portions and batches.
   // The week keeps its prep days as words ("Sunday before", "Wednesday"); "Sunday before" is index -1.
@@ -118,6 +132,41 @@ module.exports = function routes(agentDir) {
           return { id, link: l ? l.k : null, expires: l ? l.expires : null, meals: w ? w.days.reduce((n, d) => n + d.slots.length, 0) : 0 };
         }),
       };
+    },
+
+    // My cookbook drawer: the recipes (knowledge/cookbook/recipes.json, read only), one recipe whole, and "add to
+    // this week", which runs her meal-week tool so the week, its prep schedule and its shopping list follow.
+    'GET /api/cookbook': () => {
+      const lib = cookbook();
+      return {
+        built: lib.built, rules: lib.rules,
+        recipes: lib.recipes.map((r) => ({
+          id: r.id, title: r.title, meal: r.meal, keeper: r.keeper, servings: r.servings,
+          minutes: r.total_min || ((r.prep_min || 0) + (r.cook_min || 0)) || null, diet: r.diet, allergens: r.allergens,
+          batch: r.prep.batch, source: r.source.name, words: r.ingredients.map((i) => i.item).join(' ').toLowerCase(),
+        })),
+      };
+    },
+    'GET /api/recipe': (ctx) => {
+      const r = cookbook().recipes.find((x) => x.id === String(ctx.query.get('id') || ''));
+      if (!r) throw bad('That recipe is not in my cookbook.', 404);
+      return r;
+    },
+    'POST /api/cookbook-add': (ctx) => {
+      const b = ctx.body || {};
+      const id = String(b.id || '');
+      if (!/^[a-z0-9-]{1,80}$/.test(id) || !cookbook().recipes.some((x) => x.id === id)) throw bad('That recipe is not in my cookbook.');
+      if (!DAYS.includes(b.day)) throw bad('Pick a day of the week.');
+      if (!SLOTS.includes(b.slot)) throw bad('Pick breakfast, lunch, dinner or the treat.');
+      let out;
+      try {
+        out = execFileSync(process.execPath, [path.join(agentDir, 'tools', 'meal-week.js'), 'add', id, '--day', b.day, '--slot', b.slot],
+          { cwd: agentDir, encoding: 'utf8', timeout: 30000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+      } catch (e) {
+        throw bad(String((e.stdout || '') + (e.stderr || '')).trim().split('\n')[0] || 'I could not add it to the week.', 400);
+      }
+      const k = /week\.html\?k=([A-Za-z0-9]{22})/.exec(out);
+      return { ok: true, message: out.split('\n')[0], link: k ? k[1] : null };
     },
 
     'POST /api/talk': (ctx) => talk.start((ctx.body || {}).text, (ctx.body || {}).fresh === true),

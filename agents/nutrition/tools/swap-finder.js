@@ -3,8 +3,8 @@
 /**
  * swap-finder: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
  * Purpose: Finds the safe swap for a food someone must avoid, telling an allergy from an intolerance, from my allergy and gluten cards.
- * Inputs: food, allergy, intolerance
- * Cards: food-allergies.md, celiac-and-gluten.md, scope-and-escalation.md
+ * Inputs: food, allergy, intolerance, meal
+ * Cards: food-allergies.md, celiac-and-gluten.md, scope-and-escalation.md, cookbook.md
  *
  * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
  * Run: node agents/nutrition/tools/swap-finder.js --food <food> --allergy <allergy> --intolerance <intolerance>
@@ -48,6 +48,23 @@ run(__filename, (ctx) => {
   }
   const found = ctx.find(what).filter((c) => !used.has(c.file)).slice(0, 2);
   for (const c of found) out.push('', `Also on my shelf about ${what}:`, ...c.facts.slice(0, 3).map((f) => say(f, c.file)));
+  // Recipes from my cookbook that leave it out (by its allergen list, or by the word in an ingredient).
+  const lib = ctx.data('cookbook/recipes.json');
+  const book = lib && Array.isArray(lib.recipes) ? lib.recipes : [];
+  if (book.length) {
+    const AL = { milk: 'milk', dairy: 'milk', lactose: 'milk', egg: 'egg', eggs: 'egg', fish: 'fish', shellfish: 'shellfish', shrimp: 'shellfish',
+      nuts: 'tree nuts', 'tree nuts': 'tree nuts', peanut: 'peanuts', peanuts: 'peanuts', wheat: 'wheat', gluten: 'wheat', soy: 'soy', sesame: 'sesame' };
+    const al = AL[what];
+    const word = new RegExp(`\\b${what.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
+    const free = book.filter((r) => (isGluten ? r.diet.includes('gluten-free')
+      : al ? !r.allergens.concat(r.optional_allergens).includes(al) && (al !== 'tree nuts' || !r.allergens.includes('peanuts'))
+        : !r.ingredients.some((i) => word.test(i.item))));
+    const meal = String(ctx.args.meal && ctx.args.meal !== true ? ctx.args.meal : '').toLowerCase();
+    const shown = free.filter((r) => !meal || r.meal === meal);
+    used.add('cookbook.md');
+    out.push('', `Recipes in my cookbook without ${what}${meal ? ` (${meal})` : ''}: ${shown.length} of ${book.length}${isGluten ? ' (gluten-free by their ingredients; still check labels on oats, broth and sauces)' : ''}.`,
+      ...shown.slice(0, 6).map((r) => `  - ${r.title} (${r.meal}): ${r.source.url}`));
+  }
   if (/anaphyla|epipen|epi-pen/.test(told.join(' '))) out.push('', ...pick('scope-and-escalation.md', /anaphylactic/).map((f) => say(f, 'scope-and-escalation.md')));
   ctx.state.write('last-swap.json', { at: new Date().toISOString(), what, cards: [...used] });
   return [...out, '', `Rests on: ${[...used].join(', ')}`].join('\n');

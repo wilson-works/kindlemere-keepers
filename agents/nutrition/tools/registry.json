@@ -5,7 +5,9 @@
       "file": "week-plan.js",
       "purpose": "Builds a week of eating shaped on DASH and on what the person has told me, every line a card fact with its card named.",
       "inputs": [
-        "days"
+        "days",
+        "diet",
+        "avoid"
       ],
       "cards": [
         "eating-patterns.md",
@@ -19,10 +21,11 @@
         "training-fuel.md",
         "kidney-disease.md",
         "scope-and-escalation.md",
-        "medicines-and-pku.md"
+        "medicines-and-pku.md",
+        "cookbook.md"
       ],
-      "sha256": "b5a6cfa1d1347122a69e6f3ec9409288a2d0703f30e74bcda66a1106ed5a4bfa",
-      "checked": "2026-10-07"
+      "sha256": "178ece5b267bf8c6ebfbbbdeb76ee0a7d0b86eae45bbaa33b7921fb22b67ed58",
+      "checked": "2026-10-09"
     },
     {
       "name": "swap-finder",
@@ -31,38 +34,48 @@
       "inputs": [
         "food",
         "allergy",
-        "intolerance"
+        "intolerance",
+        "meal"
       ],
       "cards": [
         "food-allergies.md",
         "celiac-and-gluten.md",
-        "scope-and-escalation.md"
+        "scope-and-escalation.md",
+        "cookbook.md"
       ],
-      "sha256": "20c440ebd22f22ea3878f912486953da3b56081986e6173f0abfa90281567b65",
-      "checked": "2026-10-07"
+      "sha256": "0ec9fef8bdfa79c8ab079804710d19432b43fa2206bd4e48ddb0ab5f78db4c30",
+      "checked": "2026-10-09"
     },
     {
       "name": "prep-list",
       "file": "prep-list.js",
       "purpose": "Makes the shopping order and a batch-cook schedule whose keep-times and temperatures come from my food-safety card.",
       "inputs": [
-        "cook"
+        "cook",
+        "recipes"
       ],
       "cards": [
         "meal-planning-and-shopping.md",
         "food-safety.md",
-        "food-allergies.md"
+        "food-allergies.md",
+        "cookbook.md",
+        "meal-prep-batch-day.md"
       ],
-      "sha256": "134f72e60773e871824149f62284fff9261899c2cfc8c64dc820675c5eff0cf1",
-      "checked": "2026-10-07"
+      "sha256": "d66cbc12255892eaf747d945dc0a540077f3dbf32cf0eb65f48e2260c30c53a1",
+      "checked": "2026-10-09"
     },
     {
       "name": "meal-week",
       "file": "meal-week.js",
-      "purpose": "Publishes a planned week at the table: the 7-day plan, prep and quick-cook recipes, a grocery list by store and macro targets from my cards; keeps every week and answers what's for today and am I on track.",
+      "purpose": "Publishes a planned week at the table: the 7-day plan, prep and quick-cook recipes (from my cookbook or their own box), a grocery list by store and aisle, a batch-prep schedule and macro targets from my cards; keeps every week and answers what's for today and am I on track.",
       "inputs": [
         "do",
-        "week"
+        "week",
+        "day",
+        "slot",
+        "diet",
+        "avoid",
+        "household"
       ],
       "cards": [
         "labels-and-energy.md",
@@ -72,10 +85,33 @@
         "food-safety.md",
         "meal-planning-and-shopping.md",
         "kidney-disease.md",
-        "pregnancy.md"
+        "pregnancy.md",
+        "cookbook.md",
+        "meal-prep-storage.md",
+        "meal-prep-batch-day.md"
       ],
-      "sha256": "723e98903a63018113344a32afa6ec5ac99c833493c09479d3428f4a6bffa341",
-      "checked": "2026-10-08"
+      "sha256": "47c1d99076b2ce001a91588fac556acc8fdb3b0fafac9e42221ea23de08bd4e8",
+      "checked": "2026-10-09"
+    },
+    {
+      "name": "cookbook",
+      "file": "cookbook.js",
+      "purpose": "Finds, shows and checks the recipes in my cookbook (knowledge/cookbook/recipes.json): every recipe from a real recipe page, filtered by meal, keeper, diet and what someone leaves out.",
+      "inputs": [
+        "do",
+        "meal",
+        "keeper",
+        "diet",
+        "avoid",
+        "limit"
+      ],
+      "cards": [
+        "cookbook.md",
+        "food-allergies.md",
+        "meal-prep-storage.md"
+      ],
+      "sha256": "dd93475812b54c003183c9d17b2135e61d1f7a78075103aede23401cf8470345",
+      "checked": "2026-10-09"
     }
   ]
 }

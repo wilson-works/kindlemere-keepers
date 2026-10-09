@@ -8,7 +8,8 @@
  * A tool runs only when it passes the toolsmith's check and its file matches its sha256 in tools/registry.json.
  * `toolsmith.js try` sets KIT_TRY to the tool's name, which lets an unregistered tool that passes the check run.
  *
- * ctx: { args, agent: { key, name, dir }, find(words), card(file), recall(), state: { read(name), write(name, value) } }
+ * ctx: { args, agent: { key, name, dir }, find(words), card(file), recall(), data(name),
+ *        state: { read(name), write(name, value) } }
  * State files live in agents/<key>/state/tools/<tool>/, named with letters, digits, dot, dash and underscore.
  */
 
@@ -17,6 +18,7 @@ const path = require('path');
 const common = require('./common');
 
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/;
+const DATA_RE = /^(?:[a-z0-9][a-z0-9_-]{0,40}\/)?[a-z0-9][a-z0-9_-]{0,60}\.json$/;
 const STATE_MAX = 1024 * 1024;
 
 function stop(message) {
@@ -43,6 +45,12 @@ function makeCtx(key, tool) {
       return { title: c.title, sources: c.sources, tags: c.tags, body: c.body, facts: c.facts };
     },
     recall: () => memory.recall(key),
+    // A JSON file the agent keeps beside its cards (knowledge/<name>.json or knowledge/<folder>/<name>.json), read
+    // only; null when there is none. Avo's cookbook is one: ctx.data('cookbook/recipes.json').
+    data: (name) => {
+      if (typeof name !== 'string' || !DATA_RE.test(name)) throw common.refuse(`"${name}" is not a data file in the knowledge folder.`);
+      return common.readJson(path.join(info.dir, 'knowledge', ...name.split('/')), null);
+    },
     state: {
       read(name) {
         try { return fs.readFileSync(stateFile(name), 'utf8'); } catch (e) { if (e.code === 'ENOENT') return null; throw e; }
