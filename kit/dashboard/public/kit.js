@@ -137,6 +137,28 @@
         if (window.kindlemere && typeof window.kindlemere.go === 'function') { e.preventDefault(); window.kindlemere.go(to, key); }
       });
     }
+    // The foot, on the shore, carries the places again by their keepers' names, and who made the park.
+    const foot = document.querySelector('.km-foot');
+    if (!foot || foot.querySelector('.km-foot-nav')) return;
+    const NAMES = { realm: 'The whole park', nutrition: "Avo's Orchard", fitness: "Steady's Hill", 'dog-training': "Tumble's Field" };
+    const fnav = document.createElement('nav');
+    fnav.className = 'km-foot-nav';
+    fnav.setAttribute('aria-label', 'Places in Kindlemere, from the shore');
+    for (const a of links) {
+      if (!a.getAttribute('href')) continue;
+      const c = document.createElement('a');
+      c.href = a.getAttribute('href');
+      c.textContent = NAMES[a.dataset.place];
+      if (a.hasAttribute('aria-current')) c.setAttribute('aria-current', 'page');
+      fnav.appendChild(c);
+    }
+    const made = document.createElement('p');
+    made.className = 'km-foot-made';
+    const ww = document.createElement('a');
+    ww.href = 'https://wilsonworks.studio/ai-consulting/agents';
+    ww.textContent = 'WilsonWorks';
+    made.append('Kindlemere is drawn and built by ', ww, '.');
+    foot.append(fnav, made);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ways); else ways();
 }());

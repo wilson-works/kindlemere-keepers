@@ -2696,7 +2696,67 @@ const VIEWS = [
   { key: 'field', file: 'kindlemere-field.svg', box: '1976 760 1200 675', sky: [772, 930], title: 'Kindlemere: Lakeside Field' },
 ];
 
+/* ------------------------------------------------------------------ the pages' own edges */
+/* Owner, 2026-10-09: "fix the non fullscreen branding and headlines and footers ... they dont live to the same standard
+   and detailed design." Two strips the kit's pages tile along their edges (kit/dashboard/public/kit.css), drawn from the
+   park's own pieces: the treeline under every page's bar (pines, round trees and a grass edge, over the far hills) and
+   the shore over every page's foot (sand, pebbles, reeds and a lantern post standing in the lake). Each tiles end to
+   end: what leaves one edge comes in at the other. */
+function treelineFile() {
+  const W = 960; const H = 48;
+  const wave = (y0, amp, n) => { let d = `M0 ${H}`; for (let x = 0; x <= W; x += 12) d += ` L${x} ${f(y0 - amp * Math.sin((x / W) * Math.PI * 2 * n))}`; return `${d} L${W} ${H} Z`; };
+  let o = `<path d="${wave(30, 4, 3)}" fill="#A9BF8A"/><path d="${wave(36, 3, 5)}" fill="#8EA86A"/>`;
+  const round = (x, y, rr) => contact(x + 1, y + 0.4, rr * 0.8, 1.2, 0.18) + `<rect x="${f(x - 1.1)}" y="${f(y - rr * 0.9)}" width="2.2" height="${f(rr * 0.9)}" fill="${C.bark}"/>` +
+    blobs('#56752F', [[x - rr * 0.45, y - rr * 1.1, rr * 0.7], [x + rr * 0.45, y - rr * 1.05, rr * 0.72], [x, y - rr * 1.55, rr * 0.8]]) +
+    blobs('#6E8F3A', [[x - rr * 0.3, y - rr * 1.6, rr * 0.45], [x - rr * 0.6, y - rr * 1.2, rr * 0.35]]);
+  // a seeded run of pines, round trees and gaps, so the edge never shows its repeat at a glance
+  o += ownSeed(CHROME_SEED, () => {
+    let s = ''; let x = 14;
+    while (x < W - 14) {
+      const k = rnd();
+      if (k < 0.5) s += pine(x, 44 + r(0, 1), r(18, 40));
+      else if (k < 0.85) s += round(x, 44 + r(0, 1), r(7, 12));
+      x += k > 0.92 ? r(38, 60) : r(14, 30);
+    }
+    return s;
+  });
+  o += `<path d="M0 ${H} V44 C120 42 240 45 360 43.5 S600 42 720 44 840 45 ${W} 44 V${H} Z" fill="#6F8A34"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${o}</svg>
+`;
+}
+function shoreFile() {
+  const W = 960; const H = 64;
+  let o = `<path d="M0 ${H} V30 C120 27 210 33 330 30 S570 26 690 30 870 32 ${W} 30 V${H} Z" fill="#E3CFA2"/>`;
+  o += `<path d="M0 ${H} V38 C150 36 270 40 450 38 S780 36 ${W} 38 V${H} Z" fill="#CDB283"/>`;
+  o += ownSeed(CHROME_SEED + 1, () => {
+    let s = '';
+    for (let i = 0; i < 16; i += 1) {
+      const x = r(10, W - 10); const y = r(32.5, 36.5); const rr = r(1.2, 2.4);
+      s += `<ellipse cx="${f(x)}" cy="${f(y + rr * 0.5)}" rx="${f(rr * 1.1)}" ry="0.6" fill="${C.ink}" opacity="0.18"/><ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rr * 1.2)}" ry="${f(rr)}" fill="${pick(['#9C8A68', '#B8A27C', '#A8946E'])}"/>`;
+    }
+    return s;
+  });
+  // the lake from here down is the foot's own colour (--km-mere), so the strip runs into it with no seam
+  o += `<path d="M0 ${H} V44 C90 42 180 46 300 44 S510 42 630 44.5 840 46 ${W} 44 V${H} Z" fill="#1F5C6E"/>`;
+  o += `<path d="M14 47 h22 M170 49 h16 M328 47.5 h26 M536 48 h20 M712 47 h14 M880 48.5 h24" stroke="#CFE6EA" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>`;
+  const reeds = (x0, n) => { let s = ''; for (let i = 0; i < n; i += 1) { const x = x0 + i * 3.2; const h = 16 + ((i * 7) % 9); s += `<path d="M${f(x)} 45 q${f(i % 2 ? 1.5 : -1.5)} ${f(-h / 2)} ${f(i % 2 ? 2.5 : -2)} ${-h}" stroke="${i % 3 ? '#4F6E3A' : '#5E7A2A'}" stroke-width="1.4" stroke-linecap="round" fill="none"/>`; if (i % 2 === 0) s += `<rect x="${f(x - 1)}" y="${f(45 - h * 0.9)}" width="2.2" height="6" rx="1.1" fill="${C.clay4}"/>`; } return s; };
+  o += reeds(44, 6) + reeds(402, 4) + reeds(610, 7) + reeds(888, 5);
+  // two lantern posts standing in the shallows, lit, like the ones on the lake
+  for (const x of [250, 742]) {
+    o += `<rect x="${x - 1.5}" y="18" width="3" height="30" rx="1.5" fill="${C.clay4}"/><circle cx="${x}" cy="13" r="9" fill="${C.kindle}" opacity="0.22"/>`;
+    o += `<g transform="translate(${x} 16) scale(0.28)">${lanternBody()}</g><path d="M${x - 8} 48.5 h16" stroke="#CFE6EA" stroke-width="1" stroke-linecap="round" opacity="0.7"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${o}</svg>
+`;
+}
+const CHROME_SEED = 20261013;
+
 if (require.main === module) {
+  for (const [file, draw] of [['kindlemere-treeline.svg', treelineFile], ['kindlemere-shore.svg', shoreFile]]) {
+    const out = path.join(__dirname, file);
+    fs.writeFileSync(out, draw(), 'utf8');
+    process.stdout.write(`Drew ${path.relative(process.cwd(), out)}, a page edge\n`);
+  }
   for (const view of VIEWS) {
     seed = 20261007; // the same random detail in every view
     const out = path.join(__dirname, view.file);
