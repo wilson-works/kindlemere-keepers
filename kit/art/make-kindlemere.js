@@ -308,6 +308,10 @@ let HILL_LIFE = '';
 const hillLive = (s) => { HILL_LIFE += s; return ''; };
 
 /** Draw with a seed of its own, leaving the park's random sequence where it was. */
+// Owner, 2026-10-09: "tree scale. If they are too big at real scale, then use bushes instead." The small pines up the
+// hill (by the steps, by marker 2, by marker 4) stood taller than a keeper there would; they are bushes now, on seeds
+// of their own. The birches and the big pines at the hill's edges read at scale and stay.
+const PINE_SEED = 20261012;
 function ownSeed(s, draw) { const keep = seed; seed = s; const out = draw(); seed = keep; return out; }
 
 const bez = (a, b, c, d, t) => { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; };
@@ -898,11 +902,11 @@ function hillBody() {
     const things = [
       [300, granite(820, 300, 104, 22, true) + granite(776, 302, 26, 9, true) + granite(864, 301, 22, 8, false)],
       [302, shrub(760, 302, 0.6, 'gorse')], [300, shrub(880, 301, 0.55, 'juniper')],
-      [322, pine(900, 322, 26)], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85 * FLOCK, false, 'lie')],
-      [346, pine(735, 346, 22)], [352, pine(748, 352, 18)], [354, granite(836, 354, 28, 12, false)],
+      [322, ownSeed(PINE_SEED, () => shrub(900, 322, 0.62, 'juniper'))], [330, granite(744, 330, 22, 10, true)], [336, sheep(800, 336, 0.85 * FLOCK, false, 'lie')],
+      [346, ownSeed(PINE_SEED + 1, () => shrub(735, 346, 0.6, 'juniper'))], [352, ownSeed(PINE_SEED + 2, () => shrub(748, 352, 0.5, 'gorse'))], [354, granite(836, 354, 28, 12, false)],
       [362, sheep(708, 362, 0.8 * FLOCK, false, 'look')], [366, shrub(724, 366, 0.6, 'gorse')], [382, granite(915, 382, 18, 8, true)],
       [392, granite(700, 392, 30, 13, true)], [394, shrub(856, 394, 0.7, 'bush')], [404, shrub(690, 404, 0.7, 'gorse')],
-      [412, birch(676, 412, 44, -2)], [420, shrub(802, 420, 0.8, 'gorse')], [434, pine(818, 434, 30)],
+      [412, birch(676, 412, 44, -2)], [420, shrub(802, 420, 0.8, 'gorse')], [434, ownSeed(PINE_SEED + 3, () => shrub(818, 434, 0.85, 'juniper'))],
       [437, birch(988, 437, 50, 2)], [444, birch(1001, 444, 38, -1.5)], [452, granite(796, 452, 34, 15, true)],
       [455, bench(664, 455) + bird(668, 439.6, 1, false)], [455.5, rabbit(686, 455, 0.9, false)], [454, rabbit(903, 454, 0.85, true)],
       [458, shrub(1014, 458, 0.7, 'bush')], [459, sheep(938, 459, 0.85 * FLOCK, true, 'lie')], [462, sheep(951, 463, 0.55 * FLOCK, true, 'lie', true)],
