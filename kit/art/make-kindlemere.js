@@ -1849,6 +1849,58 @@ function fieldDefs() {
 }
 
 /**
+ * Owner, 2026-10-09: "add another lake beach section on this side." Below the Orchard the cut bank eases down into a
+ * second little beach like the Field's (land units, drawn over the bank): the sand comes up the bank and goes back
+ * into it in a curve at both ends, pebbles gather where the water reaches, the lake laps at a wet edge, and there is
+ * a piece of driftwood and a clump of reeds. As tall as the Field's beach, at the scale of the dog and the keepers.
+ */
+const BEACH_O = [150, 600];
+function orchardBeach() {
+  const [X0, X1] = BEACH_O;
+  const ease = (k) => { const c = Math.max(0, Math.min(1, k)); return c * c * (3 - 2 * c); };
+  const reach = (x) => 39 * Math.min(ease((x - X0) / 130), ease((X1 - x) / 130));
+  const water = (x) => shoreY(x) + 40;
+  const cols = [];
+  for (let x = X0; x <= X1; x += 6) cols.push(x);
+  const lineAt = (k, wob) => cols.map((x) => [x, water(x) - reach(x) * k + (wob ? r(-wob, wob) : 0)]);
+  const fill = (k0, k1, c, wob) => `<path d="${poly(lineAt(k0, wob).concat(lineAt(k1, 0).reverse()))}" fill="${c}"/>`;
+  let o = fill(1, 0, C.sand, 0.4) + fill(0.55, 0, '#CDB991', 0.5) + fill(0.24, 0, '#B9A47C', 0.4) + fill(0.08, 0, '#A08A66', 0);
+  o += `<path d="${poly(lineAt(1, 0).concat(lineAt(0.92, 0).reverse()))}" fill="${C.ink}" opacity="0.14"/>`;
+  let rip = '';
+  for (let i = 0; i < 22; i += 1) { const x = r(X0 + 60, X1 - 60); const k = r(0.35, 0.9); if (reach(x) < 14) continue; const y = water(x) - reach(x) * k; rip += `M${f(x)} ${f(y)}q2.4 -1 4.8 0`; }
+  o += `<path d="${rip}" stroke="#C2AF8A" stroke-width="0.8" stroke-linecap="round" fill="none"/>`;
+  // the wet edge, and the lake lapping at it
+  o += `<path d="${poly(lineAt(0.1, 0).concat(lineAt(0, 0).reverse()))}" fill="#8E7A5E" opacity="0.5"/>`;
+  let lap = '';
+  for (let x = X0 + 60; x < X1 - 60; x += r(46, 90)) { const y = water(x) - reach(x) * 0.05; const w = r(22, 36); lap += `M${f(x)} ${f(y)}c${f(w * 0.3)} -1.6 ${f(w * 0.6)} 0.8 ${f(w)} -0.4`; }
+  o += `<path d="${lap}" stroke="${C.mereLight}" stroke-width="1.1" stroke-linecap="round" fill="none" opacity="0.8"/>`;
+  // driftwood, bleached, with a snapped branch
+  const dx = 360;
+  o += `<g transform="translate(${dx} ${f(water(dx) - 20)}) rotate(5)">${contact(0, 2.6, 22, 1.6, 0.18)}<path d="M-20 0 C-10 -3 10 -3 20 -1 C21.4 1 20.4 3 18 3.2 C8 2.2 -10 3.2 -20 3.2 C-22.4 2.2 -22.4 1 -20 0 Z" fill="#B8A88C"/>` +
+    `<path d="M-16 0.6 C-6 -1 8 -1 16 0" stroke="#DCD1BA" stroke-width="0.9" fill="none"/><path d="M-12 2.2 h10 M4 1.8 h9" stroke="#8E7E62" stroke-width="0.6"/><path d="M6 -1.6 l5 -5.4" stroke="#B8A88C" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="-20.4" cy="1.6" rx="1.4" ry="1.7" fill="#8E7E62"/></g>`;
+  // a clump of reeds where the sand gives way to the bank
+  let reeds = '';
+  for (let i = 0; i < 9; i += 1) {
+    const x = 520 + i * 2.8; const h = r(18, 30); const y = water(x) - reach(x) * 0.15 + 1;
+    reeds += `<path d="M${f(x)} ${f(y)} q${f(r(-2, 2))} ${f(-h / 2)} ${f(r(-3, 3))} ${f(-h)}" stroke="${i % 3 ? '#4F6E3A' : '#5E7A2A'}" stroke-width="1.5" stroke-linecap="round" fill="none"/>`;
+    if (i % 3 === 0) reeds += `<rect x="${f(x - 1.2)}" y="${f(y - h * 0.86)}" width="2.4" height="6" rx="1.2" fill="${C.clay4}"/>`;
+  }
+  o += `<g class="km-sway">${reeds}</g>`;
+  const peb = [[], [], [], []];
+  for (let i = 0; i < 80; i += 1) {
+    const x = r(X0 + 4, X1 - 4); if (reach(x) < 4) continue;
+    const k = rnd() < 0.65 ? r(0, 0.28) : r(0.3, 0.95);
+    const y = water(x) - reach(x) * k; const s = r(0.8, 2.2);
+    peb[0].push([x + 0.3, y + 0.5, s * 1.1, s * 0.62]);
+    peb[1 + (i % 3)].push([x, y, s, s * 0.58]);
+  }
+  o += ovals('#8E7A5E', peb[0]) + ovals(C.fGlow, peb[1]) + ovals(C.fLight, peb[2]) + ovals('#C9BFA6', peb[3]);
+  let tufts = '';
+  for (let x = X0 + 20; x < X1 - 20; x += r(5, 10)) { if (reach(x) < 6) continue; const y = water(x) - reach(x) + r(0.5, 3); tufts += `<use href="#kmt-${pick(['a', 'b', 'c', 'e'])}" x="${f(x)}" y="${f(y)}"/>`; }
+  return `<g class="km-beach">${o}${tufts}</g>`;
+}
+
+/**
  * The bay's edge below the Field (land units, drawn over the bank): the bank's cut face sinks into a little beach of
  * sand and pebbles from the stream's mouth eastward, until the grass runs straight down to the sand. A wrack line, a
  * stick, grass tufts at the top, and the dog's paw prints down to the water.
@@ -1958,6 +2010,8 @@ function bank() {
   for (let i = 0; i < 60; i += 1) { const x = r(0, 1600); const y = shoreY(x) + 6; const len = r(6, 18); o += `<path d="M${f(x)} ${f(y)} c${f(r(-3, 3))} ${f(len * 0.4)} ${f(r(-5, 5))} ${f(len * 0.7)} ${f(r(-3, 3))} ${f(len)}" stroke="${C.dDark}" stroke-width="${f(r(0.8, 1.5))}" stroke-linecap="round" fill="none" opacity="0.8"/>`; }
   // Below the Field the bank sinks into a little beach on the bay (fieldBeach(), its own seed).
   o += ownSeed(FIELD_SEED + 1, fieldBeach);
+  // Below the Orchard it sinks into a second (orchardBeach(), its own seed).
+  o += ownSeed(ORCHARD_SEED + 2, orchardBeach);
   return g('id="km-bank"', o);
 }
 
