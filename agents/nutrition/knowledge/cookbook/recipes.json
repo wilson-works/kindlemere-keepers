@@ -79,7 +79,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "salt",
      "prep": "",
@@ -761,19 +761,19 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "hemp hearts (hulled hemp seeds)",
-     "prep": "divided",
+     "prep": "¼ cup, divided",
      "aisle": "nuts, seeds and dried fruit",
      "optional": false
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "flax meal (ground flaxseed)",
-     "prep": "divided",
+     "prep": "¼ cup, divided",
      "aisle": "nuts, seeds and dried fruit",
      "optional": false
     }
@@ -1045,7 +1045,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground black pepper",
      "prep": "",
@@ -1072,10 +1072,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "salsa",
-     "prep": "divided",
+     "prep": "¼ cup, divided",
      "aisle": "oils, vinegars and condiments",
      "optional": false
     },
@@ -3245,7 +3245,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "garlic powder",
      "prep": "",
@@ -3254,7 +3254,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "salt",
      "prep": "",
@@ -3263,7 +3263,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground black pepper",
      "prep": "",
@@ -3387,7 +3387,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "salt",
      "prep": "",
@@ -4412,10 +4412,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "fresh parsley",
-     "prep": "chopped, divided",
+     "prep": "¼ cup, chopped, divided",
      "aisle": "produce",
      "optional": false
     }
@@ -4518,7 +4518,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "crushed red pepper flakes",
      "prep": "",
@@ -5040,10 +5040,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "lime juice",
-     "prep": "divided (about 2 limes)",
+     "prep": "¼ cup, divided (about 2 limes)",
      "aisle": "produce",
      "optional": false
     },
@@ -5665,7 +5665,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground black pepper",
      "prep": "",
@@ -6167,7 +6167,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Dash",
+     "qty_text": "",
      "unit": "dash",
      "item": "hot sauce",
      "prep": "",
@@ -6268,10 +6268,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "pesto",
-     "prep": "divided (store-bought or homemade)",
+     "prep": "¼ cup, divided (store-bought or homemade)",
      "aisle": "deli and refrigerated",
      "optional": false
     },
@@ -6295,10 +6295,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "shredded mozzarella cheese",
-     "prep": "",
+     "prep": "¼ cup",
      "aisle": "dairy and eggs",
      "optional": false
     }
@@ -6882,7 +6882,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground black pepper",
      "prep": "",
@@ -7393,7 +7393,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground cumin",
      "prep": "",
@@ -7402,7 +7402,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "garlic powder",
      "prep": "",
@@ -7411,7 +7411,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "cayenne or chili powder",
      "prep": "",
@@ -8112,7 +8112,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "salt",
      "prep": "",
@@ -8130,10 +8130,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch-¼ teaspoon",
+     "qty_text": "",
      "unit": "pinch",
      "item": "red pepper flakes",
-     "prep": "to taste",
+     "prep": "up to ¼ teaspoon, to taste",
      "aisle": "spices and seasonings",
      "optional": false
     },
@@ -8157,10 +8157,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "fresh basil",
-     "prep": "chopped, divided",
+     "prep": "¼ cup, chopped, divided",
      "aisle": "produce",
      "optional": false
     }
@@ -8950,10 +8950,10 @@
     },
     {
      "qty": 0.5,
-     "qty_text": "½ pound (8 ounces)",
+     "qty_text": "½",
      "unit": "lb",
      "item": "boneless skinless chicken breasts",
-     "prep": "sliced into thin strips",
+     "prep": "8 ounces, sliced into thin strips",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -10204,7 +10204,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "salt",
      "prep": "",
@@ -10213,7 +10213,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "ground black pepper",
      "prep": "",
@@ -10725,10 +10725,10 @@
     },
     {
      "qty": 6,
-     "qty_text": "6 cups (48 ounces)",
+     "qty_text": "6",
      "unit": "cup",
      "item": "low-sodium chicken or vegetable broth",
-     "prep": "",
+     "prep": "48 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -11031,10 +11031,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "fresh cilantro",
-     "prep": "chopped, divided",
+     "prep": "¼ cup, chopped, divided",
      "aisle": "produce",
      "optional": false
     },
@@ -11049,7 +11049,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Pinch",
+     "qty_text": "",
      "unit": "pinch",
      "item": "cayenne",
      "prep": "",
@@ -11058,10 +11058,10 @@
     },
     {
      "qty": 8,
-     "qty_text": "8 tablespoons (½ cup)",
+     "qty_text": "8",
      "unit": "tbsp",
      "item": "lime juice",
-     "prep": "(about 4 limes), divided",
+     "prep": "½ cup, (about 4 limes), divided",
      "aisle": "produce",
      "optional": false
     },
@@ -11076,28 +11076,28 @@
     },
     {
      "qty": 8,
-     "qty_text": "8 tablespoons (½ cup)",
+     "qty_text": "8",
      "unit": "tbsp",
      "item": "bell pepper",
-     "prep": "chopped (about ½ medium bell pepper), divided",
+     "prep": "½ cup, chopped (about ½ medium bell pepper), divided",
      "aisle": "produce",
      "optional": false
     },
     {
      "qty": 8,
-     "qty_text": "8 tablespoons (½ cup)",
+     "qty_text": "8",
      "unit": "tbsp",
      "item": "frozen or no-salt-added canned corn",
-     "prep": "thawed if frozen, drained and rinsed if canned; divided",
+     "prep": "½ cup, thawed if frozen, drained and rinsed if canned; divided",
      "aisle": "frozen",
      "optional": false
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "plain nonfat Greek yogurt",
-     "prep": "divided",
+     "prep": "¼ cup, divided",
      "aisle": "dairy and eggs",
      "optional": false
     },
@@ -11222,10 +11222,10 @@
     },
     {
      "qty": 8,
-     "qty_text": "8 ounces (½ pound)",
+     "qty_text": "8",
      "unit": "oz",
      "item": "boneless, skinless chicken breast",
-     "prep": "cut into bite-size chunks or strips",
+     "prep": "½ pound, cut into bite-size chunks or strips",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -11383,10 +11383,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "1 pound (16 ounces)",
+     "qty_text": "1",
      "unit": "lb",
      "item": "frozen broccoli florets",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "frozen",
      "optional": false
     },
@@ -11401,10 +11401,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "1 pound (16 ounces)",
+     "qty_text": "1",
      "unit": "lb",
      "item": "shrimp",
-     "prep": "deveined and peeled, thawed if frozen",
+     "prep": "16 ounces, deveined and peeled, thawed if frozen",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -11499,10 +11499,10 @@
    "ingredients": [
     {
      "qty": 2,
-     "qty_text": "2 cups (16 ounces)",
+     "qty_text": "2",
      "unit": "cup",
      "item": "low-sodium vegetable broth",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -11764,10 +11764,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "1 pound (16 ounces)",
+     "qty_text": "1",
      "unit": "lb",
      "item": "lean ground turkey (90% lean or higher)",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -11884,10 +11884,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "1 pound (16 ounces)",
+     "qty_text": "1",
      "unit": "lb",
      "item": "lean ground turkey (90% lean or higher)",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -12255,10 +12255,10 @@
     },
     {
      "qty": 1,
-     "qty_text": "1 pound (16 ounces)",
+     "qty_text": "1",
      "unit": "lb",
      "item": "lean ground turkey (90% lean or higher)",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "meat and seafood",
      "optional": false
     },
@@ -12842,10 +12842,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 cups (32 ounces)",
+     "qty_text": "4",
      "unit": "cup",
      "item": "no-salt-added chicken broth",
-     "prep": "",
+     "prep": "32 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -15141,10 +15141,10 @@
     },
     {
      "qty": 2,
-     "qty_text": "2 cups (16 ounces)",
+     "qty_text": "2",
      "unit": "cup",
      "item": "100% pomegranate juice",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "beverages",
      "optional": false
     },
@@ -15168,10 +15168,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 tablespoons (¼ cup)",
+     "qty_text": "4",
      "unit": "tbsp",
      "item": "sliced almonds",
-     "prep": "toasted",
+     "prep": "¼ cup, toasted",
      "aisle": "nuts, seeds and dried fruit",
      "optional": false
     }
@@ -15347,7 +15347,7 @@
     },
     {
      "qty": 1,
-     "qty_text": "Dash",
+     "qty_text": "",
      "unit": "dash",
      "item": "nutmeg (for honey orange sauce)",
      "prep": "",
