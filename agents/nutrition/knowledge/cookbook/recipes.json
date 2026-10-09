@@ -10745,7 +10745,7 @@
      "qty": 1,
      "qty_text": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen mixed vegetables",
+     "item": "frozen mixed vegetables (e.g. green beans, carrots, corn, peas)",
      "prep": "",
      "aisle": "frozen",
      "optional": false
@@ -12329,7 +12329,7 @@
      "qty": 2,
      "qty_text": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added beans",
+     "item": "no-salt-added beans (one type or a combination, e.g. kidney, black, pinto)",
      "prep": "drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
