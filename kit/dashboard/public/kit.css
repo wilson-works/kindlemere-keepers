@@ -99,7 +99,7 @@ a { color: var(--a-land); text-underline-offset: 3px; }
 }
 
 /* The Weave: a dotted thread between things that belong together. */
-.km-thread { border: 0; height: 0; margin: var(--km-space-5) 0; border-top: 3px dotted var(--a-land); opacity: 0.55; }
+.km-thread { border: 0; height: 0; margin: var(--km-space-5) 0; border-top: 1px dotted var(--km-ink-soft); opacity: 0.55; }
 
 .km-source { color: var(--km-ink-soft); font-size: var(--km-text-xs); font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
 
