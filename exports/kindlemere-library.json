@@ -1,9 +1,9 @@
 {
  "format": "kindlemere-library/1",
- "generated_at": "2026-10-09T03:27:24-05:00",
+ "generated_at": "2026-10-09T03:57:04-05:00",
  "source": {
-  "repo": "wilson-works/wellbeing-agents",
-  "sha": "852594d72dd9f9078b7bb3933c84c01f2bf3927d"
+  "repo": "wilson-works/kindlemere-keepers",
+  "sha": "9697fb67c01c3e26c6cb8d4ecb82867022b9e376"
  },
  "recipes": [
   {
@@ -8473,7 +8473,7 @@
     {
      "qty": "1 (10-ounce)",
      "unit": "package",
-     "item": "frozen mixed vegetables",
+     "item": "frozen mixed vegetables (e.g. green beans, carrots, corn, peas)",
      "aisle": "frozen",
      "optional": false
     },
@@ -9728,7 +9728,7 @@
     {
      "qty": "2 (15-ounce)",
      "unit": "can",
-     "item": "no-salt-added beans, drained and rinsed",
+     "item": "no-salt-added beans (one type or a combination, e.g. kidney, black, pinto), drained and rinsed",
      "aisle": "canned and jarred",
      "optional": false
     },

@@ -21,6 +21,51 @@
   .km-way .km-btn[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
   .km-shut:empty { display: none; }
   body { --a-sky: #D6E7EF; }
+
+  /* The meadow (owner, 2026-10-09: "make the entire background like a massive meadow field ... pull the perspective
+     back to make the footer the foreground beach"): kit/art/kindlemere-meadow.svg, fixed to the window behind
+     everything, so the bar's treeline is its far edge and the beach along the bottom is the nearest thing. Asher plays
+     fetch on it, under the cards (/kit/kindlemere-fetch.js). Negative layers, so the page keeps its own stacking and
+     the full-screen park still covers it all. */
+  body { background: #B3CD78; }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background: #B3CD78 url("/kit/art/kindlemere-meadow.svg") 50% 100% / cover no-repeat;
+  }
+  /* words standing on the meadow sit on paper */
+  .km-hint, .km-ways > h2 { width: fit-content; max-width: 100%; padding: 4px 12px; border-radius: var(--km-radius-sm); background: rgba(255, 255, 255, 0.9); }
+  .km-ways > h2 { padding: 6px 16px; }
+  /* the foot stands on the beach: its words on a paper sign, and clear sand below it for Asher */
+  .km-foot {
+    width: min(100% - 2 * var(--km-gutter), var(--km-page-max) - 2 * var(--km-gutter)); margin: var(--km-space-2) auto max(24vh, 170px);
+    padding: var(--km-space-4) var(--km-space-5); border-radius: var(--km-radius); box-shadow: var(--km-layer);
+    background: rgba(255, 255, 255, 0.94); color: var(--km-ink);
+  }
+  .km-foot::before { display: none; }
+  .km-foot a { color: var(--km-mere-deep); }
+  .km-foot .km-foot-made { color: var(--km-ink-soft); }
+
+  /* The game (kindlemere-fetch.js): the dog and the ball under the cards, the two buttons over them by his home. */
+  .km-fetch { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .km-fetch.km-fetch-front { z-index: 4; }
+  .km-fetch > svg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+  html.km-fetch-aim, html.km-fetch-aim body { cursor: pointer; }
+  .km-fetch-tools {
+    position: fixed; z-index: 5; right: max(12px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom));
+    display: flex; gap: 8px;
+  }
+  .km-fetch-tools button {
+    min-height: 40px; padding: 0 14px; border: 1px solid rgba(26, 36, 51, 0.16); border-radius: var(--km-radius-pill); cursor: pointer;
+    background: rgba(255, 255, 255, 0.95); color: var(--km-ink); font: 700 var(--km-text-sm)/1 var(--km-font-head);
+    box-shadow: 0 3px 0 rgba(26, 36, 51, 0.18);
+  }
+  .km-fetch-tools button[aria-disabled="true"] { opacity: 0.55; cursor: default; }
+  @media (max-width: 480px) { .km-fetch-tools { gap: 6px; } .km-fetch-tools button { min-height: 36px; padding: 0 11px; font-size: var(--km-text-xs); } }
+  .km-fetch-tools .km-fetch-wait { background: var(--km-mere-deep); border-color: var(--km-mere-deep); color: #FFFFFF; }
+  .km-fetch-tools .km-fetch-nudge { animation: km-fetch-nudge 0.5s ease-out; }
+  @keyframes km-fetch-nudge { 30% { transform: translateY(-8px) scale(1.06); } 60% { transform: translateY(0) scale(1); } 80% { transform: translateY(-3px); } }
+  .km-fetch-say { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  html.km-full-on :is(.km-fetch, .km-fetch-tools) { display: none; }
 </style>
 </head>
 <body>
@@ -61,5 +106,6 @@
 <footer class="km-foot"><p>Stuck on something? A keeper checks Louise's books first, then the research library, then the web, and tells you where each fact came from. Louise lives across the water. When she's on this computer, she gets your question as a lantern.</p></footer>
 <script src="/kit/kit.js"></script>
 <script src="/kit/kindlemere-page.js"></script>
+<script src="/kit/kindlemere-fetch.js"></script>
 </body>
 </html>

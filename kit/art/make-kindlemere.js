@@ -2969,10 +2969,121 @@ function shoreFile() {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${o}</svg>
 `;
 }
+
+/* Owner, 2026-10-09, on the Kindlemere page: "make the entire background like a massive meadow field, and those trees
+   are the scale so asher would be only like a white dot at that point on the screen, but pull the perspective back to
+   make the footer the foreground beach". The ground behind the whole page (kit/dashboard/public/kindlemere.html), which
+   covers the window bottom edge to bottom edge: a meadow running from the bar's treeline, far off at the top, down to a
+   beach and the water's edge along the bottom, the nearest thing. A flat ground in perspective: a thing's size goes with
+   how far down the picture it stands, plus MEADOW.E (so at the very top it is a speck), the rule
+   /kit/kindlemere-fetch.js sizes Asher by. Fine detail is drawn once and placed many times, so the file stays small. */
+const MEADOW = { W: 3200, H: 1000, E: 0.04, SAND: 0.87, WET: 0.948, WATER: 0.962 };
+function meadowFile() {
+  const { W, H, E } = MEADOW;
+  const P = (y) => y / H + E; // the size of a thing standing at y: about 1 at the front
+  const wavy = (y0, amp, len, ph) => { let d = `M0 ${H} L0 ${f(y0 + amp * Math.sin(ph))}`; for (let x = 40; x <= W; x += 40) d += ` L${x} ${f(y0 + amp * Math.sin(ph + (x / len) * Math.PI * 2) + amp * 0.4 * Math.sin(ph * 3 + (x / len) * 7.3))}`; return `${d} L${W} ${H} Z`; };
+  // three tufts and a flower, a blade's height 10 at size 1 (the flower's petals take the colour they are placed with)
+  let defs = '<linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D5E4B0"/><stop offset="0.12" stop-color="#C6DB98"/><stop offset="0.5" stop-color="#B3CD78"/><stop offset="0.87" stop-color="#9FBE58"/></linearGradient>';
+  defs += '<linearGradient id="ms" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEE0BC"/><stop offset="1" stop-color="#E2CB98"/></linearGradient>';
+  defs += '<linearGradient id="mw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E7487"/><stop offset="1" stop-color="#1F5C6E"/></linearGradient>';
+  defs += '<path id="t0" d="M-5 0Q-5 -5 -7.5 -8.5Q-2.5 -5 -2 0ZM-2 0Q-1 -6 0 -11Q1.6 -6 1.5 0ZM1.5 0Q3 -4 6.5 -7.5Q4 -3 4.5 0Z"/>';
+  defs += '<path id="t1" d="M-4.5 0Q-6 -4 -9 -6Q-4 -4.5 -2.5 0ZM-2.5 0Q-3 -6 -2 -10Q0 -5 0.5 0ZM0.5 0Q2 -7 4.5 -12Q3 -6 3 0ZM3 0Q5 -3 8 -5Q5.5 -2 5.5 0Z"/>';
+  defs += '<path id="t2" d="M-3 0Q-3.5 -5 -5.5 -9Q-1 -5 -0.5 0ZM-0.5 0Q1 -5 3.5 -9.5Q2.5 -4 2.5 0Z"/>';
+  defs += '<g id="fl"><circle cx="0" cy="-2.6" r="1.5"/><circle cx="2.5" cy="-0.8" r="1.5"/><circle cx="1.6" cy="2.1" r="1.5"/><circle cx="-1.6" cy="2.1" r="1.5"/><circle cx="-2.5" cy="-0.8" r="1.5"/><circle r="1.2" fill="#F2B632"/></g>';
+  let o = `<rect width="${W}" height="${H}" fill="url(#mg)"/>`;
+  // a far hedge along the top, under the bar's own trees
+  o += ownSeed(CHROME_SEED + 2, () => {
+    let d = '';
+    for (let x = -10; x < W + 10; x += r(10, 22)) { const rr = r(4, 9); d += `M${f(x - rr)} 14a${f(rr)} ${f(rr * 0.8)} 0 1 1 ${f(2 * rr)} 0Z`; }
+    return `<path d="M0 0H${W}V16H0Z" fill="#B8CD92"/><path d="${d}" fill="#9DB57A"/><path d="M0 14H${W}V19H0Z" fill="#A9C182"/>`;
+  });
+  return ownSeed(CHROME_SEED + 3, () => {
+    // soft patches of longer and shorter grass, flatter the further off they lie
+    for (let i = 0; i < 70; i += 1) {
+      const y = r(0.03, 0.85) * H; const rx = P(y) * r(160, 460); const ry = rx * (0.06 + 0.14 * (y / H));
+      o += `<ellipse cx="${f(r(0, W))}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}" fill="${pick(['#C8DC93', '#A6C163', '#BCD484'])}" opacity="0.5"/>`;
+    }
+    // the tufts and flowers, row by row toward the front: rows and tufts closer together the further off they lie
+    const COLS = [['#AFC67C', '#A3BD6C'], ['#93B04C', '#86A644'], ['#7C9C3A', '#6F9032']];
+    const tufts = COLS.map(() => []); const flowers = { '#FFFFFF': [], '#FCE37A': [], '#E9A6BE': [], '#A9C2EE': [] };
+    for (let t = 0.035; t < MEADOW.SAND - 0.01;) {
+      const s = 2.6 * P(t * H); // a tuft's scale (its tallest blade is 10 high at scale 1)
+      const thin = 1 + 3.5 * (1 - t) * (1 - t);
+      for (let x = r(0, 60 * s); x < W; x += s * r(30, 90) * thin) {
+        const y = (t + r(-0.5, 0.5) * (s * 6) / H) * H;
+        const band = t < 0.3 ? 0 : t < 0.62 ? 1 : 2;
+        const sc = s * r(0.75, 1.25);
+        const k = sc < 1 ? sc.toFixed(2) : f(sc);
+        tufts[band].push(`<use href="#t${Math.floor(rnd() * 3)}" transform="translate(${f(x)} ${f(y)}) scale(${rnd() < 0.5 ? `-${k} ${k}` : k})"/>`);
+        if (rnd() < 0.16 + 0.1 * t) {
+          const k = rnd(); const col = k < 0.45 ? '#FFFFFF' : k < 0.75 ? '#FCE37A' : k < 0.92 ? '#E9A6BE' : '#A9C2EE';
+          flowers[col].push(`<use href="#fl" transform="translate(${f(x + r(-4, 4) * s)} ${f(y - r(3, 8) * s)}) scale(${(s * r(0.7, 1)).toFixed(2)})"/>`);
+        }
+      }
+      t += (s * r(14, 20)) / H;
+    }
+    tufts.forEach((list, i) => {
+      const half = Math.ceil(list.length / 2);
+      o += `<g fill="${COLS[i][0]}">${list.slice(0, half).join('')}</g><g fill="${COLS[i][1]}">${list.slice(half).join('')}</g>`;
+    });
+    for (const col of Object.keys(flowers)) o += `<g fill="${col}">${flowers[col].join('')}</g>`;
+
+    // the beach: sand from the meadow's edge to the water, the nearest thing
+    o += `<path d="${wavy(MEADOW.SAND * H, 5, 520, 0.6)}" fill="url(#ms)"/>`;
+    // dune grass along the meadow's edge, leaning over the sand
+    let dune = '';
+    for (let x = r(0, 30); x < W; x += r(18, 70)) {
+      const y = MEADOW.SAND * H + 4 + r(-3, 5); const s = 2.6 * P(y) * r(0.9, 1.5);
+      dune += `<use href="#t${Math.floor(rnd() * 3)}" transform="translate(${f(x)} ${f(y)}) scale(${f(s)} ${f(s * 1.3)})"/>`;
+    }
+    o += `<g fill="#8EA94E">${dune}</g>`;
+    // Asher's paw prints running along the sand, and the pebbles and shells the water left
+    for (let i = 0; i < 26; i += 1) {
+      const x = 2920 - i * 112 + (i % 2) * 18; const y = 905 + 10 * Math.sin(i * 0.5) + (i % 2) * 9; const s = P(y) * 1.5;
+      o += `<g transform="translate(${f(x)} ${f(y)}) scale(${f(s)})" fill="#D6BE8C"><ellipse cx="0" cy="2" rx="4.2" ry="2.6"/><ellipse cx="-4.4" cy="-2" rx="1.6" ry="1.2"/><ellipse cx="-1.5" cy="-3.6" rx="1.6" ry="1.2"/><ellipse cx="1.8" cy="-3.6" rx="1.6" ry="1.2"/><ellipse cx="4.6" cy="-2" rx="1.6" ry="1.2"/></g>`;
+    }
+    for (let i = 0; i < 120; i += 1) {
+      const y = r(MEADOW.SAND + 0.015, MEADOW.WET - 0.004) * H; const x = r(0, W); const rr = P(y) * r(2, 6.5);
+      o += `<ellipse cx="${f(x)}" cy="${f(y + rr * 0.45)}" rx="${f(rr * 1.15)}" ry="${f(rr * 0.35)}" fill="${C.ink}" opacity="0.14"/><ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rr * 1.2)}" ry="${f(rr * 0.75)}" fill="${pick(['#9C8A68', '#B8A27C', '#A8946E', '#C9B999', '#8C9DAB'])}"/>`;
+    }
+    for (let i = 0; i < 16; i += 1) {
+      const y = r(MEADOW.SAND + 0.03, MEADOW.WET) * H; const s = P(y) * r(1.4, 2);
+      o += `<g transform="translate(${f(r(0, W))} ${f(y)}) rotate(${f(r(-30, 30))}) scale(${f(s)})"><path d="M0 0L-5 -6Q0 -9 5 -6Z" fill="#F4E2D2"/><path d="M0 0L-2.6 -7M0 0V-8M0 0L2.6 -7" stroke="#D9BBA4" stroke-width="0.7" fill="none"/></g>`;
+    }
+    // driftwood, washed up
+    for (const [x, rot] of [[430, -4], [2240, 3]]) {
+      const y = 0.925 * H; const s = P(y) * 2.2;
+      o += `<g transform="translate(${x} ${f(y)}) rotate(${rot}) scale(${f(s)})"><ellipse cx="0" cy="5" rx="44" ry="3" fill="${C.ink}" opacity="0.14"/><path d="M-44 0Q-44 -6 -36 -6H34Q42 -7 46 -2Q42 4 34 3H-36Q-44 4 -44 0Z" fill="#B79E80"/><path d="M-30 -2H10M16 -3H36M-18 1H24" stroke="#9A8166" stroke-width="1" stroke-linecap="round"/><path d="M12 -6l7 -9" stroke="#B79E80" stroke-width="3" stroke-linecap="round"/></g>`;
+    }
+    // the water's edge: wet sand, a line of foam, then the lake along the very bottom
+    o += `<path d="${wavy(MEADOW.WET * H, 3, 300, 2.1)}" fill="#D7C192"/>`;
+    o += `<path d="${wavy(MEADOW.WATER * H - 3, 3.5, 260, 1.3)}" fill="#FFFFFF" opacity="0.85"/>`;
+    o += `<path d="${wavy(MEADOW.WATER * H, 3.5, 260, 1.3)}" fill="url(#mw)"/>`;
+    let shine = '';
+    for (let i = 0; i < 46; i += 1) { const y = r(MEADOW.WATER + 0.012, 0.99) * H; shine += `M${f(r(0, W))} ${f(y)}h${f(P(y) * r(14, 40))}`; }
+    o += `<path d="${shine}" stroke="#CFE6EA" stroke-width="2" stroke-linecap="round" opacity="0.6"/>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><defs>${defs}</defs>${o}</svg>
+`;
+  });
+}
+
+/* Asher the Dasher for the page's game of fetch (/kit/kindlemere-fetch.js): the park's one dog (FIELD_DOG, the field
+   dog's own drawing and motion), on his own, dry-pawed, with his ball apart from him (#ka-ball, centred on 0 0). His
+   ids carry ka- so they never meet the scene's. */
+function asherFile() {
+  const ka = (s) => s.replace(/dt-(layer|body-clip|thigh-clip)\b/g, 'ka-$1').replace(/ data-km-part="[^"]*"/g, '');
+  const dog = ka(FIELD_DOG.group).replace(/<g id="dt-dog"[^>]*>/, '<g id="ka-dog" class="dt-dog dt-dry">');
+  const ball = /<g class="dt-held dt-if-held">([\s\S]*?)<\/g>/.exec(FIELD_DOG.group.replace(/ data-km-part="[^"]*"/g, ''))[1];
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-28 -56 204 128" width="204" height="128"><defs>${ka(FIELD_DOG.defs)}<style>${FIELD_DOG.style}</style></defs>
+${dog}
+<g id="ka-ball"><g transform="translate(-137 -9)">${ball}</g></g>
+</svg>
+`;
+}
 const CHROME_SEED = 20261013;
 
 if (require.main === module) {
-  for (const [file, draw] of [['kindlemere-treeline.svg', treelineFile], ['kindlemere-shore.svg', shoreFile]]) {
+  for (const [file, draw] of [['kindlemere-treeline.svg', treelineFile], ['kindlemere-shore.svg', shoreFile], ['kindlemere-meadow.svg', meadowFile], ['kindlemere-asher.svg', asherFile]]) {
     const out = path.join(__dirname, file);
     fs.writeFileSync(out, draw(), 'utf8');
     process.stdout.write(`Drew ${path.relative(process.cwd(), out)}, a page edge\n`);

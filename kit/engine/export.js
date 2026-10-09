@@ -144,7 +144,7 @@ function build() {
   return {
     format: 'kindlemere-library/1',
     generated_at: centralIso(new Date()),
-    source: { repo: 'wilson-works/wellbeing-agents', sha: sha() },
+    source: { repo: 'wilson-works/kindlemere-keepers', sha: sha() },
     recipes: agents.flatMap(recipesOf),
     cards: agents.flatMap(cardsOf),
   };
