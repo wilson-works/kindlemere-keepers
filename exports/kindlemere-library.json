@@ -1,9 +1,9 @@
 {
  "format": "kindlemere-library/1",
- "generated_at": "2026-10-09T01:44:43-05:00",
+ "generated_at": "2026-10-09T02:20:39-05:00",
  "source": {
   "repo": "wilson-works/wellbeing-agents",
-  "sha": "9d79b22127aeffffa34574fa51ef6872b1e7c386"
+  "sha": "1ece7d89af22d391551e4e101fee841c18fabd84"
  },
  "recipes": [
   {
@@ -8457,9 +8457,9 @@
      "optional": false
     },
     {
-     "qty": "6 cups (48 ounces)",
+     "qty": "6",
      "unit": "cup",
-     "item": "low-sodium chicken or vegetable broth",
+     "item": "low-sodium chicken or vegetable broth, 48 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -9072,9 +9072,9 @@
    "cook_min": 360,
    "ingredients": [
     {
-     "qty": "2 cups (16 ounces)",
+     "qty": "2",
      "unit": "cup",
-     "item": "low-sodium vegetable broth",
+     "item": "low-sodium vegetable broth, 16 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -10132,9 +10132,9 @@
      "optional": false
     },
     {
-     "qty": "4 cups (32 ounces)",
+     "qty": "4",
      "unit": "cup",
-     "item": "no-salt-added chicken broth",
+     "item": "no-salt-added chicken broth, 32 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -11960,9 +11960,9 @@
      "optional": false
     },
     {
-     "qty": "2 cups (16 ounces)",
+     "qty": "2",
      "unit": "cup",
-     "item": "100% pomegranate juice",
+     "item": "100% pomegranate juice, 16 ounces",
      "aisle": "beverages",
      "optional": false
     },

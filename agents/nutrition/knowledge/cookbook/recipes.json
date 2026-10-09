@@ -10725,10 +10725,10 @@
     },
     {
      "qty": 6,
-     "qty_text": "6 cups (48 ounces)",
+     "qty_text": "6",
      "unit": "cup",
      "item": "low-sodium chicken or vegetable broth",
-     "prep": "",
+     "prep": "48 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -11499,10 +11499,10 @@
    "ingredients": [
     {
      "qty": 2,
-     "qty_text": "2 cups (16 ounces)",
+     "qty_text": "2",
      "unit": "cup",
      "item": "low-sodium vegetable broth",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -12842,10 +12842,10 @@
     },
     {
      "qty": 4,
-     "qty_text": "4 cups (32 ounces)",
+     "qty_text": "4",
      "unit": "cup",
      "item": "no-salt-added chicken broth",
-     "prep": "",
+     "prep": "32 ounces",
      "aisle": "canned and jarred",
      "optional": false
     },
@@ -15141,10 +15141,10 @@
     },
     {
      "qty": 2,
-     "qty_text": "2 cups (16 ounces)",
+     "qty_text": "2",
      "unit": "cup",
      "item": "100% pomegranate juice",
-     "prep": "",
+     "prep": "16 ounces",
      "aisle": "beverages",
      "optional": false
     },
