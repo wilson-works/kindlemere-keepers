@@ -989,6 +989,19 @@ function streamLand() {
 }
 
 /** The worn trail from the foot of the stone steps to the start of the path to the signpost (land units). */
+// The same, as one of the dirt shapes laid down with the paths (dirtGround): its end runs into the path to the
+// signpost as one piece of ground, no seam (owner, 2026-10-09: "polishing up the end points").
+function stepsFootShape() {
+  const d = 'M603 532.6 Q628 533 657 540.2 C661 552 677 564 701 571 L692 579 C656 576 612 562 603 532.6 Z';
+  const moved = d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (m, x, y) => `${f(Number(x) + 1)} ${f(Number(y) + 1.4)}`);
+  const spine = [[612, 535, 10], [632, 538, 13], [652, 546, 11], [666, 557, 9], [680, 566, 7], [694, 574, 5]];
+  return {
+    edge: moved, earth: d, worn: 'M614 534.6 Q631 535 646 539.4 C652 551 670 563 694 573.4 C664 570 626 558 614 534.6 Z',
+    extra: `<path d="M609 538 h3 M650 543 h2.6 M624 549 h2 M660 561 h2.4 M676 569 h2" stroke="${C.fLight}" stroke-width="1.4" stroke-linecap="round"/>`,
+    peb: [], tufts: [[604, 538, 'a'], [608, 549, 'd'], [619, 558, 'b'], [636, 566, 'e'], [655, 572, 'a'], [673, 577, 'd'], [659, 546, 'b'], [664, 554, 'e'], [676, 561, 'a'], [688, 566, 'b']],
+    on: (x, y, m) => near(spine, x, y, m),
+  };
+}
 function stepsFoot() {
   // The trail wears through the grassy lip where the hill meets the meadow, then narrows to the path's end.
   const d = 'M603 532.6 Q628 533 657 540.2 C661 552 677 564 701 571 L692 579 C656 576 612 562 603 532.6 Z';
@@ -1755,16 +1768,102 @@ function bank() {
   return g('id="km-bank"', o);
 }
 
+/*
+ * The ground people walk on between the places: dirt worn into the meadow, drawn the way the Hill's trail is
+ * (stepsTrail): a shaded edge, the earth, a lighter worn middle, a few pebbles at its edges and grass growing up to it.
+ * Owner, 2026-10-09: "the paths with the dots should be replaced by natural dirt paths like on the hill", "that trail
+ * from the dock is not the right size" (a footpath about as wide as a keeper's body, narrower going up and away) and
+ * "the wayfinding circle dirt doesnt match with the paths". So the paths and the landing under the signpost come from
+ * one dirt style (DIRT) and are laid down together, every edge, then every earth, then every worn middle, so a path
+ * runs into its landing as one piece of ground. Each shape has a seed of its own, so nothing else in the park moves.
+ */
+const DIRT = { edge: '#A8865A', earth: '#C9A77A', worn: '#D6BC90', pebbles: ['#B8A27C', '#9C8A68', '#D8CCAA'] };
+const PATH_SEED = 20261009;
+const smoothShape = (pts) => {
+  const n = pts.length;
+  let d = `M${f((pts[n - 1][0] + pts[0][0]) / 2)} ${f((pts[n - 1][1] + pts[0][1]) / 2)}`;
+  pts.forEach((p, i) => { const q = pts[(i + 1) % n]; d += `Q${f(p[0])} ${f(p[1])} ${f((p[0] + q[0]) / 2)} ${f((p[1] + q[1]) / 2)}`; });
+  return `${d}Z`;
+};
+// Pebbles at a dirt edge and grass beyond it, never on it: a tuft below the edge stands far enough off that its blades,
+// growing up, stop short of it. Each edge point is [x, y, nx, ny]: where it is and the way out of the dirt.
+function dirtEdge(edge, shape) {
+  edge.forEach(([x, y, sx, sy], i) => {
+    if (i % 2 === 0 && rnd() < 0.3) shape.peb.push([x + r(-0.8, 0.8), y + r(-0.5, 0.5), r(0.5, 1.1)]);
+    if (i % 2 === 1 && rnd() < 0.45) {
+      const d = (sy > 0.15 ? Math.min(14, 5 / sy) : 2.6) + r(0, 1.4);
+      shape.tufts.push([x + sx * d, y + sy * d, pick(['a', 'b', 'c', 'd', 'e'])]);
+    }
+  });
+}
+/** A path along a cubic (c: its control points, start to end), its half width a function of t along it. A path that
+ * starts out in the meadow (open) rounds off there; every worn middle fades out at its ends, so no end shows a cut. */
+function dirtPath(c, width, n, open) {
+  return ownSeed(PATH_SEED + n, () => {
+    const pts = [];
+    for (let i = 0; i <= 48; i += 1) { const t = i / 48; pts.push([bez(c[0], c[2], c[4], c[6], t), bez(c[1], c[3], c[5], c[7], t), width(t)]); }
+    const round = pts.map(([x, y, w], i) => [x, y, open && i < 5 ? w * Math.sqrt(1 - ((5 - i) / 5.6) ** 2) : w]);
+    const shape = {
+      edge: strip(round.map(([x, y, w]) => [x + 0.8, y + 1.2, w + 0.6]), -1, 1, 1.1),
+      earth: strip(round, -1, 1, 1.2),
+      worn: strip(pts.map(([x, y, w], i) => [x, y, w * Math.min(1, i / 8, (pts.length - 1 - i) / 8)]), -0.55, 0.4, 0.9),
+      peb: [], tufts: [], on: (x, y, m) => near(pts, x, y, m),
+    };
+    const edge = [];
+    [-1, 1].forEach((k) => {
+      pts.forEach(([x, y, w], i) => {
+        const q = pts[Math.max(0, i - 1)]; const s = pts[Math.min(pts.length - 1, i + 1)];
+        const dx = s[0] - q[0]; const dy = s[1] - q[1]; const len = Math.hypot(dx, dy) || 1;
+        const sx = (-dy / len) * k; const sy = (dx / len) * k;
+        edge.push([x + sx * w * 1.02, y + sy * w * 1.02, sx, sy]);
+      });
+    });
+    dirtEdge(edge, shape);
+    return shape;
+  });
+}
+/** A worn round of dirt where paths meet (the landing under the signpost). */
+function dirtPatch(cx, cy, rx, ry, n) {
+  return ownSeed(PATH_SEED + n, () => {
+    const ring = [];
+    for (let i = 0; i < 28; i += 1) { const a = (i / 28) * Math.PI * 2; ring.push([a, r(0.93, 1.05)]); }
+    const at = (k, dx, dy, grow) => ring.map(([a, w]) => [cx + dx + Math.cos(a) * (rx + grow) * w * k, cy + dy + Math.sin(a) * (ry + grow * 0.3) * w * k]);
+    const shape = { edge: smoothShape(at(1, 0.8, 1.2, 0.6)), earth: smoothShape(at(1, 0, 0, 0)), worn: smoothShape(at(0.62, -2, -1, 0)), peb: [], tufts: [],
+      on: (x, y, m) => ((x - cx) / (rx * 1.05 + m)) ** 2 + ((y - cy) / (ry * 1.05 + m)) ** 2 < 1 };
+    const edge = ring.map(([a, w]) => {
+      const x = cx + Math.cos(a) * rx * w; const y = cy + Math.sin(a) * ry * w;
+      const nx = Math.cos(a) / rx; const ny = Math.sin(a) / ry; const len = Math.hypot(nx, ny) || 1;
+      return [x, y, nx / len, ny / len];
+    });
+    dirtEdge(edge, shape);
+    return shape;
+  });
+}
+/** Dirt shapes laid down as one ground: every edge, then every earth, then every worn middle, pebbles, grass. */
+function dirtGround(shapes) {
+  const all = (k) => shapes.map((s) => s[k]).join('');
+  // Nothing of one path's edge lands on another's dirt where they meet: no pebble on it, no tuft on it or just below it.
+  const onDirt = (x, y, m, own) => shapes.some((s) => s !== own && s.on(x, y, m));
+  const peb = shapes.flatMap((s) => s.peb.filter(([x, y]) => !onDirt(x, y, 0.5, s)));
+  const tufts = shapes.flatMap((s) => s.tufts.filter(([x, y]) => !shapes.some((o) => o.on(x, y, 2.4) || o.on(x, y - 4.6, 1.2))))
+    .map(([x, y, id]) => `<use href="#kmt-${id}" x="${f(x)}" y="${f(y)}"/>`).join('');
+  return `<path d="${all('edge')}" fill="${DIRT.edge}"/><path d="${all('earth')}" fill="${DIRT.earth}"/><path d="${all('worn')}" fill="${DIRT.worn}"/>` +
+    DIRT.pebbles.map((col, j) => blobs(col, peb.filter((_, i) => i % 3 === j))).join('') + tufts;
+}
+// A little wider where a path meets the landing or the boardwalk.
+const flare = (t, end) => 3 * Math.exp(-(end ? 1 - t : t) / 0.07);
+
 function paths() {
-  // Paths of light stitched into the ground: from each place to the signpost, and from the signpost down to the shore.
-  const stitch = (d, delay) => `<path d="${d}" stroke="#E8D7B4" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.9"/>` +
-    `<path d="${d}" stroke="${C.paper}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 10" fill="none"/>` + live(
-    `<path d="${d}" stroke="#FFF7D6" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 140" fill="none" class="km-light" style="animation-delay:-${delay}s"/>`);
+  // From each place to the landing under the signpost, and from the landing down to the boardwalk on the shore.
   let o = stepsFoot();
-  o += stitch('M500 582 C600 590 700 600 782 608', 0);
-  o += stitch('M690 572 C720 588 760 600 790 606', 1.5);
-  o += stitch('M1180 590 C1060 598 920 604 818 608', 3);
-  o += stitch('M800 612 C800 640 798 668 796 696', 4.5);
+  o += dirtGround([
+    dirtPath([500, 582, 600, 590, 700, 602, 798, 613], (t) => 10.5 + 1.5 * t + flare(t, true), 1, true),
+    dirtPath([690, 572, 720, 588, 760, 602, 796, 611], (t) => 8.5 + 1.5 * t + flare(t, true), 2, true),
+    dirtPath([1180, 590, 1060, 598, 920, 606, 804, 613], (t) => 11 + t + flare(t, true), 3, true),
+    // down to the boardwalk: about as wide as a keeper there, narrower going up and away, a gentle bend; both ends tuck in
+    dirtPath([800, 618, 814, 642, 786, 668, 800, 700], (t) => 15 + 6 * t + 4 * Math.exp(-t / 0.07) + flare(t, true), 4),
+    dirtPatch(800, 614, 54, 20, 5),
+  ]);
   // The stream from the hill's pool runs down to the lake, under a little bridge on the Field path.
   o += streamLand();
   return g('id="km-paths"', o);
@@ -1777,7 +1876,8 @@ function signpost() {
     const tx = dir > 0 ? w / 2 + 2 : -w / 2 - 2;
     return `<path d="${tip}" fill="${fill}"/><text x="${tx}" y="${y + 12.5}" text-anchor="middle" font-family="Candara, 'Gill Sans', 'Trebuchet MS', sans-serif" font-size="11" font-weight="700" fill="${tcol}">${text}</text>`;
   };
-  let o = `<ellipse cx="800" cy="614" rx="40" ry="9" fill="#E8D7B4"/>` + stones(764, 836, 616, 2.5, [C.creamDeep, '#D8D1BC', C.cream]) + `<g transform="translate(800 540) scale(0.7)" filter="url(#layer-sm)">${shadow(0, 108, 18, 4)}`;
+  // its landing is dirt, laid with the paths (dirtPatch in paths())
+  let o = `<g transform="translate(800 540) scale(0.7)" filter="url(#layer-sm)">${shadow(0, 108, 18, 4)}`;
   o += `<rect x="-4" y="0" width="8" height="108" rx="4" fill="${C.clay3}"/><rect x="-6" y="-6" width="12" height="8" rx="4" fill="${C.clay4}"/>`;
   // Each arm is a way to its place: the live script makes it a link (owner, 2026-10-08: "navigate between the 3 scenes").
   const way = (rot, key, body) => `<g transform="rotate(${rot})" data-km-part="sign-${key}" pointer-events="visiblePainted">${body}</g>`;
