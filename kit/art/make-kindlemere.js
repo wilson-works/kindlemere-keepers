@@ -302,22 +302,38 @@ function roundTree(x, base, s, cols) {
  */
 const HILL_DRAWS = 2782;
 const HILL_SEED = 20261008;
-const HILL_SIL = 'M520 556 C590 470 690 300 820 278 C950 300 1050 470 1110 556 Z';
+// Owner, 2026-10-09: "allow the hill to more natural roll down at closer to this angle on each side", drawn as a line
+// rising about 12 degrees from the Orchard's string lights to the hill's shoulder, and falling about 19 degrees from the
+// big pine to the Field's agility fence. The top stays as it was (the lookout, the steps and the trails on it); below
+// the shoulders the flanks bend out of the old cone and run down at those angles, easing into the Orchard on the left
+// and the Field on the right. The old cone sits wholly inside, so everything on the hill stays where it was.
+const HILL_LEFT = [['L', [188, 556], [188, 526]], ['C', [188, 526], [260, 515], [360, 494], [452, 469]], ['C', [452, 469], [560, 440], [640, 400], [678.4, 360.1]],
+  ['C', [678.4, 360.1], [720.8, 319.5], [768, 286.8], [820, 278]]];
+const HILL_RIGHT = [['C', [820, 278], [872, 286.8], [919.2, 319.3], [961, 360.6]], ['C', [961, 360.6], [1000, 400], [1060, 446], [1130, 474]],
+  ['C', [1130, 474], [1200, 500], [1270, 530], [1340, 556]]];
+const hillPath = (segs) => segs.map(([k, ...p]) => (k === 'L' ? `L${p[1].join(' ')}` : `C${p.slice(1).map((q) => q.join(' ')).join(' ')}`)).join(' ');
+const HILL_UP = `M188 556 ${hillPath(HILL_LEFT)}`;
+const HILL_SIL = `${HILL_UP} ${hillPath(HILL_RIGHT)} Z`;
 const HILL_TO_LAND = 'translate(815 556) scale(1.3) translate(-815 -556)'; // hill units inside the land's units
 let HILL_LIFE = '';
 const hillLive = (s) => { HILL_LIFE += s; return ''; };
 
-/** Draw with a seed of its own, leaving the park's random sequence where it was. */
 // Owner, 2026-10-09: "tree scale. If they are too big at real scale, then use bushes instead." The small pines up the
 // hill (by the steps, by marker 2, by marker 4) stood taller than a keeper there would; they are bushes now, on seeds
 // of their own. The birches and the big pines at the hill's edges read at scale and stay.
 const PINE_SEED = 20261012;
+/** Draw with a seed of its own, leaving the park's random sequence where it was. */
 function ownSeed(s, draw) { const keep = seed; seed = s; const out = draw(); seed = keep; return out; }
 
 const bez = (a, b, c, d, t) => { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; };
 const HILL_EDGE = (() => {
   const L = []; const R = [];
-  for (let i = 0; i <= 240; i += 1) { const t = i / 240; L.push([bez(556, 470, 300, 278, t), bez(520, 590, 690, 820, t)]); R.push([bez(278, 300, 470, 556, t), bez(820, 950, 1050, 1110, t)]); }
+  // each side as [y, x], the left from the foot up, the right from the top down
+  const side = (segs, out) => segs.forEach(([k, a, b, c, d]) => {
+    if (k === 'L') { for (let i = 0; i <= 20; i += 1) out.push([a[1] + ((b[1] - a[1]) * i) / 20, a[0] + ((b[0] - a[0]) * i) / 20]); return; }
+    for (let i = 0; i <= 120; i += 1) { const s = i / 120; out.push([bez(a[1], b[1], c[1], d[1], s), bez(a[0], b[0], c[0], d[0], s)]); }
+  });
+  side(HILL_LEFT, L); side(HILL_RIGHT, R);
   return { L, R };
 })();
 /** The hill's left and right edges at height y. */
@@ -874,7 +890,7 @@ function hillBody() {
     const tone = (p1, p2, p3, amp, ph, fill) => {
       const pts = [];
       for (let i = 1; i <= 48; i += 1) { const t = i / 48; pts.push([bez(820, p1[0], p2[0], p3[0], t) + amp * Math.sin(t * 11 + ph) * Math.sin(t * Math.PI), bez(278, p1[1], p2[1], p3[1], t)]); }
-      return `<path d="M520 556 C590 470 690 300 820 278 L${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join(' ')} Z" fill="${fill}"/>`;
+      return `<path d="${HILL_UP} L${pts.map(([x, y]) => `${f(x)} ${f(y)}`).join(' ')} Z" fill="${fill}"/>`;
     };
     o += `<g filter="url(#layer)"><path d="${HILL_SIL}" fill="#6F8A34"/>${tone([856, 380], [834, 480], [824, 556], 5, 1, '#7A9538')}`;
     o += `${tone([836, 380], [800, 480], [772, 556], 6, 2.6, '#859E44')}${tone([780, 330], [712, 436], [680, 556], 5, 4, '#8FA74B')}</g>`;
@@ -888,7 +904,7 @@ function hillBody() {
     // The foot of the sunny side in two darker papers, stepping down toward the Orchard's olive ground in front of it.
     o += `<path d="M520 556 C548 524 590 512 640 514 C688 516 730 526 790 530 C810 532 822 540 826 556 Z" fill="#7F9B3F"/><path d="M520 556 C556 534 600 526 650 530 C700 534 740 538 790 542 C806 544 814 550 816 556 Z" fill="#738E37"/>`;
     // A darker skirt where the hill meets the meadow at its foot, so the grass runs on without a seam.
-    o += `<path d="M520 556 C600 538 700 528 820 530 C940 528 1040 538 1110 556 Z" fill="#6E8A33" opacity="0.55"/>`;
+    o += `<path d="M188 556 C400 540 600 530 820 530 C1040 528 1200 540 1340 556 Z" fill="#6E8A33" opacity="0.55"/>`;
     o += stepsTrail() + switchback();
     o += hillGrass(avoid) + hillFlowers(avoid);
     const peb = [[], [], []];
