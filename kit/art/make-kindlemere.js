@@ -970,8 +970,9 @@ function streamLand() {
     });
     for (let i = 0; i < 6; i += 1) { const x = 1143 + i * 1.4; const h = r(10, 16); plants += `<path d="M${f(x)} 642 q${f(r(-1, 1))} ${f(-h / 2)} ${f(r(-2, 2))} ${f(-h)}" stroke="${pick(['#5E7A2A', '#4F6E3A'])}" stroke-width="0.8" stroke-linecap="round" fill="none"/>`; if (i % 2) plants += `<rect x="${f(x - 0.7)}" y="${f(642 - h * 0.88)}" width="1.4" height="4" rx="0.7" fill="${C.clay4}"/>`; }
     o += plants;
-    // The bridge on the Field path, in its old place: granite footings, a planked arch, posts and a rail.
-    o += `<g transform="translate(1130 594) scale(0.8)" filter="url(#layer-sm)">` +
+    // The bridge on the Field path, in its old place: granite footings, a planked arch, posts and a rail. At the scale of
+    // who crosses it (owner, 2026-10-09: "bridge scale"): a keeper and the dog fit across, landing on dry bank.
+    o += `<g transform="translate(1131 597) scale(1.3)" filter="url(#layer-sm)">` +
       `<path d="M-31 10 L-29 0 L-18 -1.4 L-16 10 Z" fill="${C.fLight}"/><path d="M-29.4 1.2 L-18.6 0 L-18.2 3.4 L-29 4.6 Z" fill="${C.fGlow}"/><path d="M16 10 L18 -1.4 L29 0 L31 10 Z" fill="${C.fLight}"/><path d="M18.6 0 L29.4 1.2 L29 4.6 L18.2 3.4 Z" fill="${C.fGlow}"/>` +
       `<path d="M-16 9 C-8 5 8 5 16 9 C8 11.4 -8 11.4 -16 9 Z" fill="${C.mereDeep}" opacity="0.7"/>` +
       `<path d="M-27 4 C-15 -9.4 15 -9.4 27 4 L27 8.6 C15 -3.4 -15 -3.4 -27 8.6 Z" fill="${C.clay3}"/><path d="M-27 4 C-15 -9.4 15 -9.4 27 4 L25.6 1.6 C14 -10.8 -14 -10.8 -25.6 1.6 Z" fill="${C.clay2}"/>` +
