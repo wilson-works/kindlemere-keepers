@@ -165,9 +165,9 @@ function shoreBand(dy, bottom, fill, wobble) {
   return `<path d="${d} L1600 ${bottom} Z" fill="${fill}"/>`;
 }
 
-function lanternBody() {
+function lanternBody(paper) {
   return `<rect x="-6" y="-46" width="12" height="9" rx="3" fill="${C.ink}"/><path d="M0 -46 V-54" stroke="${C.ink}" stroke-width="2.5" stroke-linecap="round"/>` +
-    `<path d="M-16 -36 H16 C21 -24 21 6 14 16 H-14 C-21 6 -21 -24 -16 -36 Z" fill="${C.kindle}"/>` +
+    `<path d="M-16 -36 H16 C21 -24 21 6 14 16 H-14 C-21 6 -21 -24 -16 -36 Z" fill="${C.kindle}"${paper ? ` class="km-lp"` : ""}/>` +
     `<path d="M-16 -36 H-2 C-6 -24 -6 6 -3 16 H-14 C-21 6 -21 -24 -16 -36 Z" fill="${C.kindleDeep}" opacity="0.35"/>` +
     `<path d="M-14 -24 H14 M-16 -10 H16 M-15 4 H15" stroke="${C.kindleDeep}" stroke-width="1.6" opacity="0.55"/>` +
     `<path d="M6 -30 C9 -18 9 0 6 10" stroke="${C.paper}" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.75"/>` +
@@ -175,13 +175,15 @@ function lanternBody() {
 }
 
 const LANTERNS = [[900, 790, 0.86], [1040, 800, 0.8], [1180, 808, 0.74], [1320, 814, 0.68], [1460, 820, 0.62], [1580, 826, 0.56]];
-function lantern(x, y, s, delay) {
-  return `<g transform="translate(${x} ${y}) scale(${s})"><g class="km-bob" style="animation-delay:-${delay}s">` +
+// Each lantern on the water is one keeper's question on Louise's list (/kit/kindlemere-lanterns.js lights as many as
+// there are, and data-km-lantern="off" leaves the rest as dark paper on their posts).
+function lantern(x, y, s, delay, i) {
+  return `<g data-km-part="lantern-${i}" pointer-events="visiblePainted"><g transform="translate(${x} ${y}) scale(${s})"><g class="km-bob" style="animation-delay:-${delay}s">` +
     `<ellipse cx="0" cy="34" rx="34" ry="6" fill="none" stroke="${C.mereLight}" stroke-width="2" opacity="0.5"/>` +
     `<ellipse cx="0" cy="34" rx="22" ry="4" fill="none" stroke="${C.mereLight}" stroke-width="2" opacity="0.7"/>` +
-    `<rect x="-5" y="34" width="10" height="34" rx="5" fill="${C.kindle}" opacity="0.28"/>` +
-    `<circle cx="0" cy="-4" r="34" fill="${C.kindle}" opacity="0.14"/><circle cx="0" cy="-4" r="24" fill="${C.kindle}" opacity="0.18"/>` +
-    lanternBody() + `</g></g>`;
+    `<rect x="-5" y="34" width="10" height="34" rx="5" fill="${C.kindle}" opacity="0.28" class="km-ll"/>` +
+    `<g class="km-ll"><circle cx="0" cy="-4" r="34" fill="${C.kindle}" opacity="0.14"/><circle cx="0" cy="-4" r="24" fill="${C.kindle}" opacity="0.18"/></g>` +
+    lanternBody(true) + `</g></g></g>`;
 }
 
 /* ------------------------------------------------------------------ the sky (world units) */
@@ -2022,7 +2024,8 @@ function shore() {
   o += `<g filter="url(#layer-sm)"><rect x="852" y="716" width="4" height="64" rx="2" fill="${C.clay4}"/><path d="M854 718 h12 v4" stroke="${C.clay4}" stroke-width="2.4" fill="none"/></g>`;
   o += `<g transform="translate(866 736) scale(0.38)">${lanternBody()}</g>`;
   o += '</g>';
-  LIFE += `<g transform="translate(0 ${DOCK_DY})"><g transform="translate(800 760) scale(0.6)"><g class="km-bob">${lanternBody()}<circle cx="0" cy="-4" r="30" fill="${C.kindle}" opacity="0.15"/></g></g></g>`;
+  // The lantern ready to go at the dock is the way to send one (/kit/kindlemere-lanterns.js).
+  LIFE += `<g transform="translate(0 ${DOCK_DY})" data-km-part="lantern-send" pointer-events="visiblePainted"><g transform="translate(800 760) scale(0.6)"><g class="km-bob">${lanternBody()}<circle cx="0" cy="-4" r="30" fill="${C.kindle}" opacity="0.15"/></g></g></g>`;
   const reeds = (x0, n, h0) => { let s = ''; for (let i = 0; i < n; i += 1) { const x = x0 + i * r(4, 7); const h = h0 + r(-16, 20); s += `<path d="M${f(x)} 900 q${f(r(-4, 4))} ${f(-h / 2)} ${f(r(-7, 7))} ${f(-h)}" stroke="${pick([C.mereDeep, '#12333E', '#245868'])}" stroke-width="${f(r(2, 3.2))}" stroke-linecap="round" fill="none"/>`; if (rnd() > 0.55) s += `<rect x="${f(x - 2)}" y="${f(900 - h * 0.92)}" width="4.4" height="14" rx="2.2" fill="${C.clay4}"/>`; } return s; };
   LIFE += `<g class="km-sway">${reeds(0, 16, 90)}</g><g class="km-sway" style="animation-delay:-2s">${reeds(1500, 14, 80)}</g>`;
   return g('id="km-shore"', o);
@@ -2030,7 +2033,7 @@ function shore() {
 
 function lanterns() {
   let o = `<g transform="translate(0 ${WATER_DY})">`;
-  LANTERNS.forEach(([x, y, s], i) => { o += lantern(x, y, f(s * 0.6), f(i * 0.9)); });
+  LANTERNS.forEach(([x, y, s], i) => { o += lantern(x, y, f(s * 0.6), f(i * 0.9), i); });
   o += `<path d="M860 806 C1060 812 1300 822 1600 832" stroke="${C.mereLight}" stroke-width="1.4" stroke-dasharray="1.6 9" stroke-linecap="round" fill="none" opacity="0.5"/>`;
   // The paper boat bringing a book back from Louise, with its wake.
   o += `<g transform="translate(580 800) scale(0.6)"><g class="km-bob" style="animation-delay:-1.5s"><path d="M70 30 h30 M76 36 h22" stroke="${C.mereLight}" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>`;
@@ -2371,7 +2374,7 @@ function nightLights() {
     land += `<circle cx="${f(bx)}" cy="${f(by + 4.6)}" r="6" fill="${C.bulbGlow}" opacity="0.4"/><circle cx="${f(bx)}" cy="${f(by + 4.4)}" r="2.2" fill="${C.bulb}"/>`;
   }
   land += `<circle cx="282" cy="452" r="12" fill="${C.bulbGlow}" opacity="0.35"/><circle cx="282" cy="452" r="3.6" fill="${C.bulb}"/>`;
-  LANTERNS.forEach(([x, y, s], i) => { land += `<g transform="translate(${x} ${y + WATER_DY}) scale(${f(s * 0.6)})"><g class="km-bob" style="animation-delay:-${f(i * 0.9)}s"><circle cx="0" cy="-8" r="46" fill="${C.kindle}" opacity="0.28"/><circle cx="0" cy="-8" r="22" fill="#FFC08A" opacity="0.6"/></g></g>`; });
+  LANTERNS.forEach(([x, y, s], i) => { land += `<g data-km-glow="lantern-${i}" transform="translate(${x} ${y + WATER_DY}) scale(${f(s * 0.6)})"><g class="km-bob" style="animation-delay:-${f(i * 0.9)}s"><circle cx="0" cy="-8" r="46" fill="${C.kindle}" opacity="0.28"/><circle cx="0" cy="-8" r="22" fill="#FFC08A" opacity="0.6"/></g></g>`; });
   land += `<g transform="translate(866 ${736 + DOCK_DY}) scale(0.38)"><circle cx="0" cy="-8" r="50" fill="${C.kindle}" opacity="0.3"/><circle cx="0" cy="-8" r="22" fill="#FFC08A" opacity="0.7"/></g>`;
   land += `<g transform="translate(800 ${760 + DOCK_DY}) scale(0.6)"><g class="km-bob"><circle cx="0" cy="-8" r="44" fill="${C.kindle}" opacity="0.3"/><circle cx="0" cy="-8" r="20" fill="#FFC08A" opacity="0.6"/></g></g>`;
   o += `<g transform="scale(2)">${land}</g>`;
@@ -2524,6 +2527,9 @@ const STYLE = `
    (owner, 2026-10-09: "those stars need to not be moving that way in the night sky") twinkle by brightness alone and
    never move: no scale, no shift. */
 const HILL_STYLE = `
+  /* a lantern with no question on it: dark paper on its post (/kit/kindlemere-lanterns.js) */
+  [data-km-lantern="off"] .km-ll, [data-km-glow][data-km-lantern="off"] { display: none; }
+  [data-km-lantern="off"] .km-lp { fill: #8C7B6A; }
   .km-star { animation: km-star 3.2s ease-in-out infinite; }
   svg:not([data-km-night="1"]) .km-star { animation: none; }
   @keyframes km-star { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

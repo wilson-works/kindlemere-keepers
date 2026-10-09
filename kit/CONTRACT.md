@@ -335,6 +335,8 @@ What the shell does:
   | `/api/realm` | `{ lat, lon }` from `kit/realm.config.json` (this computer's place, never committed), else `{}` |
   | `/api/park` | `{ rooms: [{ key, name, place, local, phone }] }`: each agent in `bundle.json` with its address here and, when its `agent.config.json` names one, its tailnet address |
   | `POST /api/ask-louise` `{ topic, framing }` | `louise.js ask`: `{ queued, message }` |
+  | `/api/lanterns` | `kit/engine/lanterns.js list`: `{ louise, lanterns: [{ keeper, name, topic, asked, state, book, card }] }`, every keeper's question still out to Louise (state `waiting` on her list, or `researching` once a run has taken it) and any answered in the last 3 days, oldest first |
+  | `POST /api/lantern` `{ keeper, question }` | `lanterns.js send`: a keeper from `bundle.json` and a question of 3 to 200 characters, through `louise.js ask`: `{ sent, already, louise: true, message }`; when Louise is not on this computer, `{ sent: false, louise: false, keeper, message }` and nothing is written |
 
 - `kit.js` on the page: `kit.api(path, { method, body })` returns the parsed JSON; `kit.agent()` returns `/api/agent`;
   `kit.park()` returns the rooms from `/api/park` (fetched once, `[]` when it fails); `kit.address(place)` is a place's

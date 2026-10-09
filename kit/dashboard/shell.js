@@ -13,8 +13,8 @@
  *     X-Kit-Token, or gets 403. A POST must be JSON, and from this page when the browser says where it came from.
  *   - Files only from the agent's dashboard/public, art and brand folders and the kit's dashboard/public, design and
  *     art folders, never a dot-file, at most 4 MB. Pages get a Content-Security-Policy of 'self' only.
- *   - Reads the agent's cards, memory, Louise requests and tool registry through the kit engine. Writes only what
- *     `louise.js ask` writes, when the page asks Louise for something.
+ *   - Reads the agent's cards, memory, Louise requests (every keeper's, for the lanterns on the lake) and tool registry
+ *     through the kit engine. Writes only what `louise.js ask` writes, when the page asks Louise for something.
  */
 
 const fs = require('fs');
@@ -128,7 +128,7 @@ function createShell(opts) {
   common.agentDir(key);
   const engine = {
     shelf: require('../engine/shelf'), memory: require('../engine/memory'),
-    louise: require('../engine/louise'), toolsmith: require('../engine/toolsmith'),
+    louise: require('../engine/louise'), toolsmith: require('../engine/toolsmith'), lanterns: require('../engine/lanterns'),
   };
   const token = o.token || crypto.randomBytes(24).toString('hex');
   const hosts = new Set(['127.0.0.1', 'localhost']);
@@ -151,6 +151,9 @@ function createShell(opts) {
     'GET /api/memory': () => engine.memory.recall(key),
     'GET /api/louise': () => ({ requests: engine.louise.requests(key), gaps: engine.louise.gaps(key) }),
     'GET /api/realm': () => realmPlace(),
+    // The lanterns on the lake: every keeper's questions out to Louise, and a new one sent from the lake.
+    'GET /api/lanterns': () => engine.lanterns.list(),
+    'POST /api/lantern': (ctx) => engine.lanterns.send(ctx.body.keeper, ctx.body.question),
     'GET /api/park': () => ({ rooms: parkRooms() }),
     'GET /api/tools': () => {
       const status = new Map(engine.toolsmith.list(key).map((t) => [t.name, t]));

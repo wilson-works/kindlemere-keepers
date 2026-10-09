@@ -1058,12 +1058,12 @@
     const dog = scene.dog || (window.kindlemereDog && window.kindlemereDog.of && window.kindlemereDog.of(scene.layers.actors));
     const dogEl = scene.layers.actors && scene.layers.actors.querySelector('[data-km-part="dog"][role="button"]');
     if (dog && dog.where && dogEl) { const w = dog.where(); reach(dogEl, seen(w.x, w.y)); }
-    // the signpost's arms and the telescope stand still: looked at again only when the camera moves
+    // the signpost's arms, the telescope and the lanterns stand still: looked at again only when the camera moves
     const at = scene.vb.map(Math.round).join();
     if (scene.reachAt === at) return;
     scene.reachAt = at;
     const r = scene.root.getBoundingClientRect();
-    scene.root.querySelectorAll('[data-km-part^="sign-"], [data-km-part="telescope"]').forEach((el) => {
+    scene.root.querySelectorAll('[data-km-part^="sign-"], [data-km-part="telescope"], [data-km-part^="lantern-"][role]').forEach((el) => {
       const b = el.getBoundingClientRect();
       reach(el, b.right > r.left && b.left < r.right && b.bottom > r.top && b.top < r.bottom);
     });
@@ -1176,7 +1176,7 @@
       if (!PLACE_NAMES[key]) {
         el.setAttribute('role', 'button');
         el.setAttribute('aria-label', 'Louise, the librarian, across the lake');
-        on(() => say(scene, el, 'Louise is across the lake. Questions go to her as lanterns from the dock.'));
+        on(() => say(scene, el, 'Louise is across the lake. Questions go to her as lanterns: press the one waiting at the dock to send one.'));
         return;
       }
       el.setAttribute('role', 'link');

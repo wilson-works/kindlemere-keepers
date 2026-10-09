@@ -72,9 +72,10 @@
   }
 
   // A page that shows the realm's scene gets its live sky, its people and its dog: the dog's script first, so the
-  // scene can hand it the dog (/kit/kindlemere-dog.js, then /kit/kindlemere.js).
+  // scene can hand it the dog (/kit/kindlemere-dog.js, then /kit/kindlemere.js), and the lanterns on the lake
+  // (/kit/kindlemere-lanterns.js).
   if (document.querySelector('img[src^="/kit/art/kindlemere"]')) {
-    for (const src of ['/kit/kindlemere-dog.js', '/kit/kindlemere.js']) {
+    for (const src of ['/kit/kindlemere-dog.js', '/kit/kindlemere-lanterns.js', '/kit/kindlemere.js']) {
       const s = document.createElement('script');
       s.src = src;
       s.async = false;
