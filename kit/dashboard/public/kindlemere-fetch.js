@@ -42,6 +42,12 @@
   const frontSvg = document.createElementNS(NS, 'svg');
   front.appendChild(frontSvg);
   document.body.append(layer, front);
+  // On a phone the beach is the page's foot, so he stands in front of the cards only once it is in view; until then
+  // the cards scrolling past cover him (shift's call on the owner's open question, 2026-10-09: he hid a card's corner).
+  const foot = document.querySelector('.km-foot');
+  if (foot && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => document.documentElement.classList.toggle('km-fetch-beach', e.isIntersecting)).observe(foot);
+  }
 
   fetch('/kit/art/kindlemere-asher.svg', { credentials: 'same-origin' })
     .then((res) => (res.ok ? res.text() : Promise.reject(new Error(String(res.status)))))
