@@ -86,11 +86,59 @@ These wait for your word:
 
 - Louise has not researched their questions. The build used a test copy of her list. At the close of the build run,
   each agent's gaps (`knowledge/GAPS.md`) go on her real list once; she researches them when you tell her to.
-- The package is private and deployed nowhere.
+- The package is private and deployed nowhere. Kindlemere is not in the WilsonWorks Workspace's agent catalog yet:
+  adding it is a change to that repo.
 - The keepers use the web only through WebSearch and WebFetch (owner, 2026-10-09). No agent may use a connector or an
   MCP server.
 - A card from the web shows on the keeper's shelf like any other, but the rooms' card drawers don't yet show its
   pages' addresses the way they show Louise's footnotes.
+
+## Install
+
+Kindlemere needs Node 18 or later and nothing else: no `npm install`, no account, no database. To talk with Avo and
+Tumble in their rooms (and for the keepers to look things up on the web) it also needs Claude Code on the same
+computer. Louise, the research librarian, is optional: without her the keepers use their cards, the research library
+and the web.
+
+**On its own.** Get the folder (clone it, or unzip it), then from inside it:
+
+```
+node kit/dashboard/park.js
+```
+
+It prints the park's address, `http://127.0.0.1:7572/kit/kindlemere.html` with the usual ports. Open it in a
+browser on the same computer. The rooms use ports 7571, 7572 and 7573. If one is taken, give that keeper another port
+in a file that stays on your computer, for example `agents/nutrition/agent.config.json` with `{ "port": 7574 }`, and
+start the park again. Optional, for the sky over your own town: `kit/realm.config.json` with your latitude and
+longitude, one decimal place, for example `{ "lat": 51.5, "lon": -0.1 }`.
+
+**In a WilsonWorks Workspace.** Kindlemere installs as one agent (its `agent.json` at the top of this folder, key
+`kindlemere`): from the Workspace folder,
+
+```
+node agents/bin/install-agent.js kindlemere
+```
+
+once it is in the Workspace's catalog, or with this folder's path or git address in place of `kindlemere` before
+then. Its door in the office opens the park, and Wake starts it.
+
+**Check it** (optional): `node kit/engine/fences.js check` says what each keeper can reach. With Louise on the computer,
+`node kit/engine/shelf.js check <agent> --strict` also checks every card's sources against her library.
+
+## Make your own version
+
+Everything a keeper knows and how it looks lives in plain files you can change:
+
+- **What it knows:** its cards, `agents/<keeper>/knowledge/*.md`. Each card is one subject, and each fact ends with
+  where it came from (the card format is in `kit/CONTRACT.md`, section 3). Add a card, edit one, or delete one; the
+  keeper answers from what is there. Its research shelf is `kit/library/<keeper>/`.
+- **Who it is:** its name, title and lines are in `agents/<keeper>/agent.json`; how it talks and what it will and won't
+  do are in `agents/<keeper>/CLAUDE.md` and `SCOPE.md`.
+- **How it looks:** every figure and the park itself are drawn by `kit/art/make-kindlemere.js`. Change the drawing
+  there and run `node kit/art/make-kindlemere.js` to redraw them all. The colours are in `kit/design/tokens.css`.
+
+WilsonWorks builds personalized versions: your own keepers, your own field, your own research shelf. See
+https://wilsonworks.studio/ai-consulting/agents.
 
 ## Install on HQ
 

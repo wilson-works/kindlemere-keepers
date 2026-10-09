@@ -2463,6 +2463,38 @@ ${defs(null, false)}
 }
 
 /*
+ * The pack's own door (the repo's root agent.json, Kindlemere installed as one agent): the three keepers side by side,
+ * happy, drawn from their own figures, as `art.svg` (the figure in the open doorway) and `mark.svg` (the sign on the
+ * door: the same three on a round of the lake's colour). Never the lantern orange.
+ */
+function packFigures() {
+  let x = 0;
+  let o = '';
+  for (const key of ['nutrition', 'fitness', 'dog-training']) {
+    const k = FIGURES[key].make('happy');
+    o += `<g transform="translate(${x - k.cx} ${-k.feet})" filter="url(#layer-sm)">${shadow(k.cx, k.feet, f(k.w * 0.36), 6)}${pose('happy', k.cx, k.feet, k.body)}</g>`;
+    x += 160;
+  }
+  return o;   // feet on y 0; the keepers stand at x 0, 160 and 320
+}
+function packFile(kind) {
+  const head = (box, title) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box}" role="img" aria-labelledby="km-title">
+<title id="km-title">${title}</title>
+<!-- Drawn by kit/art/make-kindlemere.js (the pack's ${kind}). Edit that file, not this one. -->
+<style>${STYLE}
+</style>
+${defs(null, false)}
+`;
+  if (kind === 'art') return `${head('-100 -170 520 192', 'Kindlemere: Avo the avocado, Steady the stacked stones and Tumble the herding ball, side by side and happy')}${packFigures()}
+</svg>
+`;
+  return `${head('-130 -130 260 260', 'Kindlemere: Avo, Steady and Tumble')}<circle r="124" fill="${C.mere}"/><circle r="124" fill="none" stroke="${C.paper}" stroke-width="8"/>
+<g transform="scale(0.5) translate(-160 80)">${packFigures()}</g>
+</svg>
+`;
+}
+
+/*
  * One world, four cameras. The wide view is the map of the whole realm; each close view frames one keeper in its
  * place with sky above (owner, 2026-10-07, on the Orchard close-up: "this one"). `sky` is [top, horizon] in world
  * units: the live script runs the sun and the moon between them, across the view's width.
@@ -2490,6 +2522,12 @@ if (require.main === module) {
     }
   }
   process.stdout.write(`Drew ${Object.keys(FIGURES).length * MOODS.length} keeper and sidekick moods in ${path.relative(process.cwd(), dir)}\n`);
+  for (const kind of ['art', 'mark']) {
+    seed = 20261007;
+    const out = path.join(__dirname, '..', '..', `${kind}.svg`);
+    fs.writeFileSync(out, packFile(kind), 'utf8');
+    process.stdout.write(`Drew ${path.relative(process.cwd(), out)}, the pack's ${kind === 'art' ? 'door figure' : 'door sign'}\n`);
+  }
 }
 
 module.exports = { VIEWS, MOODS, KEEPERS };
