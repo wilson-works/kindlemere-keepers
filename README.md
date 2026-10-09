@@ -1,6 +1,6 @@
-# The wellbeing agents
+# Kindlemere Keepers: diet, fitness and dogs
 
-Three agents who share one world and one kit: a nutritionist, a fitness coach and a dog trainer. Each keeps to its
+Three keepers in a park by a lake, sharing one world and one kit: Avo the nutritionist, Steady the fitness coach and Tumble the dog trainer. Each keeps to its
 own ground and hands everything else to the right sibling. Each answers first from its own knowledge cards, where
 every fact names its source, and from what it remembers on this computer. When its cards don't cover a question, it
 looks in a book Louise the research librarian already wrote, then in the research library (`kit/library/`), then on
