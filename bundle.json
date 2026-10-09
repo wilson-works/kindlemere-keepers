@@ -34,5 +34,6 @@
     }
   ],
   "louise": "node kit/engine/louise.js ask <agent> \"<topic>\" \"<framing>\"",
-  "web": "never"
+  "library": "kit/library",
+  "web": "WebSearch and WebFetch only, when a keeper's cards, Louise's books and the research library do not cover a question (owner, 2026-10-09). What it finds is kept as a card with each page's address (node kit/engine/webcard.js). Never a connector, an MCP server or a shell fetcher (node kit/engine/fences.js check)."
 }

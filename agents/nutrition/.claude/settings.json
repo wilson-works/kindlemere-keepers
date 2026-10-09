@@ -1,8 +1,10 @@
 {
   "permissions": {
-    "deny": [
+    "allow": [
       "WebSearch",
-      "WebFetch",
+      "WebFetch"
+    ],
+    "deny": [
       "mcp__*",
       "Bash(curl:*)",
       "Bash(wget:*)",

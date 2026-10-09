@@ -4,12 +4,18 @@
  * kit/engine/cards.js — reading knowledge cards (kit/CONTRACT.md, section 3). Node built-ins only.
  *
  *   parse(text)              { data, body, bodyStart } — the front matter as { key: value | [list] } and the body
- *   facts(body, bodyStart)   [{ text, line, sources: [{ page, line }] }] — each bullet with its @ sources; line is the
- *                            card file's line the bullet starts on
- *   read(file)               { file, title, sources, tags, louise_book, copied, origin, body, facts, refused }
+ *   facts(body, bodyStart)   [{ text, line, sources: [{ page, line }], web: [url] }] — each bullet with its @ sources
+ *                            (a page of Louise's book, or a web address for a card from the web); line is the card
+ *                            file's line the bullet starts on
+ *   read(file)               { file, title, sources, tags, louise_book, copied, origin, fetched, body, facts, refused }
  *                            refused is null, or a plain sentence saying why the shelf will not use it
  *   cardsIn(dir)             every card file name in a knowledge folder (not GAPS.md or README.md), sorted
  *   words(text)              the words worth matching on, lower case, without the small ones
+ *   webIn(text)              every @https://... web source in the text
+ *
+ * A card from the web (owner, 2026-10-09: the keepers search the web when Louise can't answer) carries
+ * `origin: web`, `fetched: YYYY-MM-DD` and web addresses as its sources, and each fact ends with `@<web address>`.
+ * kit/engine/webcard.js writes them.
  */
 
 const fs = require('fs');
@@ -17,6 +23,8 @@ const path = require('path');
 
 const BULLET_RE = /^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$/;
 const SOURCE_RE = /@(?:research\/)?([A-Za-z0-9][\w.\/-]*?\.md)(?::(\d+))?(?![\w.\/-])/g;
+// A web source: @ then an http(s) address, up to a space; a full stop or comma after it is the sentence's, not the URL's.
+const WEB_RE = /@(https?:\/\/[^\s<>"'`]+?)(?=[.,;:!?)\]]*(?:\s|$))/g;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const NOT_CARDS = new Set(['gaps.md', 'readme.md']);
 const STOP = new Set(['a', 'an', 'and', 'the', 'of', 'on', 'for', 'to', 'in', 'is', 'are', 'it', 'its', 'with', 'what',
@@ -47,6 +55,14 @@ function sourcesIn(text) {
   return out;
 }
 
+function webIn(text) {
+  const out = [];
+  WEB_RE.lastIndex = 0;
+  let m;
+  while ((m = WEB_RE.exec(String(text)))) out.push(m[1]);
+  return out;
+}
+
 function facts(body, bodyStart) {
   const lines = String(body).split(/\r?\n/);
   const out = [];
@@ -64,7 +80,7 @@ function facts(body, bodyStart) {
   });
   return out.map((f) => {
     const text = f.parts.join(' ');
-    return { text, line: f.line, sources: sourcesIn(text) };
+    return { text, line: f.line, sources: sourcesIn(text), web: webIn(text) };
   });
 }
 
@@ -81,10 +97,20 @@ function read(file) {
     louise_book: typeof data.louise_book === 'string' ? data.louise_book : '',
     copied: typeof data.copied === 'string' ? data.copied : '',
     origin: typeof data.origin === 'string' ? data.origin : '',
+    fetched: typeof data.fetched === 'string' ? data.fetched : '',
     body,
     facts: facts(body, bodyStart),
     refused: null,
   };
+  if (card.origin === 'web') {
+    // A card from the web: its sources are web addresses, each fact names the one it came from, and it says when.
+    if (!card.title) card.refused = 'Its front matter is missing title.';
+    else if (!card.sources.length) card.refused = 'It has no sources in its front matter.';
+    else if (card.sources.some((s) => !/^https?:\/\/\S+$/.test(s))) card.refused = 'A card from the web lists only web addresses as its sources.';
+    else if (!webIn(body).length) card.refused = 'Nothing in it says which web page a fact came from (no @https:// source).';
+    else if (!DATE_RE.test(card.fetched)) card.refused = 'Its fetched date is not YYYY-MM-DD.';
+    return card;
+  }
   const missing = ['title', 'louise_book', 'copied'].filter((k) => !card[k]);
   if (!card.sources.length) card.refused = 'It has no sources in its front matter.';
   else if (!sourcesIn(body).length) card.refused = 'Nothing in it says where a fact came from (no @ source).';
@@ -106,4 +132,4 @@ function words(text) {
     .map((w) => (w.length > 4 && w.endsWith('s') && !w.endsWith('ss') ? w.slice(0, -1) : w));
 }
 
-module.exports = { parse, facts, read, cardsIn, words, sourcesIn };
+module.exports = { parse, facts, read, cardsIn, words, sourcesIn, webIn };

@@ -7,8 +7,10 @@
  *
  * Her law holds here, and nothing of the computer's own Claude setup leaks in: --restricted (no user, project or local
  * settings files, no hooks, file tools confined, code-running tools only as --tools names them), her own deny list
- * loaded with --settings, no MCP server or connector (--strict-mcp-config with none given), WebSearch and WebFetch
- * refused, and only the tools and commands listed below. She may write only her week draft (state/tools/meal-week/).
+ * loaded with --settings, no MCP server or connector (--strict-mcp-config with none given), and only the tools and
+ * commands listed below. Since the owner's word of 2026-10-09 that includes WebSearch and WebFetch: when her cards and
+ * Louise's books don't cover a question she looks it up on the web and keeps what she found as a card (webcard.js).
+ * She may write only her week draft (state/tools/meal-week/).
  * Her law (CLAUDE.md) goes in as the system prompt's addition, and Summer and Spud from their own files with --agents.
  * The person's words go in on stdin, never on the command line. The shape lane D's Tumble uses (D7).
  * The conversation is kept on this computer only, in state/dashboard/talk.json. Node built-ins only. One turn at a time.
@@ -20,11 +22,11 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const KIT = '../../kit/engine';
-const TALK_TOOLS = 'Read,Grep,Glob,Bash,Task,Edit,Write';
+const TALK_TOOLS = 'Read,Grep,Glob,Bash,Task,Edit,Write,WebSearch,WebFetch';
 const TOOLS = [
   'Task', 'Read', 'Grep', 'Glob',
   `Bash(node ${KIT}/shelf.js:*)`, `Bash(node ${KIT}/memory.js:*)`, `Bash(node ${KIT}/louise.js:*)`,
-  `Bash(node ${KIT}/learn.js:*)`,
+  `Bash(node ${KIT}/learn.js:*)`, `Bash(node ${KIT}/webcard.js:*)`, 'WebSearch', 'WebFetch',
   'Bash(node tools/meal-week.js:*)', 'Bash(node tools/week-plan.js:*)', 'Bash(node tools/swap-finder.js:*)',
   'Bash(node tools/prep-list.js:*)',
   'Edit(./state/tools/meal-week/**)', 'Write(./state/tools/meal-week/**)',
@@ -68,6 +70,10 @@ function activity(tool) {
     if (who === 'spud') return 'Asking Spud';
     return 'Thinking it through';
   }
+  if (name === 'WebSearch') return 'Looking it up on the web';
+  if (name === 'WebFetch') return 'Reading a page on the web';
+  if (/webcard\.js/.test(cmd)) return 'Writing a new card';
+  if (/learn\.js .*--find/.test(cmd)) return 'Looking on Louise\'s shelves';
   if (/meal-week\.js publish/.test(cmd)) return 'Putting the week on the table';
   if (/meal-week\.js/.test(cmd)) return 'Looking at the week';
   if (/shelf\.js/.test(cmd)) return 'Looking at my cards';
@@ -81,6 +87,35 @@ function activity(tool) {
   return 'Thinking';
 }
 
+// Summer and Spud, from their own files, for --agents (restricted mode reads no .claude folder by itself).
+function helpersOf(agentDir) {
+  const helpers = {};
+  for (const f of ['summer.md', 'spud.md']) {
+    let src = '';
+    try { src = fs.readFileSync(path.join(agentDir, '.claude', 'agents', f), 'utf8'); } catch (_) { continue; }
+    const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(src);
+    if (!m) continue;
+    const field = (k) => { const x = new RegExp(`^${k}:\\s*(.*)$`, 'm').exec(m[1]); return x ? x[1].trim() : ''; };
+    if (!field('name') || !field('description')) continue;
+    helpers[field('name')] = { description: field('description'), prompt: m[2].trim(), tools: field('tools').split(/\s*,\s*/).filter(Boolean) };
+  }
+  return helpers;
+}
+
+// The Claude Code command line for one turn (the person's words go on stdin). Nothing runs here, so
+// kit/engine/fences.js and a dry call can read it as it is.
+function argv(agentDir, session) {
+  const helpers = helpersOf(agentDir);
+  const args = ['-p', '--restricted', '--strict-mcp-config',
+    '--settings', path.join(agentDir, '.claude', 'settings.json'), '--add-dir', path.join(agentDir, '..', '..', 'kit'),
+    '--append-system-prompt-file', path.join(agentDir, 'state', 'dashboard', 'at-the-table.md'),
+    '--tools', TALK_TOOLS, '--allowedTools', TOOLS,
+    '--output-format', 'stream-json', '--verbose'];
+  if (Object.keys(helpers).length) args.push('--agents', JSON.stringify(helpers));
+  if (SESSION_RE.test(String(session || ''))) args.push('--resume', session);
+  return args;
+}
+
 module.exports = function talk(agentDir) {
   const dir = path.join(agentDir, 'state', 'dashboard');
   const file = path.join(dir, 'talk.json');
@@ -92,17 +127,6 @@ module.exports = function talk(agentDir) {
     fs.renameSync(`${file}.tmp`, file);
   };
   const links = () => { try { return JSON.parse(fs.readFileSync(linksFile, 'utf8')).links || []; } catch (_) { return []; } };
-  // Summer and Spud, from their own files, for --agents (restricted mode reads no .claude folder by itself).
-  const helpers = {};
-  for (const f of ['summer.md', 'spud.md']) {
-    let src = '';
-    try { src = fs.readFileSync(path.join(agentDir, '.claude', 'agents', f), 'utf8'); } catch (_) { continue; }
-    const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(src);
-    if (!m) continue;
-    const field = (k) => { const x = new RegExp(`^${k}:\\s*(.*)$`, 'm').exec(m[1]); return x ? x[1].trim() : ''; };
-    if (!field('name') || !field('description')) continue;
-    helpers[field('name')] = { description: field('description'), prompt: m[2].trim(), tools: field('tools').split(/\s*,\s*/).filter(Boolean) };
-  }
   // Her law plus where she is talking, as one file for --append-system-prompt-file.
   const systemFile = path.join(dir, 'at-the-table.md');
   const writeSystem = () => {
@@ -123,13 +147,7 @@ module.exports = function talk(agentDir) {
     log.messages.push({ who: 'you', text: t, at: new Date().toISOString() });
     save(log);
     writeSystem();
-    const args = ['-p', '--restricted', '--strict-mcp-config',
-      '--settings', path.join(agentDir, '.claude', 'settings.json'), '--add-dir', path.join(agentDir, '..', '..', 'kit'),
-      '--append-system-prompt-file', systemFile,
-      '--tools', TALK_TOOLS, '--allowedTools', TOOLS, '--disallowedTools', 'WebSearch,WebFetch',
-      '--output-format', 'stream-json', '--verbose'];
-    if (Object.keys(helpers).length) args.push('--agents', JSON.stringify(helpers));
-    if (SESSION_RE.test(String(log.session || ''))) args.push('--resume', log.session);
+    const args = argv(agentDir, log.session);
     const before = new Set(links().map((l) => l.k));
     const child = spawn(claude, args, { cwd: agentDir, windowsHide: true, env: process.env, stdio: ['pipe', 'pipe', 'pipe'] });
     child.stdin.on('error', () => {});
@@ -200,3 +218,4 @@ module.exports = function talk(agentDir) {
 
   return { start, status, stop };
 };
+module.exports.argv = argv;

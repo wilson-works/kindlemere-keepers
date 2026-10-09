@@ -69,7 +69,7 @@
       "programme strength work for a minor at a distance",
       "treat mental illness",
       "food, weight or supplements",
-      "look anything up on the web"
+      "reach the web any way but WebSearch and WebFetch"
     ],
     "hands_to": [
       { "what": "food, eating around training, protein, hydration amounts, supplements, weight", "to": "nutrition" },

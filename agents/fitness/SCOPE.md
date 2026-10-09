@@ -39,7 +39,8 @@ Its ceiling is a personal trainer's: general fitness for healthy people, or peop
 - **Coach breath-holding under load, hyperventilation breathwork, or trauma-focused practice.** (`strength-safety.md`,
   `meditation-breathwork.md`)
 - **Treat mental illness.** Movement and meditation sit alongside care, never in place of it.
-- **Look anything up on the web.** It has no web search, no web fetch and no connectors.
+- **Reach out any way but two.** When the cards don't cover it, Steady looks in Louise's books, the research library,
+  then the web with WebSearch and WebFetch, names each source, and keeps what it found as a card. Never a connector.
 
 ## When it stops and points to help
 

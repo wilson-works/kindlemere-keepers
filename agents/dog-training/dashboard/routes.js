@@ -16,8 +16,9 @@
  *   POST /api/log {dog, skill, reps, hits, minutes}   the session-log tool
  *   GET  /api/faces                            which of the kit's faces exist for Tumble, Barkley and Sizzle (file names)
  *   POST /api/talk {text, session?}            a turn of conversation with Tumble: Claude Code, headless, in this folder,
- *                                              under Tumble's law (CLAUDE.md), restricted, no web, no MCP, the kit's
- *                                              node commands and Tumble's registered tools only; the words go on stdin
+ *                                              under Tumble's law (CLAUDE.md), restricted, no MCP, the kit's node
+ *                                              commands, Tumble's registered tools, and the web only through WebSearch
+ *                                              and WebFetch (owner, 2026-10-09); the words go on stdin
  */
 
 const fs = require('fs');
@@ -44,11 +45,11 @@ const bad = (message) => Object.assign(new Error(message), { status: 400 });
 const CLAUDE = process.env.TUMBLE_CLAUDE
   || (process.platform === 'win32' && process.env.APPDATA
     ? path.join(process.env.APPDATA, 'npm', 'node_modules', '@anthropic-ai', 'claude-code', 'bin', 'claude.exe') : 'claude');
-const TALK_TOOLS = ['Read', 'Grep', 'Glob', 'Bash', 'Task'];
+const TALK_TOOLS = ['Read', 'Grep', 'Glob', 'Bash', 'Task', 'WebSearch', 'WebFetch'];
 const TALK_ALLOWED = ['Read', 'Grep', 'Glob', 'Task',
   'Bash(node ../../kit/engine/shelf.js:*)', 'Bash(node ../../kit/engine/memory.js:*)', 'Bash(node ../../kit/engine/louise.js:*)',
   'Bash(node ../../kit/engine/learn.js:*)', 'Bash(node tools/training-plan.js:*)', 'Bash(node tools/session-log.js:*)',
-  'Bash(node tools/trust-ladder.js:*)'];
+  'Bash(node tools/trust-ladder.js:*)', 'Bash(node ../../kit/engine/webcard.js:*)', 'WebSearch', 'WebFetch'];
 const SESSION_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 let talking = false;
 const clean = (v, max) => String(v === undefined || v === null ? '' : v).replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -106,15 +107,8 @@ function look(v) {
   return out;
 }
 
-module.exports = function routes(agentDir) {
-  function tool(name, args) {
-    const r = spawnSync(process.execPath, [path.join(agentDir, 'tools', `${name}.js`), ...args],
-      { cwd: agentDir, encoding: 'utf8', timeout: 15000, windowsHide: true });
-    return { ok: r.status === 0, text: String(r.stdout || '').trim() || 'The tool said nothing.' };
-  }
-  // One turn: the person's words on stdin (never in the command line), the answer read from the CLI's JSON.
-  // Restricted mode reads no project files on its own, so Tumble's law (CLAUDE.md) goes in as the system prompt's
-  // addition and Barkley and Sizzle go in from their own files in .claude/agents.
+// Barkley and Sizzle, from their own files in .claude/agents (restricted mode reads no project files on its own).
+function sidekicksOf(agentDir) {
   const sidekicks = {};
   for (const f of ['barkley.md', 'sizzle.md']) {
     let src = '';
@@ -125,15 +119,33 @@ module.exports = function routes(agentDir) {
     if (!field('name') || !field('description')) continue;
     sidekicks[field('name')] = { description: field('description'), prompt: m[2].trim(), tools: field('tools').split(/\s*,\s*/).filter(Boolean) };
   }
+  return sidekicks;
+}
+
+// One turn's command line: the person's words go on stdin (never in the command line), the answer is read from the
+// CLI's JSON. Tumble's law (CLAUDE.md) goes in as the system prompt's addition. Nothing runs here, so
+// kit/engine/fences.js and a dry call can read it as it is.
+function argv(agentDir, session) {
+  const sidekicks = sidekicksOf(agentDir);
+  const args = ['-p', '--restricted', '--strict-mcp-config',
+    '--settings', path.join(agentDir, '.claude', 'settings.json'), '--add-dir', path.join(agentDir, '..', '..', 'kit'),
+    '--append-system-prompt-file', path.join(agentDir, 'CLAUDE.md'),
+    '--tools', TALK_TOOLS.join(','), '--allowedTools', ...TALK_ALLOWED,
+    '--output-format', 'json'];
+  if (Object.keys(sidekicks).length) args.push('--agents', JSON.stringify(sidekicks));
+  if (process.env.TUMBLE_CHAT_MODEL) args.push('--model', process.env.TUMBLE_CHAT_MODEL);
+  if (session) args.push('--resume', session);
+  return args;
+}
+
+module.exports = function routes(agentDir) {
+  function tool(name, args) {
+    const r = spawnSync(process.execPath, [path.join(agentDir, 'tools', `${name}.js`), ...args],
+      { cwd: agentDir, encoding: 'utf8', timeout: 15000, windowsHide: true });
+    return { ok: r.status === 0, text: String(r.stdout || '').trim() || 'The tool said nothing.' };
+  }
   function converse(text, session) {
-    const args = ['-p', '--restricted', '--strict-mcp-config',
-      '--settings', path.join(agentDir, '.claude', 'settings.json'), '--add-dir', path.join(agentDir, '..', '..', 'kit'),
-      '--append-system-prompt-file', path.join(agentDir, 'CLAUDE.md'),
-      '--tools', TALK_TOOLS.join(','), '--allowedTools', ...TALK_ALLOWED, '--disallowedTools', 'WebSearch', 'WebFetch',
-      '--output-format', 'json'];
-    if (Object.keys(sidekicks).length) args.push('--agents', JSON.stringify(sidekicks));
-    if (process.env.TUMBLE_CHAT_MODEL) args.push('--model', process.env.TUMBLE_CHAT_MODEL);
-    if (session) args.push('--resume', session);
+    const args = argv(agentDir, session);
     return new Promise((resolve) => {
       let out = '';
       let child;
@@ -141,7 +153,8 @@ module.exports = function routes(agentDir) {
         resolve({ ok: false, text: 'I can\'t start a conversation on this computer. Open a Claude chat in my folder instead.' });
         return;
       }
-      const timer = setTimeout(() => child.kill(), 180000);
+      // a turn that looks something up on the web takes longer than one that reads a card
+      const timer = setTimeout(() => child.kill(), 600000);
       child.on('error', () => { clearTimeout(timer); resolve({ ok: false, text: 'I can\'t start a conversation on this computer. Open a Claude chat in my folder instead.' }); });
       child.stdout.on('data', (d) => { out += d; });
       child.on('close', () => {
@@ -257,3 +270,4 @@ module.exports = function routes(agentDir) {
     },
   };
 };
+module.exports.argv = argv;

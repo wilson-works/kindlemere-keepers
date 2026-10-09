@@ -84,7 +84,15 @@ function check(key, opts) {
   for (const c of all(key)) {
     if (c.refused) { res.refused.push({ file: c.file, why: c.refused }); continue; }
     const problems = [];
-    if (strict) {
+    if (strict && c.origin === 'web') {
+      // A card from the web: every bullet names the web page it came from, and every page is in its sources. Its pages
+      // are not in Louise's library, and the kit never fetches anything, so they are not opened here.
+      const listed = new Set(c.sources);
+      for (const f of c.facts) {
+        if (!f.web.length) problems.push({ file: c.file, line: f.line, why: 'This bullet has no @https:// source.' });
+        for (const u of f.web) if (!listed.has(u)) problems.push({ file: c.file, line: f.line, why: `${u} is not in the card's sources.` });
+      }
+    } else if (strict) {
       // Louise's own cards are copied exactly as she wrote them, so only their pages are checked, not every bullet.
       if (c.origin !== 'louise-card') {
         for (const f of c.facts) if (!f.sources.length) problems.push({ file: c.file, line: f.line, why: 'This bullet has no @ source.' });
@@ -131,7 +139,8 @@ if (require.main === module) {
     if (cmd === 'show') {
       const c = show(key, a);
       if (c.refused) return { text: `${c.file} is refused: ${c.refused}`, data: c, code: 2 };
-      return { text: `${c.title}\nSources: ${c.sources.join(', ')}\n\n${c.body.trim()}`, data: c };
+      const from = c.origin === 'web' ? `\nFrom the web, fetched ${c.fetched}.` : '';
+      return { text: `${c.title}\nSources: ${c.sources.join(', ')}${from}\n\n${c.body.trim()}`, data: c };
     }
     if (cmd === 'check') {
       const r = check(key, { strict: args.strict });
