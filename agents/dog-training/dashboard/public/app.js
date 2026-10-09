@@ -327,6 +327,19 @@
     }
   }
   for (const b of document.querySelectorAll('.tm-act')) b.addEventListener('click', () => openPanel(b.dataset.panel));
+  // Out of an open panel, the talk included (owner, 2026-10-09: "clicking out into kindlemere should escape from it"):
+  // a click on the open scene, or Escape inside the panel, closes it. What was typed and said is kept.
+  function closePanels(focusButton) {
+    const open = [...document.querySelectorAll('.tm-act')].find((b) => b.getAttribute('aria-pressed') === 'true');
+    if (!open) return false;
+    openPanel(open.dataset.panel);   // pressing the open one again closes it
+    if (focusButton) open.focus();
+    return true;
+  }
+  window.addEventListener('kindlemere:outside', () => closePanels(false));
+  for (const p of document.querySelectorAll('.tm-panel')) {
+    p.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && closePanels(true)) ev.preventDefault(); });
+  }
 
   // Show me: the dog does it in the field, with the person's own word for it.
   const COMMANDS = [

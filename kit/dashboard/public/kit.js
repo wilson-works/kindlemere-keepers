@@ -56,6 +56,15 @@
   // A busy room keeps the realm's keepers at home: window.kindlemere.hold(true) while its work runs, then hold(false).
   window.kindlemere = { held: false, hold(on) { this.held = Boolean(on); window.dispatchEvent(new Event('kindlemere:hold')); } };
 
+  // A room's drawer (a <dialog>: Avo's cookbook, Tumble's books, Steady's pack) closes on a click outside it, on its
+  // backdrop, as it does with Escape (owner, 2026-10-09: "clicking out into kindlemere should escape from it").
+  document.addEventListener('click', (e) => {
+    const d = e.target;
+    if (!(d instanceof HTMLDialogElement) || !d.open || (!e.clientX && !e.clientY)) return;
+    const r = d.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
+  });
+
   // Arriving from another place (window.kindlemere.go): the picture waits under its veil until it is live.
   if (/km-from=/.test(location.hash)) {
     document.documentElement.classList.add('km-arriving');

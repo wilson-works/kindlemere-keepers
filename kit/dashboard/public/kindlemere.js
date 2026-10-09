@@ -1428,11 +1428,13 @@
     // The drag takes hold of the pointers only once one has moved a few pixels (or two are down): a press that does not
     // move stays a click on whatever it is on (one of your dogs seated in Tumble's room, a dog house).
     const grab = () => {
+      scene.dragged = true;   // a drag is not a click on the scene (kindlemere:outside)
       for (const id of down.keys()) try { scene.root.setPointerCapture(id); } catch (_) { /* a pointer the browser no longer tracks */ }
       scene.root.classList.add('km-dragging');
       scene.held = true;
     };
     scene.root.addEventListener('pointerdown', (e) => {
+      scene.dragged = false;
       if (fullScene !== scene || (e.pointerType === 'mouse' && e.button !== 0)) return;
       if (e.target.closest('.km-fs, [role="button"], [role="link"], .km-ball')) return;
       down.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY });
@@ -1474,6 +1476,24 @@
     };
     scene.root.addEventListener('pointerup', up);
     scene.root.addEventListener('pointercancel', up);
+  }
+  // Owner, 2026-10-09: "when in an agent chat section, clicking out into kindlemere should escape from it." A plain
+  // click on the open scene (not a drag, not on the room's card, a drawer or the scene's own buttons) fires
+  // kindlemere:outside first, in the capture phase: the room closes its open chat or panel, and then whatever was
+  // clicked (a character) still does its own thing. With no room to stop it, the card's sheet (full screen on a narrow
+  // screen) closes too.
+  function outside(scene) {
+    scene.root.addEventListener('click', (e) => {
+      if (scene.dragged) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (!t || t.closest('[data-km-card], dialog, .km-fs, .km-say')) return;
+      const ev = new CustomEvent('kindlemere:outside', { cancelable: true, detail: { svg: scene.layers.actors, scene: scene.root } });
+      const stage = stageOf(scene);
+      if (window.dispatchEvent(ev) && fullScene === scene && stage.classList.contains('km-card-open')) {
+        stage.classList.remove('km-card-open');
+        if (scene.fs && scene.fs.cardButton) scene.fs.cardButton.setAttribute('aria-expanded', 'false');
+      }
+    }, { capture: true });
   }
   document.addEventListener('keydown', (e) => {
     const s = fullScene;
@@ -1604,6 +1624,7 @@
       makeCast(scene);
       signposts(scene);
       steering(scene);
+      outside(scene);
       // A layer with something to press in it (the signpost's arms, the telescope) is not hidden from assistive tech;
       // its other words (plates, labels) still are.
       for (const s of Object.values(scene.layers)) {
