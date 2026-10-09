@@ -196,8 +196,8 @@ function sky(view) {
   for (let i = 0; i < 170; i += 1) {
     const x = r(0, W);
     const y = r(0, 1060);
-    if (i % 9 === 0) s += `<use href="#star" x="${f(x - 8)}" y="${f(y - 8)}" width="16" height="16" class="km-twinkle" style="animation-delay:-${f(r(0, 3))}s"/>`;
-    else s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r(1.1, 3))}" fill="${C.paper}" opacity="${f(r(0.45, 1))}"${i % 4 === 0 ? ` class="km-twinkle" style="animation-delay:-${f(r(0, 3))}s"` : ''}/>`;
+    if (i % 9 === 0) s += `<use href="#star" x="${f(x - 8)}" y="${f(y - 8)}" width="16" height="16" class="km-star" style="animation-delay:-${f(r(0, 3))}s"/>`;
+    else s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r(1.1, 3))}" fill="${C.paper}" opacity="${f(r(0.45, 1))}"${i % 4 === 0 ? ` class="km-star" style="animation-delay:-${f(r(0, 3))}s"` : ''}/>`;
   }
   o += `<g id="km-stars" opacity="0">${s}</g>`;
   // The glow on the horizon around the sun at dawn and dusk.
@@ -2343,8 +2343,13 @@ const STYLE = `
   @keyframes km-lift { from { transform: translateY(0); } to { transform: translateY(-3px); } }
   @media (prefers-reduced-motion: reduce) { svg * { animation: none !important; } }`;
 
-/* The running water and the hill's life (scene files only); STYLE's reduced-motion rule stops it too. */
+/* The running water and the hill's life (scene files only); STYLE's reduced-motion rule stops it too. The sky's stars
+   (owner, 2026-10-09: "those stars need to not be moving that way in the night sky") twinkle by brightness alone and
+   never move: no scale, no shift. */
 const HILL_STYLE = `
+  .km-star { animation: km-star 3.2s ease-in-out infinite; }
+  svg:not([data-km-night="1"]) .km-star { animation: none; }
+  @keyframes km-star { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .km-flow { animation: km-flow 3s linear infinite; }
   .km-cascade { animation: km-cascade 0.8s linear infinite; }
   .km-foam { animation: km-foam 1.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }

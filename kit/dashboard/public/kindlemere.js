@@ -154,7 +154,9 @@
   /* ---------------------------------------------------------------- one scene, in depth layers */
   const NS = 'http://www.w3.org/2000/svg';
   const OVER = 0.015; // each layer is drawn this far past every edge, so a parallax shift never shows an edge
-  const DEPTH = { sky: 0.15, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
+  // The sky is at infinity: its stars and moon never slide with the pointer or the tilt (owner, 2026-10-09: "those
+  // stars need to not be moving that way in the night sky"). The camera's own glide and zoom still carry it.
+  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let count = 0;
 
