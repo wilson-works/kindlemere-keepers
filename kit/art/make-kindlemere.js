@@ -2605,7 +2605,10 @@ function build(view) {
     `<g data-km-layer="far" filter="url(#km-light)"><g transform="scale(2)">${land1}</g></g>` +
     `<g data-km-layer="hill" filter="url(#km-light)"><g transform="translate(1630 1112) scale(2.6) translate(-815 -556)">${hillPart}</g></g>` +
     `<g data-km-layer="land" filter="url(#km-light)"><g transform="scale(2)">${land2}</g></g>` +
-    `<g data-km-layer="life"><g filter="url(#km-light)"><g transform="scale(2)">${LIFE}</g>${sleepingDogAtHome()}</g>${glitter()}${nightLights()}</g>` +
+    `<g data-km-layer="life" filter="url(#km-light)"><g transform="scale(2)">${LIFE}</g>${sleepingDogAtHome()}</g>` +
+    // the night's own lights, never in the hour's light: a layer of their own, so the live scene lights the land as one
+    // layer (kindlemere.js) and never redraws it under the filter when a light twinkles
+    `<g data-km-layer="lights">${glitter()}${nightLights()}</g>` +
     `<g data-km-layer="actors" ${ground()}>${actors}</g>` +
     `<g data-km-layer="grain"><rect id="km-grain" class="km-grain" width="${W}" height="${H}" filter="url(#grain)" opacity="0.3" pointer-events="none"/></g>`;
   // id km-still: shown as a picture at <view>.svg#km-still it holds still (the Kindlemere page's cards); the rule

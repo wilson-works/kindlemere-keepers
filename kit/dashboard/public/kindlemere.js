@@ -156,7 +156,7 @@
   const OVER = 0.015; // each layer is drawn this far past every edge, so a parallax shift never shows an edge
   // The sky is at infinity: its stars and moon never slide with the pointer or the tilt (owner, 2026-10-09: "those
   // stars need to not be moving that way in the night sky"). The camera's own glide and zoom still carry it.
-  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, actors: 1, grain: 0 };
+  const DEPTH = { sky: 0, far: 0.35, hill: 0.6, land: 0.85, life: 0.85, lights: 0.85, actors: 1, grain: 0 };
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let count = 0;
 
@@ -201,7 +201,14 @@
       const o = `${((OVER / (1 + 2 * OVER)) * 100).toFixed(4)}%`;
       s.style.cssText = `position:absolute;left:${-OVER * 100}%;top:${-OVER * 100}%;width:${100 + OVER * 200}%;height:${100 + OVER * 200}%;max-width:none;max-height:none;pointer-events:none;overflow:hidden;transform-origin:${o} ${o};${still ? '' : 'will-change:transform;'}`;
       if (i === 0) for (const n of Array.from(svg.children)) if (n.nodeName === 'style' || n.nodeName === 'defs') s.appendChild(document.importNode(n, true));
-      s.appendChild(document.importNode(gEl, true));
+      const layer = document.importNode(gEl, true);
+      // A layer lit by the hour as a whole (far, hill, land, life) takes the light as the layer's own CSS filter, not a
+      // filter inside its drawing: the browser then applies it to the layer's finished picture on the graphics card,
+      // so the night's moving water, lights and camera never make it redraw the whole land under the filter (owner,
+      // 2026-10-09: "full screen at night is still super buggy graphically").
+      const lit = layer.getAttribute('filter');
+      if (lit && /km-light\)$/.test(lit)) { layer.removeAttribute('filter'); s.dataset.kmLight = lit; s.style.filter = lit; }
+      s.appendChild(layer);
       root.appendChild(s);
       layers[gEl.getAttribute('data-km-layer')] = s;
     });
@@ -298,6 +305,7 @@
       scene.plain = plain;
       if (!scene.lit) scene.lit = [...scene.root.querySelectorAll('[filter$="km-light)"]')].map((el) => [el, el.getAttribute('filter')]);
       for (const [el, f] of scene.lit) if (plain) el.removeAttribute('filter'); else el.setAttribute('filter', f);
+      scene.root.querySelectorAll('svg[data-km-light]').forEach((s) => { s.style.filter = plain ? '' : s.dataset.kmLight; });
     }
 
     const sunEl = $('sun');
