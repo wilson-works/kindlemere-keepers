@@ -61,8 +61,8 @@
         "cookbook.md",
         "meal-prep-batch-day.md"
       ],
-      "sha256": "d66cbc12255892eaf747d945dc0a540077f3dbf32cf0eb65f48e2260c30c53a1",
-      "checked": "2026-10-09"
+      "sha256": "1709e7575efe325920ebad4317828bdd6b1e647d3dbab1fce9595aae850ad8b9",
+      "checked": "2026-10-10"
     },
     {
       "name": "meal-week",
@@ -87,11 +87,10 @@
         "kidney-disease.md",
         "pregnancy.md",
         "cookbook.md",
-        "meal-prep-storage.md",
-        "meal-prep-batch-day.md"
+        "meal-prep-storage.md"
       ],
-      "sha256": "47c1d99076b2ce001a91588fac556acc8fdb3b0fafac9e42221ea23de08bd4e8",
-      "checked": "2026-10-09"
+      "sha256": "dd71f253c7c748756668939e77e8b02eadca6d3333c155b397c49489a954df8a",
+      "checked": "2026-10-10"
     },
     {
       "name": "cookbook",

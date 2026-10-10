@@ -4,7 +4,7 @@
  * meal-week: made with the kit's toolsmith (kit/CONTRACT.md, section 8).
  * Purpose: Publishes a planned week at the table: the 7-day plan, prep and quick-cook recipes (from my cookbook or their own box), a grocery list by store and aisle, a batch-prep schedule and macro targets from my cards; keeps every week and answers what's for today and am I on track.
  * Inputs: do, week, day, slot, diet, avoid, household
- * Cards: labels-and-energy.md, protein.md, macronutrients.md, training-fuel.md, food-safety.md, meal-planning-and-shopping.md, kidney-disease.md, pregnancy.md, cookbook.md, meal-prep-storage.md, meal-prep-batch-day.md
+ * Cards: labels-and-energy.md, protein.md, macronutrients.md, training-fuel.md, food-safety.md, meal-planning-and-shopping.md, kidney-disease.md, pregnancy.md, cookbook.md, meal-prep-storage.md
  *
  * It reads only this agent's cards and memory, through ctx, and writes only its own state files.
  * Run: node agents/nutrition/tools/meal-week.js --do <do> --week <week>
@@ -340,7 +340,7 @@ run(__filename, (ctx) => {
         } else row.fridge.push(`${day.name} ${s.slot}`);
       }
     });
-    // The batch-prep schedule: per prep day, what to cook, longest first (my batch-day card), how much, what to eat
+    // The batch-prep schedule: per prep day, what to cook, longest first, how much, what to eat
     // from the fridge and by when, and what to freeze.
     const prepPlan = prepIdx.map((p) => ({
       day: dayName(p),
@@ -357,7 +357,6 @@ run(__filename, (ctx) => {
       }),
     })).filter((x) => x.cook.length);
     if (prepPlan.length) {
-      fact('meal-prep-batch-day.md', /^Start whatever cooks longest first/);
       if (Object.values(recipes).some((r) => r.prep)) fact('meal-prep-storage.md', /^Freezer times are for quality only/);
     }
 

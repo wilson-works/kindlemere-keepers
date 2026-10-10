@@ -11,5 +11,5 @@ Researched for Avo's kitchen, 2026-10-09 (lane AVO, n1009). One fact per line, i
 - The 2025-2030 Dietary Guidelines (the New Pyramid) suggest 3 servings of vegetables and 2 of fruit a day. [^8] (https://realfood.gov/)
 - They suggest 2 to 4 servings of whole grains a day. [^8] (https://realfood.gov/)
 - The New Pyramid is a flexible framework for choices, not a set menu. [^8] (https://realfood.gov/)
-- Hand portions: a palm of protein (about 4 oz cooked meat), a fist of vegetables (about 1 cup), a cupped hand of carbohydrate (about 1/2 to 2/3 cup cooked grains, or a medium fruit), a thumb of fat (about 1 tablespoon). [^11] (https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/07_flexible_nutrition_portion_system.md)
-- A starting point is one of each hand portion per meal for women and two for men, changed one portion at a time. [^11] (https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/07_flexible_nutrition_portion_system.md)
+- Hand portions: a palm of protein (about 3 to 4 oz cooked meat), a fist of vegetables (about 1 cup), a cupped hand of carbohydrate (about 1/2 to 2/3 cup cooked grains, or a medium fruit), a thumb of fat (about 1 tablespoon). [^16] (https://www.precisionnutrition.com/hand-portion-faq)
+- A starting point is one of each hand portion per meal for women and two for men (carbs and fats at most meals), changed one portion at a time. [^17] (https://www.precisionnutrition.com/calorie-control-guide)

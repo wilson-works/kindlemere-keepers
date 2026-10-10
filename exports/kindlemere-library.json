@@ -1,9 +1,9 @@
 {
  "format": "kindlemere-library/1",
- "generated_at": "2026-10-09T03:57:04-05:00",
+ "generated_at": "2026-10-10T01:19:57-05:00",
  "source": {
   "repo": "wilson-works/kindlemere-keepers",
-  "sha": "9697fb67c01c3e26c6cb8d4ecb82867022b9e376"
+  "sha": "a023a00e14aee5f62dcdb938cde4bd4ac1b327e5"
  },
  "recipes": [
   {
@@ -15519,16 +15519,8 @@
    "id": "meal-prep-batch-day",
    "title": "A batch-prep day for the week",
    "topic": "batch cooking",
-   "body": "# A batch-prep day for the week\n\n- Start whatever cooks longest first, and run the oven, the stovetop and the slow cooker at the same time. [^9] [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:5\n- The evening before: clear two fridge shelves, set out clean containers, and move frozen meat to the fridge to thaw. [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:6\n- One 2 to 2.5 hour session can cover the week: a sheet-pan protein in the oven, a pot of grains and a pot of chili or soup on the stove, then egg cups once the oven is free. [^9] [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:7\n- While those cook, chop the week's vegetables and portion out frozen vegetables. [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:8\n- Spread cooked rice on a sheet pan so it cools quickly, or portion it straight into containers. [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:9\n- Portion into single meals before chilling; shallow containers cool fastest. [^10] [^3] @2026-10-09-avo-kitchen/04-batch-prep.md:10\n- Eat the fridge meals first, through day 4, and freeze the portions for days 5 to 7. [^9] [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:11\n- Move the next frozen portions to the fridge the evening before; they thaw in 24 to 36 hours. [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:12\n- Label frozen portions with what is inside and the date. [^10] [^6] @2026-10-09-avo-kitchen/04-batch-prep.md:13\n- Freeze burrito bowls without the salsa, and add it fresh when you eat. [^10] @2026-10-09-avo-kitchen/04-batch-prep.md:14\n- Rotate sauces and toppings so one batch tastes different across the week. [^9] @2026-10-09-avo-kitchen/04-batch-prep.md:15\n- Where a report gives a longer fridge time than the federal chart, the chart wins: soups, stews and egg casseroles keep 3 to 4 days. [^1] @2026-10-09-avo-kitchen/04-batch-prep.md:16\n- Vegetarian swap for a batch chili: tofu crumbles and an extra can of beans in place of the ground meat. [^9] @2026-10-09-avo-kitchen/04-batch-prep.md:17\n- Dairy-free swap: unsweetened soy milk for milk, and crumbled firm tofu for cottage cheese. [^9] @2026-10-09-avo-kitchen/04-batch-prep.md:18\n- Gluten-free swap: rice, potatoes, corn tortillas and tamari in place of wheat bread, pasta and soy sauce. [^9] @2026-10-09-avo-kitchen/04-batch-prep.md:19",
+   "body": "# A batch-prep day for the week\n\n- Portion a big batch into shallow containers before chilling it, so it cools quickly. [^3] @2026-10-09-avo-kitchen/04-batch-prep.md:5\n- Label frozen portions with what is inside and the date. [^6] @2026-10-09-avo-kitchen/04-batch-prep.md:6\n- Where a report gives a longer fridge time than the federal chart, the chart wins: soups, stews and egg casseroles keep 3 to 4 days. [^1] @2026-10-09-avo-kitchen/04-batch-prep.md:7",
    "sources": [
-    {
-     "title": "2026-10-09-avo-kitchen/04-batch-prep.md",
-     "url": "https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/26_budget_meal_prep_high_protein.md"
-    },
-    {
-     "title": "2026-10-09-avo-kitchen/04-batch-prep.md",
-     "url": "https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/08_budget_high_protein_diet_60_week.md"
-    },
     {
      "title": "2026-10-09-avo-kitchen/04-batch-prep.md",
      "url": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/leftovers-and-food-safety"
@@ -15543,7 +15535,7 @@
     }
    ],
    "origin": "louise",
-   "updated": "2026-10-09"
+   "updated": "2026-10-10"
   },
   {
    "agent": "nutrition",
@@ -15682,19 +15674,15 @@
    "id": "pantry-staples",
    "title": "Pantry, fridge and freezer staples by aisle",
    "topic": "staples",
-   "body": "# Pantry, fridge and freezer staples by aisle\n\n- Oils and condiments: olive oil, called for in 39 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:5\n- Oils and condiments: cooking spray, called for in 23 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:6\n- Oils and condiments: low-sodium soy sauce, called for in 7 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:7\n- Oils and condiments: vinegar, called for in 10 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:8\n- Oils and condiments: salsa, called for in 8 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:9\n- Spices and seasonings: black pepper, called for in 37 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:10\n- Spices and seasonings: salt, called for in 33 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:11\n- Spices and seasonings: garlic powder, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:12\n- Spices and seasonings: ground cumin, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:13\n- Spices and seasonings: chili powder, called for in 6 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:14\n- Spices and seasonings: ground cinnamon, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:15\n- Spices and seasonings: Italian seasoning or oregano, called for in 11 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:16\n- Produce: garlic, called for in 32 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:17\n- Produce: onions, called for in 52 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:18\n- Produce: bell peppers, called for in 25 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:19\n- Produce: lemons or limes, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:20\n- Produce: spinach, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:21\n- Produce: carrots, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:22\n- Produce: bananas, called for in 12 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:23\n- Canned and jarred: canned beans (black, white, kidney, chickpeas), called for in 24 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:24\n- Canned and jarred: canned tomatoes or tomato sauce, called for in 19 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:25\n- Canned and jarred: low-sodium broth, called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:26\n- Grains, pasta and rice: rolled oats, called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:27\n- Grains, pasta and rice: brown rice, called for in 2 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:28\n- Grains, pasta and rice: quinoa, called for in 4 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:29\n- Grains, pasta and rice: whole-wheat pasta, called for in 6 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:30\n- Grains, pasta and rice: whole-wheat tortillas, called for in 9 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:31\n- Dairy and eggs: eggs, called for in 24 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:32\n- Dairy and eggs: lowfat or nonfat milk, called for in 18 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:33\n- Dairy and eggs: plain nonfat Greek yogurt, called for in 18 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:34\n- Dairy and eggs: cheese, called for in 25 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:35\n- Frozen: frozen vegetables or fruit, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:36\n- Nuts, seeds and dried fruit: nuts (almonds, walnuts, peanuts), called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:37\n- Nuts, seeds and dried fruit: peanut or nut butter, called for in 3 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:38\n- A budget prep pantry keeps oils, chili powder, cumin, paprika, garlic powder, Italian seasoning, salt and pepper, soy sauce, hot sauce and vinegar. [^9] @2026-10-09-avo-kitchen/06-staples.md:39",
+   "body": "# Pantry, fridge and freezer staples by aisle\n\n- Oils and condiments: olive oil, called for in 39 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:5\n- Oils and condiments: cooking spray, called for in 23 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:6\n- Oils and condiments: low-sodium soy sauce, called for in 7 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:7\n- Oils and condiments: vinegar, called for in 10 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:8\n- Oils and condiments: salsa, called for in 8 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:9\n- Spices and seasonings: black pepper, called for in 37 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:10\n- Spices and seasonings: salt, called for in 33 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:11\n- Spices and seasonings: garlic powder, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:12\n- Spices and seasonings: ground cumin, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:13\n- Spices and seasonings: chili powder, called for in 6 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:14\n- Spices and seasonings: ground cinnamon, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:15\n- Spices and seasonings: Italian seasoning or oregano, called for in 11 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:16\n- Produce: garlic, called for in 32 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:17\n- Produce: onions, called for in 52 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:18\n- Produce: bell peppers, called for in 25 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:19\n- Produce: lemons or limes, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:20\n- Produce: spinach, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:21\n- Produce: carrots, called for in 14 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:22\n- Produce: bananas, called for in 12 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:23\n- Canned and jarred: canned beans (black, white, kidney, chickpeas), called for in 24 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:24\n- Canned and jarred: canned tomatoes or tomato sauce, called for in 19 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:25\n- Canned and jarred: low-sodium broth, called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:26\n- Grains, pasta and rice: rolled oats, called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:27\n- Grains, pasta and rice: brown rice, called for in 2 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:28\n- Grains, pasta and rice: quinoa, called for in 4 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:29\n- Grains, pasta and rice: whole-wheat pasta, called for in 6 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:30\n- Grains, pasta and rice: whole-wheat tortillas, called for in 9 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:31\n- Dairy and eggs: eggs, called for in 24 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:32\n- Dairy and eggs: lowfat or nonfat milk, called for in 18 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:33\n- Dairy and eggs: plain nonfat Greek yogurt, called for in 18 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:34\n- Dairy and eggs: cheese, called for in 25 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:35\n- Frozen: frozen vegetables or fruit, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:36\n- Nuts, seeds and dried fruit: nuts (almonds, walnuts, peanuts), called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:37\n- Nuts, seeds and dried fruit: peanut or nut butter, called for in 3 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:38",
    "sources": [
     {
      "title": "2026-10-09-avo-kitchen/06-staples.md",
      "url": "https://www.nutrition.va.gov/NUTRITION/Recipes.asp"
-    },
-    {
-     "title": "2026-10-09-avo-kitchen/06-staples.md",
-     "url": "https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/26_budget_meal_prep_high_protein.md"
     }
    ],
    "origin": "louise",
-   "updated": "2026-10-09"
+   "updated": "2026-10-10"
   },
   {
    "agent": "nutrition",
@@ -15808,7 +15796,7 @@
    "id": "plate-portions",
    "title": "Portioning a plate or a prep box",
    "topic": "plate method",
-   "body": "# Portioning a plate or a prep box\n\n- Start with a 9-inch plate. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:5\n- Fill half the plate with non-starchy vegetables such as salad, green beans or broccoli. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:6\n- Fill a quarter with lean protein such as chicken, beans, tofu or eggs. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:7\n- Fill a quarter with carbohydrate foods: grains, starchy vegetables, rice, pasta, beans, fruit or yogurt. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:8\n- Drink water or a low-calorie drink with the meal. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:9\n- Eating about the same amount of carbohydrate at each meal can help steady blood sugar; the amount is for a doctor or dietitian to set. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:10\n- The 2025-2030 Dietary Guidelines (the New Pyramid) suggest 3 servings of vegetables and 2 of fruit a day. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:11\n- They suggest 2 to 4 servings of whole grains a day. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:12\n- The New Pyramid is a flexible framework for choices, not a set menu. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:13\n- Hand portions: a palm of protein (about 4 oz cooked meat), a fist of vegetables (about 1 cup), a cupped hand of carbohydrate (about 1/2 to 2/3 cup cooked grains, or a medium fruit), a thumb of fat (about 1 tablespoon). [^11] @2026-10-09-avo-kitchen/05-plate-portions.md:14\n- A starting point is one of each hand portion per meal for women and two for men, changed one portion at a time. [^11] @2026-10-09-avo-kitchen/05-plate-portions.md:15",
+   "body": "# Portioning a plate or a prep box\n\n- Start with a 9-inch plate. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:5\n- Fill half the plate with non-starchy vegetables such as salad, green beans or broccoli. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:6\n- Fill a quarter with lean protein such as chicken, beans, tofu or eggs. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:7\n- Fill a quarter with carbohydrate foods: grains, starchy vegetables, rice, pasta, beans, fruit or yogurt. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:8\n- Drink water or a low-calorie drink with the meal. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:9\n- Eating about the same amount of carbohydrate at each meal can help steady blood sugar; the amount is for a doctor or dietitian to set. [^7] @2026-10-09-avo-kitchen/05-plate-portions.md:10\n- The 2025-2030 Dietary Guidelines (the New Pyramid) suggest 3 servings of vegetables and 2 of fruit a day. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:11\n- They suggest 2 to 4 servings of whole grains a day. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:12\n- The New Pyramid is a flexible framework for choices, not a set menu. [^8] @2026-10-09-avo-kitchen/05-plate-portions.md:13\n- Hand portions: a palm of protein (about 3 to 4 oz cooked meat), a fist of vegetables (about 1 cup), a cupped hand of carbohydrate (about 1/2 to 2/3 cup cooked grains, or a medium fruit), a thumb of fat (about 1 tablespoon). [^16] @2026-10-09-avo-kitchen/05-plate-portions.md:14\n- A starting point is one of each hand portion per meal for women and two for men (carbs and fats at most meals), changed one portion at a time. [^17] @2026-10-09-avo-kitchen/05-plate-portions.md:15",
    "sources": [
     {
      "title": "2026-10-09-avo-kitchen/05-plate-portions.md",
@@ -15820,11 +15808,15 @@
     },
     {
      "title": "2026-10-09-avo-kitchen/05-plate-portions.md",
-     "url": "https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/07_flexible_nutrition_portion_system.md"
+     "url": "https://www.precisionnutrition.com/hand-portion-faq"
+    },
+    {
+     "title": "2026-10-09-avo-kitchen/05-plate-portions.md",
+     "url": "https://www.precisionnutrition.com/calorie-control-guide"
     }
    ],
    "origin": "louise",
-   "updated": "2026-10-09"
+   "updated": "2026-10-10"
   },
   {
    "agent": "nutrition",

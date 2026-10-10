@@ -52,7 +52,7 @@ run(__filename, (ctx) => {
     const picked = ids.map((id) => book.find((r) => r.id === id)).sort((a, b) => mins(b) - mins(a));
     const first = sorted[0];
     out.push('', `Prep order for ${NAMES[first]}, from my cookbook (longest cook first):`);
-    for (const p of pick('meal-prep-batch-day.md', /^Start whatever cooks longest first|^Portion into single meals/)) out.push(say(p, 'meal-prep-batch-day.md'));
+    for (const p of pick('meal-prep-batch-day.md', /^Portion a big batch/)) out.push(say(p, 'meal-prep-batch-day.md'));
     picked.forEach((r, k) => {
       const days = r.prep.fridge_days;
       const by = days ? NAMES[(first + days) % 7] : NAMES[first];

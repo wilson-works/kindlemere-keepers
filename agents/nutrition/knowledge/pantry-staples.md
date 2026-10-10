@@ -2,10 +2,10 @@
 title: Pantry, fridge and freezer staples by aisle
 sources: [2026-10-09-avo-kitchen/06-staples.md]
 louise_book: 2026-10-09-avo-kitchen
-copied: 2026-10-09
+copied: 2026-10-10
 tags: [staples, pantry, freezer, shopping, aisle, stock up]
 origin: avo-kitchen-research
-strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC); the WilsonWorks reports are practice, not law.
+strength: a count across my cookbook's 102 recipes (each from a VA or NHLBI recipe page), not a rule.
 ---
 # Pantry, fridge and freezer staples by aisle
 
@@ -43,4 +43,3 @@ strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC); t
 - Frozen: frozen vegetables or fruit, called for in 21 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:36
 - Nuts, seeds and dried fruit: nuts (almonds, walnuts, peanuts), called for in 13 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:37
 - Nuts, seeds and dried fruit: peanut or nut butter, called for in 3 of my 102 recipes. [^12] @2026-10-09-avo-kitchen/06-staples.md:38
-- A budget prep pantry keeps oils, chili powder, cumin, paprika, garlic powder, Italian seasoning, salt and pepper, soy sauce, hot sauce and vinegar. [^9] @2026-10-09-avo-kitchen/06-staples.md:39

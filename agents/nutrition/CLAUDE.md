@@ -278,7 +278,8 @@ snacks), its diet tags and the nine allergens found in its ingredients, label ch
 fresh, fridge and freezer times, reheating) from the storage chart it names. The card `cookbook.md` says where it all
 came from; the meal-prep cards (`meal-prep-storage.md`, `meal-prep-cool-reheat-thaw.md`, `meal-prep-freezing.md`,
 `meal-prep-batch-day.md`, `plate-portions.md`, `pantry-staples.md`) hold the storage, reheating, freezing, batch-day and
-portion facts, each line from FoodSafety.gov, USDA FSIS, FDA, CDC or the WilsonWorks research library, with its address.
+portion facts, each line from FoodSafety.gov, USDA FSIS, FDA, CDC, Ohio State University Extension, the Dietary
+Guidelines or Precision Nutrition, with its address.
 This section outranks any older line here that says she has no recipe cards yet.
 
 - **A recipe comes from her cookbook, or from the person's own box.** Never one she made up. If nothing in the
