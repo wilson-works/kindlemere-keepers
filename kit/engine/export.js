@@ -15,6 +15,9 @@
  * (front matter, body as written, and the sources it names, with the web addresses those source pages cite). What stays
  * out: GAPS.md and READMEs, cards the shelf refuses, and the research library in kit/library (it came from Align).
  * Nothing is invented: a field the keepers do not have is null.
+ *
+ * A link into another wilson-works repo stops the export, and nothing is written. A source is a public page, and Align
+ * is private, so no one else can open its links. A card cites the public page the report names instead.
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +26,8 @@ const cards = require('./cards');
 
 const ROOT = path.join(__dirname, '..', '..');
 const OUT = path.join(ROOT, 'exports', 'kindlemere-library.json');
-const URL_RE = /https?:\/\/[^\s)>\]"'`]+/g;
+const REPO = 'wilson-works/kindlemere-keepers';
+const URL_RE = /https?:\/\/[^\s)>\]"'`]+/gi;
 const MAX_URLS = 12;
 
 /** Now as an ISO time in Central time (the owner's clock), e.g. 2026-10-09T02:10:00-05:00. */
@@ -79,6 +83,15 @@ function urlsIn(file) {
     }
     return [...seen];
   } catch (_) { return []; }
+}
+
+/** The links in the text that go into another of the owner's GitHub repos (any repo but this one). */
+function ownRepoLinks(text) {
+  const [owner, name] = REPO.toLowerCase().split('/');
+  return (String(text).match(URL_RE) || []).filter((u) => {
+    const m = /^https?:\/\/(?:www\.)?(?:github\.com|raw\.githubusercontent\.com)\/([^/]+)\/([^/?#]+)/i.exec(u);
+    return Boolean(m) && m[1].toLowerCase() === owner && m[2].toLowerCase() !== name;
+  });
 }
 
 function originOf(c) {
@@ -141,13 +154,21 @@ function recipesOf(agent) {
 
 function build() {
   const agents = agentsOf();
-  return {
+  const lib = {
     format: 'kindlemere-library/1',
     generated_at: centralIso(new Date()),
-    source: { repo: 'wilson-works/kindlemere-keepers', sha: sha() },
+    source: { repo: REPO, sha: sha() },
     recipes: agents.flatMap(recipesOf),
     cards: agents.flatMap(cardsOf),
   };
+  const where = (label, item) => [...new Set(ownRepoLinks(JSON.stringify(item)))].map((u) => `  ${label}: ${u}`);
+  const bad = lib.recipes.flatMap((r) => where(`recipe ${r.id}`, r)).concat(lib.cards.flatMap((c) => where(`card ${c.agent}/${c.id}`, c)));
+  if (bad.length) {
+    throw new Error([`Nothing written. ${bad.length === 1 ? 'A link goes' : `${bad.length} links go`} into another ${REPO.split('/')[0]} repo, `
+      + 'not to a public source (Align is private, so no one else can open its links). Cite the public page the report '
+      + 'names, then export again.', ...bad].join('\n'));
+  }
+  return lib;
 }
 
 function counts(lib) {
@@ -156,7 +177,8 @@ function counts(lib) {
 }
 
 if (require.main === module) {
-  const lib = build();
+  let lib;
+  try { lib = build(); } catch (e) { process.stderr.write(`${e.message}\n`); process.exit(2); }
   if (!process.argv.includes('--check')) {
     fs.mkdirSync(path.dirname(OUT), { recursive: true });
     const tmp = `${OUT}.tmp`;
@@ -167,4 +189,4 @@ if (require.main === module) {
   process.stdout.write(`${JSON.stringify(counts(lib))}\n`);
 }
 
-module.exports = { build, counts, OUT };
+module.exports = { build, counts, ownRepoLinks, OUT };

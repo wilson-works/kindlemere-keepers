@@ -36,4 +36,3 @@ Researched for Avo's kitchen, 2026-10-09 (lane AVO, n1009). One fact per line, i
 - Frozen: frozen vegetables or fruit, called for in 21 of my 102 recipes. [^12] (https://www.nutrition.va.gov/NUTRITION/Recipes.asp)
 - Nuts, seeds and dried fruit: nuts (almonds, walnuts, peanuts), called for in 13 of my 102 recipes. [^12] (https://www.nutrition.va.gov/NUTRITION/Recipes.asp)
 - Nuts, seeds and dried fruit: peanut or nut butter, called for in 3 of my 102 recipes. [^12] (https://www.nutrition.va.gov/NUTRITION/Recipes.asp)
-- A budget prep pantry keeps oils, chili powder, cumin, paprika, garlic powder, Italian seasoning, salt and pepper, soy sauce, hot sauce and vinegar. [^9] (https://github.com/wilson-works/align/blob/main/Gym_DEEP_Research_Reports/26_budget_meal_prep_high_protein.md)

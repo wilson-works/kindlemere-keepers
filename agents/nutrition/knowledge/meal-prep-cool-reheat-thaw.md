@@ -5,7 +5,7 @@ louise_book: 2026-10-09-avo-kitchen
 copied: 2026-10-09
 tags: [cooling, reheat, thaw, two-hour rule, 165, leftovers, meal prep]
 origin: avo-kitchen-research
-strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC); the WilsonWorks reports are practice, not law.
+strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC).
 ---
 # Cooling, reheating and thawing a batch safely
 

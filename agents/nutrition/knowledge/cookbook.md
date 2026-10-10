@@ -5,7 +5,7 @@ louise_book: 2026-10-09-avo-kitchen
 copied: 2026-10-09
 tags: [recipes, cookbook, recipe, breakfast, lunch, dinner, treats, low sodium]
 origin: avo-kitchen-research
-strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC); the WilsonWorks reports are practice, not law.
+strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC).
 ---
 # My cookbook: where its recipes come from
 

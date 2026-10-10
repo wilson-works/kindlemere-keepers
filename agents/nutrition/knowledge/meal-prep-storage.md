@@ -5,7 +5,7 @@ louise_book: 2026-10-09-avo-kitchen
 copied: 2026-10-09
 tags: [storage, fridge, freezer, leftovers, meal prep, keep]
 origin: avo-kitchen-research
-strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC); the WilsonWorks reports are practice, not law.
+strength: strong for the federal charts (FoodSafety.gov, USDA FSIS, FDA, CDC).
 ---
 # How long food keeps in the fridge and freezer
 
