@@ -27,7 +27,7 @@ const cards = require('./cards');
 const ROOT = path.join(__dirname, '..', '..');
 const OUT = path.join(ROOT, 'exports', 'kindlemere-library.json');
 const REPO = 'wilson-works/kindlemere-keepers';
-const URL_RE = /https?:\/\/[^\s)>\]"'`]+/g;
+const URL_RE = /https?:\/\/[^\s)>\]"'`]+/gi;
 const MAX_URLS = 12;
 
 /** Now as an ISO time in Central time (the owner's clock), e.g. 2026-10-09T02:10:00-05:00. */
